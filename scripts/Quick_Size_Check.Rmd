@@ -1,0 +1,105 @@
+---
+title: "Quick_Size_Check"
+author: "Brandie Quarles"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(tidyverse)
+sem <- function(x, na.rm=FALSE) {           #for caclulating standard error
+  sd(x,na.rm=na.rm)/sqrt(length(na.omit(x)))
+} 
+```
+
+```{r}
+files <- dir("../input/UCD2023_2024_Data/CorrectedCSVs/",
+             pattern="size_survey_.*csv",
+             full.names=TRUE) 
+files
+```
+
+```{r}
+dat <- tibble(path=files, filename=basename(path))
+dat
+```
+
+```{r}
+dat2 <- dat %>% 
+  mutate(survey_date=str_extract(filename, "[0-9]{8}")) %>%  #look for numbers, 8 long 
+   mutate(survey_date=lubridate:: ymd(survey_date))
+dat2
+```
+```{r}
+dat3 <- dat2 %>%
+  mutate(sheets=map(path, 
+                    read_csv,
+                    col_types=cols(.default=col_character()),
+                    na = c("", "NA", "-", "N/A"))) %>% #for each file path, read_csv
+  select(-path)
+dat3
+```
+
+```{r}
+map(dat3$sheets, head, 10)          #check to make sure the datasheets look good 
+dat3$sheets[[17]] %>%  rowwise() %>% filter(!is.na(unique.ID), unique.ID != "buffer") %>%  filter(is.na(as.numeric(unique.ID))) #156 in the 13th data frame has a dash , the 14th and 16th dataframe still has header rows
+
+dat3$sheets[[17]] %>%  rowwise() %>% filter(!is.na(height.cm), height.cm != "buffer") %>%  filter(is.na(as.numeric(height.cm))) 
+#*some data issues:
+#*1/5/24 height is weird for 1367 and 1013
+#*1/19/24 height is weird for 519 and 677
+#*1/26/24 height has a space for plant 680
+#*2/2/24 height has a space for plant 25
+#*2/9/24 height is weird for 354 and 134
+#*the 13th data set has a space for plant 369
+
+
+map(dat3$sheets, colnames) %>% #check the column names 
+  unlist() %>%
+  unique() %>%
+  sort()
+```
+
+```{r}
+#unnest to perform tidyverse functions 
+dat4 <- dat3 %>% unnest(sheets) %>%
+  filter(unique.ID != "buffer") %>% 
+  mutate(height.cm = as.double(height.cm), long.leaf.cm=as.double(long.leaf.cm))
+head(dat4)
+```
+
+```{r}
+dat4 %>% filter(height.cm>1000) #on 3/11 there's a type for height for plant 54
+dat4 %>% filter(height.cm>300) #on 4/5 type for height on plant 1008
+dat4 %>%filter(height.cm<300) %>% ggplot(aes(x=survey_date, y=height.cm, group=unique.ID)) + geom_point() + geom_line()
+dat4 %>%filter(height.cm<300) %>%
+  filter(survey_date > "2024-04-01") %>% 
+  ggplot(aes(x=survey_date, y=height.cm, group=unique.ID)) + geom_point() + geom_line() +
+  facet_wrap(. ~ bed, scales = "free")
+```
+
+```{r}
+dat4 %>% 
+  group_by(survey_date) %>% 
+  summarise(meanHeight=mean(height.cm, na.rm = TRUE), semHeight=sem(height.cm, na.rm=TRUE)) %>% 
+  # filter(survey_date > "2024-04-01") %>% 
+  ggplot(aes(x=survey_date, y=meanHeight)) + geom_point() + geom_line() +
+  geom_errorbar(aes(ymin=meanHeight-semHeight,ymax=meanHeight+semHeight),width=.2) 
+```
+
+
+```{r}
+dat4 %>% 
+  group_by(survey_date) %>% 
+  summarise(meanLeafLength=mean(long.leaf.cm, na.rm = TRUE), semLeafLength=sem(long.leaf.cm, na.rm=TRUE)) %>% 
+  # filter(survey_date > "2024-04-01") %>% 
+  ggplot(aes(x=survey_date, y=meanLeafLength)) + geom_point() + geom_line() +
+  geom_errorbar(aes(ymin=meanLeafLength-semLeafLength,ymax=meanLeafLength+semLeafLength),width=.2) 
+```
+
+
