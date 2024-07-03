@@ -5,6 +5,8 @@ date: "`r Sys.Date()`"
 output: html_document
 ---
 
+Note the error in the final code chunk for the handling of maternal family
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -50,7 +52,7 @@ to_export <- merge1 %>%
   select(bed.block.order:column.order, status, block:bedcol, pop, mf, rep, unique.ID) %>% 
   filter(status!="out-of-bounds") %>% 
   mutate(pop=if_else(status=="buffer", NA, pop),
-         mf=if_else(status=="buffer", NA, mf),
+         mf=if_else(status=="buffer", NA, mf), ###*Note: this does not account for the new 2024 plants not having mf info so this leaves 2023 mf info on those rows which is wrong!!
          rep=if_else(status=="buffer", NA, rep),
          unique.ID=if_else(status=="buffer", NA, unique.ID))
 write_csv(to_export, "../output/WL2_2023_2024_MERGE.csv")
