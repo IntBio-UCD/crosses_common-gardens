@@ -1,0 +1,105 @@
+---
+title: "WL2_Sample_Size_Check"
+author: "Brandie Quarles"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Load libraries
+```{r}
+library(tidyverse)
+library(googlesheets4)
+url_0625_mort <- "https://docs.google.com/spreadsheets/d/1jEJRZmkiJ2qvJh12cQsQSZimrbdpSeQCGqXQdK2IKfY/edit?gid=852826406#gid=852826406"
+```
+
+## Load Data
+
+POP/LOC INFO
+```{r}
+wl2_2024_pops <- read_csv("../input/Final_2023_2024_Pop_Loc_Info.csv")
+head(wl2_2024_pops)
+```
+
+
+MORT/PHENO
+```{r}
+mort_pheno_0625 <- read_sheet(url_0625_mort,
+                               sheet = "WL2_mort_pheno_20240625",
+                               na=c("NA", "", "unknown"))
+head(mort_pheno_0625)
+
+mort_pheno_0625_to_merge <- mort_pheno_0625 %>% 
+  select(unique.ID:survey.notes) %>% 
+  mutate(unique.ID=as.character(unique.ID))
+head(mort_pheno_0625_to_merge)
+```
+
+Merge
+```{r}
+mort_pheno_0625_pops <- left_join(wl2_2024_pops, mort_pheno_0625_to_merge) %>% 
+  mutate(death.date=as.Date(death.date)) %>% 
+  select(Pop.Type:survey.notes) %>% 
+  filter(pop!="buffer") %>% 
+  filter(!is.na(pop))
+head(mort_pheno_0625_pops)
+
+mort_pheno_0625_pops %>% filter(!is.na(death.date))
+mort_pheno_0625_pops %>% filter(status=="available") %>% filter(pop=="buffer") #no available status = buffer
+```
+
+## Check Remaining Sample Sizes
+```{r}
+mort_pheno_0625_by_status <- mort_pheno_0625_pops %>% 
+  group_by(status) %>% 
+  summarise(Alive=sum(is.na(death.date)), Dead=sum(!is.na(death.date))) %>% 
+  mutate(mort = Dead/(Alive+Dead))
+mort_pheno_0625_by_status #628 new plants still alive - 24% mort; 105 old plants still alive - 20% mort 
+
+by_pop_type <- mort_pheno_0625_pops %>% 
+  filter(status=="available") %>% 
+  group_by(Pop.Type) %>% 
+  summarise(Alive=sum(is.na(death.date)), Dead=sum(!is.na(death.date))) %>% 
+  mutate(mort = Dead/(Alive+Dead))
+by_pop_type
+
+mort_pheno_0625_by_pop <- mort_pheno_0625_pops %>% 
+  filter(status=="available") %>% 
+  group_by(pop, Pop.Type) %>% 
+  summarise(Alive=sum(is.na(death.date)), Dead=sum(!is.na(death.date))) %>% 
+  mutate(mort = Dead/(Alive+Dead))
+mort_pheno_0625_by_pop %>% arrange(Pop.Type, mort) 
+
+mort_pheno_0625_by_pop %>% filter(mort!=1) #79 pops with at least 1 plant alive, 
+```
+
+##Plots
+```{r}
+mort_pheno_0625_by_pop %>% 
+  filter(Pop.Type=="Parent") %>% 
+  ggplot(aes(pop, mort)) + geom_col()
+
+mort_pheno_0625_by_pop %>% 
+  filter(Pop.Type=="Parent") %>% 
+  ggplot(aes(pop, Alive)) + geom_col()
+
+mort_pheno_0625_by_pop %>% 
+  filter(Pop.Type=="F1") %>% 
+  ggplot(aes(pop, mort)) + geom_col() + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+mort_pheno_0625_by_pop %>% 
+  filter(Pop.Type=="F1") %>% 
+  ggplot(aes(pop, Alive)) + geom_col() + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+mort_pheno_0625_by_pop %>% 
+  filter(Pop.Type=="F2") %>% 
+  ggplot(aes(pop, mort)) + geom_col() + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+mort_pheno_0625_by_pop %>% 
+  filter(Pop.Type=="F2") %>% 
+  ggplot(aes(pop, Alive)) + geom_col() + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
