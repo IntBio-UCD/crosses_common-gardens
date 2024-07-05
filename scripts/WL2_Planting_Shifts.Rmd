@@ -1,0 +1,106 @@
+---
+title: "WL2_Planting_Shifts"
+author: "Brandie Quarles"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Load libraries
+```{r}
+library(tidyverse)
+library(googlesheets4)
+url_wl2_2024 <- "https://docs.google.com/spreadsheets/d/1EhkPTCMpy_hIz2yROdXNtTdh8ljkHjCHnTPdML49MuM/edit?gid=1098757867#gid=1098757867"
+```
+
+## Load Data
+
+Corrected pop-loc info
+```{r}
+correct_pop_loc <- read_sheet(url_wl2_2024,
+                              sheet = "Updated 2023_2024_Pop_Loc_Info",
+                              na=c("NA", "", "unknown"))
+head(correct_pop_loc)
+```
+
+0625 mort/pheno 
+```{r}
+wrong_mort_pheno <- read_sheet(url_wl2_2024,
+                               sheet = "07/2/24 Mort/Pheno Survey",
+                               na=c("NA", "", "unknown"))
+head(wrong_mort_pheno)
+```
+
+0625 size
+```{r}
+wrong_size_sheet <- read_sheet(url_wl2_2024,
+                               sheet = "07/2/24 Size Survey",
+                               na=c("NA", "", "unknown"))
+head(wrong_size_sheet)
+```
+
+## Merge 
+
+Mort/pheno 
+```{r}
+wrong_mort_pheno_merge_prep <- wrong_mort_pheno %>% 
+  select(block:bed, bedcol=col, unique.ID:survey.notes) %>% #just take out the row column because that's the one that would've changed
+  filter(!is.na(unique.ID), !str_detect(survey.notes, "TM2 fruit"),  !str_detect(survey.notes, "TM2 Fruit"))
+correct_mort_pheno <- left_join(correct_pop_loc, wrong_mort_pheno_merge_prep) %>% 
+  unite("loc", bed:bedcol, remove = FALSE) #for checking for duplication positions
+
+#options(max.print=1000000)
+#duplicated(correct_mort_pheno$loc) #CHECKING TO MAKE SURE NO DUPLICATION POSITIONS 
+
+correct_mort_pheno_fix_2023 <- correct_mort_pheno %>% 
+  filter(status=="2023-survivor" | status=="2023-TM2-fruit") %>% 
+  select(bed.block.order:rep,bud.date:survey.notes) %>% 
+  unite("unique.ID", pop:rep, remove = FALSE) #FIX UNIQUE IDS FOR 2023 PLANTS 
+
+correct_mort_pheno_2024 <- correct_mort_pheno %>% 
+  filter(status=="available" | status=="buffer" | is.na(status)) %>% 
+  mutate(unique.ID=as.character(unique.ID))
+
+correct_mort_pheno_final <- bind_rows(correct_mort_pheno_fix_2023, correct_mort_pheno_2024) %>% 
+  arrange(final.order) %>% 
+  select(bed.block.order, bed.order=final.order, status:bedcol,pop:rep,unique.ID, bud.date:survey.notes)
+
+correct_pop_loc_2023_fixed <- bind_rows(correct_mort_pheno_fix_2023, correct_mort_pheno_2024) %>% 
+  arrange(final.order) %>% 
+  select(bed.block.order:bedcol, pop:rep, unique.ID)
+```
+
+Size
+```{r}
+wrong_size_sheet_merge_prep <- wrong_size_sheet %>% 
+  select(block:bed, bedcol=col, unique.ID:survey.notes) %>% 
+  filter(!is.na(unique.ID), !str_detect(survey.notes, "TM2 fruit"),  !str_detect(survey.notes, "TM2 Fruit"))
+
+correct_size_sheet <- left_join(correct_pop_loc, wrong_size_sheet_merge_prep) %>% 
+  unite("loc", bed:bedcol, remove = FALSE) #for checking for duplication positions
+
+correct_size_sheet_fix_2023 <- correct_size_sheet %>% 
+  filter(status=="2023-survivor" | status=="2023-TM2-fruit") %>% 
+  select(bed.block.order:rep, height.cm:survey.notes) %>% 
+  unite("unique.ID", pop:rep, remove = FALSE) #FIX UNIQUE IDS FOR 2023 PLANTS 
+
+correct_size_sheet_2024 <- correct_size_sheet %>% 
+  filter(status=="available" | status=="buffer" | is.na(status)) %>% 
+  mutate(unique.ID=as.character(unique.ID))
+
+correct_size_sheet_final <- bind_rows(correct_size_sheet_fix_2023, correct_size_sheet_2024) %>% 
+  arrange(final.order) %>% 
+  select(bed.block.order, bed.order=final.order, status:bedcol,pop:rep,unique.ID, height.cm:survey.notes)
+```
+
+Move to google sheets
+```{r}
+ss_loc <- gs4_create(
+  "corrected_plant_shift",
+  sheets = list(correct_pop_loc_2023_fixed, correct_mort_pheno_final, correct_size_sheet_final)
+)
+```
+
