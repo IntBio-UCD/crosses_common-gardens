@@ -14,6 +14,11 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(googlesheets4)
 url_0625_mort <- "https://docs.google.com/spreadsheets/d/1jEJRZmkiJ2qvJh12cQsQSZimrbdpSeQCGqXQdK2IKfY/edit?gid=852826406#gid=852826406"
+url_initial_size <- "https://docs.google.com/spreadsheets/d/1jGq7ERzWgn9ppO9tlOvqDXP8jL9BPp1omtqGqHCz3Nw/edit?gid=775576957#gid=775576957"
+
+sem <- function(x, na.rm=FALSE) {           #for caclulating standard error
+  sd(x,na.rm=na.rm)/sqrt(length(na.omit(x)))
+} 
 ```
 
 ## Load Data
@@ -38,6 +43,16 @@ mort_pheno_0625_to_merge <- mort_pheno_0625 %>%
 head(mort_pheno_0625_to_merge)
 ```
 
+Initial Size
+```{r}
+initial_size <- read_sheet(url_initial_size,
+                               sheet = "WL2_Initial_DNA_size_survey_20240607",
+                               na=c("NA", "", "unknown", " ")) %>% 
+  mutate(unique.ID=as.character(unique.ID))
+head(initial_size)
+```
+
+
 Merge
 ```{r}
 mort_pheno_0625_pops <- left_join(wl2_2024_pops, mort_pheno_0625_to_merge) %>% 
@@ -50,6 +65,15 @@ head(mort_pheno_0625_pops)
 mort_pheno_0625_pops %>% filter(!is.na(death.date))
 mort_pheno_0625_pops %>% filter(status=="available") %>% filter(pop=="buffer") #no available status = buffer
 ```
+
+```{r}
+initial_size_mort <- left_join(initial_size, mort_pheno_0625_pops) %>% 
+  filter(!is.na(pop)) %>% 
+  rename(hypocotyl.length.cm=`hypocotyl. length.cm`)
+
+head(initial_size_mort)
+```
+
 
 ## Check Remaining Sample Sizes
 ```{r}
@@ -103,3 +127,64 @@ mort_pheno_0625_by_pop %>%
   ggplot(aes(pop, Alive)) + geom_col() + theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
+## Initial Size
+```{r}
+initial_size_mort_summary <- initial_size_mort %>% 
+  group_by(pop, Pop.Type) %>% 
+  summarise(N_height = sum(!is.na(height.cm)), 
+            mean_height.cm = mean(height.cm,na.rm=(TRUE)), 
+            sem_height.cm=sem(height.cm, na.rm=(TRUE)), 
+            N_hypocotyl = sum(!is.na(hypocotyl.length.cm)), 
+            mean_hypocotyl = mean(hypocotyl.length.cm,na.rm=(TRUE)), 
+            sem_hypocotyl=sem(hypocotyl.length.cm, na.rm=(TRUE)), 
+            N_length = sum(!is.na(long.leaf.cm)),
+            mean_long.leaf.cm=mean(long.leaf.cm, na.rm=(TRUE)), 
+            sem_long.leaf.cm=sem(long.leaf.cm, na.rm=TRUE),
+            Alive=sum(is.na(death.date)), Dead=sum(!is.na(death.date))) %>% 
+  mutate(mort = Dead/(Alive+Dead))
+initial_size_mort_summary
+```
+
+
+```{r}
+initial_size_mort_summary %>% 
+  filter(Pop.Type=="Parent") %>% 
+  ggplot(aes(x=fct_reorder(pop, mean_hypocotyl), y=mean_hypocotyl)) + 
+ geom_col(width = 0.7,position = position_dodge(0.75)) + 
+  geom_errorbar(aes(ymin=mean_hypocotyl-sem_hypocotyl,ymax=mean_hypocotyl+sem_hypocotyl),width=.2, position = 
+                  position_dodge(0.75)) 
+
+initial_size_mort_summary %>% 
+  filter(Pop.Type=="Parent") %>% 
+  ggplot(aes(x=fct_reorder(pop, mean_height.cm), y=mean_height.cm)) + 
+  geom_col(width = 0.7,position = position_dodge(0.75)) + 
+  geom_errorbar(aes(ymin=mean_height.cm-sem_height.cm,ymax=mean_height.cm+sem_height.cm),width=.2, position = 
+                  position_dodge(0.75)) 
+
+initial_size_mort_summary %>% 
+  filter(Pop.Type=="Parent") %>% 
+  ggplot(aes(x=fct_reorder(pop, mean_long.leaf.cm), mean_long.leaf.cm)) + 
+  geom_col(width = 0.7,position = position_dodge(0.75)) + 
+  geom_errorbar(aes(ymin=mean_long.leaf.cm-sem_long.leaf.cm,ymax=mean_long.leaf.cm+sem_long.leaf.cm),width=.2, position = 
+                  position_dodge(0.75)) 
+```
+
+```{r}
+initial_size_mort_summary %>% 
+  filter(Pop.Type=="Parent") %>% 
+  ggplot(aes(x=mean_hypocotyl, y=mort)) + 
+  geom_point() +
+  geom_smooth()
+
+initial_size_mort_summary %>% 
+  filter(Pop.Type=="Parent") %>% 
+  ggplot(aes(x=mean_height.cm, y=mort)) + 
+  geom_point() +
+  geom_smooth()
+
+initial_size_mort_summary %>% 
+  filter(Pop.Type=="Parent") %>% 
+  ggplot(aes(x=mean_long.leaf.cm, y=mort)) + 
+  geom_point() #+
+  #geom_smooth()
+```
