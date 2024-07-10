@@ -74,8 +74,8 @@ head(dat4)
 ```
 
 ```{r}
-dat4 %>% filter(height.cm>1000) #on 3/11 there's a type for height for plant 54
-dat4 %>% filter(height.cm>300) #on 4/5 type for height on plant 1008
+dat4 %>% filter(height.cm>1000) #on 3/11 there's a typo for height for plant 54
+dat4 %>% filter(height.cm>300) #on 4/5 typo for height on plant 1008
 dat4 %>%filter(height.cm<300) %>% ggplot(aes(x=survey_date, y=height.cm, group=unique.ID)) + geom_point() + geom_line()
 dat4 %>%filter(height.cm<300) %>%
   filter(survey_date > "2024-04-01") %>% 

@@ -1,0 +1,54 @@
+pop.id,Plant Type,Collected,Not_Collected,bed,block,row,col,unique.ID
+(YO11 x WL2) x WL2,F2,0,6,A,A1,3,A,1315
+LV1,Other_Parent,0,10,A,A1,9,A,283
+WL2-12,Main_Parent,0,14,A,A1,11,B,191
+YO11,Other_Parent,0,11,A,A1,15,C,312
+WL2 x WL1,F1,0,9,A,A1,21,B,915
+YO11,Other_Parent,0,11,A,A2,35,B,304
+WL2-12,Main_Parent,0,14,A,A2,42,D,188
+WL2 x LV1,F1,0,1,A,A2,43,B,899
+LV1,Other_Parent,0,10,B,B1,5,D,284
+DPR x (DPR x WL2),F2,0,1,B,B1,9,C,1128
+WL2-12,Main_Parent,0,14,B,B1,10,A,192
+WL2 x WL1,F1,0,9,B,B1,12,B,921
+YO11,Other_Parent,0,11,B,B1,15,C,313
+(YO11 x WL2) x WL2,F2,0,6,B,B1,19,C,1316
+(LV1 x WL2) x (YO11 x WL2),F2,0,1,B,B2,31,C,1160
+YO11,Other_Parent,0,11,B,B2,33,D,314
+LV1,Other_Parent,0,10,B,B2,34,B,285
+(YO11 x WL2) x WL2,F2,0,6,B,B2,35,B,1317
+WL2-12,Main_Parent,0,14,B,B2,39,C,193
+WL2 x WL1,F1,0,9,B,B2,45,C,922
+WL2-12,Main_Parent,0,14,C,C1,4,B,195
+YO11,Other_Parent,0,11,C,C1,13,A,319
+LV1,Other_Parent,0,10,C,C1,13,B,288
+(YO11 x WL2) x WL2,F2,0,6,C,C1,15,D,1330
+WL2 x WL1,F1,0,9,C,C1,19,D,928
+WL2-12,Main_Parent,0,14,C,C1,21,C,183
+WL2-12,Main_Parent,0,14,C,C2,24,A,189
+WL2 x WL1,F1,0,9,C,C2,39,B,912
+YO11,Other_Parent,0,11,C,C2,41,C,305
+LV1,Other_Parent,0,10,D,D1,21,B,296
+WL2-12,Main_Parent,0,14,D,D1,22,B,187
+LV1,Other_Parent,0,10,D,D2,31,B,290
+WL2-12,Main_Parent,0,14,D,D2,32,C,196
+YO11,Other_Parent,0,11,D,D2,34,B,320
+WL2 x WL1,F1,0,9,D,D2,36,A,932
+WL2-12,Main_Parent,0,14,D,D2,41,D,184
+(YO11 x WL2) x WL2,F2,0,6,E,E1,6,C,1321
+WL2 x WL1,F1,0,9,E,E1,6,D,923
+LV1,Other_Parent,0,10,E,E1,17,C,286
+WL2-12,Main_Parent,0,14,E,E1,18,C,194
+YO11,Other_Parent,0,11,E,E1,23,D,318
+YO11,Other_Parent,0,11,E,E2,25,C,322
+LV1,Other_Parent,0,10,E,E2,37,C,294
+WL2-12,Main_Parent,0,14,E,E2,41,A,186
+WL2-12,Main_Parent,0,14,F,F1,8,B,190
+YO11,Other_Parent,0,11,F,F1,9,C,306
+LV1,Other_Parent,0,10,F,F1,10,B,282
+WL2 x WL1,F1,0,9,F,F1,12,C,914
+(YO11 x WL2) x WL2,F2,0,6,F,F1,19,C,1312
+YO11,Other_Parent,0,11,F,F2,28,D,321
+WL2 x WL1,F1,0,9,F,F2,31,A,938
+WL2-12,Main_Parent,0,14,F,F2,32,B,185
+LV1,Other_Parent,0,10,F,F2,43,D,293

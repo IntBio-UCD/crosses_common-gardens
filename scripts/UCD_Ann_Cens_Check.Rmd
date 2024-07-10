@@ -1,0 +1,65 @@
+---
+title: "UCD_Ann_Cens_Check"
+author: "Brandie Quarles"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Checking UCD Annual Census Harvest Status 
+
+## Libraries 
+```{r}
+library(tidyverse)
+```
+
+## Load the data
+```{r}
+genotype_info <- read_csv("../input/UCD2023_2024_Data/Genotypes_2023_2024.csv") %>% 
+  rename(col=column) %>% 
+  filter(pop.id!="buffer")
+head(genotype_info)
+```
+
+```{r}
+ann_cens_0703 <- read_csv("../input/UCD2023_2024_Data/UCD_annual_census_20240703_in_progress.csv") 
+head(ann_cens_0703)
+
+ann_cens_0703 %>% rowwise() %>% filter(!is.na(long.fruit.cm)) %>% filter(is.na(as.numeric(long.fruit.cm))) #there are still some data issues that need to be fixed 
+
+ann_cens_0703 %>% rowwise() %>% filter(!is.na(unique.ID)) %>% filter(is.na(as.numeric(unique.ID))) #all buffers
+
+ann_cens_0703_prep <- ann_cens_0703 %>% 
+  filter(unique.ID!="buffer") %>% 
+  mutate(unique.ID=as.numeric(unique.ID))
+```
+
+Merge
+```{r}
+ann_cens_0703_genotypes <- full_join(genotype_info, ann_cens_0703_prep)
+head(ann_cens_0703_genotypes)
+```
+
+## Status check
+```{r}
+ann_cens_0703_genotypes %>% filter(is.na(date.collected)) %>% filter(!is.na(phen))
+ann_cens_0703_genotypes %>% filter(is.na(phen)) %>% filter(!is.na(date.collected)) #only 1 plant with no phen but a date collected - 218-DPR
+
+ann_cens_0703_status <- ann_cens_0703_genotypes %>% 
+  group_by(pop.id, `Plant Type`) %>% 
+  summarise(Collected=sum(!is.na(phen)), Not_Collected=sum(is.na(phen)))
+
+ann_cens_0703_status %>% arrange(Collected)
+
+ann_cens_0703_status_need <- ann_cens_0703_status %>% filter(Collected==0)
+ann_cens_0703_status_need
+
+ann_cens_0703_status_need_list <- left_join(ann_cens_0703_status_need, ann_cens_0703_genotypes) %>% select(pop.id:Not_Collected, bed:col, unique.ID) %>% 
+  arrange(bed, row, col)
+ann_cens_0703_status_need_list
+write_csv(ann_cens_0703_status_need_list, "../output/UCD_high_priority_list.csv")
+```
+
