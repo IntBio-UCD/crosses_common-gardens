@@ -1,0 +1,1218 @@
+bed.block.order,bed.order,status,block,loc,bed,row,col,pop,mf,rep,unique.ID,bud.date,flower.date,fruit.date,last.FL.date,last.FR.date,death.date,survey.notes
+1,1,2023-TM2-fruit,NA,A_1_A,A,1,A,TM2,6,11,TM2_6_11, , , , , , ,TM2 fruiting from 2023
+22,12,2023-survivor,NA,A_6_B,A,6,B,CC,3,3,CC_3_3, , , , , ,6/18/2024, 
+62,32,2023-survivor,NA,A_16_B,A,16,B,BH,3,3,BH_3_3, , , , , ,6/18/2024,6/18/24 No tag
+65,33,2023-survivor,NA,A_17_A,A,17,A,BH,7,3,BH_7_3,6/18/2024,7/2/2024,7/9/2024, , , , 
+69,35,2023-survivor,NA,A_18_A,A,18,A,BH,4,3,BH_4_3,6/18/2024, , , , , ,6/18/24 No tag
+93,47,2023-survivor,NA,A_24_A,A,24,A,WL2,7,9,WL2_7_9,6/18/2024,6/18/2024,7/2/2024, , , , 
+126,64,2023-survivor,NA,A_32_B,A,32,B,IH,7,4,IH_7_4,6/18/2024,7/9/2024,7/16/2024, , , , 
+137,69,2023-survivor,NA,A_35_A,A,35,A,SC,8,4,SC_8_4,6/18/2024,7/2/2024,7/16/2024, , , , 
+141,71,2023-survivor,NA,A_36_A,A,36,A,BH,3,4,BH_3_4,6/18/2024,7/9/2024,7/16/2024, , , , 
+154,78,2023-survivor,NA,A_39_B,A,39,B,WL2,7,10,WL2_7_10,6/18/2024,6/18/2024,7/2/2024, , , , 
+169,85,2023-TM2-fruit,NA,A_43_A,A,43,A,TM2,6,1,TM2_6_1, , , , , , ,TM2 fruiting from 2023
+178,90,2023-survivor,NA,A_45_B,A,45,B,IH,2,4,IH_2_4,7/2/2024,7/16/2024, , , , , 
+190,96,2023-survivor,NA,A_49_A,A,49,A,YO7,7,23,YO7_7_23,6/18/2024,6/18/2024,7/9/2024, , , , 
+206,104,2023-survivor,NA,A_53_A,A,53,A,CC,4,4,CC_4_4,6/18/2024,7/2/2024, , , , , 
+213,107,2023-survivor,NA,A_53_B,A,53,B,BH,7,4,BH_7_4,6/25/2024,7/9/2024,7/16/2024, , , , 
+225,113,2023-TM2-fruit,NA,A_56_B,A,56,B,TM2,2,12,TM2_2_12, , , , , , ,TM2 fruiting from 2023
+55,147,2023-survivor,NA,A_14_D,A,14,D,CC,8,3,CC_8_3,6/18/2024, , , , ,7/9/2024,6/25/24 snapped off / 7/12 resprouting
+56,148,2023-survivor,NA,A_15_C,A,15,C,CC,1,3,CC_1_3,6/18/2024,7/9/2024,7/16/2024, , , , 
+67,153,2023-survivor,NA,A_17_D,A,17,D,BH,2,3,BH_2_3,6/18/2024,7/2/2024,7/9/2024, , , , 
+87,163,2023-survivor,NA,A_22_D,A,22,D,SC,8,3,SC_8_3,6/18/2024,7/9/2024, , , , ,7/16 some buds dying
+91,165,2023-TM2-fruit,NA,A_23_D,A,23,D,TM2,3,3,TM2_3_3, , , , , , ,TM2 fruiting from 2023
+140,190,2023-survivor,NA,A_36_C,A,36,C,SC,2,4,SC_2_4,6/18/2024,7/2/2024,7/9/2024, , , , 
+172,206,2023-TM2-fruit,NA,A_44_C,A,44,C,TM2,6,3,TM2_6_3, , , , , , ,TM2 fruiting from 2023 / 3 small rosettes nearby
+179,209,2023-survivor,NA,A_45_D,A,45,D,SC,4,4,SC_4_4,6/18/2024,7/2/2024,7/16/2024, , , , 
+184,212,2023-survivor,NA,A_46_D,A,46,D,SQ1,5,10,SQ1_5_10,6/25/2024, , , , , ,7/16 sone buds look deformed or damaged
+200,220,2023-survivor,NA,A_50_D,A,50,D,IH,6,4,IH_6_4,7/9/2024,7/16/2024, , , , , 
+219,229,2023-survivor,NA,A_56_C,A,56,C,IH,1,4,IH_1_4,6/25/2024, , , , , ,7/16 some buds look deformed or damaged
+232,236,2023-survivor,NA,A_58_D,A,58,D,YO7,7,13,YO7_7_13,6/18/2024,6/18/2024,7/2/2024, , , , 
+322,281,2023-survivor,NA,B_22_A,B,22,A,IH,3,5,IH_3_5,6/18/2024,7/9/2024, , , , , 
+334,287,2023-survivor,NA,B_25_A,B,25,A,IH,6,5,IH_6_5,6/18/2024,7/9/2024,7/16/2024, , , , 
+382,311,2023-TM2-fruit,NA,B_37_A,B,37,A,TM2,1,16,TM2_1_16, , , , , , ,TM2 fruiting from 2023
+402,321,2023-survivor,NA,B_42_A,B,42,A,BH,2,5,BH_2_5,6/18/2024,7/2/2024,7/9/2024, , , , 
+406,323,2023-survivor,NA,B_43_A,B,43,A,BH,5,5,BH_5_5,6/18/2024,7/2/2024,7/9/2024, , , , 
+458,349,2023-survivor,NA,B_56_A,B,56,A,SC,6,15,SC_6_15, ,7/9/2024, , , , ,marked as budding without date
+462,351,2023-survivor,NA,B_57_A,B,57,A,IH,4,4,IH_4_4, , , , , ,6/18/2024, 
+312,396,2023-survivor,NA,B_19_D,B,19,D,CC,2,6,CC_2_6,6/18/2024,7/2/2024,7/16/2024, , , ,6/25/24 some buds being eaten
+339,409,2023-survivor,NA,B_26_C,B,26,C,IH,5,5,IH_5_5, , , , , ,6/18/2024, 
+347,413,2023-survivor,NA,B_28_C,B,28,C,BH,4,5,BH_4_5,6/18/2024,7/2/2024,7/9/2024, , , , 
+380,430,2023-TM2-fruit,NA,B_36_D,B,36,D,TM2,1,4,TM2_1_4, , , , , , ,TM2 fruiting from 2023
+408,444,2023-TM2-fruit,NA,B_43_D,B,43,D,TM2,7,10,TM2_7_10, , , , , , ,TM2 fruiting from 2023
+415,447,2023-survivor,NA,B_45_C,B,45,C,WL2,1,11,WL2_1_11,6/18/2024,6/18/2024,7/16/2024, , , , 
+423,451,2023-survivor,NA,B_47_C,B,47,C,YO7,4,6,YO7_4_6,6/18/2024,7/9/2024,7/16/2024, , , , 
+459,469,2023-survivor,NA,B_56_C,B,56,C,TM2,1,3,TM2_1_3,7/9/2024,7/16/2024, , , , ,
+464,472,2023-survivor,NA,B_57_D,B,57,D,BH,2,4,BH_2_4,6/18/2024,7/2/2024,7/16/2024, , , ,6/18/24 No tag
+685,479,buffer,A,C_1_A,C,1,A,NA,NA,NA,buffer, , , , , , , 
+686,480,buffer,A,C_1_B,C,1,B,NA,NA,NA,buffer, , , , , , , 
+687,481,buffer,A,C_2_A,C,2,A,NA,NA,NA,buffer, , , , , , , 
+688,482,buffer,A,C_2_B,C,2,B,NA,NA,NA,buffer, , , , , , , 
+689,483,buffer,A,C_3_A,C,3,A,NA,NA,NA,buffer, , , , , , , 
+690,484,buffer,A,C_3_B,C,3,B,NA,NA,NA,buffer, , , , , , , 
+490,485,available,A,C_4_A,C,4,A,(WV x WL2) x (WV),NA,13,280, , , , , ,7/2/2024,6/25/24 wilting
+491,486,available,A,C_4_B,C,4,B,(LV1 x WL2) x (TM2 x WL2),NA,7,949, , , , , , ,7/9/24 wilting
+492,487,available,A,C_5_A,C,5,A,TM2,NA,70,540, , , , , ,7/2/2024,6/18/24 wilting
+493,488,available,A,C_5_B,C,5,B,(TM2 x WL2) x (SQ3 x WL2),NA,13,317, , , , , , , 
+695,489,2023-survivor,NA,C_6_A,C,6,A,CC,1,6,CC_1_6,6/18/2024, , , , ,7/16/2024,7/2/24 dying
+494,490,available,A,C_6_B,C,6,B,(WL2 x BH) x (SQ3 x WL2),NA,14,1175, , , , , ,7/9/2024,7/16 red pick/ no date assumed 7/9
+495,491,available,A,C_7_A,C,7,A,(TM2 x WL2) x (TM2 x WL2),NA,10,1091, , , , , ,7/2/2024, 
+496,492,available,A,C_7_B,C,7,B,(LV1 x WL2) x (WL2 x DPR),NA,13,968, , , , , ,7/2/2024,6/25/24 wilting
+497,493,available,A,C_8_A,C,8,A,(WL1 x WL2) x (BH x WL2),NA,2,333, , , , , ,7/16/2024, 
+498,494,available,A,C_8_B,C,8,B,(TM2 x WL2) x (YO11 x WL2),NA,2,374, , , , , ,7/2/2024,6/25/24 wilting
+499,495,available,A,C_9_B,C,9,B,TM2,NA,51,521, , , , , ,7/2/2024, 
+500,496,available,A,C_10_A,C,10,A,BH,NA,6,392, , , , , ,7/16/2024,7/2/24 dying
+501,497,available,A,C_10_B,C,10,B,(WL1 x WL2) x (WL2 x TM2),NA,15,1160, , , , , ,7/2/2024,6/25/24 wilting
+502,498,available,A,C_11_A,C,11,A,TM2,NA,9,479, , , , , ,6/25/2024,6/18/24 wilting
+503,499,available,A,C_11_B,C,11,B,(WL2 x TM2) x (CC x TM2),NA,13,264, , , , , ,7/2/2024,6/25/24 wilting
+504,500,available,A,C_12_A,C,12,A,WV x TM2,NA,7,199, , , , , ,7/2/2024,6/18/24 wilting
+505,501,available,A,C_12_B,C,12,B,(WL2 x DPR) x (WL2),NA,5,1102, , , , , ,7/2/2024,6/25/24 wilting
+506,502,available,A,C_13_A,C,13,A,(TM2 x WL2) x (TM2),NA,2,344, , , , , ,7/2/2024,6/18/24 top of stem wilting
+507,503,available,A,C_13_B,C,13,B,(SQ3 x WL2) x (YO11 x WL2),NA,12,1511, , , , , ,6/25/2024, 
+508,504,available,A,C_14_A,C,14,A,WL2,NA,3,98, , , , , ,6/25/2024, 
+509,505,available,A,C_14_B,C,14,B,(SQ3 x WL2) x (SQ3 x WL2),NA,4,868, , , , , ,7/16/2024, 
+510,506,available,A,C_15_A,C,15,A,WL2,NA,30,125, , , , , ,7/2/2024,6/25/24 wilting
+511,507,available,A,C_15_B,C,15,B,(YO11 x WL2) x (SQ3 x WL2),NA,6,1007, , , , , ,7/16/2024, 
+512,508,available,A,C_16_A,C,16,A,(WL1 x WL2) x (WL2 x CC),NA,6,1119, , , , , ,7/2/2024, 
+513,509,available,A,C_16_B,C,16,B,WL2,NA,94,189, , , , , ,6/18/2024, 
+514,510,available,A,C_17_A,C,17,A,(LV1 x WL2) x (WL2),NA,8,71, , , , , ,7/16/2024,7/9 wilted
+515,511,available,A,C_17_B,C,17,B,TM2,NA,37,507, , , , , ,7/2/2024,6/25/24 wilting
+516,512,available,A,C_18_A,C,18,A,(TM2 x BH) x (TM2 x BH),NA,2,1336, , , , , ,7/16/2024,7/9 wilted
+517,513,available,A,C_18_B,C,18,B,(LV1 x WL2) x (SQ3 x WL2),NA,9,980, , , , , ,7/2/2024, 
+518,514,available,A,C_19_A,C,19,A,NA,NA,NA,NA, , , , , , , 
+519,515,available,A,C_19_B,C,19,B,NA,NA,NA,NA, , , , , , , 
+549,516,available,B,C_20_A,C,20,A,CC,NA,6,413, , , , , ,7/16/2024,6/25/24 odd white lines on leaves
+550,517,available,B,C_20_B,C,20,B,(DPR x WL2) x (YO11 x WL2),NA,4,698, , , , , , , 
+551,518,available,B,C_21_A,C,21,A,WV x TM2,NA,22,215, , , , , ,7/16/2024,6/18/24 Powdery mildew
+552,519,available,B,C_21_B,C,21,B,BH,NA,21,407, , , , , , , 
+553,520,available,B,C_22_A,C,22,A,TM2,NA,62,532, , , , , , , 
+696,521,2023-survivor,NA,C_22_B,C,22,B,BH,6,7,BH_6_7,6/18/2024,7/2/2024,7/9/2024, , , ,7/16 some fruits look sick
+554,522,available,B,C_23_A,C,23,A,WV,NA,20,469, , , , , , , 
+555,523,available,B,C_23_B,C,23,B,WL2,NA,23,118, , , , , , , 
+556,524,available,B,C_24_A,C,24,A,(WV x WL2) x (WV),NA,14,281, , , , , , , 
+557,525,available,B,C_24_B,C,24,B,(DPR x WL2) x (WV x WL2),NA,3,1459, , , , , , , 
+558,526,available,B,C_25_A,C,25,A,LV1 x WL2,NA,25,1275, , , , , ,7/9/2024, 
+559,527,available,B,C_25_B,C,25,B,(LV1 x WL2) x (WL2),NA,9,72, , , , , ,7/16/2024,wilted 7/9
+560,528,available,B,C_26_A,C,26,A,TM2,NA,24,494, , , , , , , 
+561,529,available,B,C_26_B,C,26,B,WL2,NA,59,154, , , , , , , 
+562,530,available,B,C_27_A,C,27,A,(WV) x (WV x WL2),NA,12,1398, , , , , ,7/16/2024, 
+563,531,available,B,C_27_B,C,27,B,WV x TM2,NA,8,200, , , , , , , 
+564,532,available,B,C_28_A,C,28,A,TM2,NA,10,480, , , , , , ,Stem snapped still turgid
+565,533,available,B,C_28_B,C,28,B,(TM2 x WL2) x (TM2),NA,5,347, , , , , ,6/18/2024, 
+566,534,available,B,C_29_A,C,29,A,LV1,NA,17,17, , , , , ,6/18/2024, 
+567,535,available,B,C_29_B,C,29,B,(WL1 x WL2) x (BH x WL2),NA,10,341, , , , , , , 
+568,536,available,B,C_30_A,C,30,A,LV1 x TM2,NA,4,1228, , , , , , , 
+569,537,available,B,C_30_B,C,30,B,TM2,NA,43,513, , , , , , , 
+570,538,available,B,C_31_A,C,31,A,(YO11 x WL2) x (WL2),NA,13,939, , , , , , , 
+571,539,available,B,C_31_B,C,31,B,TM2,NA,73,543, , , , , ,7/2/2024,6/25/24 wilting
+572,540,available,B,C_32_A,C,32,A,(TM2 x BH) x (TM2),NA,4,1053, , , , , ,7/16/2024, 
+573,541,available,B,C_32_B,C,32,B,TM2 x WL2,NA,3,1279, , , , , ,6/25/2024, 
+574,542,available,B,C_33_B,C,33,B,WL2,NA,88,183, , , , , , , 
+575,543,available,B,C_34_A,C,34,A,(YO11 x WL2) x (DPR x WL2),NA,4,776, , , , , ,6/25/2024, 
+576,544,available,B,C_34_B,C,34,B,LV1,NA,2,2, , , , , ,7/9/2024, 
+577,545,available,B,C_35_A,C,35,A,WL2,NA,41,136, , , , , , , 
+578,546,available,B,C_35_B,C,35,B,(TM2 x BH) x (TM2 x BH),NA,14,1348, , , , , ,7/2/2024, 
+579,547,available,B,C_36_A,C,36,A,NA,NA,NA,NA, , , , , , , 
+697,548,2023-survivor,NA,C_36_B,C,36,B,SC,2,19,SC_2_19,6/25/2024, , , , , ,Some buds dying 7/16
+607,549,available,C,C_37_A,C,37,A,WL2,NA,50,145, , , , , ,7/2/2024, 
+608,550,available,C,C_37_B,C,37,B,TM2 x WL2,NA,13,1289, , , , , , , 
+609,551,available,C,C_38_A,C,38,A,CC x TM2,NA,12,1362, , , , , ,6/18/2024, 
+610,552,available,C,C_38_B,C,38,B,WL2,NA,33,128, , , , , ,7/9/2024,Red pick no date 7/16
+611,553,available,C,C_39_A,C,39,A,(TM2 x BH) x (TM2 x BH),NA,13,1347, , , , , ,7/16/2024,7/9 Very wilted
+612,554,available,C,C_39_B,C,39,B,(YO11 x WL2) x (SQ3 x WL2),NA,2,1003, , , , , , , 
+613,555,available,C,C_40_A,C,40,A,(WL2 x BH) x (SQ3 x WL2),NA,1,1162, , , , , , , 
+698,556,2023-survivor,NA,C_40_B,C,40,B,BH,1,7,BH_1_7,6/25/2024,7/16/2024, , , , , 
+614,557,available,C,C_41_A,C,41,A,(DPR) x (WL2 x DPR),NA,12,738, , , , , ,7/16/2024,7/9 very wilted
+615,558,available,C,C_41_B,C,41,B,WL2,NA,5,100, , , , , ,6/25/2024,6/18/24 Wilting
+616,559,available,C,C_42_A,C,42,A,(WL2 x DPR) x (TM2 x WL2),NA,1,1314, , , , , ,6/18/2024, 
+617,560,available,C,C_42_B,C,42,B,(SQ3 x WL2) x (TM2 x WL2),NA,10,888, , , , , , , 
+618,561,available,C,C_43_A,C,43,A,(LV1 x WL2) x (WL2),NA,10,73, , , , , , , 
+619,562,available,C,C_43_B,C,43,B,(TM2 x WL2) x (TM2),NA,13,355, , , , , ,6/25/2024, 
+620,563,available,C,C_44_A,C,44,A,TM2,NA,11,481, , , , , ,7/9/2024, 
+621,564,available,C,C_44_B,C,44,B,LV1 x TM2,NA,5,1229, , , , , , , 
+699,565,2023-survivor,NA,C_45_A,C,45,A,BH,7,7,BH_7_7,6/18/2024,7/9/2024,7/16/2024, , , ,One dead stem 7/16
+622,566,available,C,C_45_B,C,45,B,(WL1 x WL2) x (WL2 x CC),NA,8,1121, , , , , , , 
+623,567,available,C,C_46_A,C,46,A,WV,NA,3,452, , , , , , , 
+624,568,available,C,C_46_B,C,46,B,LV1,NA,20,20, , , , , ,6/25/2024, 
+625,569,available,C,C_47_A,C,47,A,WL2,NA,92,187, , , , , ,7/9/2024, 
+700,570,2023-survivor,NA,C_47_B,C,47,B,IH,2,7,IH_2_7,7/9/2024, , , , , , 
+626,571,available,C,C_48_A,C,48,A,(TM2 x WL2) x (WL2),NA,5,361, , , , , , ,7/9 wilting
+627,572,available,C,C_48_B,C,48,B,(WL2 x BH) x (WL2 x TM2),NA,8,243, , , , , ,7/2/2024, 
+628,573,available,C,C_49_A,C,49,A,(WL2 x CC) x (WL2 x TM2),NA,10,1187, , , , , , , 
+629,574,available,C,C_49_B,C,49,B,WV x TM2,NA,9,201, , , , , ,6/25/2024, 
+630,575,available,C,C_50_A,C,50,A,(WL2) x (DPR x WL2),NA,13,907, , , , , ,7/2/2024, 
+631,576,available,C,C_50_B,C,50,B,BH,NA,18,404, , , , , , , 
+632,577,available,C,C_51_A,C,51,A,NA,NA,NA,NA, , , , , , , 
+633,578,available,C,C_51_B,C,51,B,NA,NA,NA,NA, , , , , , , 
+663,579,available,D,C_52_A,C,52,A,WV x WL2,NA,7,1409, , , , , , , 
+664,580,available,D,C_52_B,C,52,B,(LV1 x WL2) x (WL2),NA,11,74, , , , , , , 
+665,581,available,D,C_53_A,C,53,A,(WL2 x BH) x (WL2 x TM2),NA,13,248, , , , , ,7/16/2024, 
+701,582,2023-survivor,NA,C_53_B,C,53,B,IH,3,8,IH_3_8, , , , , ,6/18/2024, 
+666,583,available,D,C_54_A,C,54,A,LV1 x WL2,NA,5,1255, , , , , , , 
+702,584,2023-TM2-fruit,NA,C_54_B,C,54,B,TM2,1,14,TM2_1_14, , , , , , ,TM2 Fruiting from 2023 / one seedling
+703,585,2023-survivor,NA,C_55_A,C,55,A,YO7,1,4,YO7_1_4,6/18/2024,6/18/2024,7/2/2024, , , ,Dying buds
+667,586,available,D,C_55_B,C,55,B,(WL1 x WL2) x (WL2 x CC),NA,11,1124, , , , , ,7/2/2024,6/25/24 almost dead no leaves
+668,587,available,D,C_56_A,C,56,A,(DPR) x (WL2 x DPR),NA,13,739, , , , , , , 
+669,588,available,D,C_56_B,C,56,B,LV1 x TM2,NA,17,1241, , , , , ,6/25/2024, 
+670,589,available,D,C_57_A,C,57,A,SQ3,NA,13,34, , , , , ,6/25/2024,6/18/24 wilting
+671,590,available,D,C_57_B,C,57,B,WV,NA,4,453, , , , , ,7/2/2024, 
+672,591,available,D,C_58_A,C,58,A,BH,NA,9,395, , , , , , , 
+673,592,available,D,C_58_B,C,58,B,(WL2 x TM2) x (CC x TM2),NA,16,267, , , , , ,7/2/2024,6/25/24 wilting
+674,593,buffer,D,C_59_A,C,59,A,NA,NA,NA,buffer, , , , , , , 
+675,594,buffer,D,C_59_B,C,59,B,NA,NA,NA,buffer, , , , , , , 
+676,595,buffer,D,C_60_A,C,60,A,NA,NA,NA,buffer, , , , , , , 
+677,596,buffer,D,C_60_B,C,60,B,NA,NA,NA,buffer, , , , , , , 
+704,597,buffer,A,C_1_C,C,1,C,NA,NA,NA,buffer, , , , , , , 
+705,598,buffer,A,C_1_D,C,1,D,NA,NA,NA,buffer, , , , , , , 
+706,599,2023-survivor,A,C_2_C,C,2,C,SC,5,6,SC_5_6, , , , , , ,mistakenly coded as buffer before 7/23
+707,600,2023-survivor,A,C_2_D,C,2,D,CC,9,6,CC_9_6, , , , , , ,mistakenly coded as buffer before 7/23
+708,601,buffer,A,C_3_C,C,3,C,NA,NA,NA,buffer, , , , , , , 
+520,602,available,A,C_3_D,C,3,D,(SQ3 x WL2) x (WL2),NA,8,87, , , , , ,6/25/2024,6/18/24 wilting
+521,603,available,A,C_4_C,C,4,C,(LV1 x WL2) x (YO11 x WL2),NA,2,987, , , , , ,6/25/2024,6/18/24 wilting
+709,604,buffer,A,C_4_D,C,4,D,NA,NA,NA,buffer, , , , , , , 
+522,605,available,A,C_5_C,C,5,C,(BH) x (TM2 x BH),NA,4,666, , , , , ,6/25/2024,6/18/24 wilting
+523,606,NA,A,C_5_D,C,5,D,NA,NA,NA,NA, , , , , , , 
+524,607,available,A,C_6_C,C,6,C,LV1 x TM2,NA,3,1227, , , , , ,7/2/2024,6/25/24 wilting
+525,608,available,A,C_6_D,C,6,D,(WL2 x CC) x (WL2 x TM2),NA,8,1185, , , , , , ,7/9/24 wilted
+526,609,available,A,C_7_C,C,7,C,(WL2 x BH) x (SQ3 x WL2),NA,11,1172, , , , , ,6/18/2024, 
+527,610,available,A,C_7_D,C,7,D,TM2,NA,17,487, , , , , ,7/2/2024,6/18/24 wilting
+528,611,available,A,C_8_C,C,8,C,WL2,NA,72,167, , , , , ,7/9/2024,6/25/24 wilting
+529,612,available,A,C_8_D,C,8,D,(WL1 x WL2) x (WL2 x CC),NA,14,1127, , , , , ,6/18/2024, 
+530,613,available,A,C_9_C,C,9,C,(TM2 x BH) x (BH),NA,10,752, , , , , ,7/9/2024,7/2 wilting
+531,614,available,A,C_9_D,C,9,D,(SQ3 x WL2) x (TM2 x WL2),NA,8,886, , , , , ,7/16/2024, 
+532,615,available,A,C_10_C,C,10,C,WL1,NA,20,303, , , , , ,7/16/2024,7/9 wilted
+704,616,2023-survivor,NA,C_10_D,C,10,D,BH,3,6,BH_3_6, , , , , ,7/16/2024,6/18/24 No tag/ 7/2 stem broken at base
+533,617,available,A,C_11_C,C,11,C,(WL2) x (WV x WL2),NA,5,763, , , , , ,7/2/2024,6/25/24 wilting
+534,618,available,A,C_11_D,C,11,D,(WV) x (WV x WL2),NA,11,1397, , , , , ,7/16/2024,6/25/24 wilting
+535,619,available,A,C_12_C,C,12,C,TM2 x WL2,NA,10,1286, , , , , ,7/2/2024,6/25/24 wilting
+536,620,available,A,C_12_D,C,12,D,LV1,NA,1,1, , , , , ,6/18/2024, 
+537,621,available,A,C_13_C,C,13,C,(DPR) x (WL2 x DPR),NA,10,736, , , , , , ,7/9/24 wilting
+538,622,available,A,C_13_D,C,13,D,LV1 x TM2,NA,21,1245, , , , , ,6/25/2024, 
+539,623,available,A,C_14_C,C,14,C,WL2,NA,54,149, , , , , ,6/25/2024,6/18/24 wilting
+540,624,available,A,C_14_D,C,14,D,WV x WL2,NA,21,1423, , , , , ,7/16/2024,7/9/24 wilting
+541,625,available,A,C_15_C,C,15,C,SQ3,NA,20,41, , , , , ,7/2/2024,6/25/24 wilting
+542,626,available,A,C_15_D,C,15,D,TM2,NA,90,560, , , , , ,6/18/2024, 
+543,627,available,A,C_16_C,C,16,C,WL2,NA,35,130, , , , , ,6/25/2024, 
+544,628,available,A,C_16_D,C,16,D,(YO11 x WL2) x (WL2),NA,6,932, , , , , ,6/25/2024,6/18/24 wilting
+545,629,available,A,C_17_C,C,17,C,(TM2 x WL2) x (WL2),NA,15,371, , , , , ,7/2/2024, 
+546,630,available,A,C_17_D,C,17,D,BH x TM2,NA,16,600, , , , , ,6/18/2024, 
+547,631,available,A,C_18_C,C,18,C,NA,NA,NA,NA, , , , , , , 
+548,632,available,A,C_18_D,C,18,D,NA,NA,NA,NA, , , , , , , 
+580,633,available,B,C_19_C,C,19,C,(TM2 x WL2) x (SQ3 x WL2),NA,5,309, , , , , , ,7/16/24 wilting
+581,634,available,B,C_19_D,C,19,D,WL1,NA,15,298, , , , , , ,6/18/24 dead at planting
+582,635,available,B,C_20_C,C,20,C,(YO11 x WL2) x (WL2 x TM2),NA,3,790, , , , , , , 
+583,636,available,B,C_20_D,C,20,D,(WL1 x WL2) x (WL2 x CC),NA,10,1123, , , , , ,7/2/2024,6/18/24 wilting
+584,637,available,B,C_21_C,C,21,C,(WL2 x CC) x (SQ3 x WL2),NA,7,1311, , , , , ,7/9/2024,7/2 wilting
+585,638,available,B,C_21_D,C,21,D,(WL2 x CC) x (WL2 x TM2),NA,9,1186, , , , , ,7/9/2024,6/25/24 wilting
+586,639,available,B,C_22_C,C,22,C,(SQ3 x WL2) x (WL2),NA,9,88, , , , , ,6/25/2024,6/18/24 wilting
+587,640,available,B,C_22_D,C,22,D,(DPR) x (WL2 x DPR),NA,11,737, , , , , , , 
+588,641,available,B,C_23_C,C,23,C,WL2,NA,75,170, , , , , ,7/2/2024,6/25/24 wilting
+705,642,2023-survivor,NA,C_23_D,C,23,D,TM2,4,12,TM2_4_12,6/18/2024,7/16/2024, , , , , 
+589,643,available,B,C_24_C,C,24,C,LV1 x TM2,NA,19,1243, , , , , ,7/16/2024,7/9 wilted
+590,644,available,B,C_24_D,C,24,D,WL2,NA,4,99, , , , , ,6/18/2024, 
+591,645,available,B,C_25_C,C,25,C,(TM2 x WL2) x (WL2),NA,8,364, , , , , , , 
+592,646,available,B,C_25_D,C,25,D,(WL2 x DPR) x (WL2),NA,11,1108, , , , , ,7/9/2024,7/2 wilting
+593,647,available,B,C_28_C,C,28,C,(WL2 x BH) x (WL2 x TM2),NA,16,251, , , , , , , 
+594,648,available,B,C_28_D,C,28,D,(WL2 x TM2) x (CC x TM2),NA,14,265, , , , , , , 
+595,649,available,B,C_29_C,C,29,C,(DPR) x (DPR x WL2),NA,1,711, , , , , , , 
+596,650,available,B,C_29_D,C,29,D,BH,NA,7,393, , , , , ,7/16/2024,7/9 wilted
+706,651,2023-survivor,NA,C_30_C,C,30,C,BH,4,7,BH_4_7,6/25/2024,7/9/2024,7/16/2024, , , , 
+597,652,available,B,C_30_D,C,30,D,(LV1 x WL2) x (WL2 x DPR),NA,6,961, , , , , , , 
+598,653,available,B,C_31_C,C,31,C,(LV1 x WL2) x (SQ3 x WL2),NA,3,974, , , , , ,7/9/2024, 
+599,654,available,B,C_31_D,C,31,D,(SQ3 x WL2) x (LV1 x WL2),NA,5,853, , , , , ,6/25/2024,6/25/24 gone
+600,655,available,B,C_32_C,C,32,C,(SQ3 x WL2) x (LV1 x WL2),NA,11,859, , , , , ,7/2/2024, 
+707,656,2023-TM2-fruit,NA,C_32_D,C,32,D,TM2,7,12,TM2_7_12, , , , , , ,TM2 Fruiting from 2023
+708,657,2023-TM2-fruit,NA,C_33_C,C,33,C,TM2,2,5,TM2_2_5, , , , , , ,TM2 Fruiting from 2023
+601,658,available,B,C_33_D,C,33,D,WL2 x BH,NA,3,832, , , , , ,7/2/2024, 
+602,659,available,B,C_34_C,C,34,C,TM2,NA,94,564, , , , , , , 
+603,660,available,B,C_34_D,C,34,D,(LV1 x WL2) x (YO11 x WL2),NA,5,990, , , , , , ,wilted 7/16/24
+604,661,available,B,C_35_C,C,35,C,NA,NA,NA,NA, , , , , , , 
+605,662,available,B,C_35_D,C,35,D,NA,NA,NA,NA, , , , , , , 
+606,663,available,B,C_36_C,C,36,C,NA,NA,NA,NA, , , , , , , 
+634,664,available,C,C_36_D,C,36,D,WV x TM2,NA,21,214, , , , , ,7/2/2024,6/25/24 roots exposed
+709,665,2023-survivor,NA,C_37_C,C,37,C,CC,2,7,CC_2_7,6/18/2024,7/2/2024,7/16/2024, , , , 
+635,666,available,C,C_37_D,C,37,D,(DPR) x (DPR x WL2),NA,4,714, , , , , , , 
+710,667,2023-survivor,NA,C_38_C,C,38,C,YO7,1,3,YO7_1_3,6/18/2024,6/18/2024,7/2/2024,7/9/24,7/16/24, ,2 vegetative branches
+636,668,available,C,C_38_D,C,38,D,TM2,NA,69,539, , , , , , , 
+637,669,available,C,C_39_C,C,39,C,(WV x WL2) x (WV),NA,15,282, , , , , , , 
+638,670,available,C,C_39_D,C,39,D,(WL2 x DPR) x (WL2),NA,1,1098, , , , , , , 
+639,671,available,C,C_40_C,C,40,C,TM2,NA,19,489, , , , , , ,7/16/24 wilted
+640,672,available,C,C_40_D,C,40,D,WL2,NA,31,126, , , , , ,6/18/2024, 
+641,673,available,C,C_41_C,C,41,C,(WL2 x TM2) x (CC x TM2),NA,15,266, , , , , ,7/16/2024, 
+642,674,available,C,C_41_D,C,41,D,(LV1 x WL2) x (YO11 x WL2),NA,4,989, , , , , ,6/18/2024, 
+643,675,available,C,C_42_C,C,42,C,WL2,NA,79,174, , , , , , , 
+644,676,available,C,C_42_D,C,42,D,TM2,NA,83,553, , , , , ,6/25/2024,6/18/24 Top Missing
+645,677,available,C,C_43_C,C,43,C,(WL1 x WL2) x (WL2 x TM2),NA,11,1156, , , , , , , 
+646,678,available,C,C_43_D,C,43,D,(TM2 x BH) x (TM2 x WL2),NA,15,1048, , , , , , , 
+647,679,available,C,C_44_C,C,44,C,LV1 x WL2,NA,2,1252, , , , , , , 
+648,680,available,C,C_44_D,C,44,D,(TM2 x WL2) x (TM2 x WL2),NA,4,1085, , , , , , , 
+649,681,available,C,C_45_C,C,45,C,NA,NA,NA,NA, , , , , , , 
+650,682,available,C,C_45_D,C,45,D,BH,NA,8,394, , , , , , , 
+651,683,available,C,C_46_C,C,46,C,TM2,NA,58,528, , , , , , ,6/18/24 Plant Sunk
+652,684,available,C,C_46_D,C,46,D,DPR,NA,1,429, , , , , ,6/25/2024,6/18/24 Plant sunk wilting / 6/25/24 gone
+653,685,available,C,C_47_C,C,47,C,LV1,NA,3,3, , , , , ,7/9/2024, 
+654,686,available,C,C_47_D,C,47,D,(WV) x (WV x WL2),NA,13,1399, , , , , , , 
+655,687,available,C,C_48_C,C,48,C,(SQ3 x WL2) x (WL2),NA,10,89, , , , , , , 
+656,688,available,C,C_48_D,C,48,D,(LV1 x WL2) x (TM2 x WL2),NA,4,946, , , , , ,7/2/2024,6/25/24 wilting
+657,689,available,C,C_49_C,C,49,C,SQ3,NA,16,37, , , , , ,7/2/2024, 
+658,690,available,C,C_49_D,C,49,D,TM2,NA,48,518, , , , , , , 
+659,691,available,C,C_50_C,C,50,C,NA,NA,NA,NA, , , , , , , 
+660,692,available,C,C_50_D,C,50,D,NA,NA,NA,NA, , , , , , , 
+661,693,available,C,C_51_C,C,51,C,NA,NA,NA,NA, , , , , , , 
+662,694,available,C,C_51_D,C,51,D,(TM2 x BH) x (BH),NA,12,754, , , , , ,7/16/2024,7/9 wilted
+678,695,available,D,C_52_C,C,52,C,(TM2 x BH) x (TM2),NA,13,1062, , , , , ,7/9/2024,7/2 wilting
+711,696,2023-TM2-fruit,NA,C_52_D,C,52,D,TM2,7,13,TM2_7_13, , , , , , ,TM2 Fruiting from 2023 / 1 seedling
+679,697,available,D,C_53_C,C,53,C,LV1,NA,4,4, , , , , ,7/2/2024,6/25/24 wilted
+680,698,available,D,C_53_D,C,53,D,(WL2 x CC) x (WL2 x TM2),NA,11,1188, , , , , ,7/2/2024, 
+681,699,available,D,C_54_C,C,54,C,(SQ3 x WL2) x (TM2 x WL2),NA,7,885, , , , , , , 
+682,700,available,D,C_54_D,C,54,D,TM2,NA,56,526, , , , , ,6/25/2024, 
+683,701,available,D,C_55_C,C,55,C,WV x TM2,NA,10,202, , , , , ,7/2/2024,6/25/24 wilted
+684,702,available,D,C_55_D,C,55,D,(WL1 x TM2) x (WL2 x TM2),NA,1,321, , , , , ,6/25/2024, 
+685,703,available,D,C_56_C,C,56,C,(YO11 x WL2) x (WV x WL2),NA,4,842, , , , , ,6/18/2024, 
+686,704,available,D,C_56_D,C,56,D,(TM2 x WL2) x (YO11 x WL2),NA,4,376, , , , , ,7/9/2024, 
+687,705,available,D,C_57_C,C,57,C,(LV1 x WL2) x (WL2 x DPR),NA,2,957, , , , , ,7/2/2024,6/25/24 wilted
+688,706,available,D,C_57_D,C,57,D,(WL1 x WL2) x (WL2 x TM2),NA,3,1148, , , , , ,7/2/2024,6/25/24 wilted
+689,707,available,D,C_58_C,C,58,C,LV1,NA,21,21, , , , , ,6/18/2024, 
+690,708,available,D,C_58_D,C,58,D,WL2,NA,81,176, , , , , ,7/2/2024,6/25/24 very wilted
+691,709,buffer,D,C_59_C,C,59,C,NA,NA,NA,buffer, , , , , , , 
+692,710,buffer,D,C_59_D,C,59,D,NA,NA,NA,buffer, , , , , , , 
+693,711,buffer,D,C_60_C,C,60,C,NA,NA,NA,buffer, , , , , , , 
+694,712,buffer,D,C_60_D,C,60,D,NA,NA,NA,buffer, , , , , , , 
+712,713,buffer,D,D_1_A,D,1,A,NA,NA,NA,buffer, , , , , , , 
+713,714,buffer,D,D_1_B,D,1,B,NA,NA,NA,buffer, , , , , , , 
+714,715,buffer,D,D_2_A,D,2,A,NA,NA,NA,buffer, , , , , , , 
+715,716,buffer,D,D_2_B,D,2,B,NA,NA,NA,buffer,, , , , , , 
+716,717,buffer,D,D_3_A,D,3,A,NA,NA,NA,buffer, , , , , , , 
+717,718,2023-survivor,NA,D_3_B,D,3,B,IH,5,9,IH_5_9,7/2/2024, , , , , ,mistakenly coded as buffer before 7/23
+718,719,available,D,D_4_A,D,4,A,(DPR) x (DPR x WL2),NA,14,724, , , , , ,7/2/2024,6/25/24 very wilted
+719,720,available,D,D_4_B,D,4,B,(WL2) x (DPR x WL2),NA,12,906, , , , , ,7/2/2024,6/25/24 wilting
+720,721,available,D,D_5_A,D,5,A,LV1 x TM2,NA,6,1230, , , , , ,7/2/2024,6/25/24 wilting
+721,722,available,D,D_6_B,D,6,B,(SQ3 x WL2) x (WL2),NA,11,90, , , , , ,7/2/2024,6/25/24 wilting
+722,723,available,D,D_8_A,D,8,A,WL2,NA,6,101, , , , , ,7/9/2024,7/2 wilting
+723,724,available,D,D_9_A,D,9,A,(TM2 x BH) x (TM2 x BH),NA,16,1350, , , , , ,7/2/2024,6/25/24 wilted
+724,725,available,D,D_9_B,D,9,B,(YO11 x WL2) x (WL2),NA,11,937, , , , , ,6/25/2024, 
+725,726,available,D,D_10_A,D,10,A,(WV x WL2) x (WV),NA,16,283, , , , , ,7/16/2024,7/9/24 wilted
+726,727,available,D,D_10_B,D,10,B,DPR,NA,8,436, , , , , , , 
+727,728,available,D,D_11_A,D,11,A,WL2,NA,18,113, , , , , , , 
+728,729,available,D,D_11_B,D,11,B,TM2,NA,76,546, , , , , ,7/2/2024,6/25/24 wilted
+729,730,NA,D,D_12_A,D,12,A,NA,NA,NA,NA, , , , , , , 
+730,731,available,D,D_12_B,D,12,B,NA,NA,NA,NA, , , , , , , 
+731,732,available,D,D_13_A,D,13,A,NA,NA,NA,NA, , , , , , , 
+732,733,available,D,D_13_B,D,13,B,WL1,NA,21,304, , , , , , , 
+926,734,2023-survivor,NA,D_14_A,D,14,A,IH,7,9,IH_7_9, , , , , ,6/18/2024, 
+754,735,available,E,D_14_B,D,14,B,LV1,NA,5,5, , , , , ,7/2/2024,6/25/24 wilted
+755,736,available,E,D_15_A,D,15,A,WL2,NA,24,119, , , , , , , 
+756,737,available,E,D_15_B,D,15,B,(SQ3 x WL2) x (WL2),NA,12,91, , , , , ,7/16/2024, 
+757,738,available,E,D_16_A,D,16,A,(WV x WL2) x (WV),NA,1,268, , , , , ,6/18/2024, 
+758,739,available,E,D_16_B,D,16,B,(WL2 x DPR) x (WL2),NA,10,1107, , , , , , , 
+927,740,2023-survivor,NA,D_17_A,D,17,A,CC,9,9,CC_9_9, , , , , ,6/18/2024, 
+759,741,available,E,D_17_B,D,17,B,WL2,NA,67,162, , , , , ,6/25/2024, 
+760,742,available,E,D_18_A,D,18,A,WV x TM2,NA,11,203, , , , , ,7/16/2024,7/9 wilted
+761,743,available,E,D_18_B,D,18,B,BH,NA,17,403, , , , , , , 
+928,744,2023-survivor,NA,D_19_A,D,19,A,TM2,7,18,TM2_7_18,6/25/2024, , , , , , 
+929,745,2023-survivor,NA,D_19_B,D,19,B,CC,4,9,CC_4_9,6/25/2024,7/16/2024, , , , ,Stem broken
+762,746,available,E,D_20_A,D,20,A,(LV1 x WL2) x (YO11 x WL2),NA,3,988, , , , , ,7/9/2024, 
+763,747,available,E,D_20_B,D,20,B,WL2,NA,46,141, , , , , , , 
+930,748,2023-survivor,NA,D_21_A,D,21,A,SC,5,9,SC_5_9,6/25/2024, , , , , ,7/16 Wilting
+764,749,available,E,D_21_B,D,21,B,(YO11 x WL2) x (WL2 x TM2),NA,11,798, , , , , ,7/9/2024,6/25/24 wilting 7/2 wilting
+765,750,available,E,D_22_A,D,22,A,WV,NA,18,467, , , , , ,7/2/2024,6/25/24 wilting
+766,751,available,E,D_22_B,D,22,B,BH x TM2,NA,23,607, , , , , ,7/9/2024,6/25/24 wilting 7/2 wilting
+767,752,available,E,D_23_A,D,23,A,LV1 x TM2,NA,7,1231, , , , , ,6/25/2024,6/25/24 snapped off
+768,753,available,E,D_23_B,D,23,B,SQ3,NA,1,22, , , , , ,7/9/2024, 
+769,754,available,E,D_24_A,D,24,A,(LV1 x WL2) x (WL2 x DPR),NA,14,969, , , , , ,7/2/2024,6/25/24 wilting
+931,755,2023-survivor,NA,D_24_B,D,24,B,IH,1,9,IH_1_9, , , , , ,6/18/2024, 
+770,756,available,E,D_25_A,D,25,A,DPR,NA,19,447, , , , , ,7/9/2024,7/9/24 Ant hill Formed
+771,757,available,E,D_25_B,D,25,B,(TM2 x WL2) x (WL2),NA,2,358, , , , , , ,7/9 wilted
+772,758,available,E,D_26_A,D,26,A,(LV1 x WL2) x (TM2 x WL2),NA,8,950, , , , , ,7/2/2024,6/25/24 wilting
+773,759,available,E,D_26_B,D,26,B,WL2,NA,53,148, , , , , ,7/16/2024,7/9 wilted
+774,760,available,E,D_27_A,D,27,A,(WV) x (WV x WL2),NA,15,1401, , , , , ,7/9/2024,6/25/24 wilting
+775,761,available,E,D_27_B,D,27,B,(TM2 x BH) x (BH),NA,14,756, , , , , ,7/2/2024, 
+776,762,available,E,D_28_A,D,28,A,TM2,NA,25,495, , , , , ,7/9/2024, 
+777,763,available,E,D_28_B,D,28,B,LV1 x TM2,NA,20,1244, , , , , ,7/9/2024,6/25/24 wilting 7/2 wilting
+778,764,available,E,D_29_A,D,29,A,(LV1 x WL2) x (WL2),NA,12,75, , , , , ,7/9/2024,7/2 wilting
+779,765,available,E,D_29_B,D,29,B,(TM2 x WL2) x (SQ3 x WL2),NA,11,315, , , , , , , 
+780,766,available,E,D_30_A,D,30,A,NA,NA,NA,NA, , , , , , , 
+781,767,available,E,D_30_B,D,30,B,NA,NA,NA,NA, , , , , , , 
+815,768,available,F,D_31_A,D,31,A,WL2,NA,8,103, , , , , , , 
+816,769,available,F,D_31_B,D,31,B,(SQ3 x WL2) x (DPR x WL2),NA,11,813, , , , , ,7/2/2024,6/25/24 wilting
+817,770,available,F,D_32_A,D,32,A,(SQ3 x WL2) x (WL2),NA,13,92, , , , , , , 
+818,771,available,F,D_32_B,D,32,B,TM2,NA,68,538, , , , , ,6/25/2024, 
+819,772,available,F,D_33_A,D,33,A,(WV x WL2) x (WV),NA,2,269, , , , , ,7/2/2024, 
+820,773,available,F,D_33_B,D,33,B,(DPR) x (WL2 x DPR),NA,15,741, , , , , ,7/16/2024,7/2 wilting
+821,774,available,F,D_34_A,D,34,A,TM2 x WL2,NA,4,1280, , , , , , , 
+822,775,available,F,D_34_B,D,34,B,(WL2 x BH) x (WL2 x TM2),NA,11,246, , , , , , , 
+823,776,available,F,D_35_A,D,35,A,(WL2 x DPR) x (WL2),NA,4,1101, , , , , , , 
+824,777,available,F,D_36_A,D,36,A,TM2,NA,33,503, , , , , , , 
+825,778,available,F,D_36_B,D,36,B,WL2,NA,95,190, , , , , , , 
+826,779,available,F,D_37_A,D,37,A,(SQ3 x WL2) x (YO11 x WL2),NA,15,1514, , , , , , ,Dead at planting
+827,780,available,F,D_37_B,D,37,B,TM2,NA,61,531, , , , , ,7/2/2024,6/25/24 wilted
+828,781,available,F,D_38_A,D,38,A,(DPR) x (DPR x WL2),NA,3,713, , , , , ,7/16/2024,7/9 wilted
+829,782,available,F,D_38_B,D,38,B,LV1,NA,6,6, , , , , ,7/2/2024,6/25/24 roots exposed
+830,783,available,F,D_39_A,D,39,A,(TM2 x WL2) x (TM2),NA,8,350, , , , , , , 
+831,784,available,F,D_39_B,D,39,B,TM2,NA,14,484, , , , , , , 
+832,785,available,F,D_40_A,D,40,A,DPR x WL2,NA,5,1214, , , , , ,7/9/2024,6/25/24 wilted 7/2 wilting
+932,786,2023-survivor,NA,D_40_B,D,40,B,BH,7,8,BH_7_8,6/25/2024,7/2/2024,7/16/2024, , , , 
+833,787,available,F,D_41_A,D,41,A,(TM2 x BH) x (BH),NA,15,757, , , , , , , 
+834,788,available,F,D_41_B,D,41,B,TM2,NA,89,559, , , , , , , 
+835,789,available,F,D_42_A,D,42,A,LV1 x TM2,NA,8,1232, , , , , ,6/25/2024,6/25/24 gone
+836,790,available,F,D_42_B,D,42,B,(WL2) x (DPR x WL2),NA,3,897, , , , , ,7/9/2024,7/2 wilted
+837,791,available,F,D_43_A,D,43,A,(WL2 x CC) x (WL2 x TM2),NA,13,1190, , , , , ,6/25/2024, 
+838,792,available,F,D_43_B,D,43,B,SQ3,NA,19,40, , , , , ,7/2/2024, 
+839,793,available,F,D_44_A,D,44,A,(WL2) x (DPR x WL2),NA,1,895, , , , , , , 
+840,794,available,F,D_44_B,D,44,B,NA,NA,NA,NA, , , , , , , 
+868,795,available,G,D_45_A,D,45,A,WV x TM2,NA,13,205, , , , , ,7/16/2024, 
+869,796,available,G,D_45_B,D,45,B,(LV1 x WL2) x (WL2 x DPR),NA,5,960, , , , , , , 
+870,797,available,G,D_46_A,D,46,A,(LV1 x WL2) x (LV1 x WL2),NA,6,1023, , , , , ,6/25/2024, 
+871,798,available,G,D_46_B,D,46,B,BH,NA,12,398, , , , , , , 
+872,799,available,G,D_47_A,D,47,A,NA,NA,NA,NA, , , , , , , 
+873,800,available,G,D_47_B,D,47,B,WL2,NA,62,157, , , , , ,7/2/2024,6/25/24 wilting
+874,801,available,G,D_48_A,D,48,A,TM2,NA,15,485, , , , , , , 
+875,802,available,G,D_48_B,D,48,B,WV x WL2,NA,1,1403, , , , , , , 
+876,803,available,G,D_49_A,D,49,A,LV1,NA,7,7, , , , , , , 
+877,804,available,G,D_49_B,D,49,B,(YO11 x WL2) x (DPR x WL2),NA,6,778, , , , , ,7/16/2024, 
+878,805,available,G,D_50_A,D,50,A,(WV x WL2) x (WV),NA,3,270, , , , , ,7/9/2024, 
+879,806,available,G,D_50_B,D,50,B,TM2,NA,20,490, , , , , ,7/2/2024, 
+880,807,available,G,D_51_A,D,51,A,(LV1 x WL2) x (WL2),NA,14,77, , , , , , , 
+881,808,available,G,D_51_B,D,51,B,BH x WL2,NA,22,632, , , , , , , 
+882,809,available,G,D_52_A,D,52,A,WL1,NA,16,299, , , , , , , 
+883,810,available,G,D_52_B,D,52,B,(WL1 x TM2) x (WL2 x TM2),NA,6,326, , , , , , , 
+884,811,available,G,D_53_A,D,53,A,TM2,NA,52,522, , , , , , , 
+885,812,available,G,D_53_B,D,53,B,NA,NA,NA,NA, , , , , , , 
+886,813,available,G,D_54_A,D,54,A,(WL1 x WL2) x (WL2 x CC),NA,4,1117, , , , , ,7/2/2024, 
+887,814,available,G,D_54_B,D,54,B,(WV) x (WV x WL2),NA,1,1387, , , , , ,7/9/2024,6/25/24 wilting
+888,815,available,G,D_55_A,D,55,A,(WL2 x TM2) x (CC x TM2),NA,3,254, , , , , , , 
+889,816,available,G,D_55_B,D,55,B,WL2,NA,86,181, , , , , ,6/25/2024, 
+890,817,available,G,D_56_A,D,56,A,TM2,NA,88,558, , , , , ,6/25/2024,6/25/24 gone
+891,818,available,G,D_56_B,D,56,B,NA,NA,NA,NA, , , , , , , 
+892,819,available,G,D_57_A,D,57,A,LV1 x TM2,NA,18,1242, , , , , ,7/2/2024,6/25/24 wilting
+893,820,available,G,D_57_B,D,57,B,(TM2 x BH) x (TM2 x BH),NA,10,1344, , , , , ,6/25/2024,Broken stem at planting
+894,821,buffer,G,D_58_A,D,58,A,NA,NA,NA,buffer, , , , , , , 
+895,822,available,G,D_58_B,D,58,B,(WV x WL2) x (WL2 x DPR),NA,3,1327, , , , , , ,Broken stem at planting
+896,823,available,G,D_59_A,D,59,A,WL2,NA,19,114, , , , , ,6/25/2024, 
+897,824,buffer,G,D_59_B,D,59,B,NA,NA,NA,buffer, , , , , , , 
+733,825,buffer,D,D_1_C,D,1,C,NA,NA,NA,buffer, , , , , , , 
+734,826,buffer,D,D_1_D,D,1,D,NA,NA,NA,buffer, , , , , , , 
+735,827,buffer,D,D_2_C,D,2,C,NA,NA,NA,buffer, , , , , , , 
+736,828,buffer,D,D_2_D,D,2,D,NA,NA,NA,buffer, , , , , , , 
+737,829,buffer,D,D_3_C,D,3,C,NA,NA,NA,buffer, , , , , , , 
+738,830,buffer,D,D_3_D,D,3,D,NA,NA,NA,buffer, , , , , , , 
+739,831,available,D,D_4_C,D,4,C,TM2,NA,18,488, , , , , ,7/2/2024,6/25/24 wilted
+740,832,available,D,D_4_D,D,4,D,TM2,NA,34,504, , , , , ,7/9/2024,7/2 wilted
+741,833,available,D,D_5_C,D,5,C,(WL2) x (WV x WL2),NA,14,772, , , , , ,7/9/2024,7/2 wilted
+742,834,available,D,D_5_D,D,5,D,WL2,NA,70,165, , , , , ,6/18/2024, 
+743,835,available,D,D_7_C,D,7,C,WV x TM2,NA,20,213, , , , , ,7/9/2024,7/2 wilted
+744,836,available,D,D_8_D,D,8,D,(TM2 x WL2) x (TM2),NA,3,345, , , , , ,7/9/2024,6/25/24 wilted 7/2 wilted
+745,837,available,D,D_9_C,D,9,C,(WV) x (WV x WL2),NA,14,1400, , , , , ,7/9/2024,6/25/24 wilted 7/2 wilted
+746,838,available,D,D_9_D,D,9,D,WL2,NA,40,135, , , , , ,6/25/2024, 
+747,839,available,D,D_10_C,D,10,C,(LV1 x WL2) x (YO11 x WL2),NA,1,986, , , , , , ,7/2 wilted
+748,840,available,D,D_10_D,D,10,D,TM2,NA,82,552, , , , , , , 
+749,841,available,D,D_11_C,D,11,C,TM2,NA,12,482, , , , , , , 
+750,842,available,D,D_11_D,D,11,D,(TM2 x WL2) x (WL2),NA,3,359, , , , , , , 
+751,843,available,D,D_12_C,D,12,C,WL2,NA,49,144, , , , , , , 
+752,844,available,D,D_12_D,D,12,D,NA,NA,NA,NA, , , , , , , 
+753,845,available,D,D_13_C,D,13,C,(TM2 x BH) x (BH),NA,13,755, , , , , ,7/9/2024,7/2 wilted
+782,846,available,E,D_13_D,D,13,D,(WL1 x WL2) x (WL2 x TM2),NA,14,1159, , , , , ,6/25/2024, 
+783,847,available,E,D_14_C,D,14,C,(YO11 x WL2) x (WL2),NA,8,934, , , , , ,7/9/2024,7/2 wilting
+784,848,available,E,D_14_D,D,14,D,WL2,NA,85,180, , , , , ,7/2/2024,6/25/24 wilted
+785,849,available,E,D_15_C,D,15,C,(WL1 x TM2) x (WL2 x TM2),NA,4,324, , , , , ,7/9/2024,7/2 wilting
+786,850,available,E,D_15_D,D,15,D,WL2,NA,7,102, , , , , ,6/25/2024, 
+787,851,available,E,D_16_C,D,16,C,(SQ3 x WL2) x (YO11 x WL2),NA,11,1510, , , , , ,7/2/2024, 
+788,852,available,E,D_16_D,D,16,D,BH,NA,10,396, , , , , ,7/9/2024, 
+789,853,available,E,D_17_C,D,17,C,(WL2 x BH) x (SQ3 x WL2),NA,15,1176, , , , , ,7/9/2024,7/2 wilting
+790,854,available,E,D_17_D,D,17,D,(TM2 x WL2) x (TM2 x WL2),NA,3,1084, , , , , ,7/9/2024, 
+791,855,available,E,D_18_C,D,18,C,TM2 x WL2,NA,5,1281, , , , , ,6/25/2024, 
+792,856,available,E,D_18_D,D,18,D,TM2,NA,78,548, , , , , ,6/25/2024, 
+793,857,available,E,D_19_C,D,19,C,(WL2 x DPR) x (YO11 x WL2),NA,10,578, , , , , ,7/2/2024, 
+794,858,available,E,D_19_D,D,19,D,(YO11 x WL2) x (SQ3 x WL2),NA,4,1005, , , , , ,6/18/2024, 
+795,859,available,E,D_20_C,D,20,C,TM2,NA,39,509, , , , , ,7/2/2024,6/25/24 wilted
+796,860,available,E,D_20_D,D,20,D,TM2,NA,55,525, , , , , , , 
+797,861,available,E,D_21_C,D,21,C,YO11,NA,11,53, , , , , , , 
+798,862,available,E,D_21_D,D,21,D,(WL2 x TM2) x (CC x TM2),NA,1,252, , , , , ,7/16/2024,7/9/24 wilted
+799,863,available,E,D_22_C,D,22,C,(TM2 x BH) x (TM2 x BH),NA,11,1345, , , , , ,7/9/2024,6/25/24 roots exposed
+800,864,available,E,D_22_D,D,22,D,(SQ3 x WL2) x (DPR x WL2),NA,13,815, , , , , , , 
+801,865,available,E,D_23_C,D,23,C,(WL1 x WL2) x (BH x WL2),NA,7,338, , , , , ,7/16/2024, 
+802,866,available,E,D_23_D,D,23,D,(DPR x WL2) x (YO11 x WL2),NA,10,704, , , , , ,7/9/2024,6/25/24 roots exposed
+803,867,available,E,D_24_C,D,24,C,(TM2 x WL2) x (TM2),NA,6,348, , , , , , ,7/9/24 wilted
+804,868,available,E,D_24_D,D,24,D,WL1,NA,18,301, , , , , ,7/2/2024, 
+933,869,2023-survivor,NA,D_25_C,D,25,C,CC,2,9,CC_2_9,7/9/2024, , , , , ,6/25/24 stem snapped
+805,870,available,E,D_25_D,D,25,D,(SQ3 x WL2) x (TM2 x WL2),NA,4,882, , , , , , ,7/9 wilted
+934,871,2023-survivor,NA,D_26_C,D,26,C,SC,8,15,SC_8_15,6/25/2024, , , , , , 
+806,872,available,E,D_26_D,D,26,D,(WL2) x (TM2 x WL2),NA,1,911, , , , , ,7/9/2024,7/2 wilting
+807,873,available,E,D_27_C,D,27,C,TM2,NA,92,562, , , , , ,6/25/2024, 
+808,874,available,E,D_27_D,D,27,D,(WL1 x WL2) x (WL2 x CC),NA,1,1114, , , , , ,6/25/2024, 
+809,875,available,E,D_28_C,D,28,C,(DPR) x (WL2 x DPR),NA,14,740, , , , , , , 
+810,876,available,E,D_28_D,D,28,D,TM2,NA,13,483, , , , , ,7/2/2024,6/25/24 no leaves
+811,877,available,E,D_29_C,D,29,C,NA,NA,NA,NA, , , , , , , 
+812,878,available,E,D_29_D,D,29,D,NA,NA,NA,NA, , , , , , , 
+813,879,available,E,D_30_C,D,30,C,(DPR x WL2) x (WV x WL2),NA,13,1469, , , , , , , 
+814,880,NA,E,D_30_D,D,30,D,NA,NA,NA,NA, , , , , , , 
+841,881,available,F,D_31_C,D,31,C,NA,NA,NA,NA, , , , , , , 
+842,882,available,F,D_31_D,D,31,D,NA,NA,NA,NA, , , , , , , 
+843,883,available,F,D_32_C,D,32,C,(WL2) x (WV x WL2),NA,9,767, , , , , ,7/16/2024, 
+844,884,available,F,D_32_D,D,32,D,(WV) x (WV x WL2),NA,16,1402, , , , , ,6/25/2024, 
+845,885,available,F,D_33_C,D,33,C,WL2,NA,55,150, , , , , ,7/9/2024,7/2 wilting
+846,886,available,F,D_33_D,D,33,D,WL2,NA,34,129, , , , , ,7/2/2024, 
+847,887,available,F,D_34_C,D,34,C,(SQ3 x WL2) x (TM2 x WL2),NA,1,879, , , , , ,6/25/2024,6/25/24 wilted and uprooted
+848,888,available,F,D_34_D,D,34,D,BH x TM2,NA,17,601, , , , , ,7/2/2024,6/25/24 wilted
+849,889,available,F,D_35_C,D,35,C,WL2,NA,32,127, , , , , ,6/25/2024, 
+850,890,available,F,D_35_D,D,35,D,(TM2) x (TM2 x WL2),NA,9,228, , , , , , ,Dead at planting
+851,891,available,F,D_36_C,D,36,C,WV x TM2,NA,12,204, , , , , , , 
+852,892,available,F,D_36_D,D,36,D,SQ3 x WL2,NA,4,640, , , , , ,7/9/2024,6/25/24 roots exposed 7/2 wilting
+853,893,available,F,D_37_C,D,37,C,(WL2 x CC) x (WL2 x TM2),NA,12,1189, , , , , ,7/9/2024,7/2 wilting
+854,894,available,F,D_37_D,D,37,D,(TM2 x WL2) x (SQ3 x WL2),NA,8,312, , , , , , , 
+855,895,available,F,D_38_C,D,38,C,LV1 x WL2,NA,19,1269, , , , , , , 
+856,896,available,F,D_38_D,D,38,D,(TM2 x BH) x (TM2 x BH),NA,5,1339, , , , , ,7/2/2024,6/25/24 wilted
+857,897,available,F,D_39_C,D,39,C,BH,NA,11,397, , , , , , , 
+858,898,available,F,D_39_D,D,39,D,(WL2 x TM2) x (CC x TM2),NA,2,253, , , , , ,7/2/2024, 
+935,899,2023-survivor,NA,D_40_C,D,40,C,IH,5,8,IH_5_8, , , , , ,7/2/2024,6/25/24 wilting
+859,900,available,F,D_40_D,D,40,D,(CC x TM2) x (WL2 x TM2),NA,2,1430, , , , , , , 
+860,901,available,F,D_41_C,D,41,C,(WL2 x BH) x (SQ3 x WL2),NA,4,1165, , , , , , ,7/2 wilting
+861,902,available,F,D_41_D,D,41,D,WV x WL2,NA,2,1404, , , , , , , 
+862,903,available,F,D_42_C,D,42,C,WL2,NA,66,161, , , , , , , 
+863,904,available,F,D_42_D,D,42,D,(YO11 x WL2) x (WL2 x TM2),NA,8,795, , , , , ,7/2/2024, 
+864,905,available,F,D_43_C,D,43,C,TM2,NA,21,491, , , , , , , 
+865,906,available,F,D_43_D,D,43,D,(LV1 x WL2) x (WL2),NA,13,76, , , , , , , 
+866,907,available,F,D_44_C,D,44,C,(TM2 x WL2) x (WL2),NA,7,363, , , , , , , 
+867,908,available,F,D_44_D,D,44,D,WL1,NA,14,297, , , , , , , 
+898,909,available,G,D_45_C,D,45,C,(TM2 x WL2) x (YO11 x WL2),NA,13,385, , , , , , , 
+899,910,available,G,D_45_D,D,45,D,LV1 x TM2,NA,9,1233, , , , , ,6/25/2024, 
+900,911,available,G,D_46_C,D,46,C,TM2,NA,72,542, , , , , ,6/18/2024,Broken stem at planting
+901,912,available,G,D_46_D,D,46,D,(WL2) x (TM2 x WL2),NA,7,917, , , , , ,7/2/2024, 
+902,913,available,G,D_47_C,D,47,C,WL2,NA,9,104, , , , , ,6/25/2024, 
+903,914,available,G,D_47_D,D,47,D,(TM2 x BH) x (BH),NA,16,758, , , , , ,6/25/2024, 
+904,915,available,G,D_48_C,D,48,C,DPR x WL2,NA,2,1211, , , , , ,7/2/2024, 
+905,916,available,G,D_48_D,D,48,D,WL2,NA,38,133, , , , , ,6/25/2024, 
+906,917,available,G,D_49_C,D,49,C,WV x TM2,NA,19,212, , , , , ,7/9/2024,6/25/24 wilting
+907,918,available,G,D_49_D,D,49,D,(WL2 x CC) x (SQ3 x WL2),NA,9,1313, , , , , ,7/9/2024,6/25/24 wilting
+908,919,available,G,D_50_C,D,50,C,(LV1 x WL2) x (YO11 x WL2),NA,7,992, , , , , ,6/25/2024, 
+909,920,available,G,D_50_D,D,50,D,(WL1 x WL2) x (WL2 x TM2),NA,9,1154, , , , , ,6/25/2024, 
+936,921,2023-survivor,NA,D_51_C,D,51,C,IH,1,8,IH_1_8,6/25/2024,7/16/2024, , , , , 
+910,922,available,G,D_51_D,D,51,D,WL2,NA,80,175, , , , , ,6/25/2024, 
+911,923,available,G,D_52_C,D,52,C,LV1 x WL2,NA,21,1271, , , , , ,6/18/2024, 
+912,924,available,G,D_52_D,D,52,D,(SQ3 x WL2) x (WL2),NA,14,93, , , , ,7/16/24,7/9/2024, 
+913,925,available,G,D_53_C,D,53,C,(TM2 x WL2) x (SQ3 x WL2),NA,6,310, , , , , ,7/2/2024,6/25/24 wilting
+914,926,available,G,D_53_D,D,53,D,(DPR) x (WL2 x DPR),NA,16,742, , , , , , , 
+915,927,available,G,D_54_C,D,54,C,(WL2 x CC) x (WL2 x TM2),NA,14,1191, , , , , , , 
+916,928,available,G,D_54_D,D,54,D,(WL2) x (WV x WL2),NA,4,762, , , , , , , 
+937,929,2023-survivor,NA,D_55_C,D,55,C,SC,4,8,SC_4_8,6/25/2024,7/9/2024, , , , ,Wilting flowers
+917,930,available,G,D_55_D,D,55,D,(YO11 x WL2) x (WL2),NA,10,936, , , , , , , 
+918,931,available,G,D_56_C,D,56,C,TM2,NA,41,511, , , , , , , 
+919,932,available,G,D_56_D,D,56,D,BH x TM2,NA,24,608, , , , , , , 
+920,933,available,G,D_57_C,D,57,C,NA,NA,NA,NA, , , , , , , 
+921,934,available,G,D_57_D,D,57,D,NA,NA,NA,NA, , , , , , , 
+922,935,buffer,G,D_58_C,D,58,C,NA,NA,NA,buffer, , , , , , , 
+923,936,buffer,G,D_58_D,D,58,D,NA,NA,NA,buffer, , , , , , , 
+924,937,buffer,G,D_59_C,D,59,C,NA,NA,NA,buffer, , , , , , , 
+925,938,buffer,G,D_59_D,D,59,D,NA,NA,NA,buffer, , , , , , , 
+938,939,buffer,H,E_1_A,E,1,A,NA,NA,NA,buffer, , , , , , , 
+939,940,buffer,H,E_1_B,E,1,B,NA,NA,NA,buffer, , , , , , , 
+940,941,buffer,H,E_2_A,E,2,A,NA,NA,NA,buffer, , , , , , , 
+941,942,buffer,H,E_2_B,E,2,B,NA,NA,NA,buffer, , , , , , , 
+942,943,buffer,H,E_3_A,E,3,A,NA,NA,NA,buffer, , , , , , , 
+943,944,buffer,H,E_3_B,E,3,B,NA,NA,NA,buffer, , , , , , , 
+944,945,available,H,E_4_A,E,4,A,NA,NA,NA,NA, , , , , , , 
+945,946,available,H,E_4_B,E,4,B,NA,NA,NA,NA, , , , , , , 
+946,947,available,H,E_5_A,E,5,A,(LV1 x WL2) x (WL2 x DPR),NA,3,958, , , , , ,7/2/2024,6/25/24 wilting
+947,948,available,H,E_5_B,E,5,B,WV x TM2,NA,25,218, , , , , ,7/2/2024,Stem bent at planting
+948,949,available,H,E_6_B,E,6,B,TM2,NA,28,498, , , , , ,7/2/2024,6/25/24 wilting
+949,950,available,H,E_7_A,E,7,A,(DPR x WL2) x (YO11 x WL2),NA,6,700, , , , , ,7/2/2024, 
+950,951,available,H,E_7_B,E,7,B,(TM2 x WL2) x (LV1 x WL2),NA,4,1496, , , , , ,7/9/2024,7/2 wilting
+951,952,available,H,E_8_A,E,8,A,(SQ3 x WL2) x (TM2 x WL2),NA,5,883, , , , , ,7/16/2024,7/9 wilting
+1081,953,2023-TM2-fruit,NA,E_8_B,E,8,B,TM2,6,2,TM2_6_2, , , , , , ,TM2 fruiting from 2023
+952,954,available,H,E_9_A,E,9,A,(YO11 x WL2) x (WL2),NA,2,928, , , , , ,7/2/2024,6/25/24 wilted
+953,955,available,H,E_10_A,E,10,A,BH,NA,13,399, , , , , , , 
+954,956,available,H,E_10_B,E,10,B,(DPR) x (WL2 x DPR),NA,1,727, , , , , ,7/2/2024,6/25/24 wilted
+955,957,available,H,E_11_A,E,11,A,TM2,NA,96,566, , , , , ,7/2/2024,6/25/24 wilted
+956,958,available,H,E_11_B,E,11,B,(LV1 x WL2) x (YO11 x WL2),NA,13,998, , , , , , ,7/2 wilting
+957,959,available,H,E_12_A,E,12,A,WL2,NA,63,158, , , , , ,6/25/2024, 
+958,960,available,H,E_12_B,E,12,B,LV1 x WL2,NA,3,1253, , , , , ,7/16/2024,7/9 wilting
+959,961,available,H,E_13_A,E,13,A,WV,NA,5,454, , , , , ,7/2/2024,6/25/24 wilting
+960,962,available,H,E_14_A,E,14,A,WL2,NA,78,173, , , , , ,7/2/2024, 
+961,963,available,H,E_14_B,E,14,B,SQ3,NA,4,25, , , , , ,6/18/2024, 
+962,964,available,H,E_15_A,E,15,A,LV1,NA,8,8, , , , , ,6/25/2024, 
+963,965,available,H,E_15_B,E,15,B,(YO11 x WL2) x (DPR x WL2),NA,5,777, , , , , ,7/2/2024,6/25/24 wilted
+964,966,available,H,E_16_A,E,16,A,(DPR x WL2) x (SQ3 x WL2),NA,12,690, , , , , , ,7/2 wilting
+965,967,available,H,E_16_B,E,16,B,WV x TM2,NA,14,206, , , , , , ,6/25/24 wilted 7/2 wilting
+966,968,available,H,E_17_A,E,17,A,(WL2) x (WV x WL2),NA,12,770, , , , , , , 
+967,969,available,H,E_17_B,E,17,B,(LV1 x WL2) x (TM2 x WL2),NA,2,944, , , , , , , 
+968,970,available,H,E_18_A,E,18,A,(WL2) x (TM2 x WL2),NA,6,916, , , , , ,7/2/2024, 
+969,971,available,H,E_18_B,E,18,B,(TM2 x WL2) x (WL2),NA,16,372, , , , , , , 
+970,972,available,H,E_19_A,E,19,A,(LV1 x WL2) x (WL2),NA,15,78, , , , , ,7/2/2024,6/25/24 wilting
+971,973,available,H,E_19_B,E,19,B,WL2,NA,10,105, , , , , ,6/25/2024, 
+972,974,available,H,E_20_A,E,20,A,(WV x WL2) x (WV),NA,4,271, , , , , , ,7/9 wilting
+973,975,available,H,E_20_B,E,20,B,(SQ3 x WL2) x (WL2),NA,15,94, , , , , ,7/2/2024,6/25/24 wilted
+1082,976,2023-survivor,NA,E_21_A,E,21,A,CC,5,10,CC_5_10,6/25/2024,7/2/2024,7/16/2024, , , , 
+974,977,available,H,E_21_B,E,21,B,NA,NA,NA,NA, , , , , , , 
+1083,978,2023-survivor,NA,E_22_A,E,22,A,IH,2,10,IH_2_10,7/16/2024, , , , , , 
+975,979,available,H,E_22_B,E,22,B,NA,NA,NA,NA, , , , , , , 
+1014,980,available,I,E_23_A,E,23,A,BH,NA,14,400, , , , , , , 
+1084,981,2023-survivor,NA,E_23_B,E,23,B,WR,3,2,WR_3_2,6/25/2024,7/16/2024, , , , ,7/16 Snapped side stem/small flowers
+1015,982,available,I,E_24_A,E,24,A,(WL2) x (WV x WL2),NA,3,761, , , , , , , 
+1016,983,available,I,E_24_B,E,24,B,DPR,NA,3,431, , , , , ,7/2/2024, 
+1017,984,available,I,E_25_A,E,25,A,(CC x TM2) x (WL2 x TM2),NA,1,1429, , , , , ,7/16/2024,7/2 wilting
+1085,985,2023-TM2-fruit,NA,E_25_B,E,25,B,TM2,1,15,TM2_1_15, , , , , , ,TM2 fruiting from 2023
+1018,986,available,I,E_26_A,E,26,A,WL1,NA,13,296, , , , , , , 
+1019,987,available,I,E_26_B,E,26,B,TM2,NA,93,563, , , , , ,7/16/2024, 
+1020,988,available,I,E_27_A,E,27,A,(SQ3 x WL2) x (WL2),NA,16,95, , , , , , , 
+1021,989,available,I,E_27_B,E,27,B,(WL2 x DPR) x (TM2 x WL2),NA,6,1319, , , , , , ,7/9 wilting
+1022,990,available,I,E_28_A,E,28,A,(DPR) x (DPR x WL2),NA,5,715, , , , , , ,Dead at planting
+1023,991,available,I,E_28_B,E,28,B,WL2,NA,56,151, , , , , ,7/2/2024,6/25/24 wilted
+1086,992,2023-TM2-fruit,NA,E_29_A,E,29,A,TM2,1,9,TM2_1_9, , , , , , ,TM2 fruiting from 2023
+1024,993,available,I,E_29_B,E,29,B,(DPR x WL2) x (YO11 x WL2),NA,13,707, , , , , ,6/18/2024,Very small no leaves / buried under soil at planting
+1025,994,available,I,E_41_A,E,41,A,(TM2 x BH) x (TM2 x BH),NA,8,1342, , , , , ,7/2/2024,6/25/24 wilted
+1026,995,available,I,E_41_B,E,41,B,(SQ3 x WL2) x (LV1 x WL2),NA,3,851, , , , , ,6/25/2024, 
+1027,996,available,I,E_42_A,E,42,A,WV x TM2,NA,3,207, , , , , ,7/2/2024,6/25/24 wilted
+1028,997,available,I,E_42_B,E,42,B,LV1 x TM2,NA,24,1248, , , , , ,7/2/2024,6/25/24 wilted
+1029,998,available,I,E_43_A,E,43,A,(TM2 x WL2) x (WL2),NA,13,369, , , , , , , 
+1030,999,available,I,E_43_B,E,43,B,(WV) x (WV x WL2),NA,3,1389, , , , , ,7/2/2024,6/25/24 wilted
+1031,1000,available,I,E_44_A,E,44,A,WL2,NA,73,168, , , , , ,7/9/2024,6/25/24 wilted
+1087,1001,2023-survivor,NA,E_44_B,E,44,B,SC,4,10,SC_4_10,6/25/2024,7/16/2024,7/16/2024, , , , 
+1032,1002,available,I,E_45_A,E,45,A,(LV1 x WL2) x (LV1 x WL2),NA,8,1025, , , , , ,6/25/2024,6/25/24 plant gone
+1033,1003,available,I,E_45_B,E,45,B,WL2,NA,47,142, , , , , ,6/25/2024, 
+1034,1004,available,I,E_46_A,E,46,A,(WL1 x WL2) x (WL2 x TM2),NA,2,1147, , , , , ,6/25/2024, 
+1088,1005,2023-survivor,NA,E_46_B,E,46,B,IH,3,11,IH_3_11,7/2/2024, , , , , , 
+1089,1006,2023-survivor,NA,E_47_A,E,47,A,BH,4,11,BH_4_11,6/25/2024,7/16/2024,7/16/2024, , , , 
+1035,1007,available,I,E_47_B,E,47,B,TM2,NA,35,505, , , , , ,7/2/2024,6/25/24 wilting
+1090,1008,2023-survivor,NA,E_48_A,E,48,A,SC,5,11,SC_5_11,6/25/2024, , , , , , 
+1036,1009,available,I,E_48_B,E,48,B,(TM2 x BH) x (TM2 x WL2),NA,4,1037, , , , , ,6/25/2024, 
+1091,1010,2023-survivor,NA,E_49_A,E,49,A,YO7,4,3,YO7_4_3, ,6/25/2024,7/16/2024, , , ,6/25/24 started budding last week
+1092,1011,2023-survivor,NA,E_49_B,E,49,B,TM2,6,4,TM2_6_4,6/25/2024, , , , , , 
+1037,1012,available,I,E_50_A,E,50,A,(YO11 x WL2) x (DPR x WL2),NA,2,774, , , , , ,7/2/2024,6/25/24 wilting
+1038,1013,available,I,E_50_B,E,50,B,(WL2 x CC) x (WL2 x TM2),NA,16,1193, , , , , , , 
+1039,1014,available,I,E_51_A,E,51,A,(WL1 x WL2) x (BH x WL2),NA,3,334, , , , , , , 
+1040,1015,available,I,E_51_B,E,51,B,NA,NA,NA,NA, , , , , , , 
+1041,1016,buffer,I,E_52_A,E,52,A,NA,NA,NA,buffer, , , , , , , 
+1042,1017,buffer,I,E_52_B,E,52,B,NA,NA,NA,buffer, , , , , , , 
+1043,1018,buffer,I,E_53_A,E,53,A,NA,NA,NA,buffer, , , , , , , 
+1044,1019,buffer,I,E_53_B,E,53,B,NA,NA,NA,buffer, , , , , , , 
+976,1020,buffer,H,E_1_C,E,1,C,NA,NA,NA,buffer, , , , , , , 
+977,1021,buffer,H,E_1_D,E,1,D,NA,NA,NA,buffer, , , , , , , 
+978,1022,buffer,H,E_2_C,E,2,C,NA,NA,NA,buffer, , , , , , , 
+979,1023,buffer,H,E_2_D,E,2,D,NA,NA,NA,buffer, , , , , , , 
+980,1024,buffer,H,E_3_C,E,3,C,NA,NA,NA,buffer, , , , , , , 
+981,1025,buffer,H,E_3_D,E,3,D,NA,NA,NA,buffer, , , , , , , 
+982,1026,available,H,E_4_C,E,4,C,(DPR x WL2) x (WV x WL2),NA,1,1457, , , , , , , 
+983,1027,available,H,E_4_D,E,4,D,LV1 x TM2,NA,10,1234, , , , , ,7/2/2024, 
+984,1028,available,H,E_5_C,E,5,C,(WL2 x BH) x (WL2 x TM2),NA,15,250, , , , , ,7/2/2024,6/25/24 wilted
+985,1029,available,H,E_5_D,E,5,D,(SQ3 x WL2) x (SQ3 x WL2),NA,11,875, , , , , ,7/2/2024, 
+986,1030,available,H,E_6_C,E,6,C,TM2,NA,57,527, , , , , ,7/2/2024,6/25/24 wilted
+987,1031,available,H,E_6_D,E,6,D,(TM2 x BH) x (BH),NA,1,743, , , , , ,6/18/2024, 
+988,1032,available,H,E_7_C,E,7,C,(WL2 x DPR) x (WL2),NA,6,1103, , , , , ,6/18/2024, 
+989,1033,available,H,E_7_D,E,7,D,WV x WL2,NA,4,1406, , , , , , , 
+990,1034,available,H,E_8_C,E,8,C,DPR x WL2,NA,3,1212, , , , , ,7/9/2024,6/25/24 rooted exposed
+991,1035,available,H,E_8_D,E,8,D,TM2,NA,16,486, , , , , ,7/2/2024,6/25/24 wilting
+992,1036,available,H,E_9_C,E,9,C,WL1,NA,10,293, , , , , ,7/2/2024, 
+993,1037,available,H,E_9_D,E,9,D,(TM2 x BH) x (TM2 x BH),NA,1,1335, , , , , , , 
+994,1038,available,H,E_10_C,E,10,C,LV1 x TM2,NA,23,1247, , , , , ,7/2/2024,6/25/24 wilting
+995,1039,available,H,E_10_D,E,10,D,(WL2 x CC) x (WL2 x TM2),NA,15,1192, , , , , ,7/2/2024,6/25/24 wilting
+996,1040,available,H,E_11_C,E,11,C,(DPR x WL2) x (SQ3 x WL2),NA,4,682, , , , , ,6/18/2024, 
+997,1041,available,H,E_11_D,E,11,D,(TM2 x WL2) x (YO11 x WL2),NA,6,378, , , , , ,7/2/2024,6/25/24 wilting
+998,1042,available,H,E_12_C,E,12,C,(TM2) x (TM2 x WL2),NA,16,235, , , , , ,7/2/2024,6/25/24 wilting
+999,1043,available,H,E_12_D,E,12,D,(WL2) x (DPR x WL2),NA,15,909, , , , , ,7/9/2024,6/25/24 wilting 7/2/24 wilting
+1000,1044,available,H,E_13_C,E,13,C,BH x TM2,NA,21,605, , , , , , , 
+1001,1045,available,H,E_13_D,E,13,D,(TM2 x WL2) x (DPR x WL2),NA,2,1490, , , , , , , 
+1002,1046,available,H,E_14_C,E,14,C,(TM2 x WL2) x (SQ3 x WL2),NA,4,308, , , , , ,7/2/2024,6/25/24 wilting
+1003,1047,available,H,E_14_D,E,14,D,DPR,NA,9,437, , , , , , , 
+1004,1048,available,H,E_15_C,E,15,C,TM2,NA,47,517, , , , , ,7/2/2024,6/25/24 wilting
+1005,1049,available,H,E_16_C,E,16,C,WL2,NA,45,140, , , , , ,6/25/2024, 
+1006,1050,available,H,E_17_C,E,17,C,WL2,NA,21,116, , , , , ,7/2/2024,6/25/24 wilting
+1007,1051,available,H,E_17_D,E,17,D,TM2,NA,75,545, , , , , ,7/2/2024,6/25/24 roots exposed
+1008,1052,available,H,E_18_C,E,18,C,(WL2 x BH) x (SQ3 x WL2),NA,6,1167, , , , , ,7/2/2024,6/25/24 wilted
+1009,1053,available,H,E_18_D,E,18,D,WL2,NA,83,178, , , , , ,7/2/2024,6/25/24 wilted
+1010,1054,available,H,E_19_C,E,19,C,(WV) x (WV x WL2),NA,2,1388, , , , , ,7/9/2024,7/2/24 wilting
+1011,1055,available,H,E_19_D,E,19,D,(WL2 x TM2) x (CC x TM2),NA,4,255, , , , , , , 
+1012,1056,available,H,E_20_C,E,20,C,NA,NA,NA,NA, , , , , , , 
+1093,1057,2023-survivor,NA,E_20_D,E,20,D,BH,2,10,BH_2_10,6/25/2024,7/2/2024,7/16/2024, , , , 
+1094,1058,2023-survivor,NA,E_21_C,E,21,C,YO7,5,5,YO7_5_5, , , , , ,6/18/2024, 
+1013,1059,available,H,E_21_D,E,21,D,NA,NA,NA,NA, , , , , , , 
+1045,1060,available,I,E_22_C,E,22,C,TM2,NA,98,568, , , , , ,7/2/2024, 
+1046,1061,available,I,E_22_D,E,22,D,LV1 x TM2,NA,11,1235, , , , , , , 
+1095,1062,2023-survivor,NA,E_23_C,E,23,C,BH,1,10,BH_1_10, , , , , ,6/18/2024, 
+1096,1063,2023-survivor,NA,E_23_D,E,23,D,IH,5,10,IH_5_10,6/25/2024,7/16/2024, , , , , 
+1047,1064,available,I,E_24_C,E,24,C,(WV x WL2) x (WV),NA,5,272, , , , , ,7/2/2024,6/25/24 wilted
+1048,1065,available,I,E_24_D,E,24,D,WL2,NA,22,117, , , , , ,7/9/2024,6/25/24 wilted
+1049,1066,available,I,E_25_C,E,25,C,(WL2 x BH) x (WL2 x TM2),NA,9,244, , , , , ,7/9/2024, 
+1050,1067,available,I,E_25_D,E,25,D,SQ3 x WL2,NA,1,637, , , , , , , 
+1051,1068,available,I,E_26_C,E,26,C,WL2,NA,11,106, , , , , ,6/25/2024, 
+1052,1069,available,I,E_26_D,E,26,D,SQ3,NA,5,26, , , , , ,6/25/2024, 
+1097,1070,2023-survivor,NA,E_27_C,E,27,C,BH,4,10,BH_4_10,6/25/2024,7/16/2024, , , , , 
+1053,1071,available,I,E_27_D,E,27,D,(LV1 x WL2) x (WL2),NA,16,79, , , , , , , 
+1054,1072,available,I,E_28_C,E,28,C,(TM2 x BH) x (BH),NA,2,744, , , , , ,7/2/2024,6/25/24 roots exposed
+1055,1073,available,I,E_28_D,E,28,D,LV1,NA,9,9, , , , , ,6/18/2024,Very small / burried under soil at planting
+1056,1074,available,I,E_29_C,E,29,C,WL2,NA,87,182, , , , , ,7/9/2024, 
+1098,1075,2023-survivor,NA,E_29_D,E,29,D,IH,4,10,IH_4_10,6/25/2024, , , , , , 
+1057,1076,available,I,E_41_C,E,41,C,(LV1 x WL2) x (WL2 x DPR),NA,1,956, , , , , , , 
+1058,1077,available,I,E_41_D,E,41,D,(WL2) x (DPR x WL2),NA,10,904, , , , , ,6/25/2024, 
+1059,1078,available,I,E_42_C,E,42,C,WV x WL2,NA,22,1424, , , , , , , 
+1060,1079,available,I,E_42_D,E,42,D,(WL2 x TM2) x (CC x TM2),NA,5,256, , , , , , , 
+1061,1080,available,I,E_43_C,E,43,C,LV1 x WL2,NA,9,1259, , , , , ,6/25/2024, 
+1099,1081,2023-survivor,NA,E_43_D,E,43,D,IH,1,10,IH_1_10,6/25/2024, , , , , , 
+1062,1082,available,I,E_44_C,E,44,C,WV,NA,21,470, , , , , ,7/2/2024,6/25/24 wilted
+1063,1083,available,I,E_44_D,E,44,D,(YO11 x WL2) x (WL2),NA,14,940, , , , , ,6/25/2024, 
+1064,1084,available,I,E_45_C,E,45,C,(WL1 x WL2) x (WL2 x CC),NA,7,1120, , , , , ,6/25/2024, 
+1065,1085,available,I,E_45_D,E,45,D,TM2,NA,1,471, , , , , ,6/25/2024, 
+1066,1086,available,I,E_46_C,E,46,C,BH x TM2,NA,10,594, , , , , ,6/25/2024,Broken stem at planting
+1067,1087,available,I,E_46_D,E,46,D,TM2,NA,79,549, , , , , ,6/18/2024, 
+1068,1088,available,I,E_47_C,E,47,C,WV x TM2,NA,23,216, , , , , ,7/2/2024,6/25/24 wilted
+1069,1089,available,I,E_47_D,E,47,D,TM2,NA,30,500, , , , , ,7/2/2024, 
+1070,1090,available,I,E_48_C,E,48,C,(WL1 x TM2) x (WL2 x TM2),NA,8,328, , , , , , , 
+1071,1091,available,I,E_48_D,E,48,D,(DPR) x (WL2 x DPR),NA,2,728, , , , , ,7/2/2024,6/25/24 wilted
+1072,1092,available,I,E_49_C,E,49,C,(TM2 x WL2) x (YO11 x WL2),NA,8,380, , , , , , , 
+1073,1093,available,I,E_49_D,E,49,D,TM2,NA,49,519, , , , , ,7/16/2024, 
+1074,1094,available,I,E_50_C,E,50,C,(TM2 x WL2) x (SQ3 x WL2),NA,14,318, , , , , ,7/2/2024, 
+1100,1095,2023-survivor,NA,E_50_D,E,50,D,IH,5,11,IH_5_11,6/25/2024,7/16/2024, , , , , 
+1075,1096,available,I,E_51_C,E,51,C,NA,NA,NA,NA, , , , , , , 
+1076,1097,available,I,E_51_D,E,51,D,NA,NA,NA,NA, , , , , , , 
+1077,1098,buffer,I,E_52_C,E,52,C,NA,NA,NA,buffer, , , , , , , 
+1078,1099,buffer,I,E_52_D,E,52,D,NA,NA,NA,buffer, , , , , , , 
+1079,1100,buffer,I,E_53_C,E,53,C,NA,NA,NA,buffer, , , , , , , 
+1080,1101,buffer,I,E_53_D,E,53,D,NA,NA,NA,buffer, , , , , , , 
+1101,1102,buffer,J,F_1_A,F,1,A,NA,NA,NA,buffer, , , , , , , 
+1102,1103,buffer,J,F_1_B,F,1,B,NA,NA,NA,buffer, , , , , , , 
+1103,1104,buffer,J,F_2_A,F,2,A,NA,NA,NA,buffer, , , , , , , 
+1104,1105,buffer,J,F_2_B,F,2,B,NA,NA,NA,buffer, , , , , , , 
+1105,1106,buffer,J,F_3_A,F,3,A,NA,NA,NA,buffer, , , , , , , 
+1106,1107,buffer,J,F_3_B,F,3,B,NA,NA,NA,buffer, , , , , , , 
+1107,1108,available,J,F_4_A,F,4,A,NA,NA,NA,NA, , , , , , , 
+1108,1109,available,J,F_4_B,F,4,B,LV1,NA,12,12, , , , , ,6/25/2024, 
+1109,1110,available,J,F_5_A,F,5,A,(LV1 x WL2) x (TM2 x WL2),NA,10,952, , , , , ,7/2/2024,6/25/24 wilted
+1110,1111,available,J,F_6_A,F,6,A,(WL2) x (WV x WL2),NA,10,768, , , , , ,7/2/2024,6/25/24 wilted
+1111,1112,available,J,F_6_B,F,6,B,(WL1 x WL2) x (WL2 x CC),NA,5,1118, , , , , ,6/25/2024,No leaves at planting
+1112,1113,available,J,F_7_A,F,7,A,(LV1 x WL2) x (YO11 x WL2),NA,8,993, , , , , ,7/2/2024,6/25/24 wilted
+1236,1114,2023-survivor,NA,F_7_B,F,7,B,IH,1,12,IH_1_12,6/25/2024,7/16/2024, , , , , 
+1113,1115,available,J,F_8_A,F,8,A,TM2,NA,65,535, , , , , ,7/2/2024,6/25/24 wilted
+1114,1116,available,J,F_8_B,F,8,B,(DPR) x (WL2 x DPR),NA,3,729, , , , , ,7/9/2024,7/9 gone
+1115,1117,available,J,F_9_A,F,9,A,(WV x WL2) x (WV),NA,6,273, , , , , ,7/2/2024,6/25/24 wilted
+1116,1118,available,J,F_9_B,F,9,B,(WV) x (WV x WL2),NA,4,1390, , , , , , , 
+1117,1119,available,J,F_10_A,F,10,A,(WL2 x BH) x (SQ3 x WL2),NA,8,1169, , , , , ,7/2/2024, 
+1118,1120,available,J,F_10_B,F,10,B,(WL1 x WL2) x (WL2 x TM2),NA,1,1146, , , , , ,7/2/2024,6/25/24 wilted
+1119,1121,available,J,F_11_A,F,11,A,SQ3,NA,2,23, , , , , ,7/2/2024,exposed roots / reburied 6/25/24 wilting
+1120,1122,available,J,F_11_B,F,11,B,TM2,NA,40,510, , , , , ,7/2/2024, 
+1121,1123,available,J,F_12_A,F,12,A,(SQ3 x WL2) x (WL2),NA,1,80, , , , , ,7/2/2024, 
+1122,1124,available,J,F_12_B,F,12,B,(WL2 x CC) x (WL2 x TM2),NA,1,1178, , , , , ,7/2/2024,6/25/24 wilted
+1123,1125,available,J,F_13_A,F,13,A,SQ3 x WL2,NA,9,645, , , , , ,7/9/2024, 
+1124,1126,available,J,F_13_B,F,13,B,WL2,NA,65,160, , , , , ,7/16/2024,7/9/24 wilted
+1125,1127,available,J,F_14_A,F,14,A,TM2,NA,59,529, , , , , , , 
+1126,1128,available,J,F_14_B,F,14,B,LV1 x WL2,NA,1,1251, , , , , , , 
+1127,1129,available,J,F_15_A,F,15,A,(DPR) x (DPR x WL2),NA,2,712, , , , , ,7/16/2024, 
+1128,1130,available,J,F_15_B,F,15,B,(WL2 x DPR) x (DPR),NA,7,1200, , , , , , , 
+1129,1131,available,J,F_16_A,F,16,A,(DPR x WL2) x (WV x WL2),NA,7,1463, , , , , , , 
+1130,1132,available,J,F_16_B,F,16,B,BH,NA,15,401, , , , , , , 
+1131,1133,available,J,F_17_A,F,17,A,WL2,NA,51,146, , , , , ,7/16/2024, 
+1132,1134,available,J,F_17_B,F,17,B,(TM2 x WL2) x (YO11 x WL2),NA,5,377, , , , , , , 
+1133,1135,available,J,F_18_A,F,18,A,WL2,NA,36,131, , , , , ,6/25/2024, 
+1134,1136,available,J,F_18_B,F,18,B,WV x TM2,NA,15,208, , , , , , , 
+1171,1137,available,K,F_19_A,F,19,A,(TM2 x BH) x (TM2),NA,12,1061, , , , , , ,
+1172,1138,available,K,F_19_B,F,19,B,NA,NA,NA,NA, , , , , , , 
+1173,1139,available,K,F_20_A,F,20,A,(WL2 x DPR) x (TM2 x WL2),NA,8,1321, , , , , , , 
+1174,1140,available,K,F_20_B,F,20,B,(TM2 x BH) x (TM2 x BH),NA,4,1338, , , , , ,7/2/2024, 
+1175,1141,available,K,F_21_A,F,21,A,LV1 x WL2,NA,20,1270, , , , , ,6/25/2024,6/18 extremely wilted
+1176,1142,available,K,F_21_B,F,21,B,TM2,NA,50,520, , , , , , , 
+1177,1143,available,K,F_22_A,F,22,A,TM2,NA,22,492, , , , , , , 
+1178,1144,available,K,F_22_B,F,22,B,TM2,NA,45,515, , , , , , , 
+1179,1145,available,K,F_23_A,F,23,A,(WL2 x BH) x (SQ3 x WL2),NA,9,1170, , , , , ,7/9/2024,
+1180,1146,available,K,F_23_B,F,23,B,WL2,NA,13,108, , , , , , ,
+1237,1147,2023-survivor,NA,F_24_A,F,24,A,TM2,2,4,TM2_2_4, , , , , , ,mistakenly coded as TM2-fruiting prior 7/23
+1181,1148,available,K,F_24_B,F,24,B,(SQ3 x WL2) x (WL2),NA,2,81, , , , , ,7/2/2024, 
+1182,1149,available,K,F_25_A,F,25,A,BH,NA,16,402, , , , , , ,
+1183,1150,available,K,F_25_B,F,25,B,(TM2 x WL2) x (WL2),NA,11,367, , , , , ,7/2/2024,
+1238,1151,2023-survivor,NA,F_26_A,F,26,A,WL2,8,4,WL2_8_4, ,6/25/2024,7/2/2024, , , ,6/25/24 was budding last week/not marked
+1184,1152,available,K,F_26_B,F,26,B,LV1,NA,13,13, , , , , ,6/25/2024, 
+1185,1153,available,K,F_27_A,F,27,A,(WV) x (WV x WL2),NA,5,1391, , , , , ,7/2/2024,6/25/24 wilted
+1186,1154,available,K,F_27_B,F,27,B,WL2,NA,43,138, , , , , ,6/25/2024, 
+1187,1155,available,K,F_39_A,F,39,A,(SQ3 x WL2) x (LV1 x WL2),NA,13,861, , , , , , , 
+1188,1156,available,K,F_39_B,F,39,B,LV1 x TM2,NA,13,1237, , , , , , , 
+1189,1157,available,K,F_40_A,F,40,A,(YO11 x WL2) x (SQ3 x WL2),NA,8,1009, , , , , , ,
+1190,1158,NA,K,F_40_B,F,40,B,NA,NA,NA,NA, , , , , , , 
+1191,1159,available,K,F_41_A,F,41,A,CC,NA,18,425, , , , , , , 
+1192,1160,available,K,F_41_B,F,41,B,TM2,NA,77,547, , , , , , , 
+1193,1161,available,K,F_42_A,F,42,A,(WL2 x CC) x (WL2 x TM2),NA,2,1179, , , , , ,7/9/2024, 
+1239,1162,2023-survivor,NA,F_42_B,F,42,B,CC,3,11,CC_3_11,6/18/2024,7/16/2024, , , , ,tiny flowers 7/16
+1194,1163,available,K,F_43_A,F,43,A,(BH) x (TM2 x BH),NA,16,678, , , , , ,6/18/2024,6/18/24 extremely wilted
+1240,1164,2023-survivor,NA,F_43_B,F,43,B,CC,8,11,CC_8_11,6/25/2024, , , , , , 
+1195,1165,buffer,K,F_44_A,F,44,A,Buffer,NA,NA,NA, , , , , , , 
+1196,1166,buffer,K,F_44_B,F,44,B,Buffer,NA,NA,NA, , , , , , , 
+1197,1167,available,K,F_45_A,F,45,A,WL2,NA,77,172, , , , , ,7/2/2024,6/25/24 wilted
+1226,1168,available,L,F_45_B,F,45,B,(WL2) x (DPR x WL2),NA,2,896, , , , , , ,Dead at planting
+1227,1169,buffer,L,F_46_A,F,46,A,NA,NA,NA,buffer, , , , , , , 
+1228,1170,buffer,L,F_46_B,F,46,B,NA,NA,NA,buffer, , , , , , , 
+1229,1171,buffer,L,F_47_A,F,47,A,NA,NA,NA,buffer, , , , , , , 
+1230,1172,buffer,L,F_47_B,F,47,B,NA,NA,NA,buffer, , , , , , , 
+1135,1173,buffer,J,F_1_C,F,1,C,NA,NA,NA,buffer, , , , , , , 
+1136,1174,buffer,J,F_1_D,F,1,D,NA,NA,NA,buffer, , , , , , , 
+1137,1175,buffer,J,F_2_C,F,2,C,NA,NA,NA,buffer, , , , , , , 
+1138,1176,buffer,J,F_2_D,F,2,D,NA,NA,NA,buffer, , , , , , , 
+1139,1177,buffer,J,F_3_C,F,3,C,NA,NA,NA,buffer, , , , , , , 
+1140,1178,buffer,J,F_3_D,F,3,D,NA,NA,NA,buffer, , , , , , , 
+1141,1179,available,J,F_4_C,F,4,C,(TM2 x BH) x (TM2 x WL2),NA,14,1047, , , , , ,7/2/2024,6/25/24 wilted
+1142,1180,available,J,F_4_D,F,4,D,TM2,NA,2,472, , , , , ,7/2/2024,6/25/24 wilted
+1143,1181,available,J,F_5_C,F,5,C,NA,NA,NA,NA, , , , , , , 
+1144,1182,available,J,F_5_D,F,5,D,(YO11 x WL2) x (TM2 x WL2),NA,4,820, , , , , ,7/2/2024,6/25/24 wilted
+1145,1183,available,J,F_6_C,F,6,C,(TM2 x BH) x (BH),NA,3,745, , , , , ,7/16/2024, 
+1146,1184,available,J,F_6_D,F,6,D,TM2,NA,95,565, , , , , , , 
+1147,1185,available,J,F_7_C,F,7,C,LV1 x TM2,NA,12,1236, , , , , ,7/9/2024, 
+1148,1186,available,J,F_7_D,F,7,D,LV1 x TM2,NA,25,1249, , , , , , , 
+1241,1187,2023-survivor,NA,F_8_C,F,8,C,SC,6,12,SC_6_12, , , , , , , 
+1149,1188,available,J,F_8_D,F,8,D,TM2,NA,26,496, , , , , ,6/25/2024, 
+1150,1189,available,J,F_9_C,F,9,C,(YO11 x WL2) x (WL2),NA,4,930, , , , , ,6/25/2024,6/18/24 no leaves
+1151,1190,available,J,F_9_D,F,9,D,(TM2 x BH) x (TM2),NA,16,1065, , , , , ,7/2/2024,
+1152,1191,NA,J,F_10_C,F,10,C,NA,NA,NA,NA, , , , , , , 
+1153,1192,available,J,F_10_D,F,10,D,WL2,NA,20,115, , , , , ,7/2/2024,6/25/24 wilted
+1154,1193,available,J,F_11_C,F,11,C,(LV1 x WL2) x (WL2 x DPR),NA,10,965, , , , , ,7/2/2024,6/25/24 wilted
+1155,1194,available,J,F_11_D,F,11,D,(WL2 x TM2) x (CC x TM2),NA,6,257, , , , , ,6/25/2024,extremly wilted
+1156,1195,available,J,F_12_C,F,12,C,(DPR x WL2) x (DPR x WL2),NA,9,1440, , , , , , ,7/9/24 wilted
+1157,1196,available,J,F_12_D,F,12,D,WL2,NA,12,107, , , , , ,7/2/2024,6/25/24 wilted
+1158,1197,available,J,F_13_C,F,13,C,DPR,NA,4,432, , , , , ,6/25/2024, 
+1159,1198,available,J,F_13_D,F,13,D,WL2,NA,93,188, , , , , ,7/2/2024,6/25/24 wilted
+1160,1199,available,J,F_14_C,F,14,C,(TM2 x WL2) x (WL2),NA,1,357, , , , , ,7/16/2024,7/9/24 wilted
+1161,1200,available,J,F_14_D,F,14,D,WL1,NA,19,302, , , , , , , 
+1162,1201,available,J,F_15_C,F,15,C,WV,NA,6,455, , , , , ,6/25/2024, 
+1163,1202,available,J,F_15_D,F,15,D,(DPR x WL2) x (SQ3 x WL2),NA,11,689, , , , , ,7/2/2024, 
+1164,1203,available,J,F_16_C,F,16,C,(TM2 x WL2) x (SQ3 x WL2),NA,12,316, , , , , ,7/2/2024,6/18/24 roots exposed/reburied / 6/25/24 wilted
+1165,1204,available,J,F_16_D,F,16,D,NA,NA,NA,NA, , , , , , , 
+1166,1205,available,J,F_17_C,F,17,C,(YO11 x WL2) x (SQ3 x WL2),NA,7,1008, , , , , ,7/2/2024, 
+1167,1206,NA,J,F_17_D,F,17,D,NA,NA,NA,NA, , , , , , , 
+1168,1207,available,J,F_18_C,F,18,C,(DPR x WL2) x (TM2 x WL2),NA,11,1453, , , , , ,6/25/2024, 
+1169,1208,available,J,F_18_D,F,18,D,(LV1 x WL2) x (WL2),NA,1,64, , , , , , , 
+1170,1209,available,J,F_19_C,F,19,C,NA,NA,NA,NA, , , , , , , 
+1198,1210,available,K,F_19_D,F,19,D,WV x TM2,NA,24,217, , , , , ,7/2/2024,6/25/24 wilted
+1199,1211,available,K,F_20_C,F,20,C,TM2 x YO11,NA,5,1222, , , , , ,7/9/2024,
+1200,1212,available,K,F_20_D,F,20,D,(TM2 x WL2) x (YO11 x WL2),NA,9,381, , , , , , , 
+1201,1213,available,K,F_21_C,F,21,C,(WL2 x TM2) x (CC x TM2),NA,7,258, , , , , ,7/2/2024,6/25/24 wilted
+1202,1214,available,K,F_21_D,F,21,D,(DPR) x (WL2 x DPR),NA,4,730, , , , , , , 
+1203,1215,available,K,F_22_C,F,22,C,WL1,NA,12,295, , , , , , , 
+1204,1216,available,K,F_22_D,F,22,D,WV x TM2,NA,16,209, , , , , ,7/9/2024, 
+1242,1217,2023-survivor,NA,F_23_C,F,23,C,SC,2,23,SC_2_23,7/2/2024, , , , , , 
+1205,1218,available,K,F_23_D,F,23,D,TM2,NA,3,473, , , , , ,7/9/2024, 
+1206,1219,available,K,F_24_C,F,24,C,(WV x WL2) x (WV),NA,7,274, , , , , ,7/2/2024,6/25/24 wilted
+1207,1220,available,K,F_24_D,F,24,D,TM2 x WL2,NA,21,1297, , , , , , , 
+1208,1221,available,K,F_25_C,F,25,C,(TM2 x BH) x (BH),NA,4,746, , , , , , , 
+1209,1222,available,K,F_25_D,F,25,D,(LV1 x WL2) x (YO11 x WL2),NA,6,991, , , , , ,6/25/2024, 
+1210,1223,available,K,F_26_C,F,26,C,WL2,NA,27,122, , , , , ,6/25/2024, 
+1211,1224,available,K,F_26_D,F,26,D,(TM2 x WL2) x (TM2),NA,4,346, , , , , , , 
+1212,1225,available,K,F_27_C,F,27,C,WV x WL2,NA,3,1405, , , , , ,7/2/2024, 
+1213,1226,available,K,F_27_D,F,27,D,(WL2) x (DPR x WL2),NA,14,908, , , , , ,6/18/2024,Possible herbivory on stem at planting / no leaves
+1214,1227,available,K,F_38_D,F,38,D,(DPR x WL2) x (YO11 x WL2),NA,15,709, , , , , ,7/16/2024,7/2 base of Stem dying
+1215,1228,available,K,F_39_C,F,39,C,(WL2 x DPR) x (YO11 x WL2),NA,3,571, , , , , ,7/2/2024,
+1216,1229,available,K,F_39_D,F,39,D,WL2,NA,84,179, , , , , ,6/25/2024, 
+1217,1230,available,K,F_40_C,F,40,C,(LV1 x WL2) x (WL2),NA,2,65, , , , , ,7/2/2024,6/25/24 wilting
+1218,1231,available,K,F_40_D,F,40,D,TM2,NA,84,554, , , , , ,7/2/2024,6/25/24 wilting
+1219,1232,available,K,F_41_C,F,41,C,(WL1 x TM2) x (WL2 x TM2),NA,9,329, , , , , ,7/2/2024,6/25/24 wilted
+1220,1233,available,K,F_41_D,F,41,D,(TM2 x WL2) x (SQ3 x WL2),NA,10,314, , , , , , , 
+1221,1234,available,K,F_42_C,F,42,C,WL2,NA,52,147, , , , , ,7/2/2024,6/25/24 wilted
+1222,1235,available,K,F_42_D,F,42,D,(YO11 x WL2) x (WL2),NA,1,927, , , , , ,7/2/2024,6/25/24 wilted
+1243,1236,2023-survivor,NA,F_43_C,F,43,C,CC,9,11,CC_9_11,6/18/2024,7/2/2024, , , , , 
+1223,1237,available,K,F_43_D,F,43,D,SQ3 x WL2,NA,16,652, , , , , ,7/9/2024,6/25/24 wilted / 7/2 base of stem dying
+1244,1238,2023-survivor,NA,F_44_C,F,44,C,IH,4,11,IH_4_11, , , , , , , 
+1224,1239,available,K,F_44_D,F,44,D,NA,NA,NA,NA, , , , , , , 
+1225,1240,available,K,F_45_C,F,45,C,(DPR) x (DPR x WL2),NA,7,717, , , , , ,7/16/2024,
+1231,1241,buffer,L,F_45_D,F,45,D,NA,NA,NA,buffer, , , , , , , 
+1232,1242,available,L,F_46_C,F,46,C,(LV1 x WL2) x (WL2),NA,3,66, , , , , , ,6/18/24 roots exposed / reburied
+1233,1243,available,L,F_46_D,F,46,D,(DPR x WL2) x (WV x WL2),NA,4,1460, , , , , ,6/25/2024,6/18/24 stem exposed / reburied
+1234,1244,buffer,L,F_47_C,F,47,C,NA,NA,NA,buffer, , , , , , , 
+1235,1245,buffer,L,F_47_D,F,47,D,NA,NA,NA,buffer, , , , , , , 
+1245,1246,buffer,L,G_1_A,G,1,A,NA,NA,NA,buffer, , , , , , , 
+1246,1247,buffer,L,G_1_B,G,1,B,NA,NA,NA,buffer, , , , , , , 
+1247,1248,buffer,L,G_2_A,G,2,A,NA,NA,NA,buffer, , , , , , , 
+1248,1249,buffer,L,G_2_B,G,2,B,NA,NA,NA,buffer, , , , , , , 
+1249,1250,buffer,L,G_3_A,G,3,A,NA,NA,NA,buffer, , , , , , , 
+1250,1251,buffer,L,G_3_B,G,3,B,NA,NA,NA,buffer, , , , , , , 
+1251,1252,available,L,G_4_A,G,4,A,LV1 x TM2,NA,14,1238, , , , , , , 
+1252,1253,available,L,G_4_B,G,4,B,WV,NA,7,456, , , , , ,6/25/2024, 
+1253,1254,available,L,G_5_A,G,5,A,(WV) x (WV x WL2),NA,6,1392, , , , , ,7/9/2024,7/2 wilting
+1406,1255,2023-survivor,NA,G_5_B,G,5,B,IH,4,12,IH_4_12, , , , , ,6/18/2024,no leaves
+1254,1256,available,L,G_6_A,G,6,A,(SQ3 x WL2) x (WL2),NA,3,82, , , , , ,7/2/2024,6/25/24 wilted
+1255,1257,available,L,G_6_B,G,6,B,LV1,NA,14,14, , , , , ,7/2/2024,6/25/24 wilted
+1256,1258,available,L,G_7_A,G,7,A,TM2,NA,67,537, , , , , ,7/2/2024,herbivory
+1257,1259,available,L,G_7_B,G,7,B,(YO11 x WL2) x (WL2),NA,7,933, , , , , ,7/2/2024, 
+1407,1260,2023-survivor,NA,G_8_A,G,8,A,YO7,6,15,YO7_6_15,6/18/24,6/25/24,7/2/24,7/16/24,,,7/16 remaining flowers are dry
+1258,1261,available,L,G_8_B,G,8,B,TM2,NA,29,499, , , , , ,7/2/2024,6/25/24 wilted
+1259,1262,available,L,G_9_A,G,9,A,WL2,NA,68,163, , , , , ,6/25/2024, 
+1260,1263,available,L,G_9_B,G,9,B,(TM2 x WL2) x (SQ3 x WL2),NA,1,305, , , , , ,7/2/2024,6/25/24 wilted
+1261,1264,available,L,G_10_A,G,10,A,BH,NA,1,387, , , , , ,7/2/2024,6/25/24 wilted
+1262,1265,available,L,G_10_B,G,10,B,WL2,NA,58,153, , , , , ,7/2/2024,6/25/24 wilted
+1263,1266,available,L,G_11_A,G,11,A,(WL2 x BH) x (WL2 x TM2),NA,14,249, , , , , ,7/9/2024,7/2 roots exposed reburned
+1264,1267,available,L,G_11_B,G,11,B,(TM2 x BH) x (BH),NA,5,747, , , , , ,7/16/2024,7/9/24 wilted
+1265,1268,available,L,G_12_A,G,12,A,(SQ3 x WL2) x (TM2 x WL2),NA,14,892, , , , , ,7/2/2024,6/25/24 wilted
+1266,1269,available,L,G_12_B,G,12,B,(DPR) x (WL2 x DPR),NA,5,731, , , , , ,7/9/2024,7/2 wilting
+1267,1270,available,L,G_13_A,G,13,A,BH x TM2,NA,22,606, , , , , ,7/2/2024,6/18/24 very wilted/roots exposed
+1268,1271,available,L,G_13_B,G,13,B,(SQ3 x WL2) x (YO11 x WL2),NA,2,1501, , , , , ,7/2/2024,6/18/24 roots exposed 6/25/24 wilted
+1269,1272,available,L,G_14_A,G,14,A,(TM2 x WL2) x (WL2),NA,9,365, , , , , ,6/25/2024, 
+1270,1273,available,L,G_14_B,G,14,B,WV,NA,12,461, , , , , ,6/25/2024, 
+1271,1274,available,L,G_15_A,G,15,A,(WV x WL2) x (WV),NA,8,275, , , , , ,7/9/2024, 
+1272,1275,available,L,G_15_B,G,15,B,(LV1 x WL2) x (YO11 x WL2),NA,12,997, , , , , ,7/2/2024,6/25/24 wilted
+1273,1276,available,L,G_16_A,G,16,A,(DPR x WL2) x (TM2 x WL2),NA,3,1445, , , , , ,6/25/2024, 
+1274,1277,available,L,G_16_B,G,16,B,WL2,NA,39,134, , , , , ,7/9/2024, 
+1275,1278,buffer,L,G_17_A,G,17,A,buffer,NA,NA,NA, , , , , , , 
+1276,1279,buffer,L,G_17_B,G,17,B,Buffer,NA,NA,NA, , , , , , , 
+1305,1280,available,M,G_18_A,G,18,A,TM2,NA,5,475, , , , , ,7/9/2024,7/9/24 wilted
+1306,1281,available,M,G_18_B,G,18,B,WL2 x BH,NA,4,833, , , , , ,6/25/2024,6/18/24 very wilted
+1307,1282,available,M,G_19_A,G,19,A,(YO11 x WL2) x (WL2 x TM2),NA,15,802, , , , , ,7/2/2024,6/25/24 wilted
+1308,1283,available,M,G_19_B,G,19,B,LV1 x WL2,NA,15,1265, , , , , ,7/9/2024, 
+1309,1284,available,M,G_20_A,G,20,A,WL2,NA,74,169, , , , , ,6/25/2024,6/18/24 very wilted
+1310,1285,available,M,G_20_B,G,20,B,WV,NA,11,460, , , , , ,6/25/2024, 
+1311,1286,available,M,G_21_A,G,21,A,LV1 x TM2,NA,15,1239, , , , , , ,Dead at planting
+1312,1287,available,M,G_21_B,G,21,B,(DPR x WL2) x (YO11 x WL2),NA,16,710, , , , , ,7/2/2024,6/18/24 wilted
+1313,1288,available,M,G_22_A,G,22,A,WV x WL2,NA,16,1418, , , , , ,7/9/2024, 
+1314,1289,available,M,G_22_B,G,22,B,(DPR x WL2) x (TM2 x WL2),NA,14,1456, , , , , ,7/2/2024, 
+1315,1290,available,M,G_23_A,G,23,A,(LV1 x WL2) x (YO11 x WL2),NA,9,994, , , , , ,6/25/2024, 
+1316,1291,available,M,G_23_B,G,23,B,TM2,NA,80,550, , , , , ,7/2/2024, 
+1317,1292,available,M,G_24_A,G,24,A,TM2 x WL2,NA,1,1277, , , , , ,6/25/2024,6/18/24 wilted
+1318,1293,available,M,G_24_B,G,24,B,TM2,NA,32,502, , , , , ,6/25/2024,Stem partially broken at planting
+1319,1294,available,M,G_25_A,G,25,A,(WL1 x WL2) x (WL2 x CC),NA,2,1115, , , , , ,6/25/2024, 
+1320,1295,available,M,G_25_B,G,25,B,TM2,NA,42,512, , , , , ,6/25/2024,Stem partially broken at planting
+1321,1296,available,M,G_26_A,G,26,A,TM2,NA,91,561, , , , , ,7/2/2024,6/25/24 wilted
+1322,1297,available,M,G_26_B,G,26,B,(WV x WL2) x (WV),NA,9,276, , , , , ,6/25/2024,6/18/24 wilted
+1323,1298,available,M,G_27_A,G,27,A,BH,NA,2,388, , , , , ,7/2/2024, 
+1324,1299,available,M,G_27_B,G,27,B,(TM2 x BH) x (BH),NA,6,748, , , , , ,7/2/2024,6/18/24 wilted
+1325,1300,available,M,G_28_A,G,28,A,WL2,NA,57,152, , , , , ,6/25/2024, 
+1326,1301,available,M,G_28_B,G,28,B,DPR,NA,12,440, , , , , ,6/25/2024,6/18/24 wilted
+1327,1302,available,M,G_29_A,G,29,A,(WV) x (WV x WL2),NA,7,1393, , , , , ,7/2/2024, 
+1328,1303,available,M,G_29_B,G,29,B,(DPR) x (WL2 x DPR),NA,6,732, , , , , ,7/2/2024,6/25/24 wilted
+1329,1304,available,M,G_30_A,G,30,A,WV x TM2,NA,2,195, , , , , , , 
+1330,1305,available,M,G_30_B,G,30,B,NA,NA,NA,NA, , , , , , , 
+1408,1306,2023-survivor,NA,G_31_A,G,31,A,BH,7,13,BH_7_13,6/25/2024,7/16/2024, , , , ,7/16 dry damaged flowers
+1331,1307,available,M,G_31_B,G,31,B,NA,NA,NA,NA, , , , , , , 
+1356,1308,available,N,G_32_A,G,32,A,LV1 x WL2,NA,4,1254, , , , , ,6/25/2024, 
+1357,1309,available,N,G_32_B,G,32,B,YO11,NA,1,43, , , , , ,7/2/2021,6/25/24 wilted
+1358,1310,available,N,G_33_A,G,33,A,TM2,NA,86,556, , , , , ,7/2/2024,exposed roots
+1359,1311,available,N,G_33_B,G,33,B,(SQ3 x WL2) x (WL2),NA,5,84, , , , , ,7/2/2024,6/25/24 wilted
+1360,1312,available,N,G_34_A,G,34,A,WL2,NA,48,143, , , , , ,6/25/2024,very wilted
+1361,1313,available,N,G_34_B,G,34,B,(LV1 x WL2) x (WL2),NA,5,68, , , , , ,7/2/2024,6/25/24 wilted
+1362,1314,available,N,G_35_A,G,35,A,(TM2 x BH) x (TM2),NA,8,1057, , , , , ,6/25/2024,Broken stem at planting
+1363,1315,available,N,G_35_B,G,35,B,(SQ3 x WL2) x (TM2 x WL2),NA,2,880, , , , , ,6/25/2024, 
+1364,1316,available,N,G_36_A,G,36,A,WV,NA,1,450, , , , , ,6/25/2024, 
+1365,1317,available,N,G_36_B,G,36,B,WV x WL2,NA,8,1410, , , , , ,7/9/2024,7/2 wilting
+1409,1318,2023-survivor,NA,G_37_A,G,37,A,YO7,7,9,YO7_7_9,6/18/2024,6/25/2024,7/2/2024,7/16/24, , ,7/16 dry flowers very tiny
+1366,1319,available,N,G_37_B,G,37,B,WL2 x BH,NA,7,836, , , , , ,7/2/2024,6/25/24 wilted
+1367,1320,available,N,G_38_A,G,38,A,WL2,NA,16,111, , , , , ,7/2/2024, 
+1368,1321,available,N,G_38_B,G,38,B,(WV x WL2) x (WL2 x DPR),NA,6,1330, , , , , , ,
+1410,1322,2023-TM2-fruit,NA,G_39_A,G,39,A,TM2,7,17,TM2_7_17, , , , , , ,TM2 fruiting from 2023
+1369,1323,available,N,G_39_B,G,39,B,WL2,NA,76,171, , , , , , ,
+1411,1324,2023-TM2-fruit,NA,G_40_A,G,40,A,TM2,3,7,TM2_3_7, , , , , , ,TM2 fruiting from 2023
+1370,1325,available,N,G_40_B,G,40,B,TM2,NA,6,476, , , , , ,7/2/2024,6/18/24 bent stem
+1371,1326,available,N,G_41_A,G,41,A,(YO11 x WL2) x (SQ3 x WL2),NA,16,1017, , , , , ,7/9/2024,Very small and dying at planting
+1372,1327,available,N,G_41_B,G,41,B,(DPR x WL2) x (YO11 x WL2),NA,12,706, , , , , , , 
+1373,1328,available,N,G_42_A,G,42,A,(YO11 x WL2) x (WV x WL2),NA,3,841, , , , , ,6/18/2024,Very wilted
+1374,1329,available,N,G_42_B,G,42,B,(DPR x WL2) x (WV x WL2),NA,8,1464, , , , , , , 
+1412,1330,2023-survivor,NA,G_43_A,G,43,A,IH,6,13,IH_6_13,6/25/2024, , , , , , 
+1375,1331,available,N,G_43_B,G,43,B,TM2,NA,64,534, , , , , ,7/2/2024,6/25/24 wilted
+1376,1332,buffer,N,G_44_A,G,44,A,NA,NA,NA,buffer, , , , , , , 
+1377,1333,buffer,N,G_44_B,G,44,B,NA,NA,NA,buffer, , , , , , , 
+1378,1334,buffer,N,G_45_A,G,45,A,NA,NA,NA,buffer, , , , , , , 
+1379,1335,buffer,N,G_45_B,G,45,B,NA,NA,NA,buffer, , , , , , , 
+1277,1336,buffer,L,G_1_C,G,1,C,NA,NA,NA,buffer, , , , , , , 
+1278,1337,buffer,L,G_1_D,G,1,D,NA,NA,NA,buffer, , , , , , , 
+1279,1338,buffer,L,G_2_C,G,2,C,NA,NA,NA,buffer, , , , , , , 
+1280,1339,buffer,L,G_2_D,G,2,D,NA,NA,NA,buffer, , , , , , , 
+1281,1340,buffer,L,G_3_C,G,3,C,NA,NA,NA,buffer, , , , , , , 
+1282,1341,buffer,L,G_3_D,G,3,D,NA,NA,NA,buffer, , , , , , , 
+1283,1342,available,L,G_4_C,G,4,C,(DPR) x (DPR x WL2),NA,11,721, , , , , ,7/2/2024,6/25/24 wilted
+1284,1343,available,L,G_4_D,G,4,D,(WL2 x DPR) x (WL2),NA,3,1100, , , , , , , 
+1285,1344,available,L,G_5_C,G,5,C,(WL2 x DPR) x (YO11 x WL2),NA,2,570, , , , , ,7/9/2024,7/2 wilting
+1413,1345,2023-survivor,NA,G_5_D,G,5,D,YO7,5,7,YO7_5_7,6/18/2024,7/9/2024,7/16/2024, , , ,assume yellow pick from 7/9
+1286,1346,available,L,G_6_C,G,6,C,(WL2 x CC) x (WL2 x TM2),NA,3,1180, , , , , ,7/2/2024, 
+1414,1347,2023-survivor,NA,G_6_D,G,6,D,IH,2,12,IH_2_12,6/25/2024,7/16/2024, , , , , 
+1287,1348,available,L,G_7_C,G,7,C,TM2,NA,46,516, , , , , ,6/25/2024,Stem partially broken at planting
+1415,1349,2023-survivor,NA,G_7_D,G,7,D,BH,4,12,BH_4_12,6/25/2024,7/16/2024,7/16/2024, , , , 
+1288,1350,available,L,G_8_C,G,8,C,(WL1 x WL2) x (WL2 x CC),NA,3,1116, , , , , ,7/2/2024,6/25/24 wilted
+1289,1351,available,L,G_8_D,G,8,D,TM2,NA,60,530, , , , , , , 
+1290,1352,available,L,G_9_C,G,9,C,TM2,NA,4,474, , , , , , , 
+1291,1353,available,L,G_9_D,G,9,D,TM2,NA,85,555, , , , , , , 
+1292,1354,available,L,G_10_C,G,10,C,(TM2 x BH) x (TM2 x WL2),NA,6,1039, , , , , ,7/9/2024,7/2 wilting
+1293,1355,available,L,G_10_D,G,10,D,WV x TM2,NA,17,210, , , , , ,7/2/2024,6/18 exposed Stem
+1294,1356,available,L,G_11_C,G,11,C,(LV1 x WL2) x (WL2 x DPR),NA,15,970, , , , , ,7/9/2024, 
+1295,1357,available,L,G_11_D,G,11,D,SQ3,NA,12,33, , , , , ,7/16/2024, 
+1296,1358,available,L,G_12_C,G,12,C,WV x TM2,NA,1,194, , , , , ,7/9/2024, 
+1416,1359,2023-survivor,NA,G_12_D,G,12,D,CC,5,12,CC_5_12, , , , , ,6/18/2024, 
+1297,1360,available,L,G_13_C,G,13,C,WL2,NA,89,184, , , , , ,7/9/2024, 
+1298,1361,available,L,G_13_D,G,13,D,(WL2 x TM2) x (CC x TM2),NA,8,259, , , , , ,7/2/2024,6/25/24 wilted
+1299,1362,available,L,G_14_C,G,14,C,WL2,NA,14,109, , , , , ,6/25/2024, 
+1300,1363,available,L,G_14_D,G,14,D,WL2,NA,25,120, , , , , , ,Dead at planting
+1301,1364,available,L,G_15_C,G,15,C,(WL2 x BH) x (SQ3 x WL2),NA,5,1166, , , , , ,6/25/2024, 
+1302,1365,available,L,G_15_D,G,15,D,SQ3 x WL2,NA,8,644, , , , , ,6/25/2024,6/18/24 very wilted
+1303,1366,buffer,L,G_16_C,G,16,C,Buffer,NA,NA,NA, , , , , , , 
+1304,1367,buffer,L,G_16_D,G,16,D,Buffer,NA,NA,NA, , , , , , , 
+1332,1368,available,M,G_17_C,G,17,C,(WL1 x WL2) x (WL2 x TM2),NA,7,1152, , , , , ,7/9/2024,6/25/24 wilted 7/2 wilted
+1333,1369,available,M,G_17_D,G,17,D,(SQ3 x WL2) x (WL2),NA,4,83, , , , , ,7/2/2024,6/25/24 wilted
+1334,1370,available,M,G_18_C,G,18,C,CC x TM2,NA,11,1361, , , , , ,7/2/2024,6/25/24 wilted
+1335,1371,available,M,G_18_D,G,18,D,TM2,NA,63,533, , , , , ,6/25/2024, 
+1336,1372,available,M,G_19_C,G,19,C,(WL2) x (WV x WL2),NA,7,765, , , , , ,6/25/2024, 
+1337,1373,available,M,G_19_D,G,19,D,(LV1 x WL2) x (WL2),NA,4,67, , , , , ,7/9/2024, 
+1338,1374,available,M,G_20_C,G,20,C,WL2,NA,26,121, , , , , ,7/9/2024,7/2 wilted
+1339,1375,available,M,G_20_D,G,20,D,(SQ3 x WL2) x (TM2 x WL2),NA,13,891, , , , , ,7/9/2024,6/25/24 wilted 7/2 wilted
+1340,1376,available,M,G_21_C,G,21,C,WL2,NA,98,193, , , , , ,6/25/2024, 
+1341,1377,available,M,G_21_D,G,21,D,(WL2) x (TM2 x WL2),NA,16,926, , , , , ,7/9/2024,6/18/24 wilted
+1342,1378,available,M,G_22_C,G,22,C,(WL2 x CC) x (WL2 x TM2),NA,4,1181, , , , , ,7/2/2024,6/25/24 wilted
+1343,1379,available,M,G_24_C,G,24,C,(TM2 x BH) x (TM2 x BH),NA,9,1343, , , , , ,7/9/2024,6/18/24 wilted 7/2 wilted
+1344,1380,available,M,G_24_D,G,24,D,(WL2 x TM2) x (CC x TM2),NA,9,260, , , , , ,6/25/2024, 
+1345,1381,available,M,G_25_C,G,25,C,WL2,NA,15,110, , , , , , ,Dead at planting
+1346,1382,available,M,G_25_D,G,25,D,(DPR) x (DPR x WL2),NA,9,719, , , , , ,6/25/2024, 
+1347,1383,available,M,G_26_C,G,26,C,(WL2 x DPR) x (DPR),NA,2,1195, , , , , ,6/25/2024, 
+1348,1384,available,M,G_26_D,G,26,D,WL2,NA,37,132, , , , , ,7/2/2024,6/18/24 wilted
+1417,1385,2023-survivor,NA,G_27_C,G,27,C,YO7,6,9,YO7_6_9,6/18/2024,6/25/2024,7/2/2024, , , , 
+1349,1386,available,M,G_27_D,G,27,D,(TM2 x WL2) x (SQ3 x WL2),NA,9,313, , , , , , , 
+1350,1387,available,M,G_28_C,G,28,C,(WL2 x DPR) x (WL2),NA,14,1111, , , , , ,7/2/2024, 
+1351,1388,available,M,G_28_D,G,28,D,LV1,NA,15,15, , , , , ,6/25/2024,6/18/24 very wilted
+1352,1389,available,M,G_29_C,G,29,C,(TM2 x BH) x (TM2 x WL2),NA,8,1041, , , , , ,7/9/2024,6/25/24 wilting
+1353,1390,available,M,G_29_D,G,29,D,WV x TM2,NA,26,219, , , , , ,7/9/2024, 
+1354,1391,available,M,G_30_C,G,30,C,NA,NA,NA,NA, , , , , , , 
+1355,1392,available,M,G_30_D,G,30,D,NA,NA,NA,NA, , , , , , , 
+1418,1393,2023-TM2-fruit,NA,G_31_C,G,31,C,TM2,7,5,TM2_7_5, , , , , , ,TM2 fruiting from 2023
+1380,1394,available,N,G_31_D,G,31,D,(WL2 x BH) x (SQ3 x WL2),NA,13,1174, , , , , ,7/9/2024,7/2 wilting
+1381,1395,available,N,G_32_C,G,32,C,(WL2) x (DPR x WL2),NA,7,901, , , , , ,6/25/2024, 
+1419,1396,2023-survivor,NA,G_32_D,G,32,D,WL2,7,6,WL2_7_6,6/18/2024,7/2/2024,7/9/2024,7/16/24, , ,7/16 flowers small/ crispy
+1382,1397,available,N,G_33_C,G,33,C,(TM2 x WL2) x (TM2 x WL2),NA,9,1090, , , , , ,7/9/2024, 
+1383,1398,available,N,G_33_D,G,33,D,(WV x WL2) x (WV),NA,10,277, , , , , ,7/9/2024, 
+1384,1399,available,N,G_34_C,G,34,C,(WL2 x BH) x (WL2 x TM2),NA,3,238, , , , , , , 
+1385,1400,available,N,G_34_D,G,34,D,WV x TM2,NA,4,196, , , , , , , 
+1386,1401,available,N,G_35_C,G,35,C,(WV) x (WV x WL2),NA,8,1394, , , , , , , 
+1387,1402,available,N,G_35_D,G,35,D,WL1,NA,17,300, , , , , ,7/9/2024, 
+1388,1403,available,N,G_36_C,G,36,C,LV1 x TM2,NA,16,1240, , , , , , , 
+1389,1404,available,N,G_36_D,G,36,D,(DPR) x (WL2 x DPR),NA,7,733, , , , , , , 
+1390,1405,available,N,G_37_C,G,37,C,(WL1 x WL2) x (WL2 x CC),NA,9,1122, , , , , ,6/25/2024, 
+1391,1406,available,N,G_37_D,G,37,D,(WL2 x TM2) x (CC x TM2),NA,10,261, , , , , , , 
+1392,1407,available,N,G_38_C,G,38,C,WL2,NA,28,123, , , , , ,6/25/2024, 
+1393,1408,available,N,G_38_D,G,38,D,(DPR x WL2) x (TM2 x WL2),NA,5,1447, , , , , , , 
+1394,1409,available,N,G_39_C,G,39,C,DPR,NA,5,433, , , , , ,7/9/2024,7/2 wilting
+1395,1410,available,N,G_39_D,G,39,D,BH,NA,3,389, , , , , ,6/25/2024, 
+1420,1411,2023-survivor,NA,G_40_C,G,40,C,BH,2,13,BH_2_13,6/18/2024,7/2/2024,7/16/2024, , , , 
+1396,1412,available,N,G_40_D,G,40,D,TM2,NA,71,541, , , , , ,6/25/2024, 
+1397,1413,available,N,G_41_C,G,41,C,(YO11 x WL2) x (WL2),NA,12,938, , , , , ,7/2/2024,6/25/24 wilting
+1398,1414,available,N,G_41_D,G,41,D,(WL2 x DPR) x (DPR),NA,4,1197, , , , , ,7/9/2024,6/25/24 wilting 7/2 wilting
+1421,1415,2023-survivor,NA,G_42_C,G,42,C,SC,2,27,SC_2_27, , , , , ,6/25/2024,6/18 Short Stem
+1399,1416,available,N,G_42_D,G,42,D,NA,NA,NA,NA, , , , , , , 
+1400,1417,available,N,G_43_C,G,43,C,TM2,NA,44,514, , , , , ,7/2/2024,6/25/24 no leaves
+1401,1418,available,N,G_43_D,G,43,D,LV1,NA,19,19, , , , , ,6/25/2024, 
+1402,1419,buffer,N,G_44_C,G,44,C,NA,NA,NA,buffer, , , , , , , 
+1403,1420,available,N,G_44_D,G,44,D,(WL1 x WL2) x (BH x WL2),NA,8,339, , , , , , , 
+1404,1421,buffer,N,G_45_C,G,45,C,NA,NA,NA,buffer, , , , , , , 
+1405,1422,buffer,N,G_45_D,G,45,D,NA,NA,NA,buffer, , , , , , , 
+1422,1423,buffer,N,H_1_A,H,1,A,NA,NA,NA,buffer, , , , , , , 
+1423,1424,buffer,N,H_1_B,H,1,B,NA,NA,NA,buffer, , , , , , , 
+1424,1425,buffer,N,H_2_A,H,2,A,NA,NA,NA,buffer, , , , , , , 
+1425,1426,buffer,N,H_2_B,H,2,B,NA,NA,NA,buffer, , , , , , , 
+1426,1427,buffer,N,H_3_A,H,3,A,NA,NA,NA,buffer, , , , , , , 
+1427,1428,buffer,N,H_3_B,H,3,B,NA,NA,NA,buffer, , , , , , , 
+1428,1429,available,N,H_4_A,H,4,A,(SQ3 x WL2) x (YO11 x WL2),NA,1,1500, , , , , ,6/25/2024,6/18/24 wilting
+1429,1430,available,N,H_4_B,H,4,B,LV1,NA,16,16, , , , , ,6/25/2024,6/18/24 wilting
+1450,1431,2023-survivor,NA,H_5_A,H,5,A,SC,4,1,SC_4_1, , , , , , , 
+1430,1432,available,N,H_5_B,H,5,B,SQ3,NA,7,28, , , , , ,7/2/2024, 
+1431,1433,available,N,H_6_A,H,6,A,TM2,NA,27,497, , , , , ,7/2/2024,Broken stem at planting
+1451,1434,2023-survivor,NA,H_6_B,H,6,B,SC,2,26,SC_2_26, , , , , ,7/9/2024, 
+1432,1435,available,N,H_7_A,H,7,A,(DPR) x (DPR x WL2),NA,13,723, , , , , ,6/18/2024, 
+1433,1436,available,N,H_8_A,H,8,A,WL2,NA,60,155, , , , , ,6/25/2024, 
+1434,1437,available,N,H_8_B,H,8,B,(TM2 x WL2) x (WL2),NA,6,362, , , , , ,7/2/2024, 
+1435,1438,available,N,H_9_B,H,9,B,NA,NA,NA,NA, , , , , , , 
+1464,1439,available,O,H_10_B,H,10,B,TM2,NA,53,523, , , , , ,6/25/2024, 
+1452,1440,2023-survivor,NA,H_11_B,H,11,B,IH,2,1,IH_2_1, , , , , , , 
+1453,1441,2023-survivor,NA,H_12_B,H,12,B,SC,2,1,SC_2_1, , , , , , ,6/18/24 Missing
+1454,1442,2023-survivor,NA,H_13_A,H,13,A,TM2,2,6,TM2_2_6, , , , , ,6/18/2024, 
+1465,1443,available,O,H_13_B,H,13,B,WL2,NA,71,166, , , , , ,7/2/2024, 
+1466,1444,available,O,H_15_B,H,15,B,LV1 x WL2,NA,13,1263, , , , , ,6/25/2024, 
+1467,1445,available,O,H_17_A,H,17,A,TM2,NA,87,557, , , , , ,6/25/2024,6/18 Wilting
+1468,1446,available,O,H_17_B,H,17,B,(WL1 x TM2) x (WL2 x TM2),NA,7,327, , , , , ,7/2/2024, 
+1469,1447,available,O,H_18_A,H,18,A,(TM2) x (TM2 x BH),NA,3,1132, , , , , ,6/18/2024, 
+1470,1448,available,O,H_18_B,H,18,B,BH,NA,20,406, , , , , ,7/2/2024, 
+1471,1449,available,O,H_19_A,H,19,A,(WL1 x WL2) x (WL2 x TM2),NA,4,1149, , , , , ,7/2/2024, 
+1472,1450,available,O,H_19_B,H,19,B,(WL2 x DPR) x (TM2 x WL2),NA,4,1317, , , , , ,7/2/2024, 
+1473,1451,available,O,H_20_A,H,20,A,TM2,NA,31,501, , , , , ,7/2/2024, 
+1474,1452,available,O,H_20_B,H,20,B,(WL1 x WL2) x (BH x WL2),NA,11,342, , , , , ,7/2/2024, 
+1475,1453,available,O,H_21_A,H,21,A,(TM2 x WL2) x (TM2),NA,1,343, , , , , ,7/9/2024, 
+1455,1454,2023-TM2-fruit,NA,H_21_B,H,21,B,TM2,1,12,TM2_1_12, , , , , , ,TM2 fruiting from 2023
+1476,1455,available,O,H_22_A,H,22,A,TM2,NA,66,536, , , , , ,7/2/2024, 
+1477,1456,available,O,H_22_B,H,22,B,(TM2) x (TM2 x WL2),NA,15,234, , , , , ,7/2/2024, 
+1478,1457,available,O,H_23_A,H,23,A,(TM2 x WL2) x (WL2),NA,4,360, , , , , , , 
+1479,1458,available,O,H_23_B,H,23,B,(DPR) x (WL2 x DPR),NA,8,734, , , , , , , 
+1480,1459,available,O,H_24_A,H,24,A,(TM2 x WL2) x (TM2 x BH),NA,11,1076, , , , , ,6/25/2024, 
+1481,1460,available,O,H_24_B,H,24,B,SQ3,NA,3,24, , , , , ,7/2/2024, 
+1482,1461,available,O,H_25_A,H,25,A,(WL2 x TM2) x (WL2),NA,2,1323, , , , , , , 
+1456,1462,2023-survivor,NA,H_25_B,H,25,B,SC,4,14,SC_4_14, , , , , ,6/18/2024, 
+1483,1463,available,O,H_26_A,H,26,A,(LV1 x WL2) x (LV1 x WL2),NA,3,1020, , , , , ,6/25/2024, 
+1484,1464,available,O,H_26_B,H,26,B,(WV x WL2) x (WV),NA,11,278, , , , , ,7/9/2024, 
+1457,1465,2023-TM2-fruit,NA,H_27_A,H,27,A,TM2,6,10,TM2_6_10, , , , , ,,TM2 fruiting from 2023
+1485,1466,available,O,H_27_B,H,27,B,(LV1 x WL2) x (WL2 x DPR),NA,11,966, , , , , ,7/2/2024, 
+1486,1467,available,O,H_28_A,H,28,A,(YO11 x WL2) x (WL2),NA,9,935, , , , , ,6/25/2024, 
+1487,1468,available,O,H_28_B,H,28,B,TM2,NA,7,477, , , , , ,7/2/2024,6/18 Broken Stem
+1488,1469,available,O,H_29_A,H,29,A,TM2,NA,36,506, , , , , ,7/2/2024, 
+1489,1470,available,O,H_29_B,H,29,B,NA,NA,NA,NA, , , , , , , 
+1490,1471,available,O,H_30_A,H,30,A,NA,NA,NA,NA, , , , , , , 
+1523,1472,available,P,H_30_B,H,30,B,BH x TM2,NA,3,587, , , , , ,6/25/2024, 
+1458,1473,2023-survivor,NA,H_31_A,H,31,A,YO7,4,11,YO7_4_11,6/18/2024,6/18/2024,7/2/2024,7/16/24, , ,7/16 small crispy flowers
+1524,1474,available,P,H_31_B,H,31,B,(WL1 x WL2) x (WL2 x TM2),NA,6,1151, , , , , ,7/2/2024, 
+1525,1475,available,P,H_32_A,H,32,A,(LV1 x WL2) x (WL2),NA,7,70, , , , , , , 
+1526,1476,available,P,H_32_B,H,32,B,TM2,NA,23,493, , , , , ,7/9/2024, 
+1527,1477,buffer,P,H_33_A,H,33,A,NA,NA,NA,buffer, , , , , , , 
+1528,1478,buffer,P,H_33_B,H,33,B,NA,NA,NA,buffer, , , , , , , 
+1459,1479,2023-survivor,NA,H_34_A,H,34,A,WL2,2,7,WL2_2_7,,,,,,,mistakenly coded as NA before 7/23
+1529,1480,buffer,P,H_34_B,H,34,B,NA,NA,NA,buffer, , , , , , , 
+1436,1481,buffer,N,H_1_C,H,1,C,NA,NA,NA,buffer, , , , , , , 
+1437,1482,buffer,N,H_1_D,H,1,D,NA,NA,NA,buffer, , , , , , , 
+1438,1483,buffer,N,H_2_C,H,2,C,NA,NA,NA,buffer, , , , , , , 
+1439,1484,buffer,N,H_2_D,H,2,D,NA,NA,NA,buffer, , , , , , , 
+1440,1485,2023-survivor,N,H_3_C,H,3,C,YO7,7,15,YO7_7_15,6/18/2024,6/25/2024,7/2/2024,7/16/24, , ,7/16 small crispy flowers
+1441,1486,buffer,N,H_3_D,H,3,D,NA,NA,NA,buffer, , , , , , , 
+1442,1487,available,N,H_4_D,H,4,D,(TM2 x WL2) x (WV x WL2),NA,1,1303, , , , , ,7/2/2024, 
+1443,1488,available,N,H_5_D,H,5,D,(TM2 x BH) x (BH),NA,7,749, , , , , ,7/9/2024, 
+1444,1489,available,N,H_6_C,H,6,C,WL2,NA,82,177, , , , , ,6/24/2025, 
+1445,1490,available,N,H_6_D,H,6,D,(TM2 x BH) x (TM2 x BH),NA,6,1340, , , , , ,7/2/2024, 
+1446,1491,available,N,H_7_D,H,7,D,(TM2 x BH) x (TM2 x WL2),NA,7,1040, , , , , ,7/2/2024, 
+1447,1492,available,N,H_8_C,H,8,C,NA,NA,NA,NA, , , , , , , 
+1448,1493,available,N,H_8_D,H,8,D,NA,NA,NA,NA, , , , , , , 
+1449,1494,available,N,H_9_C,H,9,C,NA,NA,NA,NA, , , , , , , 
+1491,1495,available,O,H_9_D,H,9,D,WV x TM2,NA,5,197, , , , , ,7/2/2024, 
+1492,1496,available,O,H_10_C,H,10,C,LV1 x TM2,NA,1,1225, , , , , ,7/2/2024, 
+1493,1497,available,O,H_10_D,H,10,D,(WL2) x (WV x WL2),NA,8,766, , , , , , ,Dead at planting
+1460,1498,2023-survivor,NA,H_11_C,H,11,C,IH,4,1,IH_4_1, , , , , ,6/18/2024, 
+1461,1499,2023-survivor,NA,H_12_C,H,12,C,YO7,4,1,YO7_4_1,6/18/2024,6/18/2024,7/2/2024, , , , 
+1494,1500,available,O,H_13_C,H,13,C,WL2,NA,1,96, , , , , ,7/2/2024, 
+1495,1501,available,O,H_14_D,H,14,D,WV,NA,14,463, , , , , ,6/25/2024, 
+1496,1502,available,O,H_15_C,H,15,C,LV1 x TM2,NA,22,1246, , , , , ,6/18/2024, 
+1497,1503,available,O,H_15_D,H,15,D,(DPR) x (DPR x WL2),NA,6,716, , , , , ,7/2/2024, 
+1498,1504,available,O,H_16_D,H,16,D,TM2 x WL2,NA,2,1278, , , , , ,6/25/2024,Wilting
+1499,1505,available,O,H_17_D,H,17,D,(TM2 x BH) x (BH),NA,8,750, , , , , ,7/2/2024, 
+1500,1506,available,O,H_18_C,H,18,C,(LV1 x WL2) x (WL2),NA,6,69, , , , , ,7/2/2024, 
+1501,1507,available,O,H_18_D,H,18,D,(WL2 x DPR) x (WL2),NA,2,1099, , , , , ,7/2/2024, 
+1502,1508,available,O,H_19_C,H,19,C,(SQ3 x WL2) x (WL2),NA,6,85, , , , , ,6/25/2024, 
+1503,1509,available,O,H_19_D,H,19,D,BH x WL2,NA,1,611, , , , , ,7/16/2024,7/9/24 wilted
+1504,1510,available,O,H_20_C,H,20,C,(WL2) x (DPR x WL2),NA,9,903, , , , , ,7/2/2024, 
+1505,1511,available,O,H_20_D,H,20,D,(WL1 x WL2) x (WL2 x CC),NA,15,1128, , , , , ,6/18/2024, 
+1506,1512,available,O,H_21_C,H,21,C,TM2,NA,97,567, , , , , ,6/25/2024, 
+1507,1513,available,O,H_21_D,H,21,D,WL2 x BH,NA,9,838, , , , , ,7/2/2024, 
+1508,1514,available,O,H_22_C,H,22,C,(SQ3 x WL2) x (TM2 x WL2),NA,15,893, , , , , ,7/2/2024, 
+1509,1515,available,O,H_22_D,H,22,D,WL2,NA,17,112, , , , , ,6/25/2024, 
+1510,1516,available,O,H_23_C,H,23,C,(TM2 x WL2) x (SQ3 x WL2),NA,16,320, , , , , ,7/2/2024, 
+1511,1517,available,O,H_23_D,H,23,D,WL2,NA,42,137, , , , , ,6/25/2024,6/18/24 Wilting
+1512,1518,available,O,H_24_C,H,24,C,WL2,NA,64,159, , , , , ,6/25/2024, 
+1462,1519,2023-survivor,NA,H_24_D,H,24,D,SC,6,13,SC_6_13,6/25/2024,7/9/2024, , , , , 
+1513,1520,available,O,H_25_C,H,25,C,WL2,NA,97,192, , , , , ,6/25/2024, 
+1514,1521,available,O,H_25_D,H,25,D,WL1,NA,9,292, , , , , ,7/2/2024, 
+1515,1522,available,O,H_26_C,H,26,C,WV x TM2,NA,18,211, , , , , ,7/2/2024, 
+1516,1523,available,O,H_26_D,H,26,D,(WL2 x CC) x (WL2 x TM2),NA,6,1183, , , , , ,6/25/2024,6/18/24 Wilting
+1517,1524,available,O,H_27_C,H,27,C,BH,NA,4,390, , , , , ,6/25/2024, 
+1518,1525,available,O,H_27_D,H,27,D,(WV) x (WV x WL2),NA,9,1395, , , , , ,7/2/2024, 
+1519,1526,available,O,H_28_C,H,28,C,(WL2 x TM2) x (CC x TM2),NA,11,262, , , , , ,7/2/2024, 
+1520,1527,available,O,H_28_D,H,28,D,(TM2 x BH) x (TM2 x BH),NA,3,1337, , , , , , ,Dead at planting
+1521,1528,available,O,H_29_C,H,29,C,NA,NA,NA,NA, , , , , , , 
+1522,1529,available,O,H_29_D,H,29,D,NA,NA,NA,NA, , , , , , , 
+1530,1530,available,P,H_30_C,H,30,C,TM2,NA,8,478, , , , , ,7/2/2024, 
+1531,1531,available,P,H_30_D,H,30,D,(WL2 x TM2) x (CC x TM2),NA,12,263, , , , , , , 
+1463,1532,2023-survivor,NA,H_31_C,H,31,C,IH,5,13,IH_5_13, , , , , ,7/2/2024, 
+1532,1533,available,P,H_31_D,H,31,D,WL2,NA,61,156, , , , , ,6/25/2024,6/18/24 Wilting
+1533,1534,available,P,H_32_C,H,32,C,(YO11 x WL2) x (DPR x WL2),NA,1,773, , , , , ,6/25/2024, 
+1534,1535,available,P,H_32_D,H,32,D,(WL2 x BH) x (SQ3 x WL2),NA,7,1168, , , , , ,6/25/2024, 
+1535,1536,buffer,P,H_33_C,H,33,C,NA,NA,NA,buffer, , , , , , , 
+1536,1537,buffer,P,H_33_D,H,33,D,NA,NA,NA,buffer, , , , , , , 
+1537,1538,buffer,P,H_34_C,H,34,C,NA,NA,NA,buffer, , , , , , , 
+1538,1539,buffer,P,H_34_D,H,34,D,NA,NA,NA,buffer, , , , , , , 
+1579,1540,buffer,P,I_1_A,I,1,A,NA,NA,NA,buffer, , , , , , , 
+1580,1541,buffer,P,I_1_B,I,1,B,NA,NA,NA,buffer, , , , , , , 
+1581,1542,buffer,P,I_2_A,I,2,A,NA,NA,NA,buffer, , , , , , , 
+1582,1543,buffer,P,I_2_B,I,2,B,NA,NA,NA,buffer, , , , , , , 
+1583,1544,available,P,I_3_B,I,3,B,(LV1 x WL2) x (YO11 x WL2),NA,15,1000, , , , , ,6/25/2024, 
+1584,1545,available,P,I_4_A,I,4,A,LV1 x TM2,NA,2,1226, , , , , ,7/2/2024, 
+1585,1546,available,P,I_4_B,I,4,B,(WL2) x (DPR x WL2),NA,4,898, , , , , ,6/25/2024, 
+1586,1547,available,P,I_5_A,I,5,A,(TM2 x BH) x (TM2 x BH),NA,7,1341, , , , , ,7/2/2024, 
+1587,1548,available,P,I_5_B,I,5,B,(YO11 x WL2) x (WL2 x TM2),NA,10,797, , , , , ,7/2/2024, 
+1588,1549,available,P,I_6_A,I,6,A,(TM2 x BH) x (BH),NA,9,751, , , , , ,7/2/2024, 
+1589,1550,available,P,I_6_B,I,6,B,(SQ3 x WL2) x (WL2),NA,7,86, , , , , ,6/25/2024, 
+1590,1551,available,P,I_7_A,I,7,A,TM2,NA,74,544, , , , , ,7/2/2024, 
+1591,1552,available,P,I_7_B,I,7,B,(WL1 x WL2) x (WL2 x CC),NA,12,1125, , , , , ,6/25/2024,6/18/24 wilting
+1592,1553,available,P,I_8_A,I,8,A,WL2,NA,96,191, , , , , ,7/2/2024, 
+1593,1554,available,P,I_8_B,I,8,B,TM2,NA,38,508, , , , , ,6/25/2024, 
+1594,1555,available,P,I_9_A,I,9,A,(DPR x WL2) x (TM2 x WL2),NA,12,1454, , , , , ,7/2/2024, 
+1595,1556,available,P,I_9_B,I,9,B,BH,NA,5,391, , , , , , , 
+1596,1557,available,P,I_10_A,I,10,A,LV1 x WL2,NA,22,1272, , , , , , , 
+1597,1558,available,P,I_10_B,I,10,B,WL2,NA,29,124, , , , , ,7/2/2024, 
+1598,1559,available,P,I_11_A,I,11,A,LV1 x TM2,NA,26,1250, , , , , , , 
+1599,1560,available,P,I_11_B,I,11,B,(WL2 x CC) x (WL2 x TM2),NA,7,1184, , , , , ,6/25/2024, 
+1539,1561,2023-survivor,NA,I_12_A,I,12,A,IH,1,1,IH_1_1, , , , , ,6/18/2024, 
+1600,1562,available,P,I_12_B,I,12,B,(TM2 x WL2) x (SQ3 x WL2),NA,3,307, , , , , ,7/2/2024, 
+1601,1563,available,P,I_13_A,I,13,A,TM2,NA,54,524, , , , , ,7/9/2024, 
+1602,1564,available,P,I_13_B,I,13,B,(SQ3 x WL2) x (LV1 x WL2),NA,15,863, , , , , ,7/2/2024, 
+1603,1565,available,P,I_14_A,I,14,A,(LV1 x WL2) x (TM2 x WL2),NA,12,954, , , , , ,7/2/2024, 
+1604,1566,available,P,I_14_B,I,14,B,(DPR x WL2) x (SQ3 x WL2),NA,8,686, , , , , , ,7/9 wilted
+1605,1567,available,P,I_15_A,I,15,A,NA,NA,NA,NA, , , , , , , 
+1606,1568,available,P,I_15_B,I,15,B,NA,NA,NA,NA, , , , , , , 
+1540,1569,available,NA,I_16_A,I,16,A,NA,NA,NA,NA, , , , , , , 
+1541,1570,2023-survivor,NA,I_16_B,I,16,B,BH,2,1,BH_2_1, , , , , ,6/18/2024, 
+1542,1571,available,NA,I_17_A,I,17,A,NA,NA,NA,NA, , , , , , , 
+1543,1572,available,NA,I_17_B,I,17,B,NA,NA,NA,NA, , , , , , , 
+1544,1573,2023-survivor,NA,I_18_A,I,18,A,BH,1,1,BH_1_1, , , , , , , 
+1545,1574,available,NA,I_18_B,I,18,B,NA,NA,NA,NA, , , , , , , 
+1546,1575,available,NA,I_19_A,I,19,A,NA,NA,NA,NA, , , , , , , 
+1547,1576,available,NA,I_19_B,I,19,B,NA,NA,NA,NA, , , , , , , 
+1548,1577,available,NA,I_20_A,I,20,A,NA,NA,NA,NA, , , , , , , 
+1549,1578,available,NA,I_20_B,I,20,B,NA,NA,NA,NA, , , , , , , 
+1550,1579,available,NA,I_21_A,I,21,A,NA,NA,NA,NA, , , , , , , 
+1551,1580,available,NA,I_21_B,I,21,B,NA,NA,NA,NA, , , , , , , 
+1552,1581,available,NA,I_22_A,I,22,A,NA,NA,NA,NA, , , , , , , 
+1553,1582,available,NA,I_22_B,I,22,B,NA,NA,NA,NA, , , , , , , 
+1554,1583,buffer,NA,I_23_A,I,23,A,NA,NA,NA,buffer, , , , , , , 
+1555,1584,buffer,NA,I_23_B,I,23,B,NA,NA,NA,buffer, , , , , , , 
+1556,1585,buffer,NA,I_24_A,I,24,A,NA,NA,NA,buffer, , , , , , , 
+1557,1586,buffer,NA,I_24_B,I,24,B,NA,NA,NA,buffer, , , , , , , 
+1607,1587,buffer,P,I_1_C,I,1,C,NA,NA,NA,buffer, , , , , , , 
+1608,1588,buffer,P,I_1_D,I,1,D,NA,NA,NA,buffer, , , , , , , 
+1609,1589,buffer,P,I_2_C,I,2,C,NA,NA,NA,buffer, , , , , , , 
+1610,1590,buffer,P,I_2_D,I,2,D,NA,NA,NA,buffer, , , , , , , 
+1611,1591,available,P,I_3_C,I,3,C,(WV x WL2) x (WV),NA,12,279, , , , , , ,7/9 wilted
+1558,1592,2023-survivor,NA,I_3_D,I,3,D,BH,4,1,BH_4_1, , , , , ,6/18/2024, 
+1612,1593,available,P,I_4_D,I,4,D,WL2,NA,69,164, , , , , ,7/9/2024, 
+1613,1594,available,P,I_5_C,I,5,C,(TM2 x WL2) x (WL2),NA,14,370, , , , , ,7/2/2024, 
+1614,1595,available,P,I_6_C,I,6,C,WL2,NA,2,97, , , , , ,6/25/2024, 
+1615,1596,available,P,I_6_D,I,6,D,(WL1 x WL2) x (BH x WL2),NA,4,335, , , , , ,7/2/2024,6/18/24 wilting
+1616,1597,available,P,I_7_C,I,7,C,(DPR) x (WL2 x DPR),NA,9,735, , , , , ,7/2/2024, 
+1617,1598,available,P,I_7_D,I,7,D,WV x TM2,NA,6,198, , , , , ,7/2/2024, 
+1618,1599,available,P,I_8_C,I,8,C,BH,NA,19,405, , , , , ,6/25/2024, 
+1619,1600,available,P,I_8_D,I,8,D,WL2,NA,44,139, , , , , ,6/25/2024, 
+1620,1601,available,P,I_9_C,I,9,C,TM2,NA,81,551, , , , , ,7/2/2024, 
+1621,1602,available,P,I_9_D,I,9,D,(WV) x (WV x WL2),NA,10,1396, , , , , , ,7/16 wilting
+1622,1603,available,P,I_10_C,I,10,C,DPR x WL2,NA,1,1210, , , , , ,6/25/2024, 
+1623,1604,available,P,I_10_D,I,10,D,DPR,NA,15,443, , , , , , , 
+1624,1605,available,P,I_11_C,I,11,C,(WL2 x DPR) x (TM2 x WL2),NA,5,1318, , , , , ,6/25/2024, 
+1625,1606,available,P,I_11_D,I,11,D,WL1,NA,11,294, , , , , ,7/16/2024, 
+1626,1607,available,P,I_12_C,I,12,C,WV,NA,10,459, , , , , ,7/9/2024, 
+1627,1608,available,P,I_12_D,I,12,D,(DPR x WL2) x (YO11 x WL2),NA,14,708, , , , , , , 
+1628,1609,available,P,I_13_C,I,13,C,TM2 x WL2,NA,12,1288, , , , , ,6/25/2024, 
+1629,1610,available,P,I_13_D,I,13,D,(TM2 x BH) x (TM2 x WL2),NA,2,1035, , , , , ,7/2/2024,6/25/24 no leaves
+1630,1611,available,P,I_14_C,I,14,C,NA,NA,NA,NA, , , , , , , 
+1631,1612,available,P,I_14_D,I,14,D,NA,NA,NA,NA, , , , , , , 
+1559,1613,available,NA,I_15_C,I,15,C,NA,NA,NA,NA, , , , , , , 
+1560,1614,available,NA,I_15_D,I,15,D,NA,NA,NA,NA, , , , , , , 
+1561,1615,available,NA,I_16_C,I,16,C,NA,NA,NA,NA, , , , , , , 
+1562,1616,available,NA,I_16_D,I,16,D,NA,NA,NA,NA, , , , , , , 
+1563,1617,available,NA,I_17_C,I,17,C,NA,NA,NA,NA, , , , , , , 
+1564,1618,available,NA,I_17_D,I,17,D,NA,NA,NA,NA, , , , , , , 
+1565,1619,available,NA,I_18_C,I,18,C,NA,NA,NA,NA, , , , , , , 
+1566,1620,available,NA,I_18_D,I,18,D,NA,NA,NA,NA, , , , , , , 
+1567,1621,available,NA,I_19_C,I,19,C,NA,NA,NA,NA, , , , , , , 
+1568,1622,available,NA,I_19_D,I,19,D,NA,NA,NA,NA, , , , , , , 
+1569,1623,available,NA,I_20_C,I,20,C,NA,NA,NA,NA, , , , , , , 
+1570,1624,available,NA,I_20_D,I,20,D,NA,NA,NA,NA, , , , , , , 
+1571,1625,available,NA,I_21_C,I,21,C,NA,NA,NA,NA, , , , , , , 
+1572,1626,available,NA,I_21_D,I,21,D,NA,NA,NA,NA, , , , , , , 
+1573,1627,available,NA,I_22_C,I,22,C,NA,NA,NA,NA, , , , , , , 
+1574,1628,available,NA,I_22_D,I,22,D,NA,NA,NA,NA, , , , , , , 
+1575,1629,buffer,NA,I_23_C,I,23,C,NA,NA,NA,buffer, , , , , , , 
+1576,1630,buffer,NA,I_23_D,I,23,D,NA,NA,NA,buffer, , , , , , , 
+1577,1631,buffer,NA,I_24_C,I,24,C,NA,NA,NA,buffer, , , , , , , 
+1578,1632,buffer,NA,I_24_D,I,24,D,NA,NA,NA,buffer, , , , , , , 
+1632,1633,2023-survivor,NA,J_4_A,J,4,A,YO7,3,8,YO7_3_8,6/18/2024, ,7/9/2024, ,7/16/24, ,missed the flowering and last FI dates
+1633,1634,2023-TM2-fruit,NA,J_5_A,J,5,A,TM2,2,11,TM2_2_11, , , , , , ,TM2 fruiting from 2023
+1634,1635,2023-survivor,NA,J_8_A,J,8,A,BH,5,2,BH_5_2, , , , , ,6/18/2024, 
+1635,1636,2023-survivor,NA,J_10_A,J,10,A,BH,4,2,BH_4_2, , , , , , ,
+1636,1637,2023-survivor,NA,J_15_A,J,15,A,YO7,7,11,YO7_7_11, , , , , , , 
+1637,1638,2023-TM2-fruit,NA,J_17_B,J,17,B,TM2,5,12,TM2_5_12, , , , , , ,TM2 fruiting from 2023
+1638,1639,2023-survivor,NA,J_18_B,J,18,B,SC,8,2,SC_8_2, , , , , ,6/18/2024, 
+1639,1640,2023-TM2-fruit,NA,J_4_D,J,4,D,TM2,7,7,TM2_7_7, , , , , , ,TM2 fruiting from 2023
+1640,1641,2023-survivor,NA,J_11_D,J,11,D,IH,5,2,IH_5_2,7/9/2024, , , , , , 
+1641,1642,2023-survivor,NA,J_13_C,J,13,C,BH,6,2,BH_6_2, , , , , , , 
+1642,1643,2023-survivor,NA,J_17_D,J,17,D,LV1,8,1,LV1_8_1, , , , , ,7/9/2024,6/18/24 turgid stem/no leaves
+1643,1644,2023-survivor,NA,K_2_B,K,2,B,IH,4,14,IH_4_14, , , , , ,6/18/2024, 
+1644,1645,2023-survivor,NA,K_4_B,K,4,B,IH,6,2,IH_6_2, , , , , ,6/18/2024, 
+1645,1646,2023-survivor,NA,K_10_A,K,10,A,YO7,1,2,YO7_1_2,6/18/2024,6/25/2024,7/2/2024,7/16/24, , ,7/16 remaining flowers dry
+1646,1647,2023-survivor,NA,K_13_A,K,13,A,CC,1,2,CC_1_2,6/18/2024,7/9/2024,7/16/2024, , , , 
+1647,1648,2023-survivor,NA,K_2_C,K,2,C,YO7,5,13,YO7_5_13,6/18/2024,6/25/2024,7/9/2024, , , , 
+1648,1649,2023-survivor,NA,K_7_C,K,7,C,SC,6,2,SC_6_2, , , , , ,6/18/2024, 
+1649,1650,2023-survivor,NA,K_8_C,K,8,C,IH,1,2,IH_1_2, , , , , ,6/18/2024,6/18/24 no tag
+1816,1822,2023-TM2-fruit,NA,K_12_D,K,12,D,TM2,6,12,TM2_6_12, , , , , , ,TM2 fruiting from 2023
