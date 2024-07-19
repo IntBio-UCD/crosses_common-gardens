@@ -104,3 +104,46 @@ ss_loc <- gs4_create(
 )
 ```
 
+
+# Add in new death dates and survey notes (7/18)
+```{r}
+pop_loc <- read_csv("../input/WL2_2024_Data/WL2_Final_2023_2024_Pop_Loc_Info.csv") %>% 
+  rename(row=bedrow, col=bedcol)
+head(pop_loc)
+```
+
+
+```{r}
+mort_pheno_0716 <- read_csv("../input/WL2_2024_Data/CorrectedCSVs/WL2_mort_pheno_20240716_corrected.csv")
+head(mort_pheno_0716)
+
+mort_pheno_0716_prep_2023 <- mort_pheno_0716 %>% 
+  filter(!is.na(unique.ID)) %>% 
+  filter(is.na(as.numeric(unique.ID))) %>% 
+  select(bed:col, bud.date:survey.notes)
+head(mort_pheno_0716_prep_2023)
+
+mort_pheno_0716_prep_2024 <- mort_pheno_0716 %>% 
+  select(bed, col:survey.notes) %>% 
+  filter(!is.na(unique.ID)) %>% 
+  filter(!is.na(as.numeric(unique.ID)))
+head(mort_pheno_0716_prep_2024)
+```
+
+```{r}
+pop_loc_death_update_2023 <- left_join(mort_pheno_0716_prep_2023, pop_loc) %>% 
+  select(bed.block.order, bed.order, AB.CD.order, column.order, Pop.Type, status, block, loc, bed, row, col, pop, mf, rep, unique.ID, bud.date:survey.notes)
+head(pop_loc_death_update_2023)
+
+pop_loc_death_update_2024 <- left_join(mort_pheno_0716_prep_2024, pop_loc) %>% 
+  select(bed.block.order, bed.order, AB.CD.order, column.order, Pop.Type, status, block, loc, bed, row, col, pop, mf, rep, unique.ID, bud.date:survey.notes)
+head(pop_loc_death_update_2024)
+
+pop_loc_buffers <- pop_loc %>% filter(is.na(unique.ID) | unique.ID=="buffer") %>% 
+  mutate(bud.date=NA, flower.date=NA, fruit.date=NA, last.FL.date=NA, last.FR.date=NA, death.date=NA, survey.notes=NA)
+
+pop_loc_death_update <- bind_rows(pop_loc_death_update_2023, pop_loc_death_update_2024, pop_loc_buffers) %>% 
+  arrange(bed.order)
+write_csv(pop_loc_death_update, "../output/mort_pheno_template_0723.csv")
+```
+
