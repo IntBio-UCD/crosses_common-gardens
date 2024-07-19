@@ -50,9 +50,15 @@ ann_cens_0703_genotypes %>% filter(is.na(phen)) %>% filter(!is.na(date.collected
 
 ann_cens_0703_status <- ann_cens_0703_genotypes %>% 
   group_by(pop.id, `Plant Type`) %>% 
-  summarise(Collected=sum(!is.na(phen)), Not_Collected=sum(is.na(phen)))
+  summarise(Collected=sum(!is.na(phen)), Not_Collected=sum(is.na(phen))) %>% 
+  mutate(PctCollected=Collected/(Collected+Not_Collected))
 
 ann_cens_0703_status %>% arrange(Collected)
+
+ann_cens_0703_status_list <- left_join(ann_cens_0703_status, ann_cens_0703_genotypes) %>% 
+  filter(is.na(phen)) %>% 
+ select(pop.id:PctCollected, bed, row:col, unique.ID, phen, date.collected)
+write_csv(ann_cens_0703_status_list, "../output/UCD_ann_cens_full_list.csv")
 
 ann_cens_0703_status_need <- ann_cens_0703_status %>% filter(Collected==0)
 ann_cens_0703_status_need
