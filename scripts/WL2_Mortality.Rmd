@@ -13,12 +13,16 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Mortality at WL2
 
-## Libraries 
+## Libraries and functions
 ```{r}
 library(tidyverse)
+
+sem <- function(x, na.rm=FALSE) {           #for caclulating standard error
+  sd(x,na.rm=na.rm)/sqrt(length(na.omit(x)))
+} 
 ```
 
-## Load the libraries
+## Load the data
 ```{r}
 mort_pheno_0716 <- read_csv("../input/WL2_2024_Data/WL2_Mort_Pheno Survey_Order_Fixed_0716.csv") %>% 
   select(status:death.date)
@@ -36,6 +40,15 @@ Merge
 ```{r}
 mort_pheno_0716_pops <- left_join(pop_loc, mort_pheno_0716)
 head(mort_pheno_0716_pops)
+```
+
+Elevation Info
+```{r}
+elev_info <- read_csv("../input/Strep_tort_locs.csv")
+
+elev_info_yo <- elev_info %>% mutate(pop = str_replace(`Site code`, "YOSE(\\d+)", "YO\\1")) %>% select(Lat, Long, elev_m=`Elevation (m)`, pop)
+head(elev_info_yo)
+unique(elev_info_yo$pop)
 ```
 
 ## By pop type 
@@ -91,12 +104,6 @@ Parents colored by elevation
 by_pop_parents <- by_pop %>% 
   filter(Pop.Type == "Parent")
 
-elev_info <- read_csv("../input/Strep_tort_locs.csv")
-
-elev_info_yo <- elev_info %>% mutate(pop = str_replace(`Site code`, "YOSE(\\d+)", "YO\\1")) %>% select(Lat, Long, elev_m=`Elevation (m)`, pop)
-head(elev_info_yo)
-unique(elev_info_yo$pop)
-
 by_pop_parents_elev <- left_join(by_pop_parents, elev_info_yo)
 head(by_pop_parents_elev)
 
@@ -109,6 +116,65 @@ by_pop_parents_elev %>%
   scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=25))
 ggsave("../output/WL2_Traits/WL2_Mortality_0716_Parents.png", width = 14, height = 8, units = "in")
+```
+
+## Survival means by pop
+```{r}
+mort_pheno_0716_pops_surv <- mort_pheno_0716_pops %>% 
+  mutate(Survival=if_else(is.na(death.date), 1, 0))
+
+by_pop_surv <- mort_pheno_0716_pops_surv %>% 
+  group_by(pop, Pop.Type) %>% 
+  summarise(N_Surv = sum(!is.na(Survival)), mean_Surv = mean(Survival,na.rm=(TRUE)), 
+            sem_surv=sem(Survival, na.rm=(TRUE)))
+
+by_pop_surv %>% filter(Pop.Type=="F1")
+```
+
+```{r}
+by_pop_surv %>% 
+  filter(Pop.Type == "F1") %>% 
+  ggplot(aes(x=fct_reorder(pop, mean_Surv), y=mean_Surv)) + 
+  geom_col(width = 0.7,position = position_dodge(0.75)) + 
+  geom_errorbar(aes(ymin=mean_Surv-sem_surv,ymax=mean_Surv+sem_surv),width=.2, position = 
+                  position_dodge(0.75)) +
+  theme_classic() + 
+  scale_y_continuous(expand = c(0.01, 0)) +
+  labs(x="F1 Population", y="Survival") +
+  theme(text=element_text(size=25), axis.text.x = element_text(angle = 45, hjust = 1))
+ggsave("../output/WL2_Traits/WL2_SURV_0716_F1s.png", width = 14, height = 8, units = "in")
+
+by_pop_surv %>% 
+  filter(Pop.Type == "F2") %>% 
+  ggplot(aes(x=fct_reorder(pop, mean_Surv), y=mean_Surv)) + 
+  geom_col(width = 0.7,position = position_dodge(0.75)) + 
+  geom_errorbar(aes(ymin=mean_Surv-sem_surv,ymax=mean_Surv+sem_surv),width=.2, position = 
+                  position_dodge(0.75)) +
+  theme_classic() + 
+  scale_y_continuous(expand = c(0.01, 0)) +
+  labs(x="F2 Population", y="Survival") +
+  theme(text=element_text(size=20), axis.text.x = element_text(angle = 45, hjust = 1))
+ggsave("../output/WL2_Traits/WL2_SURV_0716_F2s.png", width = 42, height = 16, units = "in")
+```
+
+```{r}
+by_pop_parents_surv <- by_pop_surv %>% 
+  filter(Pop.Type == "Parent")
+
+by_pop_parents_elev_surv <- left_join(by_pop_parents_surv, elev_info_yo)
+head(by_pop_parents_elev_surv)
+
+by_pop_parents_elev_surv %>% 
+  ggplot(aes(x=fct_reorder(pop, mean_Surv), y=mean_Surv, fill=elev_m)) + 
+  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  geom_errorbar(aes(ymin=mean_Surv-sem_surv,ymax=mean_Surv+sem_surv),width=.2, position = 
+                  position_dodge(0.75)) +
+  labs(x="Parent Population", y="Survival", fill="Elevation (m)") +
+  theme_classic() + 
+  scale_y_continuous(expand = c(0, 0)) +
+  scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
+  theme(text=element_text(size=25))
+ggsave("../output/WL2_Traits/WL2_SURV_0716_Parents.png", width = 14, height = 8, units = "in")
 ```
 
 
