@@ -17,7 +17,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 library(tidyverse)
 
-sem <- function(x, na.rm=FALSE) {           #for caclulating standard error
+sem <- function(x, na.rm=FALSE) {           #for calculating standard error
   sd(x,na.rm=na.rm)/sqrt(length(na.omit(x)))
 } 
 ```
@@ -27,6 +27,9 @@ sem <- function(x, na.rm=FALSE) {           #for caclulating standard error
 mort_pheno_0716 <- read_csv("../input/WL2_2024_Data/WL2_Mort_Pheno Survey_Order_Fixed_0716.csv") %>% 
   select(status:death.date)
 head(mort_pheno_0716)
+
+mort_pheno_0924 <- read_csv("../input/WL2_2024_Data/CorrectedCSVs/WL2_mort_pheno_20240924_corrected.csv")
+head(mort_pheno_0924)
 ```
 
 Pop/Loc Info for pop.type
@@ -40,6 +43,10 @@ Merge
 ```{r}
 mort_pheno_0716_pops <- left_join(pop_loc, mort_pheno_0716)
 head(mort_pheno_0716_pops)
+
+mort_pheno_0924_pops <- left_join(pop_loc, mort_pheno_0924) %>% 
+  filter(pop != "buffer") %>% filter(pop != "Buffer") %>% filter(!is.na(pop))
+head(mort_pheno_0924_pops)
 ```
 
 Elevation Info
@@ -52,6 +59,7 @@ unique(elev_info_yo$pop)
 ```
 
 ## By pop type 
+### July
 ```{r}
 unique(mort_pheno_0716_pops$Pop.Type)
 
@@ -70,7 +78,25 @@ by_pop_type %>%
 
 ```
 
+### September
+```{r}
+by_pop_type <- mort_pheno_0924_pops %>% 
+  filter(!is.na(Pop.Type)) %>% 
+  group_by(Pop.Type) %>% 
+  summarise(Alive=sum(is.na(death.date)), Dead=sum(!is.na(death.date))) %>% 
+  mutate(mort = Dead/(Alive+Dead))
+by_pop_type
+
+by_pop_type %>% 
+  filter(Pop.Type != "2023-TM2-fruit") %>% 
+  ggplot(aes(x=Pop.Type, y=mort, fill=Pop.Type)) +
+  geom_col() +
+  ylim(0,1)
+
+```
+
 ## By population
+### July
 ```{r}
 by_pop <- mort_pheno_0716_pops %>% 
   group_by(pop, Pop.Type) %>% 
@@ -116,6 +142,35 @@ by_pop_parents_elev %>%
   scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=25))
 ggsave("../output/WL2_Traits/WL2_Mortality_0716_Parents.png", width = 14, height = 8, units = "in")
+```
+
+### September 
+```{r}
+by_pop <- mort_pheno_0924_pops %>% 
+  group_by(pop, Pop.Type) %>% 
+  summarise(Alive=sum(is.na(death.date)), Dead=sum(!is.na(death.date))) %>% 
+  mutate(mort = Dead/(Alive+Dead))
+by_pop %>% arrange(mort)
+
+by_pop %>% 
+  filter(Pop.Type == "Parent") %>% 
+  ggplot(aes(fct_reorder(pop, mort), mort)) + 
+  geom_col() +
+  labs(x="Population", y="Proportion Dead")
+
+by_pop %>% 
+  filter(Pop.Type == "F1") %>% 
+  ggplot(aes(fct_reorder(pop, mort), mort)) + 
+  geom_col() +
+  labs(x="Population", y="Proportion Dead") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+by_pop %>% 
+  filter(Pop.Type == "F2") %>% 
+  ggplot(aes(fct_reorder(pop, mort), mort)) + 
+  geom_col() +
+  labs(x="Population", y="Proportion Dead") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
 ## Survival means by pop
