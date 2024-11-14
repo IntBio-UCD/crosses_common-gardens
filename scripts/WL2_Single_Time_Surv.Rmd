@@ -1,0 +1,559 @@
+---
+title: "WL2_Single_Time_Surv"
+author: "Brandie QC"
+date: "`r Sys.Date()`"
+output: 
+  html_document: 
+    keep_md: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Analysis of Survival at WL2 2024 Garden to Plant for BC2 crosses
+
+To Do:
+-   See Julin's code for poperly calculating sem for surv
+
+## Relevant Libraries and Functions
+```{r}
+library(tidyverse)
+library(tidymodels)
+tidymodels_prefer()
+library(lmerTest) #for mixed effect models
+conflicted::conflicts_prefer(lmerTest::lmer)
+library(broom.mixed) #tidy method for lmerTest
+library(emmeans) #for post-hoc pairwise comparisons 
+library(naniar) #replaces values with NA
+library(brms)
+
+sem <- function(x, na.rm=FALSE) {           #for caclulating standard error
+  sd(x,na.rm=na.rm)/sqrt(length(na.omit(x)))
+} 
+
+elev_three_palette <- c("#0043F0", "#C9727F", "#F5A540") #colors from Gremer et al 2019
+elev_order <- c("High", "Mid", "Low") #for proper arrangement in figures 
+```
+
+## Load pop and location data
+```{r}
+plant_info <- read_csv("../input/WL2_2024_Data/WL2_Final_2023_2024_Pop_Loc_Info.csv")
+head(plant_info)
+unique(plant_info$Pop.Type) #info about whether the plant is from 2023, an F1, F2, or parent 
+unique(plant_info$status) #status info for planting (i.e. available spot to plant or not)
+plant_info_to_merge <- plant_info %>% 
+  select(Pop.Type, block, parent.pop=pop,mf:unique.ID) %>% 
+  filter(!is.na(parent.pop))
+
+pop_loc <- read_csv("../input/Strep_tort_locs.csv")
+head(pop_loc)
+
+unique(pop_loc$`Site code`)
+unique(plant_info_to_merge$parent.pop)
+#need to change YOSE to YO
+pop_loc_yo <- pop_loc %>% mutate(parent.pop = str_replace(`Site code`, "YOSE(\\d+)", "YO\\1")) %>% select(Lat, Long, elev_m=`Elevation (m)`, parent.pop)
+unique(pop_loc_yo$parent.pop)
+
+pop_elev <- left_join(plant_info_to_merge, pop_loc_yo)
+head(pop_elev)
+```
+
+## Load the mort/pheno data
+```{r}
+mort_pheno_1023 <- read_csv("../input/WL2_2024_Data/CorrectedCSVs/WL2_mort_pheno_20241023_corrected.csv", 
+                            na = c("", "NA", "-", "N/A")) %>% arrange(death.date)
+head(mort_pheno_1023)
+names(mort_pheno_1023)
+unique(mort_pheno_1023$bed) #D and "D."
+unique(mort_pheno_1023$death.date)  
+#some dates should be checked: 6/24, 6/27 - both were data verifcation errors, corrected on csv. 
+
+mort_pheno_1023_nobuff <- mort_pheno_1023 %>% 
+  filter(unique.ID !="buffer") %>% 
+  filter(!is.na(unique.ID))
+```
+
+## Merge with location info 
+```{r}
+oct_mort_loc <- left_join(mort_pheno_1023_nobuff, pop_elev) 
+head(oct_mort_loc)
+names(oct_mort_loc)
+
+oct_mort_loc %>% filter(!is.na(missing.date)) #11 2024 plants with a missing date & 1 2023 plant that went missing 
+oct_mort_loc %>% filter(Pop.Type=="2023-survivor") # double checked none of these plants were actually alive (no data)
+```
+
+## Survival 
+
+### Add Surv columns 
+```{r}
+wl2_surv <- oct_mort_loc %>% 
+  filter(Pop.Type != "2023-TM2-fruit") %>% #take out 2023 fruiting locations 
+  filter(is.na(missing.date)) %>% #take out plants that went missing 
+  mutate(Surv_to_Oct = if_else(is.na(death.date), 1, 0), #surv to end of 2024 survey season
+         Surv_Post_Transplant = if_else(is.na(death.date), 1,
+           if_else(death.date=="6/18/24" | death.date=="6/25/24", 0, 1))) %>% #surv 2 weeks post-transplant
+  select(Lat:elev_m, Pop.Type:rep, block:unique.ID, death.date, Surv_to_Oct, Surv_Post_Transplant, missing.date, survey.notes)
+
+head(wl2_surv)
+tail(wl2_surv)
+```
+
+```{r}
+xtabs(~Surv_to_Oct+Pop.Type, data=wl2_surv) #numbers look right 
+#(830 2024 plants - 11 went missing in the field) - 14% overall survival 
+#(131 2023 plants - 1 went missing in the field) - 19% overall survival 
+
+xtabs(~Surv_Post_Transplant+Pop.Type, data=wl2_surv)
+#(830 2024 plants - 3 went missing in the field) - 77% overall survival 
+```
+
+## Quick Look at 2024 Parent Pops
+```{r}
+meansurv_2024_parents <- wl2_surv %>% 
+  filter(Pop.Type=="Parent") %>% 
+  group_by(parent.pop, elev_m) %>% 
+  summarise(N_Surv = sum(!is.na(Surv_to_Oct)), 
+            mean_Surv_to_Oct = mean(Surv_to_Oct,na.rm=(TRUE)), 
+            mean_Surv_Post_Transplant = mean(Surv_Post_Transplant,na.rm=(TRUE)))
+meansurv_2024_parents #variable planting sample sizes (some as small as 2)
+
+meansurv_2024_parents %>% 
+  ggplot(aes(x=fct_reorder(parent.pop, mean_Surv_to_Oct), y=mean_Surv_to_Oct, fill=elev_m)) + 
+  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  labs(x="Parent Population", y="Survival to Oct 2024", fill="Elevation (m)") +
+  theme_classic() + 
+  scale_y_continuous(expand = c(0, 0)) +
+  scale_fill_gradient(low = "#F5A540", high = "#0043F0")
+
+meansurv_2024_parents %>% 
+  ggplot(aes(x=fct_reorder(parent.pop, mean_Surv_Post_Transplant), y=mean_Surv_Post_Transplant, fill=elev_m)) + 
+  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  labs(x="Parent Population", y="Survival Two Weeks Post-Transplant", fill="Elevation (m)") +
+  theme_classic() + 
+  scale_y_continuous(expand = c(0, 0)) +
+  scale_fill_gradient(low = "#F5A540", high = "#0043F0")
+```
+
+## F1s
+
+```{r}
+wl2_surv_F1 <- wl2_surv %>% 
+  filter(Pop.Type=="F1") %>% 
+  unite(Field_Loc, bed:col, sep="_") %>% 
+  select(Pop.Type:parent.pop, Field_Loc, unique.ID:Surv_Post_Transplant, survey.notes) %>% 
+  separate_wider_delim(parent.pop, " x ", names = c("maternal.pop", "paternal.pop"), cols_remove = FALSE) %>% 
+  mutate(WL2.cross = if_else(maternal.pop=="WL2" | paternal.pop=="WL2", TRUE, FALSE))
+wl2_surv_F1
+xtabs(~Surv_to_Oct+WL2.cross, data=wl2_surv_F1) #slightly higher surv in WL2 crosses 
+xtabs(~Surv_Post_Transplant+WL2.cross, data=wl2_surv_F1) #slightly higher surv in TM2 crosses
+```
+
+Filter to only F1s with WL2 involved 
+```{r}
+wl2_surv_wl2F1s <- wl2_surv_F1 %>% filter(WL2.cross=="TRUE")  
+unique(wl2_surv_wl2F1s$parent.pop) #only 7 F1s with WL2 involved
+xtabs(~Surv_to_Oct+maternal.pop, data=wl2_surv_wl2F1s) 
+xtabs(~Surv_Post_Transplant+maternal.pop, data=wl2_surv_wl2F1s) 
+xtabs(~Surv_to_Oct+paternal.pop, data=wl2_surv_wl2F1s) 
+xtabs(~Surv_Post_Transplant+paternal.pop, data=wl2_surv_wl2F1s) 
+#sample sizes so low, it's hard to feel confident in any trends 
+```
+
+### Calculate proportions of each plant for analysis 
+```{r}
+wl2_surv_F1_props <- wl2_surv_F1 %>% 
+  filter(WL2.cross=="TRUE") %>% #if want TM2 F1s just # this out 
+  mutate(prop.WL2=str_count(parent.pop, "WL2")/2,
+         prop.CC=str_count(parent.pop, "CC")/2,
+         prop.BH=str_count(parent.pop, "BH")/2,
+         prop.WV=str_count(parent.pop, "WV")/2,
+         prop.LV1=str_count(parent.pop, "LV1")/2,
+         prop.TM2=str_count(parent.pop, "TM2")/2,
+         prop.SQ3=str_count(parent.pop, "SQ3")/2,
+         prop.DPR=str_count(parent.pop, "DPR")/2,
+         prop.YO11=str_count(parent.pop, "YO11")/2)
+
+summary(wl2_surv_F1_props)
+
+xtabs(~Surv_to_Oct+prop.BH, data=wl2_surv_F1_props)
+xtabs(~Surv_to_Oct+prop.WV, data=wl2_surv_F1_props)
+xtabs(~Surv_to_Oct+prop.LV1, data=wl2_surv_F1_props)
+xtabs(~Surv_to_Oct+prop.TM2, data=wl2_surv_F1_props)
+xtabs(~Surv_to_Oct+prop.SQ3, data=wl2_surv_F1_props)
+xtabs(~Surv_to_Oct+prop.DPR, data=wl2_surv_F1_props)
+```
+
+
+### with glm
+
+```{r}
+m1 <- glm(Surv_to_Oct ~ prop.BH+prop.WV+prop.LV1+prop.TM2+prop.SQ3+prop.DPR, family = binomial, data=wl2_surv_F1_props)
+
+m2 <- glm(Surv_Post_Transplant ~ prop.BH+prop.WV+prop.LV1+prop.TM2+prop.SQ3+prop.DPR, family = binomial, data=wl2_surv_F1_props)
+
+m3 <- glm(Surv_to_Oct ~ maternal.pop, family = binomial, data=wl2_surv_F1_props)
+
+m4 <- glm(Surv_Post_Transplant ~ maternal.pop, family = binomial, data=wl2_surv_F1_props)
+```
+
+```{r}
+summary(m1)
+summary(m2)
+summary(m3)
+summary(m4)
+```
+
+### have to convert using inv_logit
+
+coefficients
+```{r}
+results1 <- c(coef(m1)[1], #intercept
+             coef(m1)[2:7] + coef(m1)[1]) %>% #coefficients + intercept
+  inv_logit_scaled()
+
+results1
+
+results2 <- c(coef(m2)[1], #intercept
+             coef(m2)[2:7] + coef(m2)[1]) %>% #coefficients + intercept
+  inv_logit_scaled()
+
+results2
+
+results3 <- c(coef(m3)[1], #intercept
+             coef(m3)[2:7] + coef(m3)[1]) %>% #coefficients + intercept
+  inv_logit_scaled()
+
+results3
+
+results4 <- c(coef(m4)[1], #intercept
+             coef(m4)[2:7] + coef(m4)[1]) %>% #coefficients + intercept
+  inv_logit_scaled()
+
+results4
+```
+
+error
+```{r}
+summary(m1)$coefficients[,2] %>% # get the error from the summary table
+  inv_logit_scaled()
+
+summary(m2)$coefficients[,2] %>% # get the error from the summary table
+  inv_logit_scaled()
+
+summary(m3)$coefficients[,2] %>% # get the error from the summary table
+  inv_logit_scaled()
+
+summary(m4)$coefficients[,2] %>% # get the error from the summary table
+  inv_logit_scaled()
+
+#error is really high 
+```
+
+## F2s
+
+```{r}
+wl2_surv_F2 <- wl2_surv %>% 
+  filter(Pop.Type=="F2") %>% 
+  unite(Field_Loc, bed:col, sep="_") %>% 
+  mutate(WL2.cross = if_else(str_detect(parent.pop, "WL2"), TRUE, FALSE)) %>% 
+  select(WL2.cross, Pop.Type:parent.pop, Field_Loc, unique.ID:Surv_Post_Transplant, survey.notes) %>% 
+  separate_wider_delim(parent.pop, ") x (", names = c("maternal.pops", "paternal.pops"), cols_remove = FALSE) %>%
+  mutate(maternal.pops=str_remove(maternal.pops, "\\("), paternal.pops=str_remove(paternal.pops, "\\)")) 
+wl2_surv_F2
+```
+
+BC1s
+```{r}
+wl2_surv_bc1 <- wl2_surv_F2 %>% 
+  filter(WL2.cross=="TRUE") %>% 
+  filter(paternal.pops=="WL2"|maternal.pops=="WL2")
+wl2_surv_bc1
+xtabs(~Surv_to_Oct+maternal.pops, data=wl2_surv_bc1)
+xtabs(~Surv_Post_Transplant+maternal.pops, data=wl2_surv_bc1)
+xtabs(~Surv_to_Oct+paternal.pops, data=wl2_surv_bc1)
+xtabs(~Surv_Post_Transplant+paternal.pops, data=wl2_surv_bc1)
+```
+
+### Calculate proportions of each plant for analysis 
+```{r}
+wl2_surv_F2_props <- wl2_surv_F2 %>% 
+  filter(WL2.cross=="TRUE") %>% #if want TM2 F2s just # this out 
+  #FOR KEEPING TRACK OF MATERNAL AND PATERNAL POPS
+  separate_wider_delim(maternal.pops, " x ", names = c("Parent1", "Parent2"), cols_remove = FALSE, too_few = "align_start") %>%
+  separate_wider_delim(paternal.pops, " x ", names = c("Parent3", "Parent4"), cols_remove = FALSE, too_few = "align_start") %>%
+  mutate(totalParents=rowSums(!is.na(select(., "Parent1", "Parent2", "Parent3", "Parent4")))) %>% 
+  mutate(prop.WL2=str_count(parent.pop, "WL2")/totalParents,
+        prop.CC=str_count(parent.pop, "CC")/totalParents,
+        prop.BH=str_count(parent.pop, "BH")/totalParents,
+        prop.WV=str_count(parent.pop, "WV")/totalParents,
+        prop.LV1=str_count(parent.pop, "LV1")/totalParents,
+        prop.TM2=str_count(parent.pop, "TM2")/totalParents,
+        prop.SQ3=str_count(parent.pop, "SQ3")/totalParents,
+        prop.DPR=str_count(parent.pop, "DPR")/totalParents,
+        prop.YO11=str_count(parent.pop, "YO11")/totalParents)
+  #mutate(WL2prop=if_else(Parent1=="WL2" & Parent2=="WL2" & Parent3=="WL2" & Parent4=="WL2", 1, ))
+                         #is there an easier way to do this?)) 
+wl2_surv_F2_props
+
+summary(wl2_surv_F2_props)
+xtabs(~Surv_to_Oct+prop.WL2, data=wl2_surv_F2_props)
+```
+
+### Plot with props
+```{r}
+meansurv_wl2prop <- wl2_surv_F2_props %>% 
+  group_by(prop.WL2) %>% 
+  summarise(N_Surv = sum(!is.na(Surv_to_Oct)), 
+            mean_Surv_to_Oct = mean(Surv_to_Oct,na.rm=(TRUE)), 
+            mean_Surv_Post_Transplant = mean(Surv_Post_Transplant,na.rm=(TRUE)))
+meansurv_wl2prop 
+
+meansurv_wl2prop %>% 
+  ggplot(aes(x=prop.WL2, y=mean_Surv_to_Oct)) + 
+  geom_point() +
+  labs(y="Survival to Oct 2024") +
+  theme_classic() 
+
+meansurv_CCprop <- wl2_surv_F2_props %>% 
+  group_by(prop.CC) %>% 
+  summarise(N_Surv = sum(!is.na(Surv_to_Oct)), 
+            mean_Surv_to_Oct = mean(Surv_to_Oct,na.rm=(TRUE)), 
+            mean_Surv_Post_Transplant = mean(Surv_Post_Transplant,na.rm=(TRUE)))
+meansurv_CCprop 
+
+meansurv_CCprop %>% 
+  ggplot(aes(x=prop.CC, y=mean_Surv_to_Oct)) + 
+  geom_point() +
+  labs(y="Survival to Oct 2024") +
+  theme_classic() 
+
+meansurv_BHprop <- wl2_surv_F2_props %>% 
+  group_by(prop.BH) %>% 
+  summarise(N_Surv = sum(!is.na(Surv_to_Oct)), 
+            mean_Surv_to_Oct = mean(Surv_to_Oct,na.rm=(TRUE)), 
+            mean_Surv_Post_Transplant = mean(Surv_Post_Transplant,na.rm=(TRUE)))
+meansurv_BHprop 
+
+meansurv_BHprop %>% 
+  ggplot(aes(x=prop.BH, y=mean_Surv_to_Oct)) + 
+  geom_point() +
+  labs(y="Survival to Oct 2024") +
+  theme_classic() 
+
+meansurv_WVprop <- wl2_surv_F2_props %>% 
+  group_by(prop.WV) %>% 
+  summarise(N_Surv = sum(!is.na(Surv_to_Oct)), 
+            mean_Surv_to_Oct = mean(Surv_to_Oct,na.rm=(TRUE)), 
+            mean_Surv_Post_Transplant = mean(Surv_Post_Transplant,na.rm=(TRUE)))
+meansurv_WVprop 
+
+meansurv_WVprop %>% 
+  ggplot(aes(x=prop.WV, y=mean_Surv_to_Oct)) + 
+  geom_point() +
+  labs(y="Survival to Oct 2024") +
+  theme_classic() 
+
+meansurv_LV1prop <- wl2_surv_F2_props %>% 
+  group_by(prop.LV1) %>% 
+  summarise(N_Surv = sum(!is.na(Surv_to_Oct)), 
+            mean_Surv_to_Oct = mean(Surv_to_Oct,na.rm=(TRUE)), 
+            mean_Surv_Post_Transplant = mean(Surv_Post_Transplant,na.rm=(TRUE)))
+meansurv_LV1prop 
+
+meansurv_LV1prop %>% 
+  ggplot(aes(x=prop.LV1, y=mean_Surv_to_Oct)) + 
+  geom_point() +
+  labs(y="Survival to Oct 2024") +
+  theme_classic() 
+
+
+meansurv_TM2prop <- wl2_surv_F2_props %>% 
+  group_by(prop.TM2) %>% 
+  summarise(N_Surv = sum(!is.na(Surv_to_Oct)), 
+            mean_Surv_to_Oct = mean(Surv_to_Oct,na.rm=(TRUE)), 
+            mean_Surv_Post_Transplant = mean(Surv_Post_Transplant,na.rm=(TRUE)))
+meansurv_TM2prop 
+
+meansurv_TM2prop %>% 
+  ggplot(aes(x=prop.TM2, y=mean_Surv_to_Oct)) + 
+  geom_point() +
+  labs(y="Survival to Oct 2024") +
+  theme_classic() 
+
+meansurv_SQ3prop <- wl2_surv_F2_props %>% 
+  group_by(prop.SQ3) %>% 
+  summarise(N_Surv = sum(!is.na(Surv_to_Oct)), 
+            mean_Surv_to_Oct = mean(Surv_to_Oct,na.rm=(TRUE)), 
+            mean_Surv_Post_Transplant = mean(Surv_Post_Transplant,na.rm=(TRUE)))
+meansurv_SQ3prop 
+
+meansurv_SQ3prop %>% 
+  ggplot(aes(x=prop.SQ3, y=mean_Surv_to_Oct)) + 
+  geom_point() +
+  labs(y="Survival to Oct 2024") +
+  theme_classic() 
+
+meansurv_DPRprop <- wl2_surv_F2_props %>% 
+  group_by(prop.DPR) %>% 
+  summarise(N_Surv = sum(!is.na(Surv_to_Oct)), 
+            mean_Surv_to_Oct = mean(Surv_to_Oct,na.rm=(TRUE)), 
+            mean_Surv_Post_Transplant = mean(Surv_Post_Transplant,na.rm=(TRUE)))
+meansurv_DPRprop 
+
+meansurv_DPRprop %>% 
+  ggplot(aes(x=prop.DPR, y=mean_Surv_to_Oct)) + 
+  geom_point() +
+  labs(y="Survival to Oct 2024") +
+  theme_classic() 
+
+meansurv_YO11prop <- wl2_surv_F2_props %>% 
+  group_by(prop.YO11) %>% 
+  summarise(N_Surv = sum(!is.na(Surv_to_Oct)), 
+            mean_Surv_to_Oct = mean(Surv_to_Oct,na.rm=(TRUE)), 
+            mean_Surv_Post_Transplant = mean(Surv_Post_Transplant,na.rm=(TRUE)))
+meansurv_YO11prop 
+
+meansurv_YO11prop %>% 
+  ggplot(aes(x=prop.YO11, y=mean_Surv_to_Oct)) + 
+  geom_point() +
+  labs(y="Survival to Oct 2024") +
+  theme_classic() 
+```
+
+
+### with glm
+
+```{r}
+m5 <- glm(Surv_to_Oct ~ prop.WL2+prop.CC+prop.BH+prop.WV+prop.LV1+prop.TM2+prop.SQ3+prop.DPR+prop.YO11, family = binomial, data=wl2_surv_F2_props)
+summary(m5)
+
+results5 <- c(coef(m5)[1], #intercept
+             coef(m5)[2:7] + coef(m5)[1]) %>% #coefficients + intercept
+  inv_logit_scaled()
+results5
+
+summary(m5)$coefficients[,2] %>% # get the error from the summary table
+  inv_logit_scaled()
+```
+
+```{r}
+m6 <- glm(Surv_Post_Transplant ~ prop.WL2+prop.CC+prop.BH+prop.WV+prop.LV1+prop.TM2+prop.SQ3+prop.DPR+prop.YO11, family = binomial, data=wl2_surv_F2_props)
+summary(m6)
+
+results6 <- c(coef(m6)[1], #intercept
+             coef(m6)[2:7] + coef(m6)[1]) %>% #coefficients + intercept
+  inv_logit_scaled()
+results6
+
+summary(m6)$coefficients[,2] %>% # get the error from the summary table
+  inv_logit_scaled()
+```
+
+```{r}
+m7 <- glm(Surv_to_Oct ~ Parent1, family = binomial, data=wl2_surv_F2_props)
+summary(m7)
+
+results7 <- c(coef(m7)[1], #intercept
+             coef(m7)[2:7] + coef(m7)[1]) %>% #coefficients + intercept
+  inv_logit_scaled()
+results7
+
+summary(m7)$coefficients[,2] %>% # get the error from the summary table
+  inv_logit_scaled()
+```
+
+```{r}
+m8 <- glm(Surv_to_Oct ~ Parent2, family = binomial, data=wl2_surv_F2_props)
+summary(m8)
+
+results8 <- c(coef(m8)[1], #intercept
+             coef(m8)[2:7] + coef(m8)[1]) %>% #coefficients + intercept
+  inv_logit_scaled()
+results8
+
+summary(m8)$coefficients[,2] %>% # get the error from the summary table
+  inv_logit_scaled()
+```
+
+```{r}
+m9 <- glm(Surv_to_Oct ~ Parent3, family = binomial, data=wl2_surv_F2_props)
+summary(m9)
+
+results9 <- c(coef(m9)[1], #intercept
+             coef(m9)[2:7] + coef(m9)[1]) %>% #coefficients + intercept
+  inv_logit_scaled()
+results9
+
+summary(m9)$coefficients[,2] %>% # get the error from the summary table
+  inv_logit_scaled()
+```
+
+```{r}
+m10 <- glm(Surv_to_Oct ~ Parent4, family = binomial, data=wl2_surv_F2_props)
+summary(m10)
+
+results10 <- c(coef(m10)[1], #intercept
+             coef(m10)[2:7] + coef(m10)[1]) %>% #coefficients + intercept
+  inv_logit_scaled()
+results10
+
+summary(m10)$coefficients[,2] %>% # get the error from the summary table
+  inv_logit_scaled()
+```
+
+```{r}
+m11 <- glm(Surv_Post_Transplant ~ Parent1, family = binomial, data=wl2_surv_F2_props)
+summary(m11)
+
+results11 <- c(coef(m11)[1], #intercept
+             coef(m11)[2:7] + coef(m11)[1]) %>% #coefficients + intercept
+  inv_logit_scaled()
+results11
+
+summary(m11)$coefficients[,2] %>% # get the error from the summary table
+  inv_logit_scaled()
+```
+
+```{r}
+m12 <- glm(Surv_Post_Transplant ~ Parent2, family = binomial, data=wl2_surv_F2_props)
+summary(m12)
+
+results12 <- c(coef(m12)[1], #intercept
+             coef(m12)[2:7] + coef(m12)[1]) %>% #coefficients + intercept
+  inv_logit_scaled()
+results12
+
+summary(m12)$coefficients[,2] %>% # get the error from the summary table
+  inv_logit_scaled()
+```
+
+```{r}
+m13 <- glm(Surv_Post_Transplant ~ Parent3, family = binomial, data=wl2_surv_F2_props)
+summary(m13)
+
+results13 <- c(coef(m13)[1], #intercept
+             coef(m13)[2:7] + coef(m13)[1]) %>% #coefficients + intercept
+  inv_logit_scaled()
+results13
+
+summary(m13)$coefficients[,2] %>% # get the error from the summary table
+  inv_logit_scaled()
+```
+
+```{r}
+m14 <- glm(Surv_Post_Transplant ~ Parent4, family = binomial, data=wl2_surv_F2_props)
+summary(m14)
+
+results14 <- c(coef(m14)[1], #intercept
+             coef(m14)[2:7] + coef(m14)[1]) %>% #coefficients + intercept
+  inv_logit_scaled()
+results14
+
+summary(m14)$coefficients[,2] %>% # get the error from the summary table
+  inv_logit_scaled()
+```
+
+
+
