@@ -15,6 +15,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 To Do:
 -   See Julin's code for poperly calculating sem for surv
+-   Convert to yes/no for each parent pop
 
 ## Relevant Libraries and Functions
 ```{r}
@@ -185,9 +186,6 @@ xtabs(~Surv_to_Oct+prop.SQ3, data=wl2_surv_F1_props)
 xtabs(~Surv_to_Oct+prop.DPR, data=wl2_surv_F1_props)
 ```
 
-
-### with glm
-
 ```{r}
 m1 <- glm(Surv_to_Oct ~ prop.BH+prop.WV+prop.LV1+prop.TM2+prop.SQ3+prop.DPR, family = binomial, data=wl2_surv_F1_props)
 
@@ -205,7 +203,7 @@ summary(m3)
 summary(m4)
 ```
 
-### have to convert using inv_logit
+Have to convert using inv_logit
 
 coefficients
 ```{r}
@@ -251,6 +249,63 @@ summary(m4)$coefficients[,2] %>% # get the error from the summary table
 #error is really high 
 ```
 
+### Yes/No Parents
+```{r}
+wl2_surv_F1_binary <- wl2_surv_F1 %>% 
+ # filter(WL2.cross=="TRUE") %>% #if want TM2 F1s just # this out 
+  mutate(WL2=if_else(str_detect(parent.pop, "WL2"), 1, 0),
+         CC=if_else(str_detect(parent.pop, "CC"), 1, 0),
+         BH=if_else(str_detect(parent.pop, "BH"), 1, 0),
+         WV=if_else(str_detect(parent.pop, "WV"), 1, 0),
+         LV1=if_else(str_detect(parent.pop, "LV1"), 1, 0),
+         TM2=if_else(str_detect(parent.pop, "TM2"), 1, 0),
+         SQ3=if_else(str_detect(parent.pop, "SQ3"), 1, 0),
+         DPR=if_else(str_detect(parent.pop, "DPR"), 1, 0),
+         YO11=if_else(str_detect(parent.pop, "YO11"), 1, 0))
+head(wl2_surv_F1_binary, 20)
+summary(wl2_surv_F1_binary)
+
+xtabs(~Surv_to_Oct+WL2, data=wl2_surv_F1_binary)
+xtabs(~Surv_to_Oct+CC, data=wl2_surv_F1_binary)
+xtabs(~Surv_to_Oct+BH, data=wl2_surv_F1_binary)
+xtabs(~Surv_to_Oct+WV, data=wl2_surv_F1_binary)
+xtabs(~Surv_to_Oct+LV1, data=wl2_surv_F1_binary)
+xtabs(~Surv_to_Oct+TM2, data=wl2_surv_F1_binary)
+xtabs(~Surv_to_Oct+SQ3, data=wl2_surv_F1_binary)
+xtabs(~Surv_to_Oct+DPR, data=wl2_surv_F1_binary)
+xtabs(~Surv_to_Oct+YO11, data=wl2_surv_F1_binary)
+```
+
+```{r}
+surv_parent_binary_m1 = glm(Surv_to_Oct ~ WL2+BH+WV+LV1+TM2+SQ3+DPR, family = binomial, data=wl2_surv_F1_binary)
+
+summary(surv_parent_binary_m1)
+
+results1 <- c(coef(surv_parent_binary_m1)[1], #intercept
+             coef(surv_parent_binary_m1)[2:7] + coef(surv_parent_binary_m1)[1]) %>% #coefficients + intercept
+  inv_logit_scaled()
+results1
+
+summary(surv_parent_binary_m1)$coefficients[,2] %>% # get the error from the summary table
+  inv_logit_scaled()
+#error really high?
+```
+
+```{r}
+surv_parent_binary_m2 = glm(Surv_Post_Transplant ~ WL2+BH+WV+LV1+TM2+SQ3+DPR, family = binomial, data=wl2_surv_F1_binary)
+
+summary(surv_parent_binary_m2)
+
+results2 <- c(coef(surv_parent_binary_m2)[1], #intercept
+             coef(surv_parent_binary_m2)[2:7] + coef(surv_parent_binary_m2)[1]) %>% #coefficients + intercept
+  inv_logit_scaled()
+results2
+
+summary(surv_parent_binary_m2)$coefficients[,2] %>% # get the error from the summary table
+  inv_logit_scaled()
+#error really high?
+```
+
 ## F2s
 
 ```{r}
@@ -274,6 +329,101 @@ xtabs(~Surv_to_Oct+maternal.pops, data=wl2_surv_bc1)
 xtabs(~Surv_Post_Transplant+maternal.pops, data=wl2_surv_bc1)
 xtabs(~Surv_to_Oct+paternal.pops, data=wl2_surv_bc1)
 xtabs(~Surv_Post_Transplant+paternal.pops, data=wl2_surv_bc1)
+```
+
+### Calculate yes/no for each parent 
+```{r}
+wl2_surv_F2_binary <- wl2_surv_F2 %>% 
+  filter(WL2.cross=="TRUE") %>% #if want TM2 F1s just # this out 
+  mutate(WL2=if_else(str_detect(parent.pop, "WL2"), 1, 0),
+         CC=if_else(str_detect(parent.pop, "CC"), 1, 0),
+         BH=if_else(str_detect(parent.pop, "BH"), 1, 0),
+         WV=if_else(str_detect(parent.pop, "WV"), 1, 0),
+         LV1=if_else(str_detect(parent.pop, "LV1"), 1, 0),
+         TM2=if_else(str_detect(parent.pop, "TM2"), 1, 0),
+         SQ3=if_else(str_detect(parent.pop, "SQ3"), 1, 0),
+         DPR=if_else(str_detect(parent.pop, "DPR"), 1, 0),
+         YO11=if_else(str_detect(parent.pop, "YO11"), 1, 0),
+         maternal.WL2=if_else(str_detect(maternal.pops, "WL2"), 1, 0),
+         maternal.CC=if_else(str_detect(maternal.pops, "CC"), 1, 0),
+         maternal.BH=if_else(str_detect(maternal.pops, "BH"), 1, 0),
+         maternal.WV=if_else(str_detect(maternal.pops, "WV"), 1, 0),
+         maternal.LV1=if_else(str_detect(maternal.pops, "LV1"), 1, 0),
+         maternal.TM2=if_else(str_detect(maternal.pops, "TM2"), 1, 0),
+         maternal.SQ3=if_else(str_detect(maternal.pops, "SQ3"), 1, 0),
+         maternal.DPR=if_else(str_detect(maternal.pops, "DPR"), 1, 0),
+         maternal.YO11=if_else(str_detect(maternal.pops, "YO11"), 1, 0))
+head(wl2_surv_F2_binary, 20)
+summary(wl2_surv_F2_binary)
+```
+
+#### Plots with binary
+```{r}
+wl2_surv_F2_binary %>% 
+  ggplot(aes(CC,Surv_to_Oct)) +
+  geom_point(position = position_jitter(width=0,height = 0.25))
+```
+
+#### GLMs with binary
+```{r}
+surv_parent_binary_m3 = glm(Surv_to_Oct ~ CC+BH+WV+LV1+TM2+SQ3+DPR+YO11, family = binomial, data=wl2_surv_F2_binary)
+
+summary(surv_parent_binary_m3)
+
+resultsm3 <- c(coef(surv_parent_binary_m3)[1], #intercept
+             coef(surv_parent_binary_m3)[2:7] + coef(surv_parent_binary_m3)[1]) %>% #coefficients + intercept
+  inv_logit_scaled()
+resultsm3
+
+summary(surv_parent_binary_m3)$coefficients[,2] %>% # get the error from the summary table
+  inv_logit_scaled()
+#error really high?
+```
+
+```{r}
+surv_parent_binary_m4 = glm(Surv_Post_Transplant ~ CC+BH+WV+LV1+TM2+SQ3+DPR+YO11, family = binomial, data=wl2_surv_F2_binary)
+
+summary(surv_parent_binary_m4)
+
+resultsm4 <- c(coef(surv_parent_binary_m4)[1], #intercept
+             coef(surv_parent_binary_m4)[2:7] + coef(surv_parent_binary_m4)[1]) %>% #coefficients + intercept
+  inv_logit_scaled()
+resultsm4
+
+summary(surv_parent_binary_m4)$coefficients[,2] %>% # get the error from the summary table
+  inv_logit_scaled()
+#error really high?
+```
+
+```{r}
+surv_parent_binary_m5 = glm(Surv_to_Oct ~ maternal.WL2+maternal.CC+maternal.BH+maternal.WV+maternal.LV1+maternal.TM2+maternal.SQ3+maternal.DPR+maternal.YO11, family = binomial, data=wl2_surv_F2_binary)
+
+summary(surv_parent_binary_m5)
+
+resultsm5 <- c(coef(surv_parent_binary_m5)[1], #intercept
+             coef(surv_parent_binary_m5)[2:7] + coef(surv_parent_binary_m5)[1]) %>% #coefficients + intercept
+  inv_logit_scaled()
+resultsm5
+
+summary(surv_parent_binary_m5)$coefficients[,2] %>% # get the error from the summary table
+  inv_logit_scaled()
+#error really high?
+```
+
+```{r}
+surv_parent_binary_m6 = glm(Surv_Post_Transplant ~ maternal.WL2+maternal.CC+maternal.BH+maternal.WV+maternal.LV1+maternal.TM2+maternal.SQ3+maternal.DPR+maternal.YO11, 
+                            family = binomial, data=wl2_surv_F2_binary)
+
+summary(surv_parent_binary_m6)
+
+resultsm6 <- c(coef(surv_parent_binary_m6)[1], #intercept
+             coef(surv_parent_binary_m6)[2:7] + coef(surv_parent_binary_m6)[1]) %>% #coefficients + intercept
+  inv_logit_scaled()
+resultsm6
+
+summary(surv_parent_binary_m6)$coefficients[,2] %>% # get the error from the summary table
+  inv_logit_scaled()
+#error really high?
 ```
 
 ### Calculate proportions of each plant for analysis 
