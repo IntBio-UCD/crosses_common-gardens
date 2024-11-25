@@ -264,6 +264,8 @@ wl2_surv_F1_binary <- wl2_surv_F1 %>%
          YO11=if_else(str_detect(parent.pop, "YO11"), 1, 0))
 head(wl2_surv_F1_binary, 20)
 summary(wl2_surv_F1_binary)
+#switch to long format?
+#could try switching to character?
 
 xtabs(~Surv_to_Oct+WL2, data=wl2_surv_F1_binary)
 xtabs(~Surv_to_Oct+CC, data=wl2_surv_F1_binary)
@@ -277,17 +279,19 @@ xtabs(~Surv_to_Oct+YO11, data=wl2_surv_F1_binary)
 ```
 
 ```{r}
-surv_parent_binary_m1 = glm(Surv_to_Oct ~ WL2+BH+WV+LV1+TM2+SQ3+DPR, family = binomial, data=wl2_surv_F1_binary)
-
+#try with random effects with glmmer - could try calculating 
+surv_parent_binary_m1 = glm(Surv_to_Oct ~ 1 + (1|WL2)+(1|BH)+WV+LV1+TM2+SQ3+DPR, family = binomial, data=wl2_surv_F1_binary)
+#try bernoulli instead of binomial 
 summary(surv_parent_binary_m1)
 
 results1 <- c(coef(surv_parent_binary_m1)[1], #intercept
              coef(surv_parent_binary_m1)[2:7] + coef(surv_parent_binary_m1)[1]) %>% #coefficients + intercept
   inv_logit_scaled()
-results1
+results1 #what's the effect of each parent on survival compared to DPR
 
 summary(surv_parent_binary_m1)$coefficients[,2] %>% # get the error from the summary table
-  inv_logit_scaled()
+  inv_logit_scaled() #code is working correctly, inv_logit really high numbers so it just returns 1 (hitting the upper limit) #Note: this only works b/c this is a binomial variable (and not a continuous one)
+#if it was continuous, would be error around the slope 
 #error really high?
 ```
 
@@ -355,13 +359,47 @@ wl2_surv_F2_binary <- wl2_surv_F2 %>%
          maternal.YO11=if_else(str_detect(maternal.pops, "YO11"), 1, 0))
 head(wl2_surv_F2_binary, 20)
 summary(wl2_surv_F2_binary)
+
+xtabs(~Surv_to_Oct+WL2, data=wl2_surv_F2_binary)
+xtabs(~Surv_to_Oct+CC, data=wl2_surv_F2_binary)
+xtabs(~Surv_to_Oct+BH, data=wl2_surv_F2_binary)
+xtabs(~Surv_to_Oct+WV, data=wl2_surv_F2_binary)
+xtabs(~Surv_to_Oct+LV1, data=wl2_surv_F2_binary)
+xtabs(~Surv_to_Oct+TM2, data=wl2_surv_F2_binary)
+xtabs(~Surv_to_Oct+SQ3, data=wl2_surv_F2_binary)
+xtabs(~Surv_to_Oct+DPR, data=wl2_surv_F2_binary)
+xtabs(~Surv_to_Oct+YO11, data=wl2_surv_F2_binary)
+
+xtabs(~Surv_to_Oct+WL2, data=wl2_surv_F2_binary)
+xtabs(~Surv_to_Oct+CC, data=wl2_surv_F2_binary)
+xtabs(~Surv_to_Oct+BH, data=wl2_surv_F2_binary)
+xtabs(~Surv_to_Oct+WV, data=wl2_surv_F2_binary)
+xtabs(~Surv_to_Oct+LV1, data=wl2_surv_F2_binary)
+xtabs(~Surv_to_Oct+TM2, data=wl2_surv_F2_binary)
+xtabs(~Surv_to_Oct+SQ3, data=wl2_surv_F2_binary)
+xtabs(~Surv_to_Oct+DPR, data=wl2_surv_F2_binary)
+xtabs(~Surv_to_Oct+YO11, data=wl2_surv_F2_binary)
 ```
 
 #### Plots with binary
 ```{r}
 wl2_surv_F2_binary %>% 
-  ggplot(aes(CC,Surv_to_Oct)) +
-  geom_point(position = position_jitter(width=0,height = 0.25))
+  group_by(CC, Surv_to_Oct) %>% 
+  ggplot(aes(x=CC, fill=Surv_to_Oct)) +
+  geom_bar(position = "dodge", alpha=0.9, width=0.5) +
+  facet_wrap(~Surv_to_Oct)
+
+wl2_surv_F2_binary %>% 
+  group_by(CC, Surv_to_Oct) %>% 
+  ggplot(aes(x=BH, fill=Surv_to_Oct)) +
+  geom_bar(position = "dodge", alpha=0.9, width=0.5) +
+  facet_wrap(~Surv_to_Oct)
+
+wl2_surv_F2_binary %>% 
+  group_by(CC, Surv_to_Oct) %>% 
+  ggplot(aes(x=DPR, fill=Surv_to_Oct)) +
+  geom_bar(position = "dodge", alpha=0.9, width=0.5) +
+  facet_wrap(~Surv_to_Oct)
 ```
 
 #### GLMs with binary
