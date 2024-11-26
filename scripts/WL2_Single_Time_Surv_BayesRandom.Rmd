@@ -293,6 +293,163 @@ xtabs(~Surv_to_Oct+DPR, data=wl2_surv_F2_binary)
 xtabs(~Surv_to_Oct+YO11, data=wl2_surv_F2_binary)
 ```
 
+### Plot the data
+```{r}
+wl2_surv_F2_binary_long <- wl2_surv_F2_binary %>% 
+  select(WL2.cross:YO11) %>% 
+  pivot_longer(WL2:YO11, names_to = "pop", values_to = "Presence")
+  #pivot_longer(maternal.WL2:maternal.YO11, names_to = "maternal_pop", values_to = "Maternal_Presence") 
+head(wl2_surv_F2_binary_long, 15)
+
+wl2_surv_F2_binary_long_means <- wl2_surv_F2_binary_long %>% 
+  group_by(WL2.cross, pop, Presence) %>% 
+  summarise(N_Surv = sum(!is.na(Surv_to_Oct)), 
+            mean_Surv_to_Oct = mean(Surv_to_Oct,na.rm=(TRUE)), 
+            mean_Surv_Post_Transplant = mean(Surv_Post_Transplant,na.rm=(TRUE)))
+wl2_surv_F2_binary_long_means
+
+wl2_surv_F2_binary_long_means %>% 
+  filter(WL2.cross=="TRUE") %>% #if want TM2 F1s just # this out 
+  ggplot(aes(x=Presence, y=mean_Surv_to_Oct, fill=Presence)) +
+  geom_col(width = 0.7,position = position_dodge(0.75), colour="black") +
+  #ylim(-0.05, 0.3) +
+  labs(title="Survival to October - WL2 F2s") +
+  #theme_classic() +
+  facet_wrap(~pop)
+
+wl2_surv_F2_binary_long_means %>% 
+  filter(WL2.cross=="TRUE") %>% #if want TM2 F1s just # this out 
+  ggplot(aes(x=Presence, y=mean_Surv_Post_Transplant, fill=Presence)) +
+  geom_col(width = 0.7,position = position_dodge(0.75), colour="black") +
+  labs(title="Survival to Two Weeks Post-Transplant  - WL2 F2s") +
+  #theme_classic() +
+  facet_wrap(~pop)
+```
+
+### Bayesian random
+```{r}
+surv_parent_binary_bf2 <- brmsformula(Surv_to_Oct ~ (1|BH)+(1|CC)+(1|DPR)+(1|LV1)+(1|SQ3)+(1|TM2)+(1|WV)+(1|YO11))
+
+get_prior(surv_parent_binary_bf2, family = "bernoulli", data = wl2_surv_F2_binary)
+```
+
+```{r}
+surv_parent_binary_m2 <- brm(surv_parent_binary_bf2, 
+                             family = "bernoulli",
+                             data = wl2_surv_F2_binary,
+                             cores=4,
+                             iter = 4000, #increased iterations b/c complex model
+                             control = list(adapt_delta = 0.9)) #increased adapt_delta to help with divergent transitions
+#Warning: There were 10 divergent transitions after warmup.
+```
 
 
+```{r}
+summary(surv_parent_binary_m2)
+#Rhat <1.05 (good!)
+#ESS > 100 (good!)
+```
 
+```{r}
+plot(surv_parent_binary_m2,  nvariables = 3, ask=FALSE) #plots don't look good 
+
+pairs(surv_parent_binary_m2)
+```
+
+To calcualte the stats we need to extract the posterior samples, and add the Intercept to each pop random effect, and then compute the stats.
+
+```{r}
+
+intercept <- as_draws_df(surv_parent_binary_m2, variable = "b_Intercept") %>% as_tibble() %>% select(starts_with("b"))
+
+r_pops <- as_draws_df(surv_parent_binary_m2, variable = "*r_", regex = TRUE) %>% as_tibble() %>% select(starts_with("r"))
+
+r_pops <- r_pops %>% mutate(across(everything(), ~ .x + intercept$b_Intercept))
+```
+
+
+```{r}
+posterior::summarize_draws(r_pops) %>%
+  mutate(across(mean:q95, inv_logit_scaled))
+#estimates seem to be a little off...
+```
+
+### MATERNAL POPS - Plot
+```{r}
+wl2_surv_F2_MAT_binary_long <- wl2_surv_F2_binary %>% 
+  select(WL2.cross:survey.notes, maternal.WL2:maternal.YO11) %>% 
+  pivot_longer(maternal.WL2:maternal.YO11, names_to = "maternal_pop", values_to = "Maternal_Presence") 
+head(wl2_surv_F2_MAT_binary_long, 15)
+
+wl2_surv_F2_MAT_binary_long_means <- wl2_surv_F2_MAT_binary_long %>% 
+  group_by(WL2.cross, maternal_pop, Maternal_Presence) %>% 
+  summarise(N_Surv = sum(!is.na(Surv_to_Oct)), 
+            mean_Surv_to_Oct = mean(Surv_to_Oct,na.rm=(TRUE)), 
+            mean_Surv_Post_Transplant = mean(Surv_Post_Transplant,na.rm=(TRUE)))
+wl2_surv_F2_MAT_binary_long_means
+
+wl2_surv_F2_MAT_binary_long_means %>% 
+  filter(WL2.cross=="TRUE") %>% #if want TM2 F1s just # this out 
+  ggplot(aes(x=Maternal_Presence, y=mean_Surv_to_Oct, fill=Maternal_Presence)) +
+  geom_col(width = 0.7,position = position_dodge(0.75), colour="black") +
+  #ylim(-0.05, 0.3) +
+  labs(title="Survival to October - WL2 F2ss - Maternal Pops") +
+  #theme_classic() +
+  facet_wrap(~maternal_pop)
+
+wl2_surv_F2_MAT_binary_long_means %>% 
+  filter(WL2.cross=="TRUE") %>% #if want TM2 F1s just # this out 
+  ggplot(aes(x=Maternal_Presence, y=mean_Surv_Post_Transplant, fill=Maternal_Presence)) +
+  geom_col(width = 0.7,position = position_dodge(0.75), colour="black") +
+  labs(title="Survival to Two Weeks Post-Transplant  - WL2 F2s - Maternal Pops") +
+  #theme_classic() +
+  facet_wrap(~maternal_pop)
+```
+
+### Bayesian random - MATERNAL POPS
+```{r}
+surv_parent_binary_bf3 <- brmsformula(Surv_to_Oct ~ (1|maternal.BH)+(1|maternal.CC)+(1|maternal.DPR)+(1|maternal.LV1)+(1|maternal.SQ3)+(1|maternal.TM2)+(1|maternal.WV)+(1|maternal.YO11))
+
+get_prior(surv_parent_binary_bf3, family = "bernoulli", data = wl2_surv_F2_binary)
+```
+
+```{r}
+surv_parent_binary_m3 <- brm(surv_parent_binary_bf3, 
+                             family = "bernoulli",
+                             data = wl2_surv_F2_binary,
+                             cores=4,
+                             iter = 4000, #increased iterations b/c complex model
+                             control = list(adapt_delta = 0.9)) #increased adapt_delta to help with divergent transitions
+#Warning: There were 52 divergent transitions after warmup. 
+```
+
+
+```{r}
+summary(surv_parent_binary_m3)
+#Rhat <1.05 (good!)
+#ESS > 100 (good!)
+```
+
+```{r}
+plot(surv_parent_binary_m3,  nvariables = 3, ask=FALSE) #plots don't look good 
+
+pairs(surv_parent_binary_m3)
+```
+
+To calcualte the stats we need to extract the posterior samples, and add the Intercept to each pop random effect, and then compute the stats.
+
+```{r}
+
+intercept <- as_draws_df(surv_parent_binary_m3, variable = "b_Intercept") %>% as_tibble() %>% select(starts_with("b"))
+
+r_pops <- as_draws_df(surv_parent_binary_m3, variable = "*r_", regex = TRUE) %>% as_tibble() %>% select(starts_with("r"))
+
+r_pops <- r_pops %>% mutate(across(everything(), ~ .x + intercept$b_Intercept))
+```
+
+
+```{r}
+posterior::summarize_draws(r_pops) %>%
+  mutate(across(mean:q95, inv_logit_scaled))
+#estimates seem to be a little off...
+```
