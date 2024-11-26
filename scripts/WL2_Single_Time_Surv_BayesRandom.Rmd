@@ -143,40 +143,64 @@ xtabs(~Surv_to_Oct+YO11, data=wl2_surv_F1_binary)
 ```{r}
 wl2_surv_F1_binary_long <- wl2_surv_F1_binary %>% 
   pivot_longer(WL2:YO11, names_to = "pop", values_to = "Presence")
-wl2_surv_F1_binary_long
+head(wl2_surv_F1_binary_long, 15)
 
 wl2_surv_F1_binary_long_means <- wl2_surv_F1_binary_long %>% 
-  group_by(pop, Presence) %>% 
+  group_by(WL2.cross, pop, Presence) %>% 
   summarise(N_Surv = sum(!is.na(Surv_to_Oct)), 
             mean_Surv_to_Oct = mean(Surv_to_Oct,na.rm=(TRUE)), 
             mean_Surv_Post_Transplant = mean(Surv_Post_Transplant,na.rm=(TRUE)))
 wl2_surv_F1_binary_long_means
 
 wl2_surv_F1_binary_long_means %>% 
+  filter(WL2.cross=="TRUE") %>% #if want TM2 F1s just # this out 
   ggplot(aes(x=Presence, y=mean_Surv_to_Oct, fill=Presence)) +
   geom_col(width = 0.7,position = position_dodge(0.75), colour="black") +
-  ylim(-0.05, 0.3) +
+  #ylim(-0.05, 0.3) +
+  labs(title="Survival to October - WL2 F1s") +
+  #theme_classic() +
+  facet_wrap(~pop)
+
+wl2_surv_F1_binary_long_means %>% 
+  filter(WL2.cross=="TRUE") %>% #if want TM2 F1s just # this out 
+  ggplot(aes(x=Presence, y=mean_Surv_Post_Transplant, fill=Presence)) +
+  geom_col(width = 0.7,position = position_dodge(0.75), colour="black") +
+  labs(title="Survival to Two Weeks Post-Transplant  - WL2 F1s") +
   #theme_classic() +
   facet_wrap(~pop)
 ```
 
 
 ### Bayesian random
+Filter to WL2 F1s Only 
+```{r}
+wl2_surv_wl2F1s <- wl2_surv_F1_binary %>% filter(WL2.cross=="TRUE")  
+wl2_surv_wl2F1s
+
+xtabs(~Surv_to_Oct+CC, data=wl2_surv_wl2F1s) #no CC x WL2 or vice versa 
+xtabs(~Surv_to_Oct+BH, data=wl2_surv_wl2F1s)
+xtabs(~Surv_to_Oct+WV, data=wl2_surv_wl2F1s)
+xtabs(~Surv_to_Oct+LV1, data=wl2_surv_wl2F1s)
+xtabs(~Surv_to_Oct+TM2, data=wl2_surv_wl2F1s)
+xtabs(~Surv_to_Oct+SQ3, data=wl2_surv_wl2F1s)
+xtabs(~Surv_to_Oct+DPR, data=wl2_surv_wl2F1s)
+xtabs(~Surv_to_Oct+YO11, data=wl2_surv_wl2F1s) #no YO11 x WL2 or vice versa 
+```
+
 
 ```{r}
-surv_parent_binary_bf1 <- brmsformula(Surv_to_Oct ~ (1|WL2)+(1|BH)+(1|WV)+(1|LV1)+(1|TM2)+(1|SQ3)+(1|DPR))
+surv_parent_binary_bf1 <- brmsformula(Surv_to_Oct ~ (1|BH)+(1|WV)+(1|LV1)+(1|TM2)+(1|SQ3)+(1|DPR))
 
-get_prior(surv_parent_binary_bf1, family = "bernoulli", data = wl2_surv_F1_binary)
+get_prior(surv_parent_binary_bf1, family = "bernoulli", data = wl2_surv_wl2F1s)
 ```
 
 ```{r}
 surv_parent_binary_m1 <- brm(surv_parent_binary_bf1, 
                              family = "bernoulli",
-                             data = wl2_surv_F1_binary,
+                             data = wl2_surv_wl2F1s,
                              cores=4,
                              iter = 4000, #increased iterations b/c complex model
                              control = list(adapt_delta = 0.9)) #increased adapt_delta to help with divergent transitions
-#Warning: There were 3 divergent transitions after warmup.
 ```
 
 
@@ -207,6 +231,7 @@ r_pops <- r_pops %>% mutate(across(everything(), ~ .x + intercept$b_Intercept))
 ```{r}
 posterior::summarize_draws(r_pops) %>%
   mutate(across(mean:q95, inv_logit_scaled))
+#estimates seem to be a little off...
 ```
 
 ## F2s
