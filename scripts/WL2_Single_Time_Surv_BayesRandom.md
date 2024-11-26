@@ -1,7 +1,7 @@
 ---
 title: "WL2_Single_Time_Surv"
 author: "Brandie QC"
-date: "2024-11-25"
+date: "2024-11-26"
 output: 
   html_document: 
     keep_md: true
@@ -803,30 +803,49 @@ wl2_surv_F1_binary_long_means %>%
 
 ### Bayesian random
 Filter to WL2 F1s Only 
+Logit scale reminder: logit(x) = ln(x / (1-x));
 
 ``` r
 wl2_surv_wl2F1s <- wl2_surv_F1_binary %>% filter(WL2.cross=="TRUE")  
-wl2_surv_wl2F1s
+summary(wl2_surv_wl2F1s)
 ```
 
 ```
-## # A tibble: 43 × 20
-##    Pop.Type maternal.pop paternal.pop parent.pop Field_Loc unique.ID death.date
-##    <chr>    <chr>        <chr>        <chr>      <chr>     <chr>     <chr>     
-##  1 F1       LV1          WL2          LV1 x WL2  D_52_C    1271      6/18/24   
-##  2 F1       TM2          WL2          TM2 x WL2  C_32_B    1279      6/25/24   
-##  3 F1       TM2          WL2          TM2 x WL2  D_18_C    1281      6/25/24   
-##  4 F1       LV1          WL2          LV1 x WL2  E_43_C    1259      6/25/24   
-##  5 F1       LV1          WL2          LV1 x WL2  F_21_A    1270      6/25/24   
-##  6 F1       WL2          BH           WL2 x BH   G_18_B    833       6/25/24   
-##  7 F1       TM2          WL2          TM2 x WL2  G_24_A    1277      6/25/24   
-##  8 F1       LV1          WL2          LV1 x WL2  G_32_A    1254      6/25/24   
-##  9 F1       SQ3          WL2          SQ3 x WL2  G_15_D    644       6/25/24   
-## 10 F1       LV1          WL2          LV1 x WL2  H_15_B    1263      6/25/24   
-## # ℹ 33 more rows
-## # ℹ 13 more variables: Surv_to_Oct <dbl>, Surv_Post_Transplant <dbl>,
-## #   survey.notes <chr>, WL2.cross <lgl>, WL2 <dbl>, CC <dbl>, BH <dbl>,
-## #   WV <dbl>, LV1 <dbl>, TM2 <dbl>, SQ3 <dbl>, DPR <dbl>, YO11 <dbl>
+##    Pop.Type         maternal.pop       paternal.pop        parent.pop       
+##  Length:43          Length:43          Length:43          Length:43         
+##  Class :character   Class :character   Class :character   Class :character  
+##  Mode  :character   Mode  :character   Mode  :character   Mode  :character  
+##                                                                             
+##                                                                             
+##                                                                             
+##   Field_Loc          unique.ID          death.date         Surv_to_Oct   
+##  Length:43          Length:43          Length:43          Min.   :0.000  
+##  Class :character   Class :character   Class :character   1st Qu.:0.000  
+##  Mode  :character   Mode  :character   Mode  :character   Median :0.000  
+##                                                           Mean   :0.186  
+##                                                           3rd Qu.:0.000  
+##                                                           Max.   :1.000  
+##  Surv_Post_Transplant survey.notes       WL2.cross           WL2          CC   
+##  Min.   :0.0000       Length:43          Mode:logical   Min.   :1   Min.   :0  
+##  1st Qu.:0.0000       Class :character   TRUE:43        1st Qu.:1   1st Qu.:0  
+##  Median :1.0000       Mode  :character                  Median :1   Median :0  
+##  Mean   :0.6977                                         Mean   :1   Mean   :0  
+##  3rd Qu.:1.0000                                         3rd Qu.:1   3rd Qu.:0  
+##  Max.   :1.0000                                         Max.   :1   Max.   :0  
+##        BH               WV              LV1              TM2        
+##  Min.   :0.0000   Min.   :0.0000   Min.   :0.0000   Min.   :0.0000  
+##  1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:0.0000  
+##  Median :0.0000   Median :0.0000   Median :0.0000   Median :0.0000  
+##  Mean   :0.1395   Mean   :0.2093   Mean   :0.2558   Mean   :0.2093  
+##  3rd Qu.:0.0000   3rd Qu.:0.0000   3rd Qu.:0.5000   3rd Qu.:0.0000  
+##  Max.   :1.0000   Max.   :1.0000   Max.   :1.0000   Max.   :1.0000  
+##       SQ3               DPR               YO11  
+##  Min.   :0.00000   Min.   :0.00000   Min.   :0  
+##  1st Qu.:0.00000   1st Qu.:0.00000   1st Qu.:0  
+##  Median :0.00000   Median :0.00000   Median :0  
+##  Mean   :0.09302   Mean   :0.09302   Mean   :0  
+##  3rd Qu.:0.00000   3rd Qu.:0.00000   3rd Qu.:0  
+##  Max.   :1.00000   Max.   :1.00000   Max.   :0
 ```
 
 ``` r
@@ -958,6 +977,11 @@ get_prior(surv_parent_binary_bf1, family = "bernoulli", data = wl2_surv_wl2F1s)
 ##  (vectorized)
 ```
 
+``` r
+prior1 <- c(set_prior(prior = 'normal(0, 5)', class='Intercept'),
+            set_prior(prior = 'normal(0, 5)', class='sd'))
+```
+
 
 ``` r
 surv_parent_binary_m1 <- brm(surv_parent_binary_bf1, 
@@ -965,7 +989,8 @@ surv_parent_binary_m1 <- brm(surv_parent_binary_bf1,
                              data = wl2_surv_wl2F1s,
                              cores=4,
                              iter = 4000, #increased iterations b/c complex model
-                             control = list(adapt_delta = 0.9)) #increased adapt_delta to help with divergent transitions
+                             control = list(adapt_delta = 0.9),
+                             prior=prior1) #increased adapt_delta to help with divergent transitions
 ```
 
 ```
@@ -979,7 +1004,7 @@ surv_parent_binary_m1 <- brm(surv_parent_binary_bf1,
 ```
 ## Running /Library/Frameworks/R.framework/Resources/bin/R CMD SHLIB foo.c
 ## using C compiler: ‘Apple clang version 16.0.0 (clang-1600.0.26.3)’
-## using SDK: ‘’
+## using SDK: ‘MacOSX15.1.sdk’
 ## clang -arch arm64 -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG   -I"/Users/bqc/Library/R/arm64/4.4/library/Rcpp/include/"  -I"/Users/bqc/Library/R/arm64/4.4/library/RcppEigen/include/"  -I"/Users/bqc/Library/R/arm64/4.4/library/RcppEigen/include/unsupported"  -I"/Users/bqc/Library/R/arm64/4.4/library/BH/include" -I"/Users/bqc/Library/R/arm64/4.4/library/StanHeaders/include/src/"  -I"/Users/bqc/Library/R/arm64/4.4/library/StanHeaders/include/"  -I"/Users/bqc/Library/R/arm64/4.4/library/RcppParallel/include/"  -I"/Users/bqc/Library/R/arm64/4.4/library/rstan/include" -DEIGEN_NO_DEBUG  -DBOOST_DISABLE_ASSERTS  -DBOOST_PENDING_INTEGER_LOG2_HPP  -DSTAN_THREADS  -DUSE_STANC3 -DSTRICT_R_HEADERS  -DBOOST_PHOENIX_NO_VARIADIC_EXPRESSION  -D_HAS_AUTO_PTR_ETC=0  -include '/Users/bqc/Library/R/arm64/4.4/library/StanHeaders/include/stan/math/prim/fun/Eigen.hpp'  -D_REENTRANT -DRCPP_PARALLEL_USE_TBB=1   -I/opt/R/arm64/include    -fPIC  -falign-functions=64 -Wall -g -O2  -c foo.c -o foo.o
 ## In file included from <built-in>:1:
 ## In file included from /Users/bqc/Library/R/arm64/4.4/library/StanHeaders/include/stan/math/prim/fun/Eigen.hpp:22:
@@ -999,6 +1024,28 @@ surv_parent_binary_m1 <- brm(surv_parent_binary_bf1,
 
 
 ``` r
+prior_summary(surv_parent_binary_m1)
+```
+
+```
+##         prior     class      coef group resp dpar nlpar lb ub       source
+##  normal(0, 5) Intercept                                               user
+##  normal(0, 5)        sd                                  0            user
+##  normal(0, 5)        sd              BH                  0    (vectorized)
+##  normal(0, 5)        sd Intercept    BH                  0    (vectorized)
+##  normal(0, 5)        sd             DPR                  0    (vectorized)
+##  normal(0, 5)        sd Intercept   DPR                  0    (vectorized)
+##  normal(0, 5)        sd             LV1                  0    (vectorized)
+##  normal(0, 5)        sd Intercept   LV1                  0    (vectorized)
+##  normal(0, 5)        sd             SQ3                  0    (vectorized)
+##  normal(0, 5)        sd Intercept   SQ3                  0    (vectorized)
+##  normal(0, 5)        sd             TM2                  0    (vectorized)
+##  normal(0, 5)        sd Intercept   TM2                  0    (vectorized)
+##  normal(0, 5)        sd              WV                  0    (vectorized)
+##  normal(0, 5)        sd Intercept    WV                  0    (vectorized)
+```
+
+``` r
 summary(surv_parent_binary_m1)
 ```
 
@@ -1013,31 +1060,31 @@ summary(surv_parent_binary_m1)
 ## Multilevel Hyperparameters:
 ## ~BH (Number of levels: 2) 
 ##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)     2.35      2.46     0.07     8.70 1.00     2607     2184
+## sd(Intercept)     3.53      2.75     0.12    10.28 1.00     3782     2657
 ## 
 ## ~DPR (Number of levels: 2) 
 ##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)     2.14      2.08     0.07     7.85 1.00     4603     3430
+## sd(Intercept)     3.44      2.73     0.12    10.21 1.00     4284     3370
 ## 
 ## ~LV1 (Number of levels: 2) 
 ##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)     1.59      1.56     0.05     5.66 1.00     4092     4000
+## sd(Intercept)     2.61      2.28     0.07     8.49 1.00     3516     3652
 ## 
 ## ~SQ3 (Number of levels: 2) 
 ##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)     2.16      2.13     0.07     7.99 1.00     4891     3678
+## sd(Intercept)     3.43      2.80     0.12    10.45 1.00     5213     3720
 ## 
 ## ~TM2 (Number of levels: 2) 
 ##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)     1.67      1.58     0.05     5.78 1.00     2500     2369
+## sd(Intercept)     2.69      2.36     0.09     8.89 1.00     3239     3423
 ## 
 ## ~WV (Number of levels: 2) 
 ##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)     2.21      1.82     0.14     7.06 1.00     2811     2626
+## sd(Intercept)     3.27      2.43     0.17     9.44 1.00     3087     2407
 ## 
 ## Regression Coefficients:
 ##           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## Intercept    -1.12      2.66    -7.12     3.78 1.00     4648     2023
+## Intercept    -1.62      4.13    -9.77     6.38 1.00     4905     5434
 ## 
 ## Draws were sampled using sampling(NUTS). For each parameter, Bulk_ESS
 ## and Tail_ESS are effective sample size measures, and Rhat is the potential
@@ -1046,21 +1093,33 @@ summary(surv_parent_binary_m1)
 
 ``` r
 #Rhat <1.05 (good!)
-#ESS > 100 (good!)
+#ESS > 1000 (good!)
 ```
 
 
 ``` r
-plot(surv_parent_binary_m1,  nvariables = 3, ask=FALSE) #plots don't look good 
+plot(surv_parent_binary_m1,  nvariables = 3, ask=FALSE) #plots look a little better with prior distribution adjustments 
 ```
 
 ![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-13-1.png)<!-- -->![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-13-2.png)<!-- -->![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-13-3.png)<!-- -->
 
 ``` r
-pairs(surv_parent_binary_m1)
+#pairs(surv_parent_binary_m1)
+
+pp_check(surv_parent_binary_m1)  # posterior predictive checks
+```
+
+```
+## Using 10 posterior draws for ppc type 'dens_overlay' by default.
 ```
 
 ![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-13-4.png)<!-- -->
+
+``` r
+#The main use of this function is to check if you model predicts your data accurately (using the estimates). If it does, then you can use that model to generate new data and make accurate predictions.
+#light blue = 10 random draws or distributions created by the model
+#dark blue = posterior distribution
+```
 
 To calcualte the stats we need to extract the posterior samples, and add the Intercept to each pop random effect, and then compute the stats.
 
@@ -1084,18 +1143,18 @@ posterior::summarize_draws(r_pops) %>%
 ## # A tibble: 12 × 10
 ##    variable        mean median    sd   mad      q5   q95  rhat ess_bulk ess_tail
 ##    <chr>          <dbl>  <dbl> <dbl> <dbl>   <dbl> <dbl> <dbl>    <dbl>    <dbl>
-##  1 r_BH[0,Inter… 0.330   0.337 0.944 0.923 4.85e-3 0.980  1.00    3386.    2467.
-##  2 r_BH[1,Inter… 0.0641  0.105 0.983 0.958 5.73e-5 0.931  1.00    3618.    3002.
-##  3 r_DPR[0,Inte… 0.318   0.329 0.944 0.920 4.55e-3 0.976  1.00    3903.    2124.
-##  4 r_DPR[1,Inte… 0.0764  0.121 0.980 0.953 9.53e-5 0.934  1.00    4684.    4217.
-##  5 r_LV1[0,Inte… 0.171   0.194 0.940 0.915 1.83e-3 0.926  1.00    4474.    1995.
-##  6 r_LV1[1,Inte… 0.269   0.285 0.949 0.928 2.98e-3 0.976  1.00    4500.    3815.
-##  7 r_SQ3[0,Inte… 0.305   0.321 0.942 0.920 3.80e-3 0.975  1.00    4312.    3356.
-##  8 r_SQ3[1,Inte… 0.0794  0.122 0.978 0.955 1.32e-4 0.935  1.00    4847.    4892.
-##  9 r_TM2[0,Inte… 0.156   0.173 0.940 0.920 1.80e-3 0.922  1.00    4633.    3637.
-## 10 r_TM2[1,Inte… 0.282   0.297 0.951 0.926 3.05e-3 0.976  1.00    4507.    3524.
-## 11 r_WV[0,Inter… 0.0822  0.103 0.949 0.927 6.64e-4 0.858  1.00    3203.    1926.
-## 12 r_WV[1,Inter… 0.374   0.406 0.956 0.934 3.47e-3 0.987  1.00    3285.    1953.
+##  1 r_BH[0,Inter… 0.303  0.278  0.988 0.985 4.03e-4 0.998  1.00    5093.    5286.
+##  2 r_BH[1,Inter… 0.0188 0.0274 0.997 0.994 8.85e-7 0.990  1.00    4663.    4860.
+##  3 r_DPR[0,Inte… 0.274  0.262  0.987 0.984 3.36e-4 0.998  1.00    5042.    5955.
+##  4 r_DPR[1,Inte… 0.0225 0.0357 0.997 0.994 1.01e-6 0.991  1.00    5322.    6009.
+##  5 r_LV1[0,Inte… 0.0782 0.0816 0.986 0.984 5.83e-5 0.987  1.00    5318.    5677.
+##  6 r_LV1[1,Inte… 0.196  0.190  0.991 0.989 1.27e-4 0.998  1.00    4434.    5484.
+##  7 r_SQ3[0,Inte… 0.279  0.271  0.988 0.984 3.08e-4 0.998  1.00    4970.    6137.
+##  8 r_SQ3[1,Inte… 0.0236 0.0381 0.997 0.994 1.08e-6 0.990  1.00    5057.    5317.
+##  9 r_TM2[0,Inte… 0.0747 0.0795 0.986 0.982 6.50e-5 0.987  1.00    5611.    5277.
+## 10 r_TM2[1,Inte… 0.223  0.215  0.990 0.989 1.53e-4 0.998  1.00    4630.    5534.
+## 11 r_WV[0,Inter… 0.0392 0.0408 0.987 0.983 3.01e-5 0.978  1.00    5502.    5943.
+## 12 r_WV[1,Inter… 0.318  0.302  0.991 0.989 2.69e-4 0.999  1.00    4542.    6023.
 ```
 
 ``` r
@@ -1609,7 +1668,8 @@ surv_parent_binary_m2 <- brm(surv_parent_binary_bf2,
                              data = wl2_surv_F2_binary,
                              cores=4,
                              iter = 4000, #increased iterations b/c complex model
-                             control = list(adapt_delta = 0.9)) #increased adapt_delta to help with divergent transitions
+                             control = list(adapt_delta = 0.9),
+                             prior=prior1) #increased adapt_delta to help with divergent transitions
 ```
 
 ```
@@ -1623,7 +1683,7 @@ surv_parent_binary_m2 <- brm(surv_parent_binary_bf2,
 ```
 ## Running /Library/Frameworks/R.framework/Resources/bin/R CMD SHLIB foo.c
 ## using C compiler: ‘Apple clang version 16.0.0 (clang-1600.0.26.3)’
-## using SDK: ‘’
+## using SDK: ‘MacOSX15.1.sdk’
 ## clang -arch arm64 -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG   -I"/Users/bqc/Library/R/arm64/4.4/library/Rcpp/include/"  -I"/Users/bqc/Library/R/arm64/4.4/library/RcppEigen/include/"  -I"/Users/bqc/Library/R/arm64/4.4/library/RcppEigen/include/unsupported"  -I"/Users/bqc/Library/R/arm64/4.4/library/BH/include" -I"/Users/bqc/Library/R/arm64/4.4/library/StanHeaders/include/src/"  -I"/Users/bqc/Library/R/arm64/4.4/library/StanHeaders/include/"  -I"/Users/bqc/Library/R/arm64/4.4/library/RcppParallel/include/"  -I"/Users/bqc/Library/R/arm64/4.4/library/rstan/include" -DEIGEN_NO_DEBUG  -DBOOST_DISABLE_ASSERTS  -DBOOST_PENDING_INTEGER_LOG2_HPP  -DSTAN_THREADS  -DUSE_STANC3 -DSTRICT_R_HEADERS  -DBOOST_PHOENIX_NO_VARIADIC_EXPRESSION  -D_HAS_AUTO_PTR_ETC=0  -include '/Users/bqc/Library/R/arm64/4.4/library/StanHeaders/include/stan/math/prim/fun/Eigen.hpp'  -D_REENTRANT -DRCPP_PARALLEL_USE_TBB=1   -I/opt/R/arm64/include    -fPIC  -falign-functions=64 -Wall -g -O2  -c foo.c -o foo.o
 ## In file included from <built-in>:1:
 ## In file included from /Users/bqc/Library/R/arm64/4.4/library/StanHeaders/include/stan/math/prim/fun/Eigen.hpp:22:
@@ -1641,9 +1701,14 @@ surv_parent_binary_m2 <- brm(surv_parent_binary_bf2,
 ```
 
 ```
-## Warning: There were 14 divergent transitions after warmup. See
+## Warning: There were 15 divergent transitions after warmup. See
 ## https://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup
 ## to find out why this is a problem and how to eliminate them.
+```
+
+```
+## Warning: There were 1 transitions after warmup that exceeded the maximum treedepth. Increase max_treedepth above 10. See
+## https://mc-stan.org/misc/warnings.html#maximum-treedepth-exceeded
 ```
 
 ```
@@ -1651,17 +1716,42 @@ surv_parent_binary_m2 <- brm(surv_parent_binary_bf2,
 ```
 
 ``` r
-#Warning: There were 10 divergent transitions after warmup.
+#Warning: There were 28 divergent transitions after warmup.
 ```
 
 
+``` r
+prior_summary(surv_parent_binary_m2)
+```
+
+```
+##         prior     class      coef group resp dpar nlpar lb ub       source
+##  normal(0, 5) Intercept                                               user
+##  normal(0, 5)        sd                                  0            user
+##  normal(0, 5)        sd              BH                  0    (vectorized)
+##  normal(0, 5)        sd Intercept    BH                  0    (vectorized)
+##  normal(0, 5)        sd              CC                  0    (vectorized)
+##  normal(0, 5)        sd Intercept    CC                  0    (vectorized)
+##  normal(0, 5)        sd             DPR                  0    (vectorized)
+##  normal(0, 5)        sd Intercept   DPR                  0    (vectorized)
+##  normal(0, 5)        sd             LV1                  0    (vectorized)
+##  normal(0, 5)        sd Intercept   LV1                  0    (vectorized)
+##  normal(0, 5)        sd             SQ3                  0    (vectorized)
+##  normal(0, 5)        sd Intercept   SQ3                  0    (vectorized)
+##  normal(0, 5)        sd             TM2                  0    (vectorized)
+##  normal(0, 5)        sd Intercept   TM2                  0    (vectorized)
+##  normal(0, 5)        sd              WV                  0    (vectorized)
+##  normal(0, 5)        sd Intercept    WV                  0    (vectorized)
+##  normal(0, 5)        sd            YO11                  0    (vectorized)
+##  normal(0, 5)        sd Intercept  YO11                  0    (vectorized)
+```
 
 ``` r
 summary(surv_parent_binary_m2)
 ```
 
 ```
-## Warning: There were 14 divergent transitions after warmup. Increasing
+## Warning: There were 15 divergent transitions after warmup. Increasing
 ## adapt_delta above 0.9 may help. See
 ## http://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup
 ```
@@ -1677,39 +1767,39 @@ summary(surv_parent_binary_m2)
 ## Multilevel Hyperparameters:
 ## ~BH (Number of levels: 2) 
 ##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)     1.07      1.26     0.03     4.43 1.00     3993     4302
+## sd(Intercept)     1.64      1.86     0.03     6.98 1.00     3114     3572
 ## 
 ## ~CC (Number of levels: 2) 
 ##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)     1.09      1.20     0.03     4.35 1.00     3321     3458
+## sd(Intercept)     1.74      1.99     0.04     7.29 1.00     2972     3453
 ## 
 ## ~DPR (Number of levels: 2) 
 ##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)     1.36      1.29     0.08     4.83 1.00     3920     3317
+## sd(Intercept)     2.02      1.98     0.11     7.57 1.00     3169     3153
 ## 
 ## ~LV1 (Number of levels: 2) 
 ##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)     1.05      1.20     0.03     4.35 1.00     3541     3851
+## sd(Intercept)     1.63      1.90     0.03     7.07 1.00     2736     3294
 ## 
 ## ~SQ3 (Number of levels: 2) 
 ##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)     1.16      1.26     0.03     4.69 1.00     3712     4109
+## sd(Intercept)     1.74      1.90     0.04     7.03 1.00     2716     3071
 ## 
 ## ~TM2 (Number of levels: 2) 
 ##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)     1.06      1.22     0.02     4.41 1.00     3230     4036
+## sd(Intercept)     1.63      1.88     0.03     6.97 1.00     2721     3643
 ## 
 ## ~WV (Number of levels: 2) 
 ##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)     1.12      1.27     0.03     4.58 1.00     3905     3853
+## sd(Intercept)     1.72      1.95     0.03     7.23 1.00     3043     3774
 ## 
 ## ~YO11 (Number of levels: 2) 
 ##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)     1.06      1.27     0.02     4.48 1.00     3146     3659
+## sd(Intercept)     1.69      1.97     0.03     7.26 1.00     2575     3096
 ## 
 ## Regression Coefficients:
 ##           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## Intercept    -0.90      2.05    -5.10     3.22 1.00     5813     4547
+## Intercept    -0.96      3.35    -7.49     5.88 1.00     4784     4831
 ## 
 ## Draws were sampled using sampling(NUTS). For each parameter, Bulk_ESS
 ## and Tail_ESS are effective sample size measures, and Rhat is the potential
@@ -1718,7 +1808,7 @@ summary(surv_parent_binary_m2)
 
 ``` r
 #Rhat <1.05 (good!)
-#ESS > 100 (good!)
+#ESS > 1000 (good!)
 ```
 
 
@@ -1729,10 +1819,20 @@ plot(surv_parent_binary_m2,  nvariables = 3, ask=FALSE) #plots don't look good
 ![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-22-1.png)<!-- -->![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-22-2.png)<!-- -->![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-22-3.png)<!-- -->
 
 ``` r
-pairs(surv_parent_binary_m2)
+#pairs(surv_parent_binary_m2)
+
+pp_check(surv_parent_binary_m1)  # posterior predictive checks
+```
+
+```
+## Using 10 posterior draws for ppc type 'dens_overlay' by default.
 ```
 
 ![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-22-4.png)<!-- -->
+
+``` r
+#some draws differ from posterior distribution 
+```
 
 To calcualte the stats we need to extract the posterior samples, and add the Intercept to each pop random effect, and then compute the stats.
 
@@ -1746,7 +1846,6 @@ r_pops <- r_pops %>% mutate(across(everything(), ~ .x + intercept$b_Intercept))
 ```
 
 
-
 ``` r
 posterior::summarize_draws(r_pops) %>%
   mutate(across(mean:q95, inv_logit_scaled))
@@ -1756,22 +1855,22 @@ posterior::summarize_draws(r_pops) %>%
 ## # A tibble: 16 × 10
 ##    variable        mean median    sd   mad      q5   q95  rhat ess_bulk ess_tail
 ##    <chr>          <dbl>  <dbl> <dbl> <dbl>   <dbl> <dbl> <dbl>    <dbl>    <dbl>
-##  1 r_BH[0,Interc… 0.265  0.264 0.884 0.852 0.0134  0.909  1.00    5796.    4876.
-##  2 r_BH[1,Interc… 0.270  0.270 0.890 0.860 0.0131  0.914  1.00    5938.    4908.
-##  3 r_CC[0,Interc… 0.294  0.297 0.884 0.858 0.0162  0.917  1.00    5789.    4642.
-##  4 r_CC[1,Interc… 0.254  0.260 0.888 0.861 0.0123  0.902  1.00    6010.    5091.
-##  5 r_DPR[0,Inter… 0.212  0.206 0.886 0.855 0.00992 0.886  1.00    5062.    4719.
-##  6 r_DPR[1,Inter… 0.330  0.323 0.888 0.859 0.0181  0.935  1.00    5258.    4921.
-##  7 r_LV1[0,Inter… 0.276  0.276 0.882 0.857 0.0134  0.908  1.00    5867.    4986.
-##  8 r_LV1[1,Inter… 0.256  0.259 0.886 0.860 0.0117  0.904  1.00    5926.    4699.
-##  9 r_SQ3[0,Inter… 0.295  0.293 0.881 0.857 0.0158  0.916  1.00    6062.    5319.
-## 10 r_SQ3[1,Inter… 0.232  0.235 0.884 0.865 0.0111  0.889  1.00    6058.    5004.
-## 11 r_TM2[0,Inter… 0.248  0.244 0.885 0.856 0.0123  0.904  1.00    5793.    4882.
-## 12 r_TM2[1,Inter… 0.293  0.289 0.887 0.860 0.0150  0.923  1.00    5838.    5240.
-## 13 r_WV[0,Interc… 0.241  0.241 0.884 0.858 0.0123  0.904  1.00    5568.    5023.
-## 14 r_WV[1,Interc… 0.290  0.290 0.887 0.862 0.0148  0.926  1.00    5674.    5018.
-## 15 r_YO11[0,Inte… 0.293  0.294 0.885 0.857 0.0153  0.919  1.00    5433.    5051.
-## 16 r_YO11[1,Inte… 0.248  0.247 0.888 0.864 0.0119  0.902  1.00    5611.    5024.
+##  1 r_BH[0,Interc… 0.258  0.240 0.964 0.951 0.00184 0.989  1.00    4844.    5446.
+##  2 r_BH[1,Interc… 0.262  0.247 0.965 0.954 0.00179 0.990  1.00    4874.    5271.
+##  3 r_CC[0,Interc… 0.277  0.257 0.965 0.952 0.00210 0.990  1.00    4733.    4600.
+##  4 r_CC[1,Interc… 0.233  0.217 0.966 0.954 0.00160 0.988  1.00    4763.    4386.
+##  5 r_DPR[0,Inter… 0.201  0.183 0.965 0.954 0.00127 0.986  1.00    5037.    4241.
+##  6 r_DPR[1,Inter… 0.318  0.295 0.966 0.954 0.00224 0.993  1.00    5069.    4200.
+##  7 r_LV1[0,Inter… 0.268  0.248 0.965 0.955 0.00185 0.990  1.00    4538.    4718.
+##  8 r_LV1[1,Inter… 0.246  0.224 0.966 0.958 0.00162 0.989  1.00    4564.    4914.
+##  9 r_SQ3[0,Inter… 0.286  0.266 0.965 0.954 0.00219 0.991  1.00    4504.    4615.
+## 10 r_SQ3[1,Inter… 0.220  0.207 0.965 0.954 0.00144 0.987  1.00    4476.    4718.
+## 11 r_TM2[0,Inter… 0.229  0.214 0.965 0.956 0.00155 0.986  1.00    4691.    4727.
+## 12 r_TM2[1,Inter… 0.275  0.259 0.965 0.956 0.00208 0.990  1.00    4676.    4726.
+## 13 r_WV[0,Interc… 0.238  0.212 0.964 0.955 0.00165 0.988  1.00    4836.    5140.
+## 14 r_WV[1,Interc… 0.290  0.255 0.965 0.956 0.00215 0.991  1.00    4778.    5127.
+## 15 r_YO11[0,Inte… 0.281  0.255 0.963 0.953 0.00221 0.991  1.00    4867.    4247.
+## 16 r_YO11[1,Inte… 0.231  0.212 0.964 0.955 0.00165 0.989  1.00    4939.    4928.
 ```
 
 ``` r
@@ -1935,7 +2034,8 @@ surv_parent_binary_m3 <- brm(surv_parent_binary_bf3,
                              data = wl2_surv_F2_binary,
                              cores=4,
                              iter = 4000, #increased iterations b/c complex model
-                             control = list(adapt_delta = 0.9)) #increased adapt_delta to help with divergent transitions
+                             control = list(adapt_delta = 0.9),
+                             prior = prior1) #increased adapt_delta to help with divergent transitions
 ```
 
 ```
@@ -1949,7 +2049,7 @@ surv_parent_binary_m3 <- brm(surv_parent_binary_bf3,
 ```
 ## Running /Library/Frameworks/R.framework/Resources/bin/R CMD SHLIB foo.c
 ## using C compiler: ‘Apple clang version 16.0.0 (clang-1600.0.26.3)’
-## using SDK: ‘’
+## using SDK: ‘MacOSX15.1.sdk’
 ## clang -arch arm64 -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG   -I"/Users/bqc/Library/R/arm64/4.4/library/Rcpp/include/"  -I"/Users/bqc/Library/R/arm64/4.4/library/RcppEigen/include/"  -I"/Users/bqc/Library/R/arm64/4.4/library/RcppEigen/include/unsupported"  -I"/Users/bqc/Library/R/arm64/4.4/library/BH/include" -I"/Users/bqc/Library/R/arm64/4.4/library/StanHeaders/include/src/"  -I"/Users/bqc/Library/R/arm64/4.4/library/StanHeaders/include/"  -I"/Users/bqc/Library/R/arm64/4.4/library/RcppParallel/include/"  -I"/Users/bqc/Library/R/arm64/4.4/library/rstan/include" -DEIGEN_NO_DEBUG  -DBOOST_DISABLE_ASSERTS  -DBOOST_PENDING_INTEGER_LOG2_HPP  -DSTAN_THREADS  -DUSE_STANC3 -DSTRICT_R_HEADERS  -DBOOST_PHOENIX_NO_VARIADIC_EXPRESSION  -D_HAS_AUTO_PTR_ETC=0  -include '/Users/bqc/Library/R/arm64/4.4/library/StanHeaders/include/stan/math/prim/fun/Eigen.hpp'  -D_REENTRANT -DRCPP_PARALLEL_USE_TBB=1   -I/opt/R/arm64/include    -fPIC  -falign-functions=64 -Wall -g -O2  -c foo.c -o foo.o
 ## In file included from <built-in>:1:
 ## In file included from /Users/bqc/Library/R/arm64/4.4/library/StanHeaders/include/stan/math/prim/fun/Eigen.hpp:22:
@@ -1967,7 +2067,7 @@ surv_parent_binary_m3 <- brm(surv_parent_binary_bf3,
 ```
 
 ```
-## Warning: There were 31 divergent transitions after warmup. See
+## Warning: There were 66 divergent transitions after warmup. See
 ## https://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup
 ## to find out why this is a problem and how to eliminate them.
 ```
@@ -1977,17 +2077,61 @@ surv_parent_binary_m3 <- brm(surv_parent_binary_bf3,
 ```
 
 ``` r
-#Warning: There were 52 divergent transitions after warmup. 
+#Warning: There were 37 divergent transitions after warmup. 
 ```
 
 
+``` r
+prior_summary(surv_parent_binary_m3)
+```
+
+```
+##         prior     class      coef         group resp dpar nlpar lb ub
+##  normal(0, 5) Intercept                                              
+##  normal(0, 5)        sd                                          0   
+##  normal(0, 5)        sd             maternal.BH                  0   
+##  normal(0, 5)        sd Intercept   maternal.BH                  0   
+##  normal(0, 5)        sd             maternal.CC                  0   
+##  normal(0, 5)        sd Intercept   maternal.CC                  0   
+##  normal(0, 5)        sd            maternal.DPR                  0   
+##  normal(0, 5)        sd Intercept  maternal.DPR                  0   
+##  normal(0, 5)        sd            maternal.LV1                  0   
+##  normal(0, 5)        sd Intercept  maternal.LV1                  0   
+##  normal(0, 5)        sd            maternal.SQ3                  0   
+##  normal(0, 5)        sd Intercept  maternal.SQ3                  0   
+##  normal(0, 5)        sd            maternal.TM2                  0   
+##  normal(0, 5)        sd Intercept  maternal.TM2                  0   
+##  normal(0, 5)        sd             maternal.WV                  0   
+##  normal(0, 5)        sd Intercept   maternal.WV                  0   
+##  normal(0, 5)        sd           maternal.YO11                  0   
+##  normal(0, 5)        sd Intercept maternal.YO11                  0   
+##        source
+##          user
+##          user
+##  (vectorized)
+##  (vectorized)
+##  (vectorized)
+##  (vectorized)
+##  (vectorized)
+##  (vectorized)
+##  (vectorized)
+##  (vectorized)
+##  (vectorized)
+##  (vectorized)
+##  (vectorized)
+##  (vectorized)
+##  (vectorized)
+##  (vectorized)
+##  (vectorized)
+##  (vectorized)
+```
 
 ``` r
 summary(surv_parent_binary_m3)
 ```
 
 ```
-## Warning: There were 31 divergent transitions after warmup. Increasing
+## Warning: There were 66 divergent transitions after warmup. Increasing
 ## adapt_delta above 0.9 may help. See
 ## http://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup
 ```
@@ -2003,39 +2147,39 @@ summary(surv_parent_binary_m3)
 ## Multilevel Hyperparameters:
 ## ~maternal.BH (Number of levels: 2) 
 ##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)     1.15      1.32     0.03     4.67 1.00     3836     3874
+## sd(Intercept)     1.83      1.97     0.04     7.36 1.00     2882     3958
 ## 
 ## ~maternal.CC (Number of levels: 2) 
 ##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)     1.16      1.28     0.03     4.63 1.00     3337     3420
+## sd(Intercept)     1.77      1.93     0.03     7.19 1.00     2943     3381
 ## 
 ## ~maternal.DPR (Number of levels: 2) 
 ##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)     1.47      1.33     0.13     4.98 1.00     3800     3099
+## sd(Intercept)     2.21      2.04     0.14     7.74 1.00     3102     2930
 ## 
 ## ~maternal.LV1 (Number of levels: 2) 
 ##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)     1.06      1.24     0.02     4.54 1.00     3862     3713
+## sd(Intercept)     1.69      1.92     0.04     7.06 1.00     2941     4056
 ## 
 ## ~maternal.SQ3 (Number of levels: 2) 
 ##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)     1.08      1.23     0.02     4.43 1.00     3432     2779
+## sd(Intercept)     1.72      1.93     0.04     7.07 1.00     2921     4246
 ## 
 ## ~maternal.TM2 (Number of levels: 2) 
 ##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)     1.29      1.33     0.05     4.69 1.00     3400     3387
+## sd(Intercept)     1.93      2.00     0.06     7.48 1.00     2462     3074
 ## 
 ## ~maternal.WV (Number of levels: 2) 
 ##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)     1.07      1.21     0.02     4.41 1.00     3573     2938
+## sd(Intercept)     1.73      1.98     0.04     7.14 1.00     3048     3496
 ## 
 ## ~maternal.YO11 (Number of levels: 2) 
 ##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)     1.37      1.41     0.04     5.05 1.00     4256     3604
+## sd(Intercept)     2.11      2.09     0.06     7.90 1.00     3445     3459
 ## 
 ## Regression Coefficients:
 ##           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## Intercept    -0.71      2.15    -5.16     3.65 1.00     4472     4236
+## Intercept    -0.84      3.50    -7.83     6.31 1.00     4547     4236
 ## 
 ## Draws were sampled using sampling(NUTS). For each parameter, Bulk_ESS
 ## and Tail_ESS are effective sample size measures, and Rhat is the potential
@@ -2044,7 +2188,7 @@ summary(surv_parent_binary_m3)
 
 ``` r
 #Rhat <1.05 (good!)
-#ESS > 100 (good!)
+#ESS > 1000 (good!)
 ```
 
 
@@ -2055,7 +2199,13 @@ plot(surv_parent_binary_m3,  nvariables = 3, ask=FALSE) #plots don't look good
 ![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-29-1.png)<!-- -->![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-29-2.png)<!-- -->![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-29-3.png)<!-- -->
 
 ``` r
-pairs(surv_parent_binary_m3)
+#pairs(surv_parent_binary_m3)
+
+pp_check(surv_parent_binary_m1)  # posterior predictive checks
+```
+
+```
+## Using 10 posterior draws for ppc type 'dens_overlay' by default.
 ```
 
 ![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-29-4.png)<!-- -->
@@ -2072,7 +2222,6 @@ r_pops <- r_pops %>% mutate(across(everything(), ~ .x + intercept$b_Intercept))
 ```
 
 
-
 ``` r
 posterior::summarize_draws(r_pops) %>%
   mutate(across(mean:q95, inv_logit_scaled))
@@ -2082,22 +2231,22 @@ posterior::summarize_draws(r_pops) %>%
 ## # A tibble: 16 × 10
 ##    variable        mean median    sd   mad      q5   q95  rhat ess_bulk ess_tail
 ##    <chr>          <dbl>  <dbl> <dbl> <dbl>   <dbl> <dbl> <dbl>    <dbl>    <dbl>
-##  1 r_maternal.BH… 0.324  0.320 0.897 0.872 0.0163  0.944  1.00    4528.    4562.
-##  2 r_maternal.BH… 0.280  0.276 0.902 0.882 0.0115  0.930  1.00    4336.    4894.
-##  3 r_maternal.CC… 0.300  0.300 0.893 0.872 0.0142  0.932  1.00    5054.    4705.
-##  4 r_maternal.CC… 0.319  0.314 0.899 0.876 0.0145  0.946  1.00    5213.    4776.
-##  5 r_maternal.DP… 0.232  0.233 0.892 0.867 0.00967 0.902  1.00    4766.    4875.
-##  6 r_maternal.DP… 0.387  0.386 0.896 0.877 0.0191  0.955  1.00    4669.    4742.
-##  7 r_maternal.LV… 0.310  0.314 0.899 0.878 0.0132  0.938  1.00    4568.    4944.
-##  8 r_maternal.LV… 0.306  0.306 0.903 0.883 0.0118  0.941  1.00    4558.    4967.
-##  9 r_maternal.SQ… 0.291  0.293 0.894 0.874 0.0129  0.929  1.00    4632.    4126.
-## 10 r_maternal.SQ… 0.322  0.329 0.898 0.881 0.0140  0.940  1.00    4679.    4735.
-## 11 r_maternal.TM… 0.254  0.253 0.894 0.872 0.0110  0.916  1.00    4763.    4494.
-## 12 r_maternal.TM… 0.361  0.354 0.897 0.876 0.0176  0.952  1.00    4691.    4600.
-## 13 r_maternal.WV… 0.298  0.297 0.894 0.868 0.0135  0.934  1.00    5025.    4770.
-## 14 r_maternal.WV… 0.320  0.324 0.899 0.875 0.0135  0.941  1.00    4721.    4674.
-## 15 r_maternal.YO… 0.366  0.352 0.895 0.875 0.0183  0.950  1.00    4631.    4781.
-## 16 r_maternal.YO… 0.242  0.237 0.905 0.889 0.00809 0.921  1.00    4932.    4691.
+##  1 r_maternal.BH… 0.308  0.297 0.971 0.964 1.58e-3 0.994  1.00    4482.    4574.
+##  2 r_maternal.BH… 0.259  0.254 0.972 0.966 1.15e-3 0.993  1.00    4529.    4696.
+##  3 r_maternal.CC… 0.277  0.260 0.970 0.962 1.35e-3 0.993  1.00    4506.    3786.
+##  4 r_maternal.CC… 0.297  0.287 0.971 0.966 1.46e-3 0.994  1.00    4501.    3508.
+##  5 r_maternal.DP… 0.204  0.199 0.968 0.958 1.06e-3 0.987  1.00    4364.    4246.
+##  6 r_maternal.DP… 0.359  0.348 0.969 0.960 2.15e-3 0.995  1.00    4422.    4119.
+##  7 r_maternal.LV… 0.286  0.273 0.970 0.961 1.33e-3 0.993  1.00    4259.    4116.
+##  8 r_maternal.LV… 0.282  0.267 0.971 0.964 1.28e-3 0.993  1.00    4211.    4219.
+##  9 r_maternal.SQ… 0.265  0.246 0.969 0.961 1.27e-3 0.992  1.00    4486.    4266.
+## 10 r_maternal.SQ… 0.301  0.288 0.970 0.963 1.59e-3 0.994  1.00    4422.    4309.
+## 11 r_maternal.TM… 0.228  0.218 0.968 0.961 1.11e-3 0.989  1.00    4679.    4290.
+## 12 r_maternal.TM… 0.336  0.327 0.968 0.962 2.03e-3 0.994  1.00    4765.    4339.
+## 13 r_maternal.WV… 0.274  0.257 0.969 0.961 1.39e-3 0.992  1.00    4469.    4072.
+## 14 r_maternal.WV… 0.300  0.294 0.970 0.964 1.55e-3 0.994  1.00    4448.    4050.
+## 15 r_maternal.YO… 0.354  0.332 0.970 0.961 2.27e-3 0.995  1.00    4835.    4057.
+## 16 r_maternal.YO… 0.219  0.205 0.972 0.964 9.81e-4 0.992  1.00    4853.    4077.
 ```
 
 ``` r
