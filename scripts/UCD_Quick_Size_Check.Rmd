@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r}
 library(tidyverse)
-sem <- function(x, na.rm=FALSE) {           #for caclulating standard error
+sem <- function(x, na.rm=FALSE) {           #for calculating standard error
   sd(x,na.rm=na.rm)/sqrt(length(na.omit(x)))
 } 
 ```

@@ -1,0 +1,107 @@
+---
+title: "WL2_Quick_Size_Check"
+author: "Brandie QC"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(tidyverse)
+sem <- function(x, na.rm=FALSE) {           #for calculating standard error
+  sd(x,na.rm=na.rm)/sqrt(length(na.omit(x)))
+} 
+```
+
+```{r}
+files <- dir("../input/WL2_2024_Data/CorrectedCSVs/",
+             pattern="size_survey_.*csv",
+             full.names=TRUE) 
+files
+```
+
+```{r}
+dat <- tibble(path=files, filename=basename(path))
+dat
+```
+
+```{r}
+dat2 <- dat %>% 
+  mutate(survey_date=str_extract(filename, "[0-9]{8}")) %>%  #look for numbers, 8 long 
+   mutate(survey_date=lubridate:: ymd(survey_date))
+dat2
+```
+
+```{r}
+dat3 <- dat2 %>%
+  mutate(sheets=map(path, 
+                    read_csv,
+                    col_types=cols(.default=col_character()), 
+                    na = c("", "NA", "-", "N/A"))) %>% #for each file path, read_csv
+  select(-path)
+dat3
+```
+
+```{r}
+map(dat3$sheets, head, 10)          #check to make sure the datasheets look good 
+#first 3 datasets don't have full names for 2023 plants 
+
+dat3$sheets[[1]] %>%  rowwise() %>% filter(!is.na(height.cm), height.cm != "buffer") %>%  filter(is.na(as.numeric(height.cm))) #one height with a space and a letter
+dat3$sheets[[1]] %>%  rowwise() %>% filter(!is.na(long.leaf.cm), long.leaf.cm != "buffer") %>%  filter(is.na(as.numeric(long.leaf.cm))) #spaces in numbers 
+
+dat3$sheets[[2]] %>%  rowwise() %>% filter(!is.na(height.cm), height.cm != "buffer") %>%  filter(is.na(as.numeric(height.cm))) #repeat header rows and lots of number issues 
+dat3$sheets[[2]] %>%  rowwise() %>% filter(!is.na(long.leaf.cm), long.leaf.cm != "buffer") %>%  filter(is.na(as.numeric(long.leaf.cm)))  #repeat header rows and lots of number issues 
+
+dat3$sheets[[3]] %>%  rowwise() %>% filter(!is.na(height.cm), height.cm != "buffer") %>%  filter(is.na(as.numeric(height.cm))) #spaces
+dat3$sheets[[3]] %>%  rowwise() %>% filter(!is.na(long.leaf.cm), long.leaf.cm != "buffer") %>%  filter(is.na(as.numeric(long.leaf.cm))) #various issues 
+
+dat3$sheets[[5]] %>%  rowwise() %>% filter(!is.na(long.leaf.cm), long.leaf.cm != "buffer") %>%  filter(is.na(as.numeric(long.leaf.cm))) #spaces
+
+dat3$sheets[[7]] %>%  rowwise() %>% filter(!is.na(height.cm), height.cm != "buffer") %>%  filter(is.na(as.numeric(height.cm))) #NA coded as NR
+
+dat3$sheets[[9]] %>%  rowwise() %>% filter(!is.na(height.cm), height.cm != "buffer") %>%  filter(is.na(as.numeric(height.cm))) #NA coded as MA
+
+dat3$sheets[[11]] %>%  rowwise() %>% filter(!is.na(height.cm), height.cm != "buffer") %>%  filter(is.na(as.numeric(height.cm))) #slash instead of decimal 
+dat3$sheets[[11]] %>%  rowwise() %>% filter(!is.na(overhd.perp), overhd.perp != "buffer") %>%  filter(is.na(as.numeric(overhd.perp))) #MA instead of NA
+
+dat3$sheets[[12]] %>%  rowwise() %>% filter(!is.na(overhd.perp), overhd.perp != "buffer") %>%  filter(is.na(as.numeric(overhd.perp))) #frameshift and MA
+
+dat3$sheets[[13]] %>%  rowwise() %>% filter(!is.na(height.cm), height.cm != "buffer") %>%  filter(is.na(as.numeric(height.cm))) #MA instead of NA
+
+map(dat3$sheets, colnames) %>% #check the column names 
+  unlist() %>%
+  unique() %>%
+  sort()
+```
+Note: need to fix above issues!!
+```{r}
+#unnest to perform tidyverse functions 
+dat4 <- dat3 %>% unnest(sheets) %>%
+  filter(unique.ID != "buffer") %>% 
+  mutate(height.cm = as.double(height.cm), 
+         long.leaf.cm=as.double(long.leaf.cm), 
+         overhd.diam=as.double(overhd.diam),
+         overhd.perp=as.double(overhd.perp))
+head(dat4)
+```
+
+```{r}
+dat4 %>% filter(!is.na(block)) %>% filter(height.cm>15) #quite a few extremely high numbers that are likely data verification issues 
+```
+
+```{r}
+dat4 %>% 
+  filter(!is.na(block)) %>% #get rid of 2023 plants
+  filter(height.cm<15) %>% 
+  group_by(survey_date) %>% 
+  summarise(meanHeight=mean(height.cm, na.rm = TRUE), 
+            semHeight=sem(height.cm, na.rm=TRUE)) %>% 
+  # filter(survey_date > "2024-04-01") %>% 
+  ggplot(aes(x=survey_date, y=meanHeight)) + geom_point() + geom_line() +
+  geom_errorbar(aes(ymin=meanHeight-semHeight,ymax=meanHeight+semHeight),width=.2) 
+#really big drop between week 1 and 2...
+```
