@@ -22,6 +22,7 @@ To Do:
 library(tidyverse)
 library(tidymodels)
 tidymodels_prefer()
+library(emmeans) #for post-hoc pairwise comparisons 
 library(lmerTest) #for mixed effect models
 conflicted::conflicts_prefer(lmerTest::lmer)
 library(broom.mixed) #tidy method for lmerTest
@@ -135,7 +136,7 @@ ggsave("../output/WL2_Traits/2024ParentSurvtoOct.png", width = 12, height = 6, u
 meansurv_2024_parents %>% 
   ggplot(aes(x=fct_reorder(parent.pop, mean_Surv_Post_Transplant), y=mean_Surv_Post_Transplant, fill=elev_m)) + 
   geom_col(width = 0.7,position = position_dodge(0.75), colour="black") +
-  labs(x="Parent Population", y="Survival Two Weeks Post-Transplant", fill="Elevation (m)") +
+  labs(x="Parent Population", y="Survival Two Weeks \n  Post-Transplant", fill="Elevation (m)") +
   theme_classic() + 
   coord_cartesian(ylim = c(0, 1.25)) +
   scale_y_continuous(breaks = c(0.00, 0.25, 0.50, 0.75, 1.00, 1.25)) +
@@ -145,6 +146,65 @@ meansurv_2024_parents %>%
   theme(text=element_text(size=25))
 ggsave("../output/WL2_Traits/2024ParentSurvPostTransplant.png", width = 12, height = 6, units = "in")
 ```
+
+```{r}
+wl2_surv_parents <- wl2_surv %>% 
+  filter(Pop.Type=="Parent")
+
+lmesurv1 <- glmer(Surv_to_Oct ~ 1 + (1|parent.pop), 
+                  data = wl2_surv_parents, 
+                  family = binomial(link = "logit"),
+                  nAGQ=0, #uses the adaptive Gaussian quadrature instead the Laplace approximation. Ask Julin about this 
+                  control=glmerControl(optimizer="bobyqa",optCtrl=list(maxfun=2e5)))
+
+summary(lmesurv1)
+
+#to test for significance of random effect: 
+#the most common way to do this is to use a likelihood ratio test, i.e. fit the full and reduced models (the reduced model is the model with the focal variance(s) set to zero). 
+m00 <- glm(Surv_to_Oct~ 1, wl2_surv_parents, family = binomial("logit"))
+anova(lmesurv1,m00) #model with random effects has a higher likelihood 
+
+lmesurv2 <- glm(Surv_to_Oct ~ 0 + parent.pop, family = binomial, data=wl2_surv_parents)
+summary(lmesurv2)
+anova(lmesurv2)
+
+coef(lmesurv2) %>% inv_logit_scaled()
+summary(lmesurv2)$coefficients[,2] %>% # get the error from the summary table
+  inv_logit_scaled()
+
+EMM <- emmeans(lmesurv2, "parent.pop")
+EMM  
+contrast(EMM, "pairwise") #BH is different from TM2 and WL2
+```
+
+```{r}
+lmesurv3 <- glmer(Surv_Post_Transplant ~ 1 + (1|parent.pop), 
+                  data = wl2_surv_parents, 
+                  family = binomial(link = "logit"),
+                  nAGQ=0, #uses the adaptive Gaussian quadrature instead the Laplace approximation. Ask Julin about this 
+                  control=glmerControl(optimizer="bobyqa",optCtrl=list(maxfun=2e5)))
+
+summary(lmesurv3)
+
+#to test for significance of random effect: 
+#the most common way to do this is to use a likelihood ratio test, i.e. fit the full and reduced models (the reduced model is the model with the focal variance(s) set to zero). 
+m00 <- glm(Surv_Post_Transplant~ 1, wl2_surv_parents, family = binomial("logit"))
+anova(lmesurv3,m00) #model with random effects has a higher likelihood 
+
+
+lmesurv4 <- glm(Surv_Post_Transplant ~ 0 + parent.pop, family = binomial, data=wl2_surv_parents)
+summary(lmesurv4)
+anova(lmesurv4)
+
+coef(lmesurv4) %>% inv_logit_scaled()
+summary(lmesurv4)$coefficients[,2] %>% # get the error from the summary table
+  inv_logit_scaled()
+
+EMM <- emmeans(lmesurv4, "parent.pop")
+EMM  
+contrast(EMM, "pairwise") #BH is different from TM2 and WL2
+```
+
 
 ## F1s
 

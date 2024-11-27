@@ -58,6 +58,16 @@ library(tidymodels)
 
 ``` r
 tidymodels_prefer()
+library(emmeans) #for post-hoc pairwise comparisons 
+```
+
+```
+## Welcome to emmeans.
+## Caution: You lose important information if you filter this package's results.
+## See '? untidy'
+```
+
+``` r
 library(lmerTest) #for mixed effect models
 ```
 
@@ -83,15 +93,6 @@ conflicted::conflicts_prefer(lmerTest::lmer)
 ``` r
 library(broom.mixed) #tidy method for lmerTest
 library(emmeans) #for post-hoc pairwise comparisons 
-```
-
-```
-## Welcome to emmeans.
-## Caution: You lose important information if you filter this package's results.
-## See '? untidy'
-```
-
-``` r
 library(naniar) #replaces values with NA
 library(brms)
 ```
@@ -610,7 +611,7 @@ ggsave("../output/WL2_Traits/2024ParentSurvtoOct.png", width = 12, height = 6, u
 meansurv_2024_parents %>% 
   ggplot(aes(x=fct_reorder(parent.pop, mean_Surv_Post_Transplant), y=mean_Surv_Post_Transplant, fill=elev_m)) + 
   geom_col(width = 0.7,position = position_dodge(0.75), colour="black") +
-  labs(x="Parent Population", y="Survival Two Weeks Post-Transplant", fill="Elevation (m)") +
+  labs(x="Parent Population", y="Survival Two Weeks \n  Post-Transplant", fill="Elevation (m)") +
   theme_classic() + 
   coord_cartesian(ylim = c(0, 1.25)) +
   scale_y_continuous(breaks = c(0.00, 0.25, 0.50, 0.75, 1.00, 1.25)) +
@@ -625,6 +626,438 @@ meansurv_2024_parents %>%
 ``` r
 ggsave("../output/WL2_Traits/2024ParentSurvPostTransplant.png", width = 12, height = 6, units = "in")
 ```
+
+
+``` r
+wl2_surv_parents <- wl2_surv %>% 
+  filter(Pop.Type=="Parent")
+
+lmesurv1 <- glmer(Surv_to_Oct ~ 1 + (1|parent.pop), 
+                  data = wl2_surv_parents, 
+                  family = binomial(link = "logit"),
+                  nAGQ=0, #uses the adaptive Gaussian quadrature instead the Laplace approximation. Ask Julin about this 
+                  control=glmerControl(optimizer="bobyqa",optCtrl=list(maxfun=2e5)))
+
+summary(lmesurv1)
+```
+
+```
+## Generalized linear mixed model fit by maximum likelihood (Adaptive
+##   Gauss-Hermite Quadrature, nAGQ = 0) [glmerMod]
+##  Family: binomial  ( logit )
+## Formula: Surv_to_Oct ~ 1 + (1 | parent.pop)
+##    Data: wl2_surv_parents
+## Control: glmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 2e+05))
+## 
+##      AIC      BIC   logLik deviance df.resid 
+##    195.4    202.6    -95.7    191.4      279 
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -0.8430 -0.3581 -0.2686 -0.2429  3.7229 
+## 
+## Random effects:
+##  Groups     Name        Variance Std.Dev.
+##  parent.pop (Intercept) 1.317    1.148   
+## Number of obs: 281, groups:  parent.pop, 10
+## 
+## Fixed effects:
+##             Estimate Std. Error z value Pr(>|z|)    
+## (Intercept)  -2.0228     0.4717  -4.288  1.8e-05 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+``` r
+#to test for significance of random effect: 
+#the most common way to do this is to use a likelihood ratio test, i.e. fit the full and reduced models (the reduced model is the model with the focal variance(s) set to zero). 
+m00 <- glm(Surv_to_Oct~ 1, wl2_surv_parents, family = binomial("logit"))
+anova(lmesurv1,m00) #model with random effects has a higher likelihood 
+```
+
+```
+## Data: wl2_surv_parents
+## Models:
+## m00: Surv_to_Oct ~ 1
+## lmesurv1: Surv_to_Oct ~ 1 + (1 | parent.pop)
+##          npar    AIC    BIC   logLik deviance  Chisq Df Pr(>Chisq)    
+## m00         1 205.32 208.96 -101.663   203.32                         
+## lmesurv1    2 195.35 202.63  -95.675   191.35 11.974  1  0.0005394 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+``` r
+lmesurv2 <- glm(Surv_to_Oct ~ 0 + parent.pop, family = binomial, data=wl2_surv_parents)
+summary(lmesurv2)
+```
+
+```
+## 
+## Call:
+## glm(formula = Surv_to_Oct ~ 0 + parent.pop, family = binomial, 
+##     data = wl2_surv_parents)
+## 
+## Coefficients:
+##                  Estimate Std. Error z value Pr(>|z|)    
+## parent.popBH   -9.531e-02  4.369e-01  -0.218   0.8273    
+## parent.popCC   -1.857e+01  4.612e+03  -0.004   0.9968    
+## parent.popDPR  -1.099e+00  8.165e-01  -1.346   0.1785    
+## parent.popLV1  -1.857e+01  1.537e+03  -0.012   0.9904    
+## parent.popSQ3  -1.857e+01  1.967e+03  -0.009   0.9925    
+## parent.popTM2  -2.056e+00  3.202e-01  -6.422 1.34e-10 ***
+## parent.popWL1  -1.204e+00  6.583e-01  -1.829   0.0674 .  
+## parent.popWL2  -2.708e+00  4.216e-01  -6.423 1.34e-10 ***
+## parent.popWV   -1.857e+01  1.809e+03  -0.010   0.9918    
+## parent.popYO11  7.850e-17  1.414e+00   0.000   1.0000    
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 389.55  on 281  degrees of freedom
+## Residual deviance: 168.36  on 271  degrees of freedom
+## AIC: 188.36
+## 
+## Number of Fisher Scoring iterations: 17
+```
+
+``` r
+anova(lmesurv2)
+```
+
+```
+## Analysis of Deviance Table
+## 
+## Model: binomial, link: logit
+## 
+## Response: Surv_to_Oct
+## 
+## Terms added sequentially (first to last)
+## 
+## 
+##            Df Deviance Resid. Df Resid. Dev  Pr(>Chi)    
+## NULL                         281     389.55              
+## parent.pop 10   221.19       271     168.36 < 2.2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+``` r
+coef(lmesurv2) %>% inv_logit_scaled()
+```
+
+```
+##   parent.popBH   parent.popCC  parent.popDPR  parent.popLV1  parent.popSQ3 
+##   4.761905e-01   8.646869e-09   2.500000e-01   8.646869e-09   8.646869e-09 
+##  parent.popTM2  parent.popWL1  parent.popWL2   parent.popWV parent.popYO11 
+##   1.134021e-01   2.307692e-01   6.250000e-02   8.646869e-09   5.000000e-01
+```
+
+``` r
+summary(lmesurv2)$coefficients[,2] %>% # get the error from the summary table
+  inv_logit_scaled()
+```
+
+```
+##   parent.popBH   parent.popCC  parent.popDPR  parent.popLV1  parent.popSQ3 
+##      0.6075276      1.0000000      0.6934922      1.0000000      1.0000000 
+##  parent.popTM2  parent.popWL1  parent.popWL2   parent.popWV parent.popYO11 
+##      0.5793764      0.6588740      0.6038749      1.0000000      0.8044297
+```
+
+``` r
+EMM <- emmeans(lmesurv2, "parent.pop")
+EMM  
+```
+
+```
+##  parent.pop   emmean       SE  df asymp.LCL asymp.UCL
+##  BH          -0.0953    0.437 Inf    -0.952     0.761
+##  CC         -18.5661 4612.202 Inf -9058.316  9021.184
+##  DPR         -1.0986    0.816 Inf    -2.699     0.502
+##  LV1        -18.5661 1537.401 Inf -3031.816  2994.684
+##  SQ3        -18.5661 1966.650 Inf -3873.128  3835.996
+##  TM2         -2.0565    0.320 Inf    -2.684    -1.429
+##  WL1         -1.2040    0.658 Inf    -2.494     0.086
+##  WL2         -2.7081    0.422 Inf    -3.534    -1.882
+##  WV         -18.5661 1809.054 Inf -3564.248  3527.116
+##  YO11         0.0000    1.414 Inf    -2.772     2.772
+## 
+## Results are given on the logit (not the response) scale. 
+## Confidence level used: 0.95
+```
+
+``` r
+contrast(EMM, "pairwise") #BH is different from TM2 and WL2
+```
+
+```
+##  contrast   estimate       SE  df z.ratio p.value
+##  BH - CC     18.4708 4612.202 Inf   0.004  1.0000
+##  BH - DPR     1.0033    0.926 Inf   1.083  0.9864
+##  BH - LV1    18.4708 1537.401 Inf   0.012  1.0000
+##  BH - SQ3    18.4708 1966.650 Inf   0.009  1.0000
+##  BH - TM2     1.9611    0.542 Inf   3.620  0.0110
+##  BH - WL1     1.1087    0.790 Inf   1.403  0.9267
+##  BH - WL2     2.6127    0.607 Inf   4.303  0.0007
+##  BH - WV     18.4708 1809.055 Inf   0.010  1.0000
+##  BH - YO11   -0.0953    1.480 Inf  -0.064  1.0000
+##  CC - DPR   -17.4675 4612.202 Inf  -0.004  1.0000
+##  CC - LV1     0.0000 4861.688 Inf   0.000  1.0000
+##  CC - SQ3     0.0000 5013.992 Inf   0.000  1.0000
+##  CC - TM2   -16.5096 4612.202 Inf  -0.004  1.0000
+##  CC - WL1   -17.3621 4612.202 Inf  -0.004  1.0000
+##  CC - WL2   -15.8580 4612.202 Inf  -0.003  1.0000
+##  CC - WV      0.0000 4954.300 Inf   0.000  1.0000
+##  CC - YO11  -18.5661 4612.202 Inf  -0.004  1.0000
+##  DPR - LV1   17.4675 1537.401 Inf   0.011  1.0000
+##  DPR - SQ3   17.4675 1966.650 Inf   0.009  1.0000
+##  DPR - TM2    0.9578    0.877 Inf   1.092  0.9856
+##  DPR - WL1    0.1054    1.049 Inf   0.100  1.0000
+##  DPR - WL2    1.6094    0.919 Inf   1.751  0.7657
+##  DPR - WV    17.4675 1809.055 Inf   0.010  1.0000
+##  DPR - YO11  -1.0986    1.633 Inf  -0.673  0.9997
+##  LV1 - SQ3    0.0000 2496.259 Inf   0.000  1.0000
+##  LV1 - TM2  -16.5096 1537.401 Inf  -0.011  1.0000
+##  LV1 - WL1  -17.3621 1537.401 Inf  -0.011  1.0000
+##  LV1 - WL2  -15.8580 1537.401 Inf  -0.010  1.0000
+##  LV1 - WV     0.0000 2374.085 Inf   0.000  1.0000
+##  LV1 - YO11 -18.5661 1537.401 Inf  -0.012  1.0000
+##  SQ3 - TM2  -16.5096 1966.650 Inf  -0.008  1.0000
+##  SQ3 - WL1  -17.3621 1966.650 Inf  -0.009  1.0000
+##  SQ3 - WL2  -15.8580 1966.650 Inf  -0.008  1.0000
+##  SQ3 - WV     0.0000 2672.151 Inf   0.000  1.0000
+##  SQ3 - YO11 -18.5661 1966.650 Inf  -0.009  1.0000
+##  TM2 - WL1   -0.8525    0.732 Inf  -1.165  0.9776
+##  TM2 - WL2    0.6516    0.529 Inf   1.231  0.9676
+##  TM2 - WV    16.5096 1809.054 Inf   0.009  1.0000
+##  TM2 - YO11  -2.0565    1.450 Inf  -1.418  0.9219
+##  WL1 - WL2    1.5041    0.782 Inf   1.924  0.6526
+##  WL1 - WV    17.3621 1809.055 Inf   0.010  1.0000
+##  WL1 - YO11  -1.2040    1.560 Inf  -0.772  0.9989
+##  WL2 - WV    15.8580 1809.055 Inf   0.009  1.0000
+##  WL2 - YO11  -2.7081    1.476 Inf  -1.835  0.7128
+##  WV - YO11  -18.5661 1809.055 Inf  -0.010  1.0000
+## 
+## Results are given on the log odds ratio (not the response) scale. 
+## P value adjustment: tukey method for comparing a family of 10 estimates
+```
+
+
+``` r
+lmesurv3 <- glmer(Surv_Post_Transplant ~ 1 + (1|parent.pop), 
+                  data = wl2_surv_parents, 
+                  family = binomial(link = "logit"),
+                  nAGQ=0, #uses the adaptive Gaussian quadrature instead the Laplace approximation. Ask Julin about this 
+                  control=glmerControl(optimizer="bobyqa",optCtrl=list(maxfun=2e5)))
+
+summary(lmesurv3)
+```
+
+```
+## Generalized linear mixed model fit by maximum likelihood (Adaptive
+##   Gauss-Hermite Quadrature, nAGQ = 0) [glmerMod]
+##  Family: binomial  ( logit )
+## Formula: Surv_Post_Transplant ~ 1 + (1 | parent.pop)
+##    Data: wl2_surv_parents
+## Control: glmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 2e+05))
+## 
+##      AIC      BIC   logLik deviance df.resid 
+##    338.6    345.9   -167.3    334.6      279 
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -2.1351 -1.1609  0.5172  0.6081  1.0362 
+## 
+## Random effects:
+##  Groups     Name        Variance Std.Dev.
+##  parent.pop (Intercept) 0.6462   0.8039  
+## Number of obs: 281, groups:  parent.pop, 10
+## 
+## Fixed effects:
+##             Estimate Std. Error z value Pr(>|z|)   
+## (Intercept)   1.0143     0.3328   3.048   0.0023 **
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+``` r
+#to test for significance of random effect: 
+#the most common way to do this is to use a likelihood ratio test, i.e. fit the full and reduced models (the reduced model is the model with the focal variance(s) set to zero). 
+m00 <- glm(Surv_Post_Transplant~ 1, wl2_surv_parents, family = binomial("logit"))
+anova(lmesurv3,m00) #model with random effects has a higher likelihood 
+```
+
+```
+## Data: wl2_surv_parents
+## Models:
+## m00: Surv_Post_Transplant ~ 1
+## lmesurv3: Surv_Post_Transplant ~ 1 + (1 | parent.pop)
+##          npar    AIC    BIC  logLik deviance  Chisq Df Pr(>Chisq)    
+## m00         1 349.76 353.40 -173.88   347.76                         
+## lmesurv3    2 338.60 345.88 -167.30   334.60 13.155  1  0.0002868 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+``` r
+lmesurv4 <- glm(Surv_Post_Transplant ~ 0 + parent.pop, family = binomial, data=wl2_surv_parents)
+summary(lmesurv4)
+```
+
+```
+## 
+## Call:
+## glm(formula = Surv_Post_Transplant ~ 0 + parent.pop, family = binomial, 
+##     data = wl2_surv_parents)
+## 
+## Coefficients:
+##                 Estimate Std. Error z value Pr(>|z|)    
+## parent.popBH      1.7918     0.6236   2.873  0.00406 ** 
+## parent.popCC     17.5661  2797.4419   0.006  0.99499    
+## parent.popDPR     1.0986     0.8165   1.346  0.17846    
+## parent.popLV1    -0.4520     0.4835  -0.935  0.34988    
+## parent.popSQ3     0.9808     0.6770   1.449  0.14740    
+## parent.popTM2     1.3481     0.2510   5.371 7.81e-08 ***
+## parent.popWL1    17.5661  1097.2470   0.016  0.98723    
+## parent.popWL2     0.2513     0.2057   1.222  0.22189    
+## parent.popWV      0.1542     0.5563   0.277  0.78172    
+## parent.popYO11   17.5661  2797.4419   0.006  0.99499    
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 389.55  on 281  degrees of freedom
+## Residual deviance: 311.41  on 271  degrees of freedom
+## AIC: 331.41
+## 
+## Number of Fisher Scoring iterations: 16
+```
+
+``` r
+anova(lmesurv4)
+```
+
+```
+## Analysis of Deviance Table
+## 
+## Model: binomial, link: logit
+## 
+## Response: Surv_Post_Transplant
+## 
+## Terms added sequentially (first to last)
+## 
+## 
+##            Df Deviance Resid. Df Resid. Dev  Pr(>Chi)    
+## NULL                         281     389.55              
+## parent.pop 10   78.135       271     311.41 1.164e-12 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+``` r
+coef(lmesurv4) %>% inv_logit_scaled()
+```
+
+```
+##   parent.popBH   parent.popCC  parent.popDPR  parent.popLV1  parent.popSQ3 
+##      0.8571429      1.0000000      0.7500000      0.3888889      0.7272727 
+##  parent.popTM2  parent.popWL1  parent.popWL2   parent.popWV parent.popYO11 
+##      0.7938144      1.0000000      0.5625000      0.5384615      1.0000000
+```
+
+``` r
+summary(lmesurv4)$coefficients[,2] %>% # get the error from the summary table
+  inv_logit_scaled()
+```
+
+```
+##   parent.popBH   parent.popCC  parent.popDPR  parent.popLV1  parent.popSQ3 
+##      0.6510390      1.0000000      0.6934922      0.6185725      0.6630695 
+##  parent.popTM2  parent.popWL1  parent.popWL2   parent.popWV parent.popYO11 
+##      0.5624158      1.0000000      0.5512538      0.6356073      1.0000000
+```
+
+``` r
+EMM <- emmeans(lmesurv4, "parent.pop")
+EMM  
+```
+
+```
+##  parent.pop emmean       SE  df asymp.LCL asymp.UCL
+##  BH          1.792    0.624 Inf     0.570     3.014
+##  CC         17.566 2797.442 Inf -5465.319  5500.452
+##  DPR         1.099    0.817 Inf    -0.502     2.699
+##  LV1        -0.452    0.483 Inf    -1.400     0.496
+##  SQ3         0.981    0.677 Inf    -0.346     2.308
+##  TM2         1.348    0.251 Inf     0.856     1.840
+##  WL1        17.566 1097.247 Inf -2132.999  2168.131
+##  WL2         0.251    0.206 Inf    -0.152     0.655
+##  WV          0.154    0.556 Inf    -0.936     1.245
+##  YO11       17.566 2797.442 Inf -5465.319  5500.452
+## 
+## Results are given on the logit (not the response) scale. 
+## Confidence level used: 0.95
+```
+
+``` r
+contrast(EMM, "pairwise") #BH is different from TM2 and WL2
+```
+
+```
+##  contrast   estimate       SE  df z.ratio p.value
+##  BH - CC    -15.7743 2797.442 Inf  -0.006  1.0000
+##  BH - DPR     0.6931    1.027 Inf   0.675  0.9996
+##  BH - LV1     2.2437    0.789 Inf   2.843  0.1221
+##  BH - SQ3     0.8109    0.920 Inf   0.881  0.9970
+##  BH - TM2     0.4437    0.672 Inf   0.660  0.9997
+##  BH - WL1   -15.7743 1097.247 Inf  -0.014  1.0000
+##  BH - WL2     1.5404    0.657 Inf   2.346  0.3592
+##  BH - WV      1.6376    0.836 Inf   1.960  0.6277
+##  BH - YO11  -15.7743 2797.442 Inf  -0.006  1.0000
+##  CC - DPR    16.4675 2797.442 Inf   0.006  1.0000
+##  CC - LV1    18.0181 2797.442 Inf   0.006  1.0000
+##  CC - SQ3    16.5852 2797.442 Inf   0.006  1.0000
+##  CC - TM2    16.2180 2797.442 Inf   0.006  1.0000
+##  CC - WL1     0.0000 3004.935 Inf   0.000  1.0000
+##  CC - WL2    17.3148 2797.442 Inf   0.006  1.0000
+##  CC - WV     17.4119 2797.442 Inf   0.006  1.0000
+##  CC - YO11    0.0000 3956.180 Inf   0.000  1.0000
+##  DPR - LV1    1.5506    0.949 Inf   1.634  0.8316
+##  DPR - SQ3    0.1178    1.061 Inf   0.111  1.0000
+##  DPR - TM2   -0.2495    0.854 Inf  -0.292  1.0000
+##  DPR - WL1  -16.4675 1097.247 Inf  -0.015  1.0000
+##  DPR - WL2    0.8473    0.842 Inf   1.006  0.9920
+##  DPR - WV     0.9445    0.988 Inf   0.956  0.9945
+##  DPR - YO11 -16.4675 2797.442 Inf  -0.006  1.0000
+##  LV1 - SQ3   -1.4328    0.832 Inf  -1.722  0.7830
+##  LV1 - TM2   -1.8001    0.545 Inf  -3.304  0.0323
+##  LV1 - WL1  -18.0181 1097.247 Inf  -0.016  1.0000
+##  LV1 - WL2   -0.7033    0.525 Inf  -1.338  0.9448
+##  LV1 - WV    -0.6061    0.737 Inf  -0.822  0.9983
+##  LV1 - YO11 -18.0181 2797.442 Inf  -0.006  1.0000
+##  SQ3 - TM2   -0.3672    0.722 Inf  -0.509  1.0000
+##  SQ3 - WL1  -16.5852 1097.247 Inf  -0.015  1.0000
+##  SQ3 - WL2    0.7295    0.708 Inf   1.031  0.9904
+##  SQ3 - WV     0.8267    0.876 Inf   0.943  0.9950
+##  SQ3 - YO11 -16.5852 2797.442 Inf  -0.006  1.0000
+##  TM2 - WL1  -16.2180 1097.247 Inf  -0.015  1.0000
+##  TM2 - WL2    1.0968    0.325 Inf   3.380  0.0253
+##  TM2 - WV     1.1939    0.610 Inf   1.956  0.6301
+##  TM2 - YO11 -16.2180 2797.442 Inf  -0.006  1.0000
+##  WL1 - WL2   17.3148 1097.247 Inf   0.016  1.0000
+##  WL1 - WV    17.4119 1097.247 Inf   0.016  1.0000
+##  WL1 - YO11   0.0000 3004.935 Inf   0.000  1.0000
+##  WL2 - WV     0.0972    0.593 Inf   0.164  1.0000
+##  WL2 - YO11 -17.3148 2797.442 Inf  -0.006  1.0000
+##  WV - YO11  -17.4119 2797.442 Inf  -0.006  1.0000
+## 
+## Results are given on the log odds ratio (not the response) scale. 
+## P value adjustment: tukey method for comparing a family of 10 estimates
+```
+
 
 ## F1s
 
@@ -1862,7 +2295,7 @@ wl2_surv_F2_binary %>%
   facet_wrap(~Surv_to_Oct)
 ```
 
-![](WL2_Single_Time_Surv_files/figure-html/unnamed-chunk-21-1.png)<!-- -->
+![](WL2_Single_Time_Surv_files/figure-html/unnamed-chunk-23-1.png)<!-- -->
 
 ``` r
 wl2_surv_F2_binary %>% 
@@ -1872,7 +2305,7 @@ wl2_surv_F2_binary %>%
   facet_wrap(~Surv_to_Oct)
 ```
 
-![](WL2_Single_Time_Surv_files/figure-html/unnamed-chunk-21-2.png)<!-- -->
+![](WL2_Single_Time_Surv_files/figure-html/unnamed-chunk-23-2.png)<!-- -->
 
 ``` r
 wl2_surv_F2_binary %>% 
@@ -1882,7 +2315,7 @@ wl2_surv_F2_binary %>%
   facet_wrap(~Surv_to_Oct)
 ```
 
-![](WL2_Single_Time_Surv_files/figure-html/unnamed-chunk-21-3.png)<!-- -->
+![](WL2_Single_Time_Surv_files/figure-html/unnamed-chunk-23-3.png)<!-- -->
 
 #### GLMs with binary
 
@@ -2297,7 +2730,7 @@ meansurv_wl2prop %>%
   theme_classic() 
 ```
 
-![](WL2_Single_Time_Surv_files/figure-html/unnamed-chunk-27-1.png)<!-- -->
+![](WL2_Single_Time_Surv_files/figure-html/unnamed-chunk-29-1.png)<!-- -->
 
 ``` r
 meansurv_CCprop <- wl2_surv_F2_props %>% 
@@ -2324,7 +2757,7 @@ meansurv_CCprop %>%
   theme_classic() 
 ```
 
-![](WL2_Single_Time_Surv_files/figure-html/unnamed-chunk-27-2.png)<!-- -->
+![](WL2_Single_Time_Surv_files/figure-html/unnamed-chunk-29-2.png)<!-- -->
 
 ``` r
 meansurv_BHprop <- wl2_surv_F2_props %>% 
@@ -2351,7 +2784,7 @@ meansurv_BHprop %>%
   theme_classic() 
 ```
 
-![](WL2_Single_Time_Surv_files/figure-html/unnamed-chunk-27-3.png)<!-- -->
+![](WL2_Single_Time_Surv_files/figure-html/unnamed-chunk-29-3.png)<!-- -->
 
 ``` r
 meansurv_WVprop <- wl2_surv_F2_props %>% 
@@ -2380,7 +2813,7 @@ meansurv_WVprop %>%
   theme_classic() 
 ```
 
-![](WL2_Single_Time_Surv_files/figure-html/unnamed-chunk-27-4.png)<!-- -->
+![](WL2_Single_Time_Surv_files/figure-html/unnamed-chunk-29-4.png)<!-- -->
 
 ``` r
 meansurv_LV1prop <- wl2_surv_F2_props %>% 
@@ -2409,7 +2842,7 @@ meansurv_LV1prop %>%
   theme_classic() 
 ```
 
-![](WL2_Single_Time_Surv_files/figure-html/unnamed-chunk-27-5.png)<!-- -->
+![](WL2_Single_Time_Surv_files/figure-html/unnamed-chunk-29-5.png)<!-- -->
 
 ``` r
 meansurv_TM2prop <- wl2_surv_F2_props %>% 
@@ -2439,7 +2872,7 @@ meansurv_TM2prop %>%
   theme_classic() 
 ```
 
-![](WL2_Single_Time_Surv_files/figure-html/unnamed-chunk-27-6.png)<!-- -->
+![](WL2_Single_Time_Surv_files/figure-html/unnamed-chunk-29-6.png)<!-- -->
 
 ``` r
 meansurv_SQ3prop <- wl2_surv_F2_props %>% 
@@ -2468,7 +2901,7 @@ meansurv_SQ3prop %>%
   theme_classic() 
 ```
 
-![](WL2_Single_Time_Surv_files/figure-html/unnamed-chunk-27-7.png)<!-- -->
+![](WL2_Single_Time_Surv_files/figure-html/unnamed-chunk-29-7.png)<!-- -->
 
 ``` r
 meansurv_DPRprop <- wl2_surv_F2_props %>% 
@@ -2498,7 +2931,7 @@ meansurv_DPRprop %>%
   theme_classic() 
 ```
 
-![](WL2_Single_Time_Surv_files/figure-html/unnamed-chunk-27-8.png)<!-- -->
+![](WL2_Single_Time_Surv_files/figure-html/unnamed-chunk-29-8.png)<!-- -->
 
 ``` r
 meansurv_YO11prop <- wl2_surv_F2_props %>% 
@@ -2526,7 +2959,7 @@ meansurv_YO11prop %>%
   theme_classic() 
 ```
 
-![](WL2_Single_Time_Surv_files/figure-html/unnamed-chunk-27-9.png)<!-- -->
+![](WL2_Single_Time_Surv_files/figure-html/unnamed-chunk-29-9.png)<!-- -->
 
 
 ### with glm
