@@ -122,19 +122,28 @@ meansurv_2024_parents #variable planting sample sizes (some as small as 2)
 
 meansurv_2024_parents %>% 
   ggplot(aes(x=fct_reorder(parent.pop, mean_Surv_to_Oct), y=mean_Surv_to_Oct, fill=elev_m)) + 
-  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  geom_col(width = 0.7,position = position_dodge(0.75), colour="black") +
   labs(x="Parent Population", y="Survival to Oct 2024", fill="Elevation (m)") +
   theme_classic() + 
-  scale_y_continuous(expand = c(0, 0)) +
-  scale_fill_gradient(low = "#F5A540", high = "#0043F0")
+  ylim(0,1) +
+  #scale_y_continuous(expand = c(0, 0)) +
+  geom_text(data = meansurv_2024_parents, aes(label = N_Surv), vjust = -1) +
+  scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
+  theme(text=element_text(size=25))
+ggsave("../output/WL2_Traits/2024ParentSurvtoOct.png", width = 12, height = 6, units = "in")
 
 meansurv_2024_parents %>% 
   ggplot(aes(x=fct_reorder(parent.pop, mean_Surv_Post_Transplant), y=mean_Surv_Post_Transplant, fill=elev_m)) + 
-  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  geom_col(width = 0.7,position = position_dodge(0.75), colour="black") +
   labs(x="Parent Population", y="Survival Two Weeks Post-Transplant", fill="Elevation (m)") +
   theme_classic() + 
-  scale_y_continuous(expand = c(0, 0)) +
-  scale_fill_gradient(low = "#F5A540", high = "#0043F0")
+  coord_cartesian(ylim = c(0, 1.25)) +
+  scale_y_continuous(breaks = c(0.00, 0.25, 0.50, 0.75, 1.00, 1.25)) +
+  #scale_y_continuous(expand = c(0, 0)) +
+  geom_text(data = meansurv_2024_parents, aes(label = N_Surv), vjust = -1) +
+  scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
+  theme(text=element_text(size=25))
+ggsave("../output/WL2_Traits/2024ParentSurvPostTransplant.png", width = 12, height = 6, units = "in")
 ```
 
 ## F1s

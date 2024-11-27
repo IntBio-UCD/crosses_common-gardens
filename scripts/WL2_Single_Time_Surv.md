@@ -1,7 +1,7 @@
 ---
 title: "WL2_Single_Time_Surv"
 author: "Brandie QC"
-date: "2024-11-13"
+date: "2024-11-27"
 output: 
   html_document: 
     keep_md: true
@@ -13,6 +13,7 @@ output:
 
 To Do:
 -   See Julin's code for poperly calculating sem for surv
+-   Convert to yes/no for each parent pop
 
 ## Relevant Libraries and Functions
 
@@ -52,7 +53,7 @@ library(tidymodels)
 ## ✖ dplyr::lag()      masks stats::lag()
 ## ✖ yardstick::spec() masks readr::spec()
 ## ✖ recipes::step()   masks stats::step()
-## • Search for functions across packages at https://www.tidymodels.org/find/
+## • Dig deeper into tidy modeling with R at https://www.tmwr.org
 ```
 
 ``` r
@@ -591,26 +592,39 @@ meansurv_2024_parents #variable planting sample sizes (some as small as 2)
 ``` r
 meansurv_2024_parents %>% 
   ggplot(aes(x=fct_reorder(parent.pop, mean_Surv_to_Oct), y=mean_Surv_to_Oct, fill=elev_m)) + 
-  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  geom_col(width = 0.7,position = position_dodge(0.75), colour="black") +
   labs(x="Parent Population", y="Survival to Oct 2024", fill="Elevation (m)") +
   theme_classic() + 
-  scale_y_continuous(expand = c(0, 0)) +
-  scale_fill_gradient(low = "#F5A540", high = "#0043F0")
+  ylim(0,1) +
+  #scale_y_continuous(expand = c(0, 0)) +
+  geom_text(data = meansurv_2024_parents, aes(label = N_Surv), vjust = -1) +
+  scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
+  theme(text=element_text(size=25))
 ```
 
 ![](WL2_Single_Time_Surv_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
 
 ``` r
+ggsave("../output/WL2_Traits/2024ParentSurvtoOct.png", width = 12, height = 6, units = "in")
+
 meansurv_2024_parents %>% 
   ggplot(aes(x=fct_reorder(parent.pop, mean_Surv_Post_Transplant), y=mean_Surv_Post_Transplant, fill=elev_m)) + 
-  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  geom_col(width = 0.7,position = position_dodge(0.75), colour="black") +
   labs(x="Parent Population", y="Survival Two Weeks Post-Transplant", fill="Elevation (m)") +
   theme_classic() + 
-  scale_y_continuous(expand = c(0, 0)) +
-  scale_fill_gradient(low = "#F5A540", high = "#0043F0")
+  coord_cartesian(ylim = c(0, 1.25)) +
+  scale_y_continuous(breaks = c(0.00, 0.25, 0.50, 0.75, 1.00, 1.25)) +
+  #scale_y_continuous(expand = c(0, 0)) +
+  geom_text(data = meansurv_2024_parents, aes(label = N_Surv), vjust = -1) +
+  scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
+  theme(text=element_text(size=25))
 ```
 
 ![](WL2_Single_Time_Surv_files/figure-html/unnamed-chunk-7-2.png)<!-- -->
+
+``` r
+ggsave("../output/WL2_Traits/2024ParentSurvPostTransplant.png", width = 12, height = 6, units = "in")
+```
 
 ## F1s
 
@@ -849,9 +863,6 @@ xtabs(~Surv_to_Oct+prop.DPR, data=wl2_surv_F1_props)
 ```
 
 
-### with glm
-
-
 ``` r
 m1 <- glm(Surv_to_Oct ~ prop.BH+prop.WV+prop.LV1+prop.TM2+prop.SQ3+prop.DPR, family = binomial, data=wl2_surv_F1_props)
 
@@ -979,7 +990,7 @@ summary(m4)
 ## Number of Fisher Scoring iterations: 17
 ```
 
-### have to convert using inv_logit
+Have to convert using inv_logit
 
 coefficients
 
@@ -1093,6 +1104,326 @@ summary(m4)$coefficients[,2] %>% # get the error from the summary table
 #error is really high 
 ```
 
+### Yes/No Parents
+
+``` r
+wl2_surv_F1_binary <- wl2_surv_F1 %>% 
+ # filter(WL2.cross=="TRUE") %>% #if want TM2 F1s just # this out 
+  mutate(WL2=if_else(str_detect(parent.pop, "WL2"), 1, 0),
+         CC=if_else(str_detect(parent.pop, "CC"), 1, 0),
+         BH=if_else(str_detect(parent.pop, "BH"), 1, 0),
+         WV=if_else(str_detect(parent.pop, "WV"), 1, 0),
+         LV1=if_else(str_detect(parent.pop, "LV1"), 1, 0),
+         TM2=if_else(str_detect(parent.pop, "TM2"), 1, 0),
+         SQ3=if_else(str_detect(parent.pop, "SQ3"), 1, 0),
+         DPR=if_else(str_detect(parent.pop, "DPR"), 1, 0),
+         YO11=if_else(str_detect(parent.pop, "YO11"), 1, 0))
+head(wl2_surv_F1_binary, 20)
+```
+
+```
+## # A tibble: 20 × 20
+##    Pop.Type maternal.pop paternal.pop parent.pop Field_Loc unique.ID death.date
+##    <chr>    <chr>        <chr>        <chr>      <chr>     <chr>     <chr>     
+##  1 F1       CC           TM2          CC x TM2   C_38_A    1362      6/18/24   
+##  2 F1       BH           TM2          BH x TM2   C_17_D    600       6/18/24   
+##  3 F1       LV1          WL2          LV1 x WL2  D_52_C    1271      6/18/24   
+##  4 F1       LV1          TM2          LV1 x TM2  H_15_C    1246      6/18/24   
+##  5 F1       TM2          WL2          TM2 x WL2  C_32_B    1279      6/25/24   
+##  6 F1       WV           TM2          WV x TM2   C_49_B    201       6/25/24   
+##  7 F1       LV1          TM2          LV1 x TM2  C_56_B    1241      6/25/24   
+##  8 F1       LV1          TM2          LV1 x TM2  C_13_D    1245      6/25/24   
+##  9 F1       LV1          TM2          LV1 x TM2  D_23_A    1231      6/25/24   
+## 10 F1       TM2          WL2          TM2 x WL2  D_18_C    1281      6/25/24   
+## 11 F1       LV1          TM2          LV1 x TM2  D_45_D    1233      6/25/24   
+## 12 F1       LV1          WL2          LV1 x WL2  E_43_C    1259      6/25/24   
+## 13 F1       BH           TM2          BH x TM2   E_46_C    594       6/25/24   
+## 14 F1       LV1          WL2          LV1 x WL2  F_21_A    1270      6/25/24   
+## 15 F1       WL2          BH           WL2 x BH   G_18_B    833       6/25/24   
+## 16 F1       TM2          WL2          TM2 x WL2  G_24_A    1277      6/25/24   
+## 17 F1       LV1          WL2          LV1 x WL2  G_32_A    1254      6/25/24   
+## 18 F1       SQ3          WL2          SQ3 x WL2  G_15_D    644       6/25/24   
+## 19 F1       LV1          WL2          LV1 x WL2  H_15_B    1263      6/25/24   
+## 20 F1       BH           TM2          BH x TM2   H_30_B    587       6/25/24   
+## # ℹ 13 more variables: Surv_to_Oct <dbl>, Surv_Post_Transplant <dbl>,
+## #   survey.notes <chr>, WL2.cross <lgl>, WL2 <dbl>, CC <dbl>, BH <dbl>,
+## #   WV <dbl>, LV1 <dbl>, TM2 <dbl>, SQ3 <dbl>, DPR <dbl>, YO11 <dbl>
+```
+
+``` r
+summary(wl2_surv_F1_binary)
+```
+
+```
+##    Pop.Type         maternal.pop       paternal.pop        parent.pop       
+##  Length:103         Length:103         Length:103         Length:103        
+##  Class :character   Class :character   Class :character   Class :character  
+##  Mode  :character   Mode  :character   Mode  :character   Mode  :character  
+##                                                                             
+##                                                                             
+##                                                                             
+##   Field_Loc          unique.ID          death.date         Surv_to_Oct   
+##  Length:103         Length:103         Length:103         Min.   :0.000  
+##  Class :character   Class :character   Class :character   1st Qu.:0.000  
+##  Mode  :character   Mode  :character   Mode  :character   Median :0.000  
+##                                                           Mean   :0.165  
+##                                                           3rd Qu.:0.000  
+##                                                           Max.   :1.000  
+##  Surv_Post_Transplant survey.notes       WL2.cross            WL2        
+##  Min.   :0.0000       Length:103         Mode :logical   Min.   :0.0000  
+##  1st Qu.:1.0000       Class :character   FALSE:60        1st Qu.:0.0000  
+##  Median :1.0000       Mode  :character   TRUE :43        Median :0.0000  
+##  Mean   :0.7767                                          Mean   :0.4175  
+##  3rd Qu.:1.0000                                          3rd Qu.:1.0000  
+##  Max.   :1.0000                                          Max.   :1.0000  
+##        CC                BH               WV              LV1        
+##  Min.   :0.00000   Min.   :0.0000   Min.   :0.0000   Min.   :0.0000  
+##  1st Qu.:0.00000   1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:0.0000  
+##  Median :0.00000   Median :0.0000   Median :0.0000   Median :0.0000  
+##  Mean   :0.01942   Mean   :0.1359   Mean   :0.3301   Mean   :0.3398  
+##  3rd Qu.:0.00000   3rd Qu.:0.0000   3rd Qu.:1.0000   3rd Qu.:1.0000  
+##  Max.   :1.00000   Max.   :1.0000   Max.   :1.0000   Max.   :1.0000  
+##       TM2              SQ3               DPR               YO11         
+##  Min.   :0.0000   Min.   :0.00000   Min.   :0.00000   Min.   :0.000000  
+##  1st Qu.:0.0000   1st Qu.:0.00000   1st Qu.:0.00000   1st Qu.:0.000000  
+##  Median :1.0000   Median :0.00000   Median :0.00000   Median :0.000000  
+##  Mean   :0.6699   Mean   :0.03884   Mean   :0.03884   Mean   :0.009709  
+##  3rd Qu.:1.0000   3rd Qu.:0.00000   3rd Qu.:0.00000   3rd Qu.:0.000000  
+##  Max.   :1.0000   Max.   :1.00000   Max.   :1.00000   Max.   :1.000000
+```
+
+``` r
+#switch to long format?
+#could try switching to character?
+
+xtabs(~Surv_to_Oct+WL2, data=wl2_surv_F1_binary)
+```
+
+```
+##            WL2
+## Surv_to_Oct  0  1
+##           0 51 35
+##           1  9  8
+```
+
+``` r
+xtabs(~Surv_to_Oct+CC, data=wl2_surv_F1_binary)
+```
+
+```
+##            CC
+## Surv_to_Oct  0  1
+##           0 84  2
+##           1 17  0
+```
+
+``` r
+xtabs(~Surv_to_Oct+BH, data=wl2_surv_F1_binary)
+```
+
+```
+##            BH
+## Surv_to_Oct  0  1
+##           0 73 13
+##           1 16  1
+```
+
+``` r
+xtabs(~Surv_to_Oct+WV, data=wl2_surv_F1_binary)
+```
+
+```
+##            WV
+## Surv_to_Oct  0  1
+##           0 60 26
+##           1  9  8
+```
+
+``` r
+xtabs(~Surv_to_Oct+LV1, data=wl2_surv_F1_binary)
+```
+
+```
+##            LV1
+## Surv_to_Oct  0  1
+##           0 57 29
+##           1 11  6
+```
+
+``` r
+xtabs(~Surv_to_Oct+TM2, data=wl2_surv_F1_binary)
+```
+
+```
+##            TM2
+## Surv_to_Oct  0  1
+##           0 28 58
+##           1  6 11
+```
+
+``` r
+xtabs(~Surv_to_Oct+SQ3, data=wl2_surv_F1_binary)
+```
+
+```
+##            SQ3
+## Surv_to_Oct  0  1
+##           0 82  4
+##           1 17  0
+```
+
+``` r
+xtabs(~Surv_to_Oct+DPR, data=wl2_surv_F1_binary)
+```
+
+```
+##            DPR
+## Surv_to_Oct  0  1
+##           0 82  4
+##           1 17  0
+```
+
+``` r
+xtabs(~Surv_to_Oct+YO11, data=wl2_surv_F1_binary)
+```
+
+```
+##            YO11
+## Surv_to_Oct  0  1
+##           0 85  1
+##           1 17  0
+```
+
+
+``` r
+#try with random effects with glmmer - could try calculating 
+surv_parent_binary_m1 = glm(Surv_to_Oct ~ 1 + (1|WL2)+(1|BH)+WV+LV1+TM2+SQ3+DPR, family = binomial, data=wl2_surv_F1_binary)
+#try bernoulli instead of binomial 
+summary(surv_parent_binary_m1)
+```
+
+```
+## 
+## Call:
+## glm(formula = Surv_to_Oct ~ 1 + (1 | WL2) + (1 | BH) + WV + LV1 + 
+##     TM2 + SQ3 + DPR, family = binomial, data = wl2_surv_F1_binary)
+## 
+## Coefficients: (2 not defined because of singularities)
+##              Estimate Std. Error z value Pr(>|z|)  
+## (Intercept)   -1.7034     0.7369  -2.311   0.0208 *
+## 1 | WL2TRUE        NA         NA      NA       NA  
+## 1 | BHTRUE         NA         NA      NA       NA  
+## WV             0.8470     0.7371   1.149   0.2505  
+## LV1            0.4234     0.7638   0.554   0.5793  
+## TM2           -0.4524     0.5762  -0.785   0.4324  
+## SQ3          -15.8627  1978.0903  -0.008   0.9936  
+## DPR          -15.8627  1978.0903  -0.008   0.9936  
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 92.277  on 102  degrees of freedom
+## Residual deviance: 87.168  on  97  degrees of freedom
+## AIC: 99.168
+## 
+## Number of Fisher Scoring iterations: 16
+```
+
+``` r
+results1 <- c(coef(surv_parent_binary_m1)[1], #intercept
+             coef(surv_parent_binary_m1)[2:7] + coef(surv_parent_binary_m1)[1]) %>% #coefficients + intercept
+  inv_logit_scaled()
+results1 #what's the effect of each parent on survival compared to DPR
+```
+
+```
+##  (Intercept)  1 | WL2TRUE   1 | BHTRUE           WV          LV1          TM2 
+## 1.540216e-01           NA           NA 2.980865e-01 2.175538e-01 1.037935e-01 
+##          SQ3 
+## 2.350463e-08
+```
+
+``` r
+summary(surv_parent_binary_m1)$coefficients[,2] %>% # get the error from the summary table
+  inv_logit_scaled() #code is working correctly, inv_logit really high numbers so it just returns 1 (hitting the upper limit) #Note: this only works b/c this is a binomial variable (and not a continuous one)
+```
+
+```
+## (Intercept)          WV         LV1         TM2         SQ3         DPR 
+##   0.6763280   0.6763592   0.6821681   0.6402002   1.0000000   1.0000000
+```
+
+``` r
+#if it was continuous, would be error around the slope 
+#error really high?
+```
+
+
+``` r
+surv_parent_binary_m2 = glm(Surv_Post_Transplant ~ WL2+BH+WV+LV1+TM2+SQ3+DPR, family = binomial, data=wl2_surv_F1_binary)
+
+summary(surv_parent_binary_m2)
+```
+
+```
+## 
+## Call:
+## glm(formula = Surv_Post_Transplant ~ WL2 + BH + WV + LV1 + TM2 + 
+##     SQ3 + DPR, family = binomial, data = wl2_surv_F1_binary)
+## 
+## Coefficients:
+##             Estimate Std. Error z value Pr(>|z|)  
+## (Intercept)   1.2558     2.6164   0.480   0.6312  
+## WL2          -0.9163     1.3964  -0.656   0.5117  
+## BH            0.3812     1.3921   0.274   0.7842  
+## WV            2.9089     1.6048   1.813   0.0699 .
+## LV1           0.3399     1.2993   0.262   0.7936  
+## TM2          -0.5627     1.5315  -0.367   0.7133  
+## SQ3           0.7591     1.7969   0.422   0.6727  
+## DPR           0.7591     1.7969   0.422   0.6727  
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 109.397  on 102  degrees of freedom
+## Residual deviance:  92.523  on  95  degrees of freedom
+## AIC: 108.52
+## 
+## Number of Fisher Scoring iterations: 6
+```
+
+``` r
+results2 <- c(coef(surv_parent_binary_m2)[1], #intercept
+             coef(surv_parent_binary_m2)[2:7] + coef(surv_parent_binary_m2)[1]) %>% #coefficients + intercept
+  inv_logit_scaled()
+results2
+```
+
+```
+## (Intercept)         WL2          BH          WV         LV1         TM2 
+##   0.7783094   0.5840813   0.8371312   0.9847046   0.8314238   0.6666667 
+##         SQ3 
+##   0.8823529
+```
+
+``` r
+summary(surv_parent_binary_m2)$coefficients[,2] %>% # get the error from the summary table
+  inv_logit_scaled()
+```
+
+```
+## (Intercept)         WL2          BH          WV         LV1         TM2 
+##   0.9319089   0.8016158   0.8009215   0.8326813   0.7857115   0.8222254 
+##         SQ3         DPR 
+##   0.8577702   0.8577702
+```
+
+``` r
+#error really high?
+```
+
 ## F2s
 
 
@@ -1200,6 +1531,628 @@ xtabs(~Surv_Post_Transplant+paternal.pops, data=wl2_surv_bc1)
 ## Surv_Post_Transplant DPR x WL2 TM2 x WL2 WL2 WV x WL2
 ##                    0         4         0  11        1
 ##                    1         7         4  57        8
+```
+
+### Calculate yes/no for each parent 
+
+``` r
+wl2_surv_F2_binary <- wl2_surv_F2 %>% 
+  filter(WL2.cross=="TRUE") %>% #if want TM2 F1s just # this out 
+  mutate(WL2=if_else(str_detect(parent.pop, "WL2"), 1, 0),
+         CC=if_else(str_detect(parent.pop, "CC"), 1, 0),
+         BH=if_else(str_detect(parent.pop, "BH"), 1, 0),
+         WV=if_else(str_detect(parent.pop, "WV"), 1, 0),
+         LV1=if_else(str_detect(parent.pop, "LV1"), 1, 0),
+         TM2=if_else(str_detect(parent.pop, "TM2"), 1, 0),
+         SQ3=if_else(str_detect(parent.pop, "SQ3"), 1, 0),
+         DPR=if_else(str_detect(parent.pop, "DPR"), 1, 0),
+         YO11=if_else(str_detect(parent.pop, "YO11"), 1, 0),
+         maternal.WL2=if_else(str_detect(maternal.pops, "WL2"), 1, 0),
+         maternal.CC=if_else(str_detect(maternal.pops, "CC"), 1, 0),
+         maternal.BH=if_else(str_detect(maternal.pops, "BH"), 1, 0),
+         maternal.WV=if_else(str_detect(maternal.pops, "WV"), 1, 0),
+         maternal.LV1=if_else(str_detect(maternal.pops, "LV1"), 1, 0),
+         maternal.TM2=if_else(str_detect(maternal.pops, "TM2"), 1, 0),
+         maternal.SQ3=if_else(str_detect(maternal.pops, "SQ3"), 1, 0),
+         maternal.DPR=if_else(str_detect(maternal.pops, "DPR"), 1, 0),
+         maternal.YO11=if_else(str_detect(maternal.pops, "YO11"), 1, 0))
+head(wl2_surv_F2_binary, 20)
+```
+
+```
+## # A tibble: 20 × 29
+##    WL2.cross Pop.Type maternal.pops paternal.pops parent.pop Field_Loc unique.ID
+##    <lgl>     <chr>    <chr>         <chr>         <chr>      <chr>     <chr>    
+##  1 TRUE      F2       WL2 x BH      WL2 x TM2     (WL2 x BH… C_28_C    251      
+##  2 TRUE      F2       TM2 x WL2     SQ3 x WL2     (TM2 x WL… D_37_D    312      
+##  3 TRUE      F2       WL2 x TM2     CC x TM2      (WL2 x TM… H_30_D    263      
+##  4 TRUE      F2       WL2 x TM2     CC x TM2      (WL2 x TM… D_55_A    254      
+##  5 TRUE      F2       WL1 x TM2     WL2 x TM2     (WL1 x TM… D_52_B    326      
+##  6 TRUE      F2       WL1 x TM2     WL2 x TM2     (WL1 x TM… E_48_C    328      
+##  7 TRUE      F2       TM2 x WL2     YO11 x WL2    (TM2 x WL… F_17_B    377      
+##  8 TRUE      F2       TM2 x WL2     TM2           (TM2 x WL… C_28_B    347      
+##  9 TRUE      F2       WL2 x DPR     TM2 x WL2     (WL2 x DP… C_42_A    1314     
+## 10 TRUE      F2       WL2 x BH      SQ3 x WL2     (WL2 x BH… C_7_C     1172     
+## 11 TRUE      F2       WL1 x WL2     WL2 x CC      (WL1 x WL… C_7_D     1127     
+## 12 TRUE      F2       LV1 x WL2     YO11 x WL2    (LV1 x WL… C_41_D    989      
+## 13 TRUE      F2       YO11 x WL2    WV x WL2      (YO11 x W… C_56_C    842      
+## 14 TRUE      F2       WV x WL2      WV            (WV x WL2… D_16_A    268      
+## 15 TRUE      F2       YO11 x WL2    SQ3 x WL2     (YO11 x W… D_19_D    1005     
+## 16 TRUE      F2       DPR x WL2     YO11 x WL2    (DPR x WL… E_29_B    707      
+## 17 TRUE      F2       WL2 x DPR     WL2           (WL2 x DP… E_7_C     1103     
+## 18 TRUE      F2       DPR x WL2     SQ3 x WL2     (DPR x WL… E_11_C    682      
+## 19 TRUE      F2       WL2           DPR x WL2     (WL2) x (… F_27_D    908      
+## 20 TRUE      F2       YO11 x WL2    WV x WL2      (YO11 x W… G_42_A    841      
+## # ℹ 22 more variables: death.date <chr>, Surv_to_Oct <dbl>,
+## #   Surv_Post_Transplant <dbl>, survey.notes <chr>, WL2 <dbl>, CC <dbl>,
+## #   BH <dbl>, WV <dbl>, LV1 <dbl>, TM2 <dbl>, SQ3 <dbl>, DPR <dbl>, YO11 <dbl>,
+## #   maternal.WL2 <dbl>, maternal.CC <dbl>, maternal.BH <dbl>,
+## #   maternal.WV <dbl>, maternal.LV1 <dbl>, maternal.TM2 <dbl>,
+## #   maternal.SQ3 <dbl>, maternal.DPR <dbl>, maternal.YO11 <dbl>
+```
+
+``` r
+summary(wl2_surv_F2_binary)
+```
+
+```
+##  WL2.cross        Pop.Type         maternal.pops      paternal.pops     
+##  Mode:logical   Length:398         Length:398         Length:398        
+##  TRUE:398       Class :character   Class :character   Class :character  
+##                 Mode  :character   Mode  :character   Mode  :character  
+##                                                                         
+##                                                                         
+##                                                                         
+##   parent.pop         Field_Loc          unique.ID          death.date       
+##  Length:398         Length:398         Length:398         Length:398        
+##  Class :character   Class :character   Class :character   Class :character  
+##  Mode  :character   Mode  :character   Mode  :character   Mode  :character  
+##                                                                             
+##                                                                             
+##                                                                             
+##   Surv_to_Oct     Surv_Post_Transplant survey.notes            WL2   
+##  Min.   :0.0000   Min.   :0.0000       Length:398         Min.   :1  
+##  1st Qu.:0.0000   1st Qu.:1.0000       Class :character   1st Qu.:1  
+##  Median :0.0000   Median :1.0000       Mode  :character   Median :1  
+##  Mean   :0.1583   Mean   :0.8216                          Mean   :1  
+##  3rd Qu.:0.0000   3rd Qu.:1.0000                          3rd Qu.:1  
+##  Max.   :1.0000   Max.   :1.0000                          Max.   :1  
+##        CC               BH                WV              LV1        
+##  Min.   :0.0000   Min.   :0.00000   Min.   :0.0000   Min.   :0.0000  
+##  1st Qu.:0.0000   1st Qu.:0.00000   1st Qu.:0.0000   1st Qu.:0.0000  
+##  Median :0.0000   Median :0.00000   Median :0.0000   Median :0.0000  
+##  Mean   :0.1231   Mean   :0.08543   Mean   :0.1307   Mean   :0.1332  
+##  3rd Qu.:0.0000   3rd Qu.:0.00000   3rd Qu.:0.0000   3rd Qu.:0.0000  
+##  Max.   :1.0000   Max.   :1.00000   Max.   :1.0000   Max.   :1.0000  
+##       TM2              SQ3              DPR              YO11       
+##  Min.   :0.0000   Min.   :0.0000   Min.   :0.0000   Min.   :0.0000  
+##  1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:0.0000  
+##  Median :0.0000   Median :0.0000   Median :0.0000   Median :0.0000  
+##  Mean   :0.3869   Mean   :0.1935   Mean   :0.2538   Mean   :0.1658  
+##  3rd Qu.:1.0000   3rd Qu.:0.0000   3rd Qu.:1.0000   3rd Qu.:0.0000  
+##  Max.   :1.0000   Max.   :1.0000   Max.   :1.0000   Max.   :1.0000  
+##   maternal.WL2     maternal.CC       maternal.BH       maternal.WV     
+##  Min.   :0.0000   Min.   :0.00000   Min.   :0.00000   Min.   :0.00000  
+##  1st Qu.:1.0000   1st Qu.:0.00000   1st Qu.:0.00000   1st Qu.:0.00000  
+##  Median :1.0000   Median :0.00000   Median :0.00000   Median :0.00000  
+##  Mean   :0.8492   Mean   :0.04774   Mean   :0.06533   Mean   :0.08543  
+##  3rd Qu.:1.0000   3rd Qu.:0.00000   3rd Qu.:0.00000   3rd Qu.:0.00000  
+##  Max.   :1.0000   Max.   :1.00000   Max.   :1.00000   Max.   :1.00000  
+##   maternal.LV1     maternal.TM2     maternal.SQ3      maternal.DPR   
+##  Min.   :0.0000   Min.   :0.0000   Min.   :0.00000   Min.   :0.0000  
+##  1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:0.00000   1st Qu.:0.0000  
+##  Median :0.0000   Median :0.0000   Median :0.00000   Median :0.0000  
+##  Mean   :0.1206   Mean   :0.2136   Mean   :0.09799   Mean   :0.1759  
+##  3rd Qu.:0.0000   3rd Qu.:0.0000   3rd Qu.:0.00000   3rd Qu.:0.0000  
+##  Max.   :1.0000   Max.   :1.0000   Max.   :1.00000   Max.   :1.0000  
+##  maternal.YO11    
+##  Min.   :0.00000  
+##  1st Qu.:0.00000  
+##  Median :0.00000  
+##  Mean   :0.07789  
+##  3rd Qu.:0.00000  
+##  Max.   :1.00000
+```
+
+``` r
+xtabs(~Surv_to_Oct+WL2, data=wl2_surv_F2_binary)
+```
+
+```
+##            WL2
+## Surv_to_Oct   1
+##           0 335
+##           1  63
+```
+
+``` r
+xtabs(~Surv_to_Oct+CC, data=wl2_surv_F2_binary)
+```
+
+```
+##            CC
+## Surv_to_Oct   0   1
+##           0 292  43
+##           1  57   6
+```
+
+``` r
+xtabs(~Surv_to_Oct+BH, data=wl2_surv_F2_binary)
+```
+
+```
+##            BH
+## Surv_to_Oct   0   1
+##           0 306  29
+##           1  58   5
+```
+
+``` r
+xtabs(~Surv_to_Oct+WV, data=wl2_surv_F2_binary)
+```
+
+```
+##            WV
+## Surv_to_Oct   0   1
+##           0 293  42
+##           1  53  10
+```
+
+``` r
+xtabs(~Surv_to_Oct+LV1, data=wl2_surv_F2_binary)
+```
+
+```
+##            LV1
+## Surv_to_Oct   0   1
+##           0 289  46
+##           1  56   7
+```
+
+``` r
+xtabs(~Surv_to_Oct+TM2, data=wl2_surv_F2_binary)
+```
+
+```
+##            TM2
+## Surv_to_Oct   0   1
+##           0 206 129
+##           1  38  25
+```
+
+``` r
+xtabs(~Surv_to_Oct+SQ3, data=wl2_surv_F2_binary)
+```
+
+```
+##            SQ3
+## Surv_to_Oct   0   1
+##           0 266  69
+##           1  55   8
+```
+
+``` r
+xtabs(~Surv_to_Oct+DPR, data=wl2_surv_F2_binary)
+```
+
+```
+##            DPR
+## Surv_to_Oct   0   1
+##           0 257  78
+##           1  40  23
+```
+
+``` r
+xtabs(~Surv_to_Oct+YO11, data=wl2_surv_F2_binary)
+```
+
+```
+##            YO11
+## Surv_to_Oct   0   1
+##           0 277  58
+##           1  55   8
+```
+
+``` r
+xtabs(~Surv_to_Oct+WL2, data=wl2_surv_F2_binary)
+```
+
+```
+##            WL2
+## Surv_to_Oct   1
+##           0 335
+##           1  63
+```
+
+``` r
+xtabs(~Surv_to_Oct+CC, data=wl2_surv_F2_binary)
+```
+
+```
+##            CC
+## Surv_to_Oct   0   1
+##           0 292  43
+##           1  57   6
+```
+
+``` r
+xtabs(~Surv_to_Oct+BH, data=wl2_surv_F2_binary)
+```
+
+```
+##            BH
+## Surv_to_Oct   0   1
+##           0 306  29
+##           1  58   5
+```
+
+``` r
+xtabs(~Surv_to_Oct+WV, data=wl2_surv_F2_binary)
+```
+
+```
+##            WV
+## Surv_to_Oct   0   1
+##           0 293  42
+##           1  53  10
+```
+
+``` r
+xtabs(~Surv_to_Oct+LV1, data=wl2_surv_F2_binary)
+```
+
+```
+##            LV1
+## Surv_to_Oct   0   1
+##           0 289  46
+##           1  56   7
+```
+
+``` r
+xtabs(~Surv_to_Oct+TM2, data=wl2_surv_F2_binary)
+```
+
+```
+##            TM2
+## Surv_to_Oct   0   1
+##           0 206 129
+##           1  38  25
+```
+
+``` r
+xtabs(~Surv_to_Oct+SQ3, data=wl2_surv_F2_binary)
+```
+
+```
+##            SQ3
+## Surv_to_Oct   0   1
+##           0 266  69
+##           1  55   8
+```
+
+``` r
+xtabs(~Surv_to_Oct+DPR, data=wl2_surv_F2_binary)
+```
+
+```
+##            DPR
+## Surv_to_Oct   0   1
+##           0 257  78
+##           1  40  23
+```
+
+``` r
+xtabs(~Surv_to_Oct+YO11, data=wl2_surv_F2_binary)
+```
+
+```
+##            YO11
+## Surv_to_Oct   0   1
+##           0 277  58
+##           1  55   8
+```
+
+#### Plots with binary
+
+``` r
+wl2_surv_F2_binary %>% 
+  group_by(CC, Surv_to_Oct) %>% 
+  ggplot(aes(x=CC, fill=Surv_to_Oct)) +
+  geom_bar(position = "dodge", alpha=0.9, width=0.5) +
+  facet_wrap(~Surv_to_Oct)
+```
+
+![](WL2_Single_Time_Surv_files/figure-html/unnamed-chunk-21-1.png)<!-- -->
+
+``` r
+wl2_surv_F2_binary %>% 
+  group_by(CC, Surv_to_Oct) %>% 
+  ggplot(aes(x=BH, fill=Surv_to_Oct)) +
+  geom_bar(position = "dodge", alpha=0.9, width=0.5) +
+  facet_wrap(~Surv_to_Oct)
+```
+
+![](WL2_Single_Time_Surv_files/figure-html/unnamed-chunk-21-2.png)<!-- -->
+
+``` r
+wl2_surv_F2_binary %>% 
+  group_by(CC, Surv_to_Oct) %>% 
+  ggplot(aes(x=DPR, fill=Surv_to_Oct)) +
+  geom_bar(position = "dodge", alpha=0.9, width=0.5) +
+  facet_wrap(~Surv_to_Oct)
+```
+
+![](WL2_Single_Time_Surv_files/figure-html/unnamed-chunk-21-3.png)<!-- -->
+
+#### GLMs with binary
+
+``` r
+surv_parent_binary_m3 = glm(Surv_to_Oct ~ CC+BH+WV+LV1+TM2+SQ3+DPR+YO11, family = binomial, data=wl2_surv_F2_binary)
+
+summary(surv_parent_binary_m3)
+```
+
+```
+## 
+## Call:
+## glm(formula = Surv_to_Oct ~ CC + BH + WV + LV1 + TM2 + SQ3 + 
+##     DPR + YO11, family = binomial, data = wl2_surv_F2_binary)
+## 
+## Coefficients:
+##             Estimate Std. Error z value Pr(>|z|)    
+## (Intercept) -1.95764    0.46442  -4.215 2.49e-05 ***
+## CC          -0.25293    0.53203  -0.475   0.6345    
+## BH           0.11265    0.56501   0.199   0.8420    
+## WV           0.39182    0.52455   0.747   0.4551    
+## LV1         -0.06069    0.49995  -0.121   0.9034    
+## TM2          0.35811    0.38947   0.919   0.3578    
+## SQ3         -0.35779    0.46022  -0.777   0.4369    
+## DPR          0.72340    0.40871   1.770   0.0767 .  
+## YO11        -0.26481    0.44797  -0.591   0.5544    
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 347.71  on 397  degrees of freedom
+## Residual deviance: 339.21  on 389  degrees of freedom
+## AIC: 357.21
+## 
+## Number of Fisher Scoring iterations: 4
+```
+
+``` r
+resultsm3 <- c(coef(surv_parent_binary_m3)[1], #intercept
+             coef(surv_parent_binary_m3)[2:7] + coef(surv_parent_binary_m3)[1]) %>% #coefficients + intercept
+  inv_logit_scaled()
+resultsm3
+```
+
+```
+## (Intercept)          CC          BH          WV         LV1         TM2 
+##  0.12372315  0.09880595  0.13646238  0.17281346  0.11729183  0.16804793 
+##         SQ3 
+##  0.08985327
+```
+
+``` r
+summary(surv_parent_binary_m3)$coefficients[,2] %>% # get the error from the summary table
+  inv_logit_scaled()
+```
+
+```
+## (Intercept)          CC          BH          WV         LV1         TM2 
+##   0.6140614   0.6299564   0.6376107   0.6282121   0.6224470   0.5961548 
+##         SQ3         DPR        YO11 
+##   0.6130665   0.6007776   0.6101558
+```
+
+``` r
+#error really high?
+```
+
+
+``` r
+surv_parent_binary_m4 = glm(Surv_Post_Transplant ~ CC+BH+WV+LV1+TM2+SQ3+DPR+YO11, family = binomial, data=wl2_surv_F2_binary)
+
+summary(surv_parent_binary_m4)
+```
+
+```
+## 
+## Call:
+## glm(formula = Surv_Post_Transplant ~ CC + BH + WV + LV1 + TM2 + 
+##     SQ3 + DPR + YO11, family = binomial, data = wl2_surv_F2_binary)
+## 
+## Coefficients:
+##             Estimate Std. Error z value Pr(>|z|)   
+## (Intercept)   1.1781     0.4481   2.629  0.00856 **
+## CC           -0.7386     0.4651  -1.588  0.11229   
+## BH            0.1541     0.5743   0.268  0.78838   
+## WV            0.6496     0.5680   1.144  0.25277   
+## LV1           0.4186     0.4772   0.877  0.38039   
+## TM2           0.9073     0.3771   2.406  0.01612 * 
+## SQ3           0.1729     0.4124   0.419  0.67501   
+## DPR           0.3848     0.4279   0.899  0.36846   
+## YO11         -0.6495     0.3700  -1.755  0.07922 . 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 373.28  on 397  degrees of freedom
+## Residual deviance: 356.46  on 389  degrees of freedom
+## AIC: 374.46
+## 
+## Number of Fisher Scoring iterations: 4
+```
+
+``` r
+resultsm4 <- c(coef(surv_parent_binary_m4)[1], #intercept
+             coef(surv_parent_binary_m4)[2:7] + coef(surv_parent_binary_m4)[1]) %>% #coefficients + intercept
+  inv_logit_scaled()
+resultsm4
+```
+
+```
+## (Intercept)          CC          BH          WV         LV1         TM2 
+##   0.7645983   0.6081379   0.7912051   0.8614824   0.8315462   0.8894745 
+##         SQ3 
+##   0.7942844
+```
+
+``` r
+summary(surv_parent_binary_m4)$coefficients[,2] %>% # get the error from the summary table
+  inv_logit_scaled()
+```
+
+```
+## (Intercept)          CC          BH          WV         LV1         TM2 
+##   0.6101876   0.6142223   0.6397530   0.6383024   0.6170808   0.5931679 
+##         SQ3         DPR        YO11 
+##   0.6016518   0.6053697   0.5914661
+```
+
+``` r
+#error really high?
+```
+
+
+``` r
+surv_parent_binary_m5 = glm(Surv_to_Oct ~ maternal.WL2+maternal.CC+maternal.BH+maternal.WV+maternal.LV1+maternal.TM2+maternal.SQ3+maternal.DPR+maternal.YO11, family = binomial, data=wl2_surv_F2_binary)
+
+summary(surv_parent_binary_m5)
+```
+
+```
+## 
+## Call:
+## glm(formula = Surv_to_Oct ~ maternal.WL2 + maternal.CC + maternal.BH + 
+##     maternal.WV + maternal.LV1 + maternal.TM2 + maternal.SQ3 + 
+##     maternal.DPR + maternal.YO11, family = binomial, data = wl2_surv_F2_binary)
+## 
+## Coefficients:
+##               Estimate Std. Error z value Pr(>|z|)    
+## (Intercept)   -2.38471    0.62712  -3.803 0.000143 ***
+## maternal.WL2   0.21484    0.41918   0.513 0.608290    
+## maternal.CC    0.41987    0.73194   0.574 0.566214    
+## maternal.BH   -0.05913    0.70043  -0.084 0.932725    
+## maternal.WV    0.50907    0.67782   0.751 0.452635    
+## maternal.LV1   0.22396    0.60201   0.372 0.709872    
+## maternal.TM2   0.82096    0.48649   1.688 0.091504 .  
+## maternal.SQ3   0.46513    0.60738   0.766 0.443799    
+## maternal.DPR   1.10981    0.53528   2.073 0.038141 *  
+## maternal.YO11 -0.50427    0.84049  -0.600 0.548521    
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 347.71  on 397  degrees of freedom
+## Residual deviance: 337.97  on 388  degrees of freedom
+## AIC: 357.97
+## 
+## Number of Fisher Scoring iterations: 5
+```
+
+``` r
+resultsm5 <- c(coef(surv_parent_binary_m5)[1], #intercept
+             coef(surv_parent_binary_m5)[2:7] + coef(surv_parent_binary_m5)[1]) %>% #coefficients + intercept
+  inv_logit_scaled()
+resultsm5
+```
+
+```
+##  (Intercept) maternal.WL2  maternal.CC  maternal.BH  maternal.WV maternal.LV1 
+##   0.08434605   0.10248852   0.12294384   0.07989032   0.13288994   0.10333135 
+## maternal.TM2 
+##   0.17310851
+```
+
+``` r
+summary(surv_parent_binary_m5)$coefficients[,2] %>% # get the error from the summary table
+  inv_logit_scaled()
+```
+
+```
+##   (Intercept)  maternal.WL2   maternal.CC   maternal.BH   maternal.WV 
+##     0.6518371     0.6032867     0.6752307     0.6682830     0.6632530 
+##  maternal.LV1  maternal.TM2  maternal.SQ3  maternal.DPR maternal.YO11 
+##     0.6461161     0.6192786     0.6473428     0.6307131     0.6985677
+```
+
+``` r
+#error really high?
+```
+
+
+``` r
+surv_parent_binary_m6 = glm(Surv_Post_Transplant ~ maternal.WL2+maternal.CC+maternal.BH+maternal.WV+maternal.LV1+maternal.TM2+maternal.SQ3+maternal.DPR+maternal.YO11, 
+                            family = binomial, data=wl2_surv_F2_binary)
+
+summary(surv_parent_binary_m6)
+```
+
+```
+## 
+## Call:
+## glm(formula = Surv_Post_Transplant ~ maternal.WL2 + maternal.CC + 
+##     maternal.BH + maternal.WV + maternal.LV1 + maternal.TM2 + 
+##     maternal.SQ3 + maternal.DPR + maternal.YO11, family = binomial, 
+##     data = wl2_surv_F2_binary)
+## 
+## Coefficients:
+##               Estimate Std. Error z value Pr(>|z|)  
+## (Intercept)     1.4817     0.6395   2.317   0.0205 *
+## maternal.WL2   -0.5337     0.5529  -0.965   0.3344  
+## maternal.CC     0.6217     0.6966   0.893   0.3721  
+## maternal.BH     0.4682     0.6201   0.755   0.4502  
+## maternal.WV     1.1651     0.7082   1.645   0.0999 .
+## maternal.LV1    0.6615     0.4879   1.356   0.1752  
+## maternal.TM2    1.1914     0.4752   2.507   0.0122 *
+## maternal.SQ3    0.2560     0.4822   0.531   0.5954  
+## maternal.DPR    0.5559     0.4760   1.168   0.2429  
+## maternal.YO11  -0.2060     0.4855  -0.424   0.6713  
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 373.28  on 397  degrees of freedom
+## Residual deviance: 356.79  on 388  degrees of freedom
+## AIC: 376.79
+## 
+## Number of Fisher Scoring iterations: 5
+```
+
+``` r
+resultsm6 <- c(coef(surv_parent_binary_m6)[1], #intercept
+             coef(surv_parent_binary_m6)[2:7] + coef(surv_parent_binary_m6)[1]) %>% #coefficients + intercept
+  inv_logit_scaled()
+resultsm6
+```
+
+```
+##  (Intercept) maternal.WL2  maternal.CC  maternal.BH  maternal.WV maternal.LV1 
+##    0.8148246    0.7206992    0.8912330    0.8754376    0.9338132    0.8950292 
+## maternal.TM2 
+##    0.9354190
+```
+
+``` r
+summary(surv_parent_binary_m6)$coefficients[,2] %>% # get the error from the summary table
+  inv_logit_scaled()
+```
+
+```
+##   (Intercept)  maternal.WL2   maternal.CC   maternal.BH   maternal.WV 
+##     0.6546459     0.6348136     0.6674350     0.6502389     0.6700047 
+##  maternal.LV1  maternal.TM2  maternal.SQ3  maternal.DPR maternal.YO11 
+##     0.6196191     0.6166229     0.6182684     0.6168045     0.6190424
+```
+
+``` r
+#error really high?
 ```
 
 ### Calculate proportions of each plant for analysis 
@@ -1344,7 +2297,7 @@ meansurv_wl2prop %>%
   theme_classic() 
 ```
 
-![](WL2_Single_Time_Surv_files/figure-html/unnamed-chunk-18-1.png)<!-- -->
+![](WL2_Single_Time_Surv_files/figure-html/unnamed-chunk-27-1.png)<!-- -->
 
 ``` r
 meansurv_CCprop <- wl2_surv_F2_props %>% 
@@ -1371,7 +2324,7 @@ meansurv_CCprop %>%
   theme_classic() 
 ```
 
-![](WL2_Single_Time_Surv_files/figure-html/unnamed-chunk-18-2.png)<!-- -->
+![](WL2_Single_Time_Surv_files/figure-html/unnamed-chunk-27-2.png)<!-- -->
 
 ``` r
 meansurv_BHprop <- wl2_surv_F2_props %>% 
@@ -1398,7 +2351,7 @@ meansurv_BHprop %>%
   theme_classic() 
 ```
 
-![](WL2_Single_Time_Surv_files/figure-html/unnamed-chunk-18-3.png)<!-- -->
+![](WL2_Single_Time_Surv_files/figure-html/unnamed-chunk-27-3.png)<!-- -->
 
 ``` r
 meansurv_WVprop <- wl2_surv_F2_props %>% 
@@ -1427,7 +2380,7 @@ meansurv_WVprop %>%
   theme_classic() 
 ```
 
-![](WL2_Single_Time_Surv_files/figure-html/unnamed-chunk-18-4.png)<!-- -->
+![](WL2_Single_Time_Surv_files/figure-html/unnamed-chunk-27-4.png)<!-- -->
 
 ``` r
 meansurv_LV1prop <- wl2_surv_F2_props %>% 
@@ -1456,7 +2409,7 @@ meansurv_LV1prop %>%
   theme_classic() 
 ```
 
-![](WL2_Single_Time_Surv_files/figure-html/unnamed-chunk-18-5.png)<!-- -->
+![](WL2_Single_Time_Surv_files/figure-html/unnamed-chunk-27-5.png)<!-- -->
 
 ``` r
 meansurv_TM2prop <- wl2_surv_F2_props %>% 
@@ -1486,7 +2439,7 @@ meansurv_TM2prop %>%
   theme_classic() 
 ```
 
-![](WL2_Single_Time_Surv_files/figure-html/unnamed-chunk-18-6.png)<!-- -->
+![](WL2_Single_Time_Surv_files/figure-html/unnamed-chunk-27-6.png)<!-- -->
 
 ``` r
 meansurv_SQ3prop <- wl2_surv_F2_props %>% 
@@ -1515,7 +2468,7 @@ meansurv_SQ3prop %>%
   theme_classic() 
 ```
 
-![](WL2_Single_Time_Surv_files/figure-html/unnamed-chunk-18-7.png)<!-- -->
+![](WL2_Single_Time_Surv_files/figure-html/unnamed-chunk-27-7.png)<!-- -->
 
 ``` r
 meansurv_DPRprop <- wl2_surv_F2_props %>% 
@@ -1545,7 +2498,7 @@ meansurv_DPRprop %>%
   theme_classic() 
 ```
 
-![](WL2_Single_Time_Surv_files/figure-html/unnamed-chunk-18-8.png)<!-- -->
+![](WL2_Single_Time_Surv_files/figure-html/unnamed-chunk-27-8.png)<!-- -->
 
 ``` r
 meansurv_YO11prop <- wl2_surv_F2_props %>% 
@@ -1573,7 +2526,7 @@ meansurv_YO11prop %>%
   theme_classic() 
 ```
 
-![](WL2_Single_Time_Surv_files/figure-html/unnamed-chunk-18-9.png)<!-- -->
+![](WL2_Single_Time_Surv_files/figure-html/unnamed-chunk-27-9.png)<!-- -->
 
 
 ### with glm
