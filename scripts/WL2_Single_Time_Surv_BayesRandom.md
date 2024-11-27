@@ -1,7 +1,7 @@
 ---
 title: "WL2_Single_Time_Surv"
 author: "Brandie QC"
-date: "2024-11-26"
+date: "2024-11-27"
 output: 
   html_document: 
     keep_md: true
@@ -532,7 +532,7 @@ wl2_surv_F1_binary <- wl2_surv_F1 %>%
          TM2=if_else(str_detect(parent.pop, "TM2"), 1, 0),
          SQ3=if_else(str_detect(parent.pop, "SQ3"), 1, 0),
          DPR=if_else(str_detect(parent.pop, "DPR"), 1, 0),
-         YO11=if_else(str_detect(parent.pop, "YO11"), 1, 0))
+         YO11=if_else(str_detect(parent.pop, "YO11"), 1, 0)) 
 head(wl2_surv_F1_binary, 20)
 ```
 
@@ -783,22 +783,30 @@ wl2_surv_F1_binary_long_means %>%
   #ylim(-0.05, 0.3) +
   labs(title="Survival to October - WL2 F1s") +
   #theme_classic() +
+  theme(text=element_text(size=25)) + 
   facet_wrap(~pop)
 ```
 
 ![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
 
 ``` r
+ggsave("../output/WL2_Traits/F1s_SurvtoOct.png", width = 12, height = 6, units = "in")
+
 wl2_surv_F1_binary_long_means %>% 
   filter(WL2.cross=="TRUE") %>% #if want TM2 F1s just # this out 
   ggplot(aes(x=Presence, y=mean_Surv_Post_Transplant, fill=Presence)) +
   geom_col(width = 0.7,position = position_dodge(0.75), colour="black") +
   labs(title="Survival to Two Weeks Post-Transplant  - WL2 F1s") +
   #theme_classic() +
+  theme(text=element_text(size=25)) + 
   facet_wrap(~pop)
 ```
 
 ![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-8-2.png)<!-- -->
+
+``` r
+ggsave("../output/WL2_Traits/F1s_SurvPostTransplant.png", width = 12, height = 6, units = "in")
+```
 
 
 ### Bayesian random
@@ -806,7 +814,28 @@ Filter to WL2 F1s Only
 Logit scale reminder: logit(x) = ln(x / (1-x));
 
 ``` r
-wl2_surv_wl2F1s <- wl2_surv_F1_binary %>% filter(WL2.cross=="TRUE")  
+wl2_surv_wl2F1s <- wl2_surv_F1_binary %>% filter(WL2.cross=="TRUE") %>% 
+  mutate(Other_Parent=if_else(maternal.pop!="WL2", maternal.pop, paternal.pop))
+head(wl2_surv_wl2F1s)
+```
+
+```
+## # A tibble: 6 × 21
+##   Pop.Type maternal.pop paternal.pop parent.pop Field_Loc unique.ID death.date
+##   <chr>    <chr>        <chr>        <chr>      <chr>     <chr>     <chr>     
+## 1 F1       LV1          WL2          LV1 x WL2  D_52_C    1271      6/18/24   
+## 2 F1       TM2          WL2          TM2 x WL2  C_32_B    1279      6/25/24   
+## 3 F1       TM2          WL2          TM2 x WL2  D_18_C    1281      6/25/24   
+## 4 F1       LV1          WL2          LV1 x WL2  E_43_C    1259      6/25/24   
+## 5 F1       LV1          WL2          LV1 x WL2  F_21_A    1270      6/25/24   
+## 6 F1       WL2          BH           WL2 x BH   G_18_B    833       6/25/24   
+## # ℹ 14 more variables: Surv_to_Oct <dbl>, Surv_Post_Transplant <dbl>,
+## #   survey.notes <chr>, WL2.cross <lgl>, WL2 <dbl>, CC <dbl>, BH <dbl>,
+## #   WV <dbl>, LV1 <dbl>, TM2 <dbl>, SQ3 <dbl>, DPR <dbl>, YO11 <dbl>,
+## #   Other_Parent <chr>
+```
+
+``` r
 summary(wl2_surv_wl2F1s)
 ```
 
@@ -839,12 +868,12 @@ summary(wl2_surv_wl2F1s)
 ##  Mean   :0.1395   Mean   :0.2093   Mean   :0.2558   Mean   :0.2093  
 ##  3rd Qu.:0.0000   3rd Qu.:0.0000   3rd Qu.:0.5000   3rd Qu.:0.0000  
 ##  Max.   :1.0000   Max.   :1.0000   Max.   :1.0000   Max.   :1.0000  
-##       SQ3               DPR               YO11  
-##  Min.   :0.00000   Min.   :0.00000   Min.   :0  
-##  1st Qu.:0.00000   1st Qu.:0.00000   1st Qu.:0  
-##  Median :0.00000   Median :0.00000   Median :0  
-##  Mean   :0.09302   Mean   :0.09302   Mean   :0  
-##  3rd Qu.:0.00000   3rd Qu.:0.00000   3rd Qu.:0  
+##       SQ3               DPR               YO11   Other_Parent      
+##  Min.   :0.00000   Min.   :0.00000   Min.   :0   Length:43         
+##  1st Qu.:0.00000   1st Qu.:0.00000   1st Qu.:0   Class :character  
+##  Median :0.00000   Median :0.00000   Median :0   Mode  :character  
+##  Mean   :0.09302   Mean   :0.09302   Mean   :0                     
+##  3rd Qu.:0.00000   3rd Qu.:0.00000   3rd Qu.:0                     
 ##  Max.   :1.00000   Max.   :1.00000   Max.   :0
 ```
 
@@ -936,43 +965,34 @@ xtabs(~Surv_to_Oct+YO11, data=wl2_surv_wl2F1s) #no YO11 x WL2 or vice versa
 ##           1  8
 ```
 
+``` r
+xtabs(~Surv_to_Oct+Other_Parent, data=wl2_surv_wl2F1s)
+```
+
+```
+##            Other_Parent
+## Surv_to_Oct BH DPR LV1 SQ3 TM2 WV
+##           0  6   4   9   4   7  5
+##           1  0   0   2   0   2  4
+```
+
 
 
 ``` r
-surv_parent_binary_bf1 <- brmsformula(Surv_to_Oct ~ (1|BH)+(1|WV)+(1|LV1)+(1|TM2)+(1|SQ3)+(1|DPR))
+surv_parent_binary_bf1 <- brmsformula(Surv_to_Oct ~ (1|Other_Parent))
 
 get_prior(surv_parent_binary_bf1, family = "bernoulli", data = wl2_surv_wl2F1s)
 ```
 
 ```
-##                 prior     class      coef group resp dpar nlpar lb ub
-##  student_t(3, 0, 2.5) Intercept                                      
-##  student_t(3, 0, 2.5)        sd                                  0   
-##  student_t(3, 0, 2.5)        sd              BH                  0   
-##  student_t(3, 0, 2.5)        sd Intercept    BH                  0   
-##  student_t(3, 0, 2.5)        sd             DPR                  0   
-##  student_t(3, 0, 2.5)        sd Intercept   DPR                  0   
-##  student_t(3, 0, 2.5)        sd             LV1                  0   
-##  student_t(3, 0, 2.5)        sd Intercept   LV1                  0   
-##  student_t(3, 0, 2.5)        sd             SQ3                  0   
-##  student_t(3, 0, 2.5)        sd Intercept   SQ3                  0   
-##  student_t(3, 0, 2.5)        sd             TM2                  0   
-##  student_t(3, 0, 2.5)        sd Intercept   TM2                  0   
-##  student_t(3, 0, 2.5)        sd              WV                  0   
-##  student_t(3, 0, 2.5)        sd Intercept    WV                  0   
+##                 prior     class      coef        group resp dpar nlpar lb ub
+##  student_t(3, 0, 2.5) Intercept                                             
+##  student_t(3, 0, 2.5)        sd                                         0   
+##  student_t(3, 0, 2.5)        sd           Other_Parent                  0   
+##  student_t(3, 0, 2.5)        sd Intercept Other_Parent                  0   
 ##        source
 ##       default
 ##       default
-##  (vectorized)
-##  (vectorized)
-##  (vectorized)
-##  (vectorized)
-##  (vectorized)
-##  (vectorized)
-##  (vectorized)
-##  (vectorized)
-##  (vectorized)
-##  (vectorized)
 ##  (vectorized)
 ##  (vectorized)
 ```
@@ -988,7 +1008,7 @@ surv_parent_binary_m1 <- brm(surv_parent_binary_bf1,
                              family = "bernoulli",
                              data = wl2_surv_wl2F1s,
                              cores=4,
-                             iter = 4000, #increased iterations b/c complex model
+                             iter = 5000, #increased iterations b/c complex model
                              control = list(adapt_delta = 0.9),
                              prior=prior1) #increased adapt_delta to help with divergent transitions
 ```
@@ -1021,6 +1041,20 @@ surv_parent_binary_m1 <- brm(surv_parent_binary_bf1,
 ## Start sampling
 ```
 
+```
+## Warning: There were 2 divergent transitions after warmup. See
+## https://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup
+## to find out why this is a problem and how to eliminate them.
+```
+
+```
+## Warning: Examine the pairs() plot to diagnose sampling problems
+```
+
+``` r
+#Warning: There were 5 divergent transitions after warmup. 
+```
+
 
 
 ``` r
@@ -1028,21 +1062,16 @@ prior_summary(surv_parent_binary_m1)
 ```
 
 ```
-##         prior     class      coef group resp dpar nlpar lb ub       source
-##  normal(0, 5) Intercept                                               user
-##  normal(0, 5)        sd                                  0            user
-##  normal(0, 5)        sd              BH                  0    (vectorized)
-##  normal(0, 5)        sd Intercept    BH                  0    (vectorized)
-##  normal(0, 5)        sd             DPR                  0    (vectorized)
-##  normal(0, 5)        sd Intercept   DPR                  0    (vectorized)
-##  normal(0, 5)        sd             LV1                  0    (vectorized)
-##  normal(0, 5)        sd Intercept   LV1                  0    (vectorized)
-##  normal(0, 5)        sd             SQ3                  0    (vectorized)
-##  normal(0, 5)        sd Intercept   SQ3                  0    (vectorized)
-##  normal(0, 5)        sd             TM2                  0    (vectorized)
-##  normal(0, 5)        sd Intercept   TM2                  0    (vectorized)
-##  normal(0, 5)        sd              WV                  0    (vectorized)
-##  normal(0, 5)        sd Intercept    WV                  0    (vectorized)
+##         prior     class      coef        group resp dpar nlpar lb ub
+##  normal(0, 5) Intercept                                             
+##  normal(0, 5)        sd                                         0   
+##  normal(0, 5)        sd           Other_Parent                  0   
+##  normal(0, 5)        sd Intercept Other_Parent                  0   
+##        source
+##          user
+##          user
+##  (vectorized)
+##  (vectorized)
 ```
 
 ``` r
@@ -1050,41 +1079,27 @@ summary(surv_parent_binary_m1)
 ```
 
 ```
+## Warning: There were 2 divergent transitions after warmup. Increasing
+## adapt_delta above 0.9 may help. See
+## http://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup
+```
+
+```
 ##  Family: bernoulli 
 ##   Links: mu = logit 
-## Formula: Surv_to_Oct ~ (1 | BH) + (1 | WV) + (1 | LV1) + (1 | TM2) + (1 | SQ3) + (1 | DPR) 
+## Formula: Surv_to_Oct ~ (1 | Other_Parent) 
 ##    Data: wl2_surv_wl2F1s (Number of observations: 43) 
-##   Draws: 4 chains, each with iter = 4000; warmup = 2000; thin = 1;
-##          total post-warmup draws = 8000
+##   Draws: 4 chains, each with iter = 5000; warmup = 2500; thin = 1;
+##          total post-warmup draws = 10000
 ## 
 ## Multilevel Hyperparameters:
-## ~BH (Number of levels: 2) 
+## ~Other_Parent (Number of levels: 6) 
 ##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)     3.53      2.75     0.12    10.28 1.00     3782     2657
-## 
-## ~DPR (Number of levels: 2) 
-##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)     3.44      2.73     0.12    10.21 1.00     4284     3370
-## 
-## ~LV1 (Number of levels: 2) 
-##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)     2.61      2.28     0.07     8.49 1.00     3516     3652
-## 
-## ~SQ3 (Number of levels: 2) 
-##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)     3.43      2.80     0.12    10.45 1.00     5213     3720
-## 
-## ~TM2 (Number of levels: 2) 
-##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)     2.69      2.36     0.09     8.89 1.00     3239     3423
-## 
-## ~WV (Number of levels: 2) 
-##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)     3.27      2.43     0.17     9.44 1.00     3087     2407
+## sd(Intercept)     1.97      1.70     0.08     6.27 1.00     1693     2369
 ## 
 ## Regression Coefficients:
 ##           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## Intercept    -1.62      4.13    -9.77     6.38 1.00     4905     5434
+## Intercept    -2.22      1.23    -5.45    -0.36 1.00     1595      741
 ## 
 ## Draws were sampled using sampling(NUTS). For each parameter, Bulk_ESS
 ## and Tail_ESS are effective sample size measures, and Rhat is the potential
@@ -1101,7 +1116,7 @@ summary(surv_parent_binary_m1)
 plot(surv_parent_binary_m1,  nvariables = 3, ask=FALSE) #plots look a little better with prior distribution adjustments 
 ```
 
-![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-13-1.png)<!-- -->![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-13-2.png)<!-- -->![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-13-3.png)<!-- -->
+![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-13-1.png)<!-- -->
 
 ``` r
 #pairs(surv_parent_binary_m1)
@@ -1113,12 +1128,13 @@ pp_check(surv_parent_binary_m1)  # posterior predictive checks
 ## Using 10 posterior draws for ppc type 'dens_overlay' by default.
 ```
 
-![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-13-4.png)<!-- -->
+![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-13-2.png)<!-- -->
 
 ``` r
 #The main use of this function is to check if you model predicts your data accurately (using the estimates). If it does, then you can use that model to generate new data and make accurate predictions.
 #light blue = 10 random draws or distributions created by the model
 #dark blue = posterior distribution
+#some diffs between draws 
 ```
 
 To calcualte the stats we need to extract the posterior samples, and add the Intercept to each pop random effect, and then compute the stats.
@@ -1140,21 +1156,15 @@ posterior::summarize_draws(r_pops) %>%
 ```
 
 ```
-## # A tibble: 12 × 10
-##    variable        mean median    sd   mad      q5   q95  rhat ess_bulk ess_tail
-##    <chr>          <dbl>  <dbl> <dbl> <dbl>   <dbl> <dbl> <dbl>    <dbl>    <dbl>
-##  1 r_BH[0,Inter… 0.303  0.278  0.988 0.985 4.03e-4 0.998  1.00    5093.    5286.
-##  2 r_BH[1,Inter… 0.0188 0.0274 0.997 0.994 8.85e-7 0.990  1.00    4663.    4860.
-##  3 r_DPR[0,Inte… 0.274  0.262  0.987 0.984 3.36e-4 0.998  1.00    5042.    5955.
-##  4 r_DPR[1,Inte… 0.0225 0.0357 0.997 0.994 1.01e-6 0.991  1.00    5322.    6009.
-##  5 r_LV1[0,Inte… 0.0782 0.0816 0.986 0.984 5.83e-5 0.987  1.00    5318.    5677.
-##  6 r_LV1[1,Inte… 0.196  0.190  0.991 0.989 1.27e-4 0.998  1.00    4434.    5484.
-##  7 r_SQ3[0,Inte… 0.279  0.271  0.988 0.984 3.08e-4 0.998  1.00    4970.    6137.
-##  8 r_SQ3[1,Inte… 0.0236 0.0381 0.997 0.994 1.08e-6 0.990  1.00    5057.    5317.
-##  9 r_TM2[0,Inte… 0.0747 0.0795 0.986 0.982 6.50e-5 0.987  1.00    5611.    5277.
-## 10 r_TM2[1,Inte… 0.223  0.215  0.990 0.989 1.53e-4 0.998  1.00    4630.    5534.
-## 11 r_WV[0,Inter… 0.0392 0.0408 0.987 0.983 3.01e-5 0.978  1.00    5502.    5943.
-## 12 r_WV[1,Inter… 0.318  0.302  0.991 0.989 2.69e-4 0.999  1.00    4542.    6023.
+## # A tibble: 6 × 10
+##   variable         mean median    sd   mad      q5   q95  rhat ess_bulk ess_tail
+##   <chr>           <dbl>  <dbl> <dbl> <dbl>   <dbl> <dbl> <dbl>    <dbl>    <dbl>
+## 1 r_Other_Paren… 0.0279 0.0558 0.930 0.843 2.01e-4 0.253  1.00    2276.    1315.
+## 2 r_Other_Paren… 0.0343 0.0674 0.927 0.833 3.33e-4 0.286  1.00    2446.    2458.
+## 3 r_Other_Paren… 0.150  0.158  0.679 0.665 4.53e-2 0.348  1.00   10227.    7732.
+## 4 r_Other_Paren… 0.0342 0.0667 0.924 0.832 2.84e-4 0.289  1.00    2301.    1389.
+## 5 r_Other_Paren… 0.175  0.182  0.681 0.669 5.39e-2 0.407  1.00   10796.    7549.
+## 6 r_Other_Paren… 0.333  0.333  0.677 0.682 1.30e-1 0.628  1.00    4778.    5831.
 ```
 
 ``` r
@@ -1216,35 +1226,38 @@ wl2_surv_F2_binary <- wl2_surv_F2 %>%
          maternal.TM2=if_else(str_detect(maternal.pops, "TM2"), 1, 0),
          maternal.SQ3=if_else(str_detect(maternal.pops, "SQ3"), 1, 0),
          maternal.DPR=if_else(str_detect(maternal.pops, "DPR"), 1, 0),
-         maternal.YO11=if_else(str_detect(maternal.pops, "YO11"), 1, 0))
+         maternal.YO11=if_else(str_detect(maternal.pops, "YO11"), 1, 0)) %>%
+  separate_wider_delim(maternal.pops, " x ", names = c("Parent1", "Parent2"), cols_remove = FALSE, too_few = "align_start") %>%
+  separate_wider_delim(paternal.pops, " x ", names = c("Parent3", "Parent4"), cols_remove = FALSE, too_few = "align_start")
 head(wl2_surv_F2_binary, 20)
 ```
 
 ```
-## # A tibble: 20 × 29
-##    WL2.cross Pop.Type maternal.pops paternal.pops parent.pop Field_Loc unique.ID
-##    <lgl>     <chr>    <chr>         <chr>         <chr>      <chr>     <chr>    
-##  1 TRUE      F2       WL2 x BH      WL2 x TM2     (WL2 x BH… C_28_C    251      
-##  2 TRUE      F2       TM2 x WL2     SQ3 x WL2     (TM2 x WL… D_37_D    312      
-##  3 TRUE      F2       WL2 x TM2     CC x TM2      (WL2 x TM… H_30_D    263      
-##  4 TRUE      F2       WL2 x TM2     CC x TM2      (WL2 x TM… D_55_A    254      
-##  5 TRUE      F2       WL1 x TM2     WL2 x TM2     (WL1 x TM… D_52_B    326      
-##  6 TRUE      F2       WL1 x TM2     WL2 x TM2     (WL1 x TM… E_48_C    328      
-##  7 TRUE      F2       TM2 x WL2     YO11 x WL2    (TM2 x WL… F_17_B    377      
-##  8 TRUE      F2       TM2 x WL2     TM2           (TM2 x WL… C_28_B    347      
-##  9 TRUE      F2       WL2 x DPR     TM2 x WL2     (WL2 x DP… C_42_A    1314     
-## 10 TRUE      F2       WL2 x BH      SQ3 x WL2     (WL2 x BH… C_7_C     1172     
-## 11 TRUE      F2       WL1 x WL2     WL2 x CC      (WL1 x WL… C_7_D     1127     
-## 12 TRUE      F2       LV1 x WL2     YO11 x WL2    (LV1 x WL… C_41_D    989      
-## 13 TRUE      F2       YO11 x WL2    WV x WL2      (YO11 x W… C_56_C    842      
-## 14 TRUE      F2       WV x WL2      WV            (WV x WL2… D_16_A    268      
-## 15 TRUE      F2       YO11 x WL2    SQ3 x WL2     (YO11 x W… D_19_D    1005     
-## 16 TRUE      F2       DPR x WL2     YO11 x WL2    (DPR x WL… E_29_B    707      
-## 17 TRUE      F2       WL2 x DPR     WL2           (WL2 x DP… E_7_C     1103     
-## 18 TRUE      F2       DPR x WL2     SQ3 x WL2     (DPR x WL… E_11_C    682      
-## 19 TRUE      F2       WL2           DPR x WL2     (WL2) x (… F_27_D    908      
-## 20 TRUE      F2       YO11 x WL2    WV x WL2      (YO11 x W… G_42_A    841      
-## # ℹ 22 more variables: death.date <chr>, Surv_to_Oct <dbl>,
+## # A tibble: 20 × 33
+##    WL2.cross Pop.Type Parent1 Parent2 maternal.pops Parent3 Parent4
+##    <lgl>     <chr>    <chr>   <chr>   <chr>         <chr>   <chr>  
+##  1 TRUE      F2       WL2     BH      WL2 x BH      WL2     TM2    
+##  2 TRUE      F2       TM2     WL2     TM2 x WL2     SQ3     WL2    
+##  3 TRUE      F2       WL2     TM2     WL2 x TM2     CC      TM2    
+##  4 TRUE      F2       WL2     TM2     WL2 x TM2     CC      TM2    
+##  5 TRUE      F2       WL1     TM2     WL1 x TM2     WL2     TM2    
+##  6 TRUE      F2       WL1     TM2     WL1 x TM2     WL2     TM2    
+##  7 TRUE      F2       TM2     WL2     TM2 x WL2     YO11    WL2    
+##  8 TRUE      F2       TM2     WL2     TM2 x WL2     TM2     <NA>   
+##  9 TRUE      F2       WL2     DPR     WL2 x DPR     TM2     WL2    
+## 10 TRUE      F2       WL2     BH      WL2 x BH      SQ3     WL2    
+## 11 TRUE      F2       WL1     WL2     WL1 x WL2     WL2     CC     
+## 12 TRUE      F2       LV1     WL2     LV1 x WL2     YO11    WL2    
+## 13 TRUE      F2       YO11    WL2     YO11 x WL2    WV      WL2    
+## 14 TRUE      F2       WV      WL2     WV x WL2      WV      <NA>   
+## 15 TRUE      F2       YO11    WL2     YO11 x WL2    SQ3     WL2    
+## 16 TRUE      F2       DPR     WL2     DPR x WL2     YO11    WL2    
+## 17 TRUE      F2       WL2     DPR     WL2 x DPR     WL2     <NA>   
+## 18 TRUE      F2       DPR     WL2     DPR x WL2     SQ3     WL2    
+## 19 TRUE      F2       WL2     <NA>    WL2           DPR     WL2    
+## 20 TRUE      F2       YO11    WL2     YO11 x WL2    WV      WL2    
+## # ℹ 26 more variables: paternal.pops <chr>, parent.pop <chr>, Field_Loc <chr>,
+## #   unique.ID <chr>, death.date <chr>, Surv_to_Oct <dbl>,
 ## #   Surv_Post_Transplant <dbl>, survey.notes <chr>, WL2 <dbl>, CC <dbl>,
 ## #   BH <dbl>, WV <dbl>, LV1 <dbl>, TM2 <dbl>, SQ3 <dbl>, DPR <dbl>, YO11 <dbl>,
 ## #   maternal.WL2 <dbl>, maternal.CC <dbl>, maternal.BH <dbl>,
@@ -1257,13 +1270,20 @@ summary(wl2_surv_F2_binary)
 ```
 
 ```
-##  WL2.cross        Pop.Type         maternal.pops      paternal.pops     
+##  WL2.cross        Pop.Type           Parent1            Parent2         
 ##  Mode:logical   Length:398         Length:398         Length:398        
 ##  TRUE:398       Class :character   Class :character   Class :character  
 ##                 Mode  :character   Mode  :character   Mode  :character  
 ##                                                                         
 ##                                                                         
 ##                                                                         
+##  maternal.pops        Parent3            Parent4          paternal.pops     
+##  Length:398         Length:398         Length:398         Length:398        
+##  Class :character   Class :character   Class :character   Class :character  
+##  Mode  :character   Mode  :character   Mode  :character   Mode  :character  
+##                                                                             
+##                                                                             
+##                                                                             
 ##   parent.pop         Field_Loc          unique.ID          death.date       
 ##  Length:398         Length:398         Length:398         Length:398        
 ##  Class :character   Class :character   Class :character   Class :character  
@@ -1513,6 +1533,127 @@ xtabs(~Surv_to_Oct+YO11, data=wl2_surv_F2_binary)
 ##           1  55   8
 ```
 
+
+``` r
+unique(wl2_surv_F2_binary$parent.pop)
+```
+
+```
+##  [1] "(WL2 x BH) x (WL2 x TM2)"   "(TM2 x WL2) x (SQ3 x WL2)" 
+##  [3] "(WL2 x TM2) x (CC x TM2)"   "(WL1 x TM2) x (WL2 x TM2)" 
+##  [5] "(TM2 x WL2) x (YO11 x WL2)" "(TM2 x WL2) x (TM2)"       
+##  [7] "(WL2 x DPR) x (TM2 x WL2)"  "(WL2 x BH) x (SQ3 x WL2)"  
+##  [9] "(WL1 x WL2) x (WL2 x CC)"   "(LV1 x WL2) x (YO11 x WL2)"
+## [11] "(YO11 x WL2) x (WV x WL2)"  "(WV x WL2) x (WV)"         
+## [13] "(YO11 x WL2) x (SQ3 x WL2)" "(DPR x WL2) x (YO11 x WL2)"
+## [15] "(WL2 x DPR) x (WL2)"        "(DPR x WL2) x (SQ3 x WL2)" 
+## [17] "(WL2) x (DPR x WL2)"        "(DPR) x (DPR x WL2)"       
+## [19] "(SQ3 x WL2) x (YO11 x WL2)" "(YO11 x WL2) x (DPR x WL2)"
+## [21] "(SQ3 x WL2) x (WL2)"        "(YO11 x WL2) x (WL2)"      
+## [23] "(WL2 x CC) x (WL2 x TM2)"   "(LV1 x WL2) x (LV1 x WL2)" 
+## [25] "(WL1 x WL2) x (WL2 x TM2)"  "(WV) x (WV x WL2)"         
+## [27] "(SQ3 x WL2) x (TM2 x WL2)"  "(SQ3 x WL2) x (LV1 x WL2)" 
+## [29] "(TM2 x BH) x (TM2 x WL2)"   "(DPR x WL2) x (TM2 x WL2)" 
+## [31] "(DPR x WL2) x (WV x WL2)"   "(TM2 x WL2) x (WL2)"       
+## [33] "(WL2) x (WV x WL2)"         "(WL2 x DPR) x (DPR)"       
+## [35] "(TM2 x WL2) x (TM2 x BH)"   "(WL1 x WL2) x (BH x WL2)"  
+## [37] "(SQ3 x WL2) x (SQ3 x WL2)"  "(LV1 x WL2) x (WL2)"       
+## [39] "(DPR) x (WL2 x DPR)"        "(CC x TM2) x (WL2 x TM2)"  
+## [41] "(TM2 x WL2) x (TM2 x WL2)"  "(LV1 x WL2) x (WL2 x DPR)" 
+## [43] "(LV1 x WL2) x (SQ3 x WL2)"  "(LV1 x WL2) x (TM2 x WL2)" 
+## [45] "(SQ3 x WL2) x (DPR x WL2)"  "(WL2 x DPR) x (YO11 x WL2)"
+## [47] "(YO11 x WL2) x (WL2 x TM2)" "(WL2) x (TM2 x WL2)"       
+## [49] "(TM2) x (TM2 x WL2)"        "(YO11 x WL2) x (TM2 x WL2)"
+## [51] "(TM2 x WL2) x (WV x WL2)"   "(DPR x WL2) x (DPR x WL2)" 
+## [53] "(WL2 x CC) x (SQ3 x WL2)"   "(TM2 x WL2) x (LV1 x WL2)" 
+## [55] "(WL2 x TM2) x (WL2)"        "(WV x WL2) x (WL2 x DPR)"  
+## [57] "(TM2 x WL2) x (DPR x WL2)"
+```
+
+``` r
+unique(wl2_surv_F2_binary$maternal.pops)
+```
+
+```
+##  [1] "WL2 x BH"   "TM2 x WL2"  "WL2 x TM2"  "WL1 x TM2"  "WL2 x DPR" 
+##  [6] "WL1 x WL2"  "LV1 x WL2"  "YO11 x WL2" "WV x WL2"   "DPR x WL2" 
+## [11] "WL2"        "DPR"        "SQ3 x WL2"  "WL2 x CC"   "WV"        
+## [16] "TM2 x BH"   "CC x TM2"   "TM2"
+```
+
+``` r
+xtabs(~Surv_to_Oct+maternal.pops, data=wl2_surv_F2_binary)
+```
+
+```
+##            maternal.pops
+## Surv_to_Oct CC x TM2 DPR DPR x WL2 LV1 x WL2 SQ3 x WL2 TM2 TM2 x BH TM2 x WL2
+##           0        1  20        17        42        33   2        6        39
+##           1        1   6         7         6         6   1        1        11
+##            maternal.pops
+## Surv_to_Oct WL1 x TM2 WL1 x WL2 WL2 WL2 x BH WL2 x CC WL2 x DPR WL2 x TM2 WV
+##           0         6        28  21       17       15        16        14 14
+##           1         0         3   3        2        2         4         3  2
+##            maternal.pops
+## Surv_to_Oct WV x WL2 YO11 x WL2
+##           0       15         29
+##           1        3          2
+```
+
+``` r
+unique(wl2_surv_F2_binary$paternal.pops)
+```
+
+```
+##  [1] "WL2 x TM2"  "SQ3 x WL2"  "CC x TM2"   "YO11 x WL2" "TM2"       
+##  [6] "TM2 x WL2"  "WL2 x CC"   "WV x WL2"   "WV"         "WL2"       
+## [11] "DPR x WL2"  "LV1 x WL2"  "DPR"        "TM2 x BH"   "BH x WL2"  
+## [16] "WL2 x DPR"
+```
+
+``` r
+xtabs(~Surv_to_Oct+paternal.pops, data=wl2_surv_F2_binary)
+```
+
+```
+##            paternal.pops
+## Surv_to_Oct BH x WL2 CC x TM2 DPR DPR x WL2 LV1 x WL2 SQ3 x WL2 TM2 TM2 x BH
+##           0        5       13   3        24         6        38   8        1
+##           1        2        3   0         7         1         2   0        0
+##            paternal.pops
+## Surv_to_Oct TM2 x WL2 WL2 WL2 x CC WL2 x DPR WL2 x TM2 WV WV x WL2 YO11 x WL2
+##           0        39  51       14        22        40 15       27         29
+##           1         6  17        0         5         6  1        7          6
+```
+
+``` r
+wl2_surv_F2_binary_for_model <- wl2_surv_F2_binary %>% 
+  filter(paternal.pops!="TM2 x BH")
+unique(wl2_surv_F2_binary_for_model$paternal.pops)
+```
+
+```
+##  [1] "WL2 x TM2"  "SQ3 x WL2"  "CC x TM2"   "YO11 x WL2" "TM2"       
+##  [6] "TM2 x WL2"  "WL2 x CC"   "WV x WL2"   "WV"         "WL2"       
+## [11] "DPR x WL2"  "LV1 x WL2"  "DPR"        "BH x WL2"   "WL2 x DPR"
+```
+
+``` r
+xtabs(~Surv_to_Oct+paternal.pops, data=wl2_surv_F2_binary)
+```
+
+```
+##            paternal.pops
+## Surv_to_Oct BH x WL2 CC x TM2 DPR DPR x WL2 LV1 x WL2 SQ3 x WL2 TM2 TM2 x BH
+##           0        5       13   3        24         6        38   8        1
+##           1        2        3   0         7         1         2   0        0
+##            paternal.pops
+## Surv_to_Oct TM2 x WL2 WL2 WL2 x CC WL2 x DPR WL2 x TM2 WV WV x WL2 YO11 x WL2
+##           0        39  51       14        22        40 15       27         29
+##           1         6  17        0         5         6  1        7          6
+```
+
+
 ### Plot the data
 
 ``` r
@@ -1524,25 +1665,26 @@ head(wl2_surv_F2_binary_long, 15)
 ```
 
 ```
-## # A tibble: 15 × 13
-##    WL2.cross Pop.Type maternal.pops paternal.pops parent.pop Field_Loc unique.ID
-##    <lgl>     <chr>    <chr>         <chr>         <chr>      <chr>     <chr>    
-##  1 TRUE      F2       WL2 x BH      WL2 x TM2     (WL2 x BH… C_28_C    251      
-##  2 TRUE      F2       WL2 x BH      WL2 x TM2     (WL2 x BH… C_28_C    251      
-##  3 TRUE      F2       WL2 x BH      WL2 x TM2     (WL2 x BH… C_28_C    251      
-##  4 TRUE      F2       WL2 x BH      WL2 x TM2     (WL2 x BH… C_28_C    251      
-##  5 TRUE      F2       WL2 x BH      WL2 x TM2     (WL2 x BH… C_28_C    251      
-##  6 TRUE      F2       WL2 x BH      WL2 x TM2     (WL2 x BH… C_28_C    251      
-##  7 TRUE      F2       WL2 x BH      WL2 x TM2     (WL2 x BH… C_28_C    251      
-##  8 TRUE      F2       WL2 x BH      WL2 x TM2     (WL2 x BH… C_28_C    251      
-##  9 TRUE      F2       WL2 x BH      WL2 x TM2     (WL2 x BH… C_28_C    251      
-## 10 TRUE      F2       TM2 x WL2     SQ3 x WL2     (TM2 x WL… D_37_D    312      
-## 11 TRUE      F2       TM2 x WL2     SQ3 x WL2     (TM2 x WL… D_37_D    312      
-## 12 TRUE      F2       TM2 x WL2     SQ3 x WL2     (TM2 x WL… D_37_D    312      
-## 13 TRUE      F2       TM2 x WL2     SQ3 x WL2     (TM2 x WL… D_37_D    312      
-## 14 TRUE      F2       TM2 x WL2     SQ3 x WL2     (TM2 x WL… D_37_D    312      
-## 15 TRUE      F2       TM2 x WL2     SQ3 x WL2     (TM2 x WL… D_37_D    312      
-## # ℹ 6 more variables: death.date <chr>, Surv_to_Oct <dbl>,
+## # A tibble: 15 × 17
+##    WL2.cross Pop.Type Parent1 Parent2 maternal.pops Parent3 Parent4
+##    <lgl>     <chr>    <chr>   <chr>   <chr>         <chr>   <chr>  
+##  1 TRUE      F2       WL2     BH      WL2 x BH      WL2     TM2    
+##  2 TRUE      F2       WL2     BH      WL2 x BH      WL2     TM2    
+##  3 TRUE      F2       WL2     BH      WL2 x BH      WL2     TM2    
+##  4 TRUE      F2       WL2     BH      WL2 x BH      WL2     TM2    
+##  5 TRUE      F2       WL2     BH      WL2 x BH      WL2     TM2    
+##  6 TRUE      F2       WL2     BH      WL2 x BH      WL2     TM2    
+##  7 TRUE      F2       WL2     BH      WL2 x BH      WL2     TM2    
+##  8 TRUE      F2       WL2     BH      WL2 x BH      WL2     TM2    
+##  9 TRUE      F2       WL2     BH      WL2 x BH      WL2     TM2    
+## 10 TRUE      F2       TM2     WL2     TM2 x WL2     SQ3     WL2    
+## 11 TRUE      F2       TM2     WL2     TM2 x WL2     SQ3     WL2    
+## 12 TRUE      F2       TM2     WL2     TM2 x WL2     SQ3     WL2    
+## 13 TRUE      F2       TM2     WL2     TM2 x WL2     SQ3     WL2    
+## 14 TRUE      F2       TM2     WL2     TM2 x WL2     SQ3     WL2    
+## 15 TRUE      F2       TM2     WL2     TM2 x WL2     SQ3     WL2    
+## # ℹ 10 more variables: paternal.pops <chr>, parent.pop <chr>, Field_Loc <chr>,
+## #   unique.ID <chr>, death.date <chr>, Surv_to_Oct <dbl>,
 ## #   Surv_Post_Transplant <dbl>, survey.notes <chr>, pop <chr>, Presence <dbl>
 ```
 
@@ -1595,51 +1737,55 @@ wl2_surv_F2_binary_long_means %>%
   #ylim(-0.05, 0.3) +
   labs(title="Survival to October - WL2 F2s") +
   #theme_classic() +
+  theme(text=element_text(size=25)) + 
   facet_wrap(~pop)
 ```
 
-![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-18-1.png)<!-- -->
+![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-19-1.png)<!-- -->
 
 ``` r
+ggsave("../output/WL2_Traits/F2s_SurvtoOct.png", width = 12, height = 6, units = "in")
+
 wl2_surv_F2_binary_long_means %>% 
   filter(WL2.cross=="TRUE") %>% #if want TM2 F1s just # this out 
   ggplot(aes(x=Presence, y=mean_Surv_Post_Transplant, fill=Presence)) +
   geom_col(width = 0.7,position = position_dodge(0.75), colour="black") +
   labs(title="Survival to Two Weeks Post-Transplant  - WL2 F2s") +
   #theme_classic() +
+  theme(text=element_text(size=25)) + 
   facet_wrap(~pop)
 ```
 
-![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-18-2.png)<!-- -->
+![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-19-2.png)<!-- -->
+
+``` r
+ggsave("../output/WL2_Traits/F2s_SurvPostTransplant.png", width = 12, height = 6, units = "in")
+```
 
 ### Bayesian random
 
 ``` r
-surv_parent_binary_bf2 <- brmsformula(Surv_to_Oct ~ (1|BH)+(1|CC)+(1|DPR)+(1|LV1)+(1|SQ3)+(1|TM2)+(1|WV)+(1|YO11))
+surv_parent_binary_bf2 <- brmsformula(Surv_to_Oct ~ (1|Parent1)+(1|Parent2)+(1|Parent3)+(1|Parent4))
 
 get_prior(surv_parent_binary_bf2, family = "bernoulli", data = wl2_surv_F2_binary)
 ```
 
 ```
-##                 prior     class      coef group resp dpar nlpar lb ub
-##  student_t(3, 0, 2.5) Intercept                                      
-##  student_t(3, 0, 2.5)        sd                                  0   
-##  student_t(3, 0, 2.5)        sd              BH                  0   
-##  student_t(3, 0, 2.5)        sd Intercept    BH                  0   
-##  student_t(3, 0, 2.5)        sd              CC                  0   
-##  student_t(3, 0, 2.5)        sd Intercept    CC                  0   
-##  student_t(3, 0, 2.5)        sd             DPR                  0   
-##  student_t(3, 0, 2.5)        sd Intercept   DPR                  0   
-##  student_t(3, 0, 2.5)        sd             LV1                  0   
-##  student_t(3, 0, 2.5)        sd Intercept   LV1                  0   
-##  student_t(3, 0, 2.5)        sd             SQ3                  0   
-##  student_t(3, 0, 2.5)        sd Intercept   SQ3                  0   
-##  student_t(3, 0, 2.5)        sd             TM2                  0   
-##  student_t(3, 0, 2.5)        sd Intercept   TM2                  0   
-##  student_t(3, 0, 2.5)        sd              WV                  0   
-##  student_t(3, 0, 2.5)        sd Intercept    WV                  0   
-##  student_t(3, 0, 2.5)        sd            YO11                  0   
-##  student_t(3, 0, 2.5)        sd Intercept  YO11                  0   
+## Warning: Rows containing NAs were excluded from the model.
+```
+
+```
+##                 prior     class      coef   group resp dpar nlpar lb ub
+##  student_t(3, 0, 2.5) Intercept                                        
+##  student_t(3, 0, 2.5)        sd                                    0   
+##  student_t(3, 0, 2.5)        sd           Parent1                  0   
+##  student_t(3, 0, 2.5)        sd Intercept Parent1                  0   
+##  student_t(3, 0, 2.5)        sd           Parent2                  0   
+##  student_t(3, 0, 2.5)        sd Intercept Parent2                  0   
+##  student_t(3, 0, 2.5)        sd           Parent3                  0   
+##  student_t(3, 0, 2.5)        sd Intercept Parent3                  0   
+##  student_t(3, 0, 2.5)        sd           Parent4                  0   
+##  student_t(3, 0, 2.5)        sd Intercept Parent4                  0   
 ##        source
 ##       default
 ##       default
@@ -1651,14 +1797,10 @@ get_prior(surv_parent_binary_bf2, family = "bernoulli", data = wl2_surv_F2_binar
 ##  (vectorized)
 ##  (vectorized)
 ##  (vectorized)
-##  (vectorized)
-##  (vectorized)
-##  (vectorized)
-##  (vectorized)
-##  (vectorized)
-##  (vectorized)
-##  (vectorized)
-##  (vectorized)
+```
+
+``` r
+#excluded plants with only 3 parents 
 ```
 
 
@@ -1670,6 +1812,10 @@ surv_parent_binary_m2 <- brm(surv_parent_binary_bf2,
                              iter = 4000, #increased iterations b/c complex model
                              control = list(adapt_delta = 0.9),
                              prior=prior1) #increased adapt_delta to help with divergent transitions
+```
+
+```
+## Warning: Rows containing NAs were excluded from the model.
 ```
 
 ```
@@ -1701,14 +1847,9 @@ surv_parent_binary_m2 <- brm(surv_parent_binary_bf2,
 ```
 
 ```
-## Warning: There were 15 divergent transitions after warmup. See
+## Warning: There were 19 divergent transitions after warmup. See
 ## https://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup
 ## to find out why this is a problem and how to eliminate them.
-```
-
-```
-## Warning: There were 1 transitions after warmup that exceeded the maximum treedepth. Increase max_treedepth above 10. See
-## https://mc-stan.org/misc/warnings.html#maximum-treedepth-exceeded
 ```
 
 ```
@@ -1716,7 +1857,7 @@ surv_parent_binary_m2 <- brm(surv_parent_binary_bf2,
 ```
 
 ``` r
-#Warning: There were 28 divergent transitions after warmup.
+#Warning: There were 16 divergent transitions after warmup.
 ```
 
 
@@ -1725,25 +1866,17 @@ prior_summary(surv_parent_binary_m2)
 ```
 
 ```
-##         prior     class      coef group resp dpar nlpar lb ub       source
-##  normal(0, 5) Intercept                                               user
-##  normal(0, 5)        sd                                  0            user
-##  normal(0, 5)        sd              BH                  0    (vectorized)
-##  normal(0, 5)        sd Intercept    BH                  0    (vectorized)
-##  normal(0, 5)        sd              CC                  0    (vectorized)
-##  normal(0, 5)        sd Intercept    CC                  0    (vectorized)
-##  normal(0, 5)        sd             DPR                  0    (vectorized)
-##  normal(0, 5)        sd Intercept   DPR                  0    (vectorized)
-##  normal(0, 5)        sd             LV1                  0    (vectorized)
-##  normal(0, 5)        sd Intercept   LV1                  0    (vectorized)
-##  normal(0, 5)        sd             SQ3                  0    (vectorized)
-##  normal(0, 5)        sd Intercept   SQ3                  0    (vectorized)
-##  normal(0, 5)        sd             TM2                  0    (vectorized)
-##  normal(0, 5)        sd Intercept   TM2                  0    (vectorized)
-##  normal(0, 5)        sd              WV                  0    (vectorized)
-##  normal(0, 5)        sd Intercept    WV                  0    (vectorized)
-##  normal(0, 5)        sd            YO11                  0    (vectorized)
-##  normal(0, 5)        sd Intercept  YO11                  0    (vectorized)
+##         prior     class      coef   group resp dpar nlpar lb ub       source
+##  normal(0, 5) Intercept                                                 user
+##  normal(0, 5)        sd                                    0            user
+##  normal(0, 5)        sd           Parent1                  0    (vectorized)
+##  normal(0, 5)        sd Intercept Parent1                  0    (vectorized)
+##  normal(0, 5)        sd           Parent2                  0    (vectorized)
+##  normal(0, 5)        sd Intercept Parent2                  0    (vectorized)
+##  normal(0, 5)        sd           Parent3                  0    (vectorized)
+##  normal(0, 5)        sd Intercept Parent3                  0    (vectorized)
+##  normal(0, 5)        sd           Parent4                  0    (vectorized)
+##  normal(0, 5)        sd Intercept Parent4                  0    (vectorized)
 ```
 
 ``` r
@@ -1751,7 +1884,7 @@ summary(surv_parent_binary_m2)
 ```
 
 ```
-## Warning: There were 15 divergent transitions after warmup. Increasing
+## Warning: There were 19 divergent transitions after warmup. Increasing
 ## adapt_delta above 0.9 may help. See
 ## http://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup
 ```
@@ -1759,47 +1892,31 @@ summary(surv_parent_binary_m2)
 ```
 ##  Family: bernoulli 
 ##   Links: mu = logit 
-## Formula: Surv_to_Oct ~ (1 | BH) + (1 | CC) + (1 | DPR) + (1 | LV1) + (1 | SQ3) + (1 | TM2) + (1 | WV) + (1 | YO11) 
-##    Data: wl2_surv_F2_binary (Number of observations: 398) 
+## Formula: Surv_to_Oct ~ (1 | Parent1) + (1 | Parent2) + (1 | Parent3) + (1 | Parent4) 
+##    Data: wl2_surv_F2_binary (Number of observations: 234) 
 ##   Draws: 4 chains, each with iter = 4000; warmup = 2000; thin = 1;
 ##          total post-warmup draws = 8000
 ## 
 ## Multilevel Hyperparameters:
-## ~BH (Number of levels: 2) 
+## ~Parent1 (Number of levels: 9) 
 ##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)     1.64      1.86     0.03     6.98 1.00     3114     3572
+## sd(Intercept)     2.69      1.39     0.89     6.27 1.00     2306     3819
 ## 
-## ~CC (Number of levels: 2) 
+## ~Parent2 (Number of levels: 5) 
 ##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)     1.74      1.99     0.04     7.29 1.00     2972     3453
+## sd(Intercept)     0.63      0.65     0.02     2.38 1.00     3684     3145
 ## 
-## ~DPR (Number of levels: 2) 
+## ~Parent3 (Number of levels: 9) 
 ##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)     2.02      1.98     0.11     7.57 1.00     3169     3153
+## sd(Intercept)     0.91      0.58     0.07     2.27 1.00     2145     2496
 ## 
-## ~LV1 (Number of levels: 2) 
+## ~Parent4 (Number of levels: 5) 
 ##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)     1.63      1.90     0.03     7.07 1.00     2736     3294
-## 
-## ~SQ3 (Number of levels: 2) 
-##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)     1.74      1.90     0.04     7.03 1.00     2716     3071
-## 
-## ~TM2 (Number of levels: 2) 
-##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)     1.63      1.88     0.03     6.97 1.00     2721     3643
-## 
-## ~WV (Number of levels: 2) 
-##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)     1.72      1.95     0.03     7.23 1.00     3043     3774
-## 
-## ~YO11 (Number of levels: 2) 
-##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)     1.69      1.97     0.03     7.26 1.00     2575     3096
+## sd(Intercept)     1.53      1.52     0.04     5.66 1.00     2763     2995
 ## 
 ## Regression Coefficients:
 ##           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## Intercept    -0.96      3.35    -7.49     5.88 1.00     4784     4831
+## Intercept    -2.13      1.55    -5.47     0.95 1.00     2953     3214
 ## 
 ## Draws were sampled using sampling(NUTS). For each parameter, Bulk_ESS
 ## and Tail_ESS are effective sample size measures, and Rhat is the potential
@@ -1816,7 +1933,7 @@ summary(surv_parent_binary_m2)
 plot(surv_parent_binary_m2,  nvariables = 3, ask=FALSE) #plots don't look good 
 ```
 
-![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-22-1.png)<!-- -->![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-22-2.png)<!-- -->![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-22-3.png)<!-- -->
+![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-23-1.png)<!-- -->![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-23-2.png)<!-- -->
 
 ``` r
 #pairs(surv_parent_binary_m2)
@@ -1828,7 +1945,7 @@ pp_check(surv_parent_binary_m1)  # posterior predictive checks
 ## Using 10 posterior draws for ppc type 'dens_overlay' by default.
 ```
 
-![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-22-4.png)<!-- -->
+![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-23-3.png)<!-- -->
 
 ``` r
 #some draws differ from posterior distribution 
@@ -1852,25 +1969,20 @@ posterior::summarize_draws(r_pops) %>%
 ```
 
 ```
-## # A tibble: 16 × 10
-##    variable        mean median    sd   mad      q5   q95  rhat ess_bulk ess_tail
-##    <chr>          <dbl>  <dbl> <dbl> <dbl>   <dbl> <dbl> <dbl>    <dbl>    <dbl>
-##  1 r_BH[0,Interc… 0.258  0.240 0.964 0.951 0.00184 0.989  1.00    4844.    5446.
-##  2 r_BH[1,Interc… 0.262  0.247 0.965 0.954 0.00179 0.990  1.00    4874.    5271.
-##  3 r_CC[0,Interc… 0.277  0.257 0.965 0.952 0.00210 0.990  1.00    4733.    4600.
-##  4 r_CC[1,Interc… 0.233  0.217 0.966 0.954 0.00160 0.988  1.00    4763.    4386.
-##  5 r_DPR[0,Inter… 0.201  0.183 0.965 0.954 0.00127 0.986  1.00    5037.    4241.
-##  6 r_DPR[1,Inter… 0.318  0.295 0.966 0.954 0.00224 0.993  1.00    5069.    4200.
-##  7 r_LV1[0,Inter… 0.268  0.248 0.965 0.955 0.00185 0.990  1.00    4538.    4718.
-##  8 r_LV1[1,Inter… 0.246  0.224 0.966 0.958 0.00162 0.989  1.00    4564.    4914.
-##  9 r_SQ3[0,Inter… 0.286  0.266 0.965 0.954 0.00219 0.991  1.00    4504.    4615.
-## 10 r_SQ3[1,Inter… 0.220  0.207 0.965 0.954 0.00144 0.987  1.00    4476.    4718.
-## 11 r_TM2[0,Inter… 0.229  0.214 0.965 0.956 0.00155 0.986  1.00    4691.    4727.
-## 12 r_TM2[1,Inter… 0.275  0.259 0.965 0.956 0.00208 0.990  1.00    4676.    4726.
-## 13 r_WV[0,Interc… 0.238  0.212 0.964 0.955 0.00165 0.988  1.00    4836.    5140.
-## 14 r_WV[1,Interc… 0.290  0.255 0.965 0.956 0.00215 0.991  1.00    4778.    5127.
-## 15 r_YO11[0,Inte… 0.281  0.255 0.963 0.953 0.00221 0.991  1.00    4867.    4247.
-## 16 r_YO11[1,Inte… 0.231  0.212 0.964 0.955 0.00165 0.989  1.00    4939.    4928.
+## # A tibble: 28 × 10
+##    variable      mean  median    sd   mad      q5    q95  rhat ess_bulk ess_tail
+##    <chr>        <dbl>   <dbl> <dbl> <dbl>   <dbl>  <dbl> <dbl>    <dbl>    <dbl>
+##  1 r_Parent1… 0.274   0.270   0.869 0.853 1.70e-2 0.891   1.00    5732.    4457.
+##  2 r_Parent1… 0.203   0.222   0.794 0.763 2.18e-2 0.658   1.00    4689.    3664.
+##  3 r_Parent1… 0.00380 0.00603 0.934 0.894 3.16e-5 0.0862  1.00    4522.    4196.
+##  4 r_Parent1… 0.131   0.142   0.799 0.768 1.23e-2 0.540   1.00    4610.    3454.
+##  5 r_Parent1… 0.223   0.238   0.788 0.753 2.60e-2 0.675   1.00    4295.    3266.
+##  6 r_Parent1… 0.0459  0.0511  0.799 0.771 4.04e-3 0.267   1.00    4716.    3425.
+##  7 r_Parent1… 0.104   0.115   0.777 0.731 1.22e-2 0.419   1.00    4431.    3384.
+##  8 r_Parent1… 0.746   0.675   0.942 0.909 6.34e-2 0.997   1.00    4589.    5125.
+##  9 r_Parent1… 0.00579 0.00879 0.926 0.892 5.82e-5 0.125   1.00    4689.    5127.
+## 10 r_Parent2… 0.0988  0.107   0.829 0.802 7.47e-3 0.567   1.00    3091.    3433.
+## # ℹ 18 more rows
 ```
 
 ``` r
@@ -1887,25 +1999,26 @@ head(wl2_surv_F2_MAT_binary_long, 15)
 ```
 
 ```
-## # A tibble: 15 × 13
-##    WL2.cross Pop.Type maternal.pops paternal.pops parent.pop Field_Loc unique.ID
-##    <lgl>     <chr>    <chr>         <chr>         <chr>      <chr>     <chr>    
-##  1 TRUE      F2       WL2 x BH      WL2 x TM2     (WL2 x BH… C_28_C    251      
-##  2 TRUE      F2       WL2 x BH      WL2 x TM2     (WL2 x BH… C_28_C    251      
-##  3 TRUE      F2       WL2 x BH      WL2 x TM2     (WL2 x BH… C_28_C    251      
-##  4 TRUE      F2       WL2 x BH      WL2 x TM2     (WL2 x BH… C_28_C    251      
-##  5 TRUE      F2       WL2 x BH      WL2 x TM2     (WL2 x BH… C_28_C    251      
-##  6 TRUE      F2       WL2 x BH      WL2 x TM2     (WL2 x BH… C_28_C    251      
-##  7 TRUE      F2       WL2 x BH      WL2 x TM2     (WL2 x BH… C_28_C    251      
-##  8 TRUE      F2       WL2 x BH      WL2 x TM2     (WL2 x BH… C_28_C    251      
-##  9 TRUE      F2       WL2 x BH      WL2 x TM2     (WL2 x BH… C_28_C    251      
-## 10 TRUE      F2       TM2 x WL2     SQ3 x WL2     (TM2 x WL… D_37_D    312      
-## 11 TRUE      F2       TM2 x WL2     SQ3 x WL2     (TM2 x WL… D_37_D    312      
-## 12 TRUE      F2       TM2 x WL2     SQ3 x WL2     (TM2 x WL… D_37_D    312      
-## 13 TRUE      F2       TM2 x WL2     SQ3 x WL2     (TM2 x WL… D_37_D    312      
-## 14 TRUE      F2       TM2 x WL2     SQ3 x WL2     (TM2 x WL… D_37_D    312      
-## 15 TRUE      F2       TM2 x WL2     SQ3 x WL2     (TM2 x WL… D_37_D    312      
-## # ℹ 6 more variables: death.date <chr>, Surv_to_Oct <dbl>,
+## # A tibble: 15 × 17
+##    WL2.cross Pop.Type Parent1 Parent2 maternal.pops Parent3 Parent4
+##    <lgl>     <chr>    <chr>   <chr>   <chr>         <chr>   <chr>  
+##  1 TRUE      F2       WL2     BH      WL2 x BH      WL2     TM2    
+##  2 TRUE      F2       WL2     BH      WL2 x BH      WL2     TM2    
+##  3 TRUE      F2       WL2     BH      WL2 x BH      WL2     TM2    
+##  4 TRUE      F2       WL2     BH      WL2 x BH      WL2     TM2    
+##  5 TRUE      F2       WL2     BH      WL2 x BH      WL2     TM2    
+##  6 TRUE      F2       WL2     BH      WL2 x BH      WL2     TM2    
+##  7 TRUE      F2       WL2     BH      WL2 x BH      WL2     TM2    
+##  8 TRUE      F2       WL2     BH      WL2 x BH      WL2     TM2    
+##  9 TRUE      F2       WL2     BH      WL2 x BH      WL2     TM2    
+## 10 TRUE      F2       TM2     WL2     TM2 x WL2     SQ3     WL2    
+## 11 TRUE      F2       TM2     WL2     TM2 x WL2     SQ3     WL2    
+## 12 TRUE      F2       TM2     WL2     TM2 x WL2     SQ3     WL2    
+## 13 TRUE      F2       TM2     WL2     TM2 x WL2     SQ3     WL2    
+## 14 TRUE      F2       TM2     WL2     TM2 x WL2     SQ3     WL2    
+## 15 TRUE      F2       TM2     WL2     TM2 x WL2     SQ3     WL2    
+## # ℹ 10 more variables: paternal.pops <chr>, parent.pop <chr>, Field_Loc <chr>,
+## #   unique.ID <chr>, death.date <chr>, Surv_to_Oct <dbl>,
 ## #   Surv_Post_Transplant <dbl>, survey.notes <chr>, maternal_pop <chr>,
 ## #   Maternal_Presence <dbl>
 ```
@@ -1964,7 +2077,7 @@ wl2_surv_F2_MAT_binary_long_means %>%
   facet_wrap(~maternal_pop)
 ```
 
-![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-25-1.png)<!-- -->
+![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-26-1.png)<!-- -->
 
 ``` r
 wl2_surv_F2_MAT_binary_long_means %>% 
@@ -1976,7 +2089,7 @@ wl2_surv_F2_MAT_binary_long_means %>%
   facet_wrap(~maternal_pop)
 ```
 
-![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-25-2.png)<!-- -->
+![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-26-2.png)<!-- -->
 
 ### Bayesian random - MATERNAL POPS
 
@@ -2067,9 +2180,14 @@ surv_parent_binary_m3 <- brm(surv_parent_binary_bf3,
 ```
 
 ```
-## Warning: There were 66 divergent transitions after warmup. See
+## Warning: There were 21 divergent transitions after warmup. See
 ## https://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup
 ## to find out why this is a problem and how to eliminate them.
+```
+
+```
+## Warning: There were 49 transitions after warmup that exceeded the maximum treedepth. Increase max_treedepth above 10. See
+## https://mc-stan.org/misc/warnings.html#maximum-treedepth-exceeded
 ```
 
 ```
@@ -2131,7 +2249,7 @@ summary(surv_parent_binary_m3)
 ```
 
 ```
-## Warning: There were 66 divergent transitions after warmup. Increasing
+## Warning: There were 21 divergent transitions after warmup. Increasing
 ## adapt_delta above 0.9 may help. See
 ## http://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup
 ```
@@ -2147,39 +2265,39 @@ summary(surv_parent_binary_m3)
 ## Multilevel Hyperparameters:
 ## ~maternal.BH (Number of levels: 2) 
 ##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)     1.83      1.97     0.04     7.36 1.00     2882     3958
+## sd(Intercept)     1.77      1.99     0.04     7.39 1.00     3439     4260
 ## 
 ## ~maternal.CC (Number of levels: 2) 
 ##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)     1.77      1.93     0.03     7.19 1.00     2943     3381
+## sd(Intercept)     1.77      1.97     0.04     7.32 1.00     2900     3819
 ## 
 ## ~maternal.DPR (Number of levels: 2) 
 ##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)     2.21      2.04     0.14     7.74 1.00     3102     2930
+## sd(Intercept)     2.17      2.02     0.14     7.69 1.00     3253     2890
 ## 
 ## ~maternal.LV1 (Number of levels: 2) 
 ##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)     1.69      1.92     0.04     7.06 1.00     2941     4056
+## sd(Intercept)     1.66      1.90     0.03     6.96 1.00     3333     4353
 ## 
 ## ~maternal.SQ3 (Number of levels: 2) 
 ##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)     1.72      1.93     0.04     7.07 1.00     2921     4246
+## sd(Intercept)     1.72      1.90     0.04     6.96 1.00     3362     4642
 ## 
 ## ~maternal.TM2 (Number of levels: 2) 
 ##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)     1.93      2.00     0.06     7.48 1.00     2462     3074
+## sd(Intercept)     1.96      2.00     0.07     7.48 1.00     3159     3245
 ## 
 ## ~maternal.WV (Number of levels: 2) 
 ##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)     1.73      1.98     0.04     7.14 1.00     3048     3496
+## sd(Intercept)     1.72      1.96     0.03     7.19 1.00     2962     3704
 ## 
 ## ~maternal.YO11 (Number of levels: 2) 
 ##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)     2.11      2.09     0.06     7.90 1.00     3445     3459
+## sd(Intercept)     2.06      2.04     0.06     7.64 1.00     2955     3060
 ## 
 ## Regression Coefficients:
 ##           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## Intercept    -0.84      3.50    -7.83     6.31 1.00     4547     4236
+## Intercept    -0.85      3.49    -7.70     6.15 1.00     4991     5486
 ## 
 ## Draws were sampled using sampling(NUTS). For each parameter, Bulk_ESS
 ## and Tail_ESS are effective sample size measures, and Rhat is the potential
@@ -2196,7 +2314,7 @@ summary(surv_parent_binary_m3)
 plot(surv_parent_binary_m3,  nvariables = 3, ask=FALSE) #plots don't look good 
 ```
 
-![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-29-1.png)<!-- -->![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-29-2.png)<!-- -->![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-29-3.png)<!-- -->
+![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-30-1.png)<!-- -->![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-30-2.png)<!-- -->![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-30-3.png)<!-- -->
 
 ``` r
 #pairs(surv_parent_binary_m3)
@@ -2208,7 +2326,7 @@ pp_check(surv_parent_binary_m1)  # posterior predictive checks
 ## Using 10 posterior draws for ppc type 'dens_overlay' by default.
 ```
 
-![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-29-4.png)<!-- -->
+![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-30-4.png)<!-- -->
 
 To calcualte the stats we need to extract the posterior samples, and add the Intercept to each pop random effect, and then compute the stats.
 
@@ -2231,22 +2349,22 @@ posterior::summarize_draws(r_pops) %>%
 ## # A tibble: 16 × 10
 ##    variable        mean median    sd   mad      q5   q95  rhat ess_bulk ess_tail
 ##    <chr>          <dbl>  <dbl> <dbl> <dbl>   <dbl> <dbl> <dbl>    <dbl>    <dbl>
-##  1 r_maternal.BH… 0.308  0.297 0.971 0.964 1.58e-3 0.994  1.00    4482.    4574.
-##  2 r_maternal.BH… 0.259  0.254 0.972 0.966 1.15e-3 0.993  1.00    4529.    4696.
-##  3 r_maternal.CC… 0.277  0.260 0.970 0.962 1.35e-3 0.993  1.00    4506.    3786.
-##  4 r_maternal.CC… 0.297  0.287 0.971 0.966 1.46e-3 0.994  1.00    4501.    3508.
-##  5 r_maternal.DP… 0.204  0.199 0.968 0.958 1.06e-3 0.987  1.00    4364.    4246.
-##  6 r_maternal.DP… 0.359  0.348 0.969 0.960 2.15e-3 0.995  1.00    4422.    4119.
-##  7 r_maternal.LV… 0.286  0.273 0.970 0.961 1.33e-3 0.993  1.00    4259.    4116.
-##  8 r_maternal.LV… 0.282  0.267 0.971 0.964 1.28e-3 0.993  1.00    4211.    4219.
-##  9 r_maternal.SQ… 0.265  0.246 0.969 0.961 1.27e-3 0.992  1.00    4486.    4266.
-## 10 r_maternal.SQ… 0.301  0.288 0.970 0.963 1.59e-3 0.994  1.00    4422.    4309.
-## 11 r_maternal.TM… 0.228  0.218 0.968 0.961 1.11e-3 0.989  1.00    4679.    4290.
-## 12 r_maternal.TM… 0.336  0.327 0.968 0.962 2.03e-3 0.994  1.00    4765.    4339.
-## 13 r_maternal.WV… 0.274  0.257 0.969 0.961 1.39e-3 0.992  1.00    4469.    4072.
-## 14 r_maternal.WV… 0.300  0.294 0.970 0.964 1.55e-3 0.994  1.00    4448.    4050.
-## 15 r_maternal.YO… 0.354  0.332 0.970 0.961 2.27e-3 0.995  1.00    4835.    4057.
-## 16 r_maternal.YO… 0.219  0.205 0.972 0.964 9.81e-4 0.992  1.00    4853.    4077.
+##  1 r_maternal.BH… 0.297  0.277 0.969 0.961 1.72e-3 0.993  1.00    4961.    5347.
+##  2 r_maternal.BH… 0.249  0.233 0.970 0.963 1.25e-3 0.991  1.00    4990.    5222.
+##  3 r_maternal.CC… 0.276  0.267 0.967 0.961 1.62e-3 0.991  1.00    5117.    5043.
+##  4 r_maternal.CC… 0.296  0.282 0.969 0.964 1.57e-3 0.992  1.00    5165.    5232.
+##  5 r_maternal.DP… 0.201  0.190 0.969 0.958 8.36e-4 0.987  1.00    5018.    5080.
+##  6 r_maternal.DP… 0.355  0.338 0.971 0.962 1.82e-3 0.995  1.00    5004.    4914.
+##  7 r_maternal.LV… 0.287  0.273 0.970 0.960 1.49e-3 0.992  1.00    4949.    5261.
+##  8 r_maternal.LV… 0.287  0.267 0.971 0.963 1.37e-3 0.993  1.00    4949.    5424.
+##  9 r_maternal.SQ… 0.273  0.254 0.971 0.962 1.24e-3 0.992  1.00    4991.    5247.
+## 10 r_maternal.SQ… 0.310  0.293 0.972 0.965 1.44e-3 0.994  1.00    4988.    5374.
+## 11 r_maternal.TM… 0.223  0.219 0.969 0.958 1.01e-3 0.987  1.00    5156.    5571.
+## 12 r_maternal.TM… 0.332  0.323 0.970 0.961 1.58e-3 0.993  1.00    5104.    5677.
+## 13 r_maternal.WV… 0.277  0.262 0.970 0.958 1.38e-3 0.991  1.00    5034.    5292.
+## 14 r_maternal.WV… 0.304  0.283 0.970 0.959 1.58e-3 0.993  1.00    4995.    5212.
+## 15 r_maternal.YO… 0.347  0.332 0.971 0.962 1.78e-3 0.995  1.00    4979.    5146.
+## 16 r_maternal.YO… 0.217  0.208 0.973 0.963 8.78e-4 0.991  1.00    5003.    5189.
 ```
 
 ``` r

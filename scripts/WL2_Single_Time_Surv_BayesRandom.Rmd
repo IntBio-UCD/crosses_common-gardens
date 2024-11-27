@@ -122,7 +122,7 @@ wl2_surv_F1_binary <- wl2_surv_F1 %>%
          TM2=if_else(str_detect(parent.pop, "TM2"), 1, 0),
          SQ3=if_else(str_detect(parent.pop, "SQ3"), 1, 0),
          DPR=if_else(str_detect(parent.pop, "DPR"), 1, 0),
-         YO11=if_else(str_detect(parent.pop, "YO11"), 1, 0))
+         YO11=if_else(str_detect(parent.pop, "YO11"), 1, 0)) 
 head(wl2_surv_F1_binary, 20)
 summary(wl2_surv_F1_binary)
 #switch to long format?
@@ -159,7 +159,9 @@ wl2_surv_F1_binary_long_means %>%
   #ylim(-0.05, 0.3) +
   labs(title="Survival to October - WL2 F1s") +
   #theme_classic() +
+  theme(text=element_text(size=25)) + 
   facet_wrap(~pop)
+ggsave("../output/WL2_Traits/F1s_SurvtoOct.png", width = 12, height = 6, units = "in")
 
 wl2_surv_F1_binary_long_means %>% 
   filter(WL2.cross=="TRUE") %>% #if want TM2 F1s just # this out 
@@ -167,7 +169,9 @@ wl2_surv_F1_binary_long_means %>%
   geom_col(width = 0.7,position = position_dodge(0.75), colour="black") +
   labs(title="Survival to Two Weeks Post-Transplant  - WL2 F1s") +
   #theme_classic() +
+  theme(text=element_text(size=25)) + 
   facet_wrap(~pop)
+ggsave("../output/WL2_Traits/F1s_SurvPostTransplant.png", width = 12, height = 6, units = "in")
 ```
 
 
@@ -175,7 +179,9 @@ wl2_surv_F1_binary_long_means %>%
 Filter to WL2 F1s Only 
 Logit scale reminder: logit(x) = ln(x / (1-x));
 ```{r}
-wl2_surv_wl2F1s <- wl2_surv_F1_binary %>% filter(WL2.cross=="TRUE")  
+wl2_surv_wl2F1s <- wl2_surv_F1_binary %>% filter(WL2.cross=="TRUE") %>% 
+  mutate(Other_Parent=if_else(maternal.pop!="WL2", maternal.pop, paternal.pop))
+head(wl2_surv_wl2F1s)
 summary(wl2_surv_wl2F1s)
 
 xtabs(~Surv_to_Oct+CC, data=wl2_surv_wl2F1s) #no CC x WL2 or vice versa 
@@ -186,11 +192,12 @@ xtabs(~Surv_to_Oct+TM2, data=wl2_surv_wl2F1s)
 xtabs(~Surv_to_Oct+SQ3, data=wl2_surv_wl2F1s)
 xtabs(~Surv_to_Oct+DPR, data=wl2_surv_wl2F1s)
 xtabs(~Surv_to_Oct+YO11, data=wl2_surv_wl2F1s) #no YO11 x WL2 or vice versa 
+xtabs(~Surv_to_Oct+Other_Parent, data=wl2_surv_wl2F1s)
 ```
 
 
 ```{r}
-surv_parent_binary_bf1 <- brmsformula(Surv_to_Oct ~ (1|maternal.pop))
+surv_parent_binary_bf1 <- brmsformula(Surv_to_Oct ~ (1|Other_Parent))
 
 get_prior(surv_parent_binary_bf1, family = "bernoulli", data = wl2_surv_wl2F1s)
 prior1 <- c(set_prior(prior = 'normal(0, 5)', class='Intercept'),
@@ -202,7 +209,7 @@ surv_parent_binary_m1 <- brm(surv_parent_binary_bf1,
                              family = "bernoulli",
                              data = wl2_surv_wl2F1s,
                              cores=4,
-                             iter = 4000, #increased iterations b/c complex model
+                             iter = 5000, #increased iterations b/c complex model
                              control = list(adapt_delta = 0.9),
                              prior=prior1) #increased adapt_delta to help with divergent transitions
 #Warning: There were 5 divergent transitions after warmup. 
@@ -279,7 +286,9 @@ wl2_surv_F2_binary <- wl2_surv_F2 %>%
          maternal.TM2=if_else(str_detect(maternal.pops, "TM2"), 1, 0),
          maternal.SQ3=if_else(str_detect(maternal.pops, "SQ3"), 1, 0),
          maternal.DPR=if_else(str_detect(maternal.pops, "DPR"), 1, 0),
-         maternal.YO11=if_else(str_detect(maternal.pops, "YO11"), 1, 0))
+         maternal.YO11=if_else(str_detect(maternal.pops, "YO11"), 1, 0)) %>%
+  separate_wider_delim(maternal.pops, " x ", names = c("Parent1", "Parent2"), cols_remove = FALSE, too_few = "align_start") %>%
+  separate_wider_delim(paternal.pops, " x ", names = c("Parent3", "Parent4"), cols_remove = FALSE, too_few = "align_start")
 head(wl2_surv_F2_binary, 20)
 summary(wl2_surv_F2_binary)
 
@@ -304,6 +313,19 @@ xtabs(~Surv_to_Oct+DPR, data=wl2_surv_F2_binary)
 xtabs(~Surv_to_Oct+YO11, data=wl2_surv_F2_binary)
 ```
 
+```{r}
+unique(wl2_surv_F2_binary$parent.pop)
+unique(wl2_surv_F2_binary$maternal.pops)
+xtabs(~Surv_to_Oct+maternal.pops, data=wl2_surv_F2_binary)
+unique(wl2_surv_F2_binary$paternal.pops)
+xtabs(~Surv_to_Oct+paternal.pops, data=wl2_surv_F2_binary)
+wl2_surv_F2_binary_for_model <- wl2_surv_F2_binary %>% 
+  filter(paternal.pops!="TM2 x BH")
+unique(wl2_surv_F2_binary_for_model$paternal.pops)
+xtabs(~Surv_to_Oct+paternal.pops, data=wl2_surv_F2_binary)
+```
+
+
 ### Plot the data
 ```{r}
 wl2_surv_F2_binary_long <- wl2_surv_F2_binary %>% 
@@ -326,7 +348,9 @@ wl2_surv_F2_binary_long_means %>%
   #ylim(-0.05, 0.3) +
   labs(title="Survival to October - WL2 F2s") +
   #theme_classic() +
+  theme(text=element_text(size=25)) + 
   facet_wrap(~pop)
+ggsave("../output/WL2_Traits/F2s_SurvtoOct.png", width = 12, height = 6, units = "in")
 
 wl2_surv_F2_binary_long_means %>% 
   filter(WL2.cross=="TRUE") %>% #if want TM2 F1s just # this out 
@@ -334,14 +358,17 @@ wl2_surv_F2_binary_long_means %>%
   geom_col(width = 0.7,position = position_dodge(0.75), colour="black") +
   labs(title="Survival to Two Weeks Post-Transplant  - WL2 F2s") +
   #theme_classic() +
+  theme(text=element_text(size=25)) + 
   facet_wrap(~pop)
+ggsave("../output/WL2_Traits/F2s_SurvPostTransplant.png", width = 12, height = 6, units = "in")
 ```
 
 ### Bayesian random
 ```{r}
-surv_parent_binary_bf2 <- brmsformula(Surv_to_Oct ~ (1|BH)+(1|CC)+(1|DPR)+(1|LV1)+(1|SQ3)+(1|TM2)+(1|WV)+(1|YO11))
+surv_parent_binary_bf2 <- brmsformula(Surv_to_Oct ~ (1|Parent1)+(1|Parent2)+(1|Parent3)+(1|Parent4))
 
 get_prior(surv_parent_binary_bf2, family = "bernoulli", data = wl2_surv_F2_binary)
+#excluded plants with only 3 parents 
 ```
 
 ```{r}
@@ -352,7 +379,7 @@ surv_parent_binary_m2 <- brm(surv_parent_binary_bf2,
                              iter = 4000, #increased iterations b/c complex model
                              control = list(adapt_delta = 0.9),
                              prior=prior1) #increased adapt_delta to help with divergent transitions
-#Warning: There were 28 divergent transitions after warmup.
+#Warning: There were 16 divergent transitions after warmup.
 ```
 
 ```{r}
