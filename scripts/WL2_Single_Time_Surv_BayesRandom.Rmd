@@ -268,6 +268,7 @@ surv_parent_binary_m4 <- brm(surv_parent_binary_bf4,
                              cores=4,
                              iter = 5000, #increased iterations b/c complex model
                              control = list(adapt_delta = 0.9),
+                             sample_prior = "yes", # needed for hypothesis testing
                              prior=prior1) #increased adapt_delta to help with divergent transitions
 #Warning: There were 5 divergent transitions after warmup. 
 ```
@@ -297,10 +298,44 @@ To calcualte the stats we need to extract the posterior samples, and add the Int
 ```{r}
 intercept <- as_draws_df(surv_parent_binary_m4, variable = "b_Intercept") %>% as_tibble() %>% select(starts_with("b"))
 
-r_pops <- as_draws_df(surv_parent_binary_m4, variable = "*r_", regex = TRUE) %>% as_tibble() %>% select(starts_with("r"))
+r_pops_raw <- as_draws_df(surv_parent_binary_m4, variable = "*r_", regex = TRUE) %>% as_tibble() %>% select(starts_with("r"))
 
-r_pops <- r_pops %>% mutate(across(everything(), ~ .x + intercept$b_Intercept))
+r_pops <- r_pops_raw %>% mutate(across(everything(), ~ .x + intercept$b_Intercept))
 ```
+
+test whether BH increases survival probability
+
+```{r}
+hypothesis(surv_parent_binary_m4,
+           class = NULL,
+           hypothesis = "r_Other_Parent[BH,Intercept] > 0",
+           scope = "standard")
+```
+This shows that the posterior probability that BH increases survivability is 0.64
+
+
+Alternative approach.  Same result, less detail
+```{r}
+sum(r_pops_raw$`r_Other_Parent[BH,Intercept]` > 0) / nrow(r_pops_raw) # posterior probability of BH intercept being greater than 0
+```
+
+test whether WV increases survival probability *more* than BH
+```{r}
+hypothesis(surv_parent_binary_m4,
+           class = NULL,
+           hypothesis = "r_Other_Parent[WV,Intercept] > r_Other_Parent[BH,Intercept]",
+           scope = "standard")
+```
+This shows that the posterior probability that WV is better than BH is 0.78
+
+
+Alternative approach.  Same results, less detail
+
+```{r}
+sum(r_pops_raw$`r_Other_Parent[WV,Intercept]` > r_pops_raw$`r_Other_Parent[BH,Intercept]`) / nrow(r_pops_raw) # posterior probability of BH intercept being greater than 0
+
+```
+
 
 
 ```{r}
