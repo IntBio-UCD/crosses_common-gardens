@@ -202,7 +202,7 @@ summary(lmesurv4)$coefficients[,2] %>% # get the error from the summary table
 
 EMM <- emmeans(lmesurv4, "parent.pop")
 EMM  
-contrast(EMM, "pairwise") #BH is different from TM2 and WL2
+contrast(EMM, "pairwise") #LV1 different from TM2 and TM2 different from WL2
 ```
 
 
