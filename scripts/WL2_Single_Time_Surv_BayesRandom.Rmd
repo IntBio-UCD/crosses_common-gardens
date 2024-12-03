@@ -27,6 +27,8 @@ library(tidyverse)
 #library(naniar) #replaces values with NA
 #tidymodels_prefer()
 library(brms)
+library(tidybayes) #for extracting and visiaulizing brms model output 
+library(modelr) #for data grid
 
 elev_three_palette <- c("#0043F0", "#C9727F", "#F5A540") #colors from Gremer et al 2019
 elev_order <- c("High", "Mid", "Low") #for proper arrangement in figures 
@@ -80,9 +82,7 @@ oct_mort_loc %>% filter(!is.na(missing.date)) #11 2024 plants with a missing dat
 oct_mort_loc %>% filter(Pop.Type=="2023-survivor") # double checked none of these plants were actually alive (no data)
 ```
 
-## Survival 
-
-### Add Surv columns 
+## Add Surv columns 
 ```{r}
 wl2_surv <- oct_mort_loc %>% 
   filter(Pop.Type != "2023-TM2-fruit") %>% #take out 2023 fruiting locations 
@@ -210,6 +210,7 @@ surv_parent_binary_m1 <- brm(surv_parent_binary_bf1,
                              data = wl2_surv_wl2F1s,
                              cores=4,
                              iter = 5000, #increased iterations b/c complex model
+                             sample_prior = "yes", # needed for hypothesis testing
                              control = list(adapt_delta = 0.9),
                              prior=prior1) #increased adapt_delta to help with divergent transitions
 #Warning: There were 5 divergent transitions after warmup. 
@@ -240,16 +241,82 @@ To calcualte the stats we need to extract the posterior samples, and add the Int
 ```{r}
 intercept <- as_draws_df(surv_parent_binary_m1, variable = "b_Intercept") %>% as_tibble() %>% select(starts_with("b"))
 
-r_pops <- as_draws_df(surv_parent_binary_m1, variable = "*r_", regex = TRUE) %>% as_tibble() %>% select(starts_with("r"))
+r_pops_raw <- as_draws_df(surv_parent_binary_m1, variable = "*r_", regex = TRUE) %>% as_tibble() %>% select(starts_with("r"))
 
-r_pops <- r_pops %>% mutate(across(everything(), ~ .x + intercept$b_Intercept))
+r_pops <- r_pops_raw %>% mutate(across(everything(), ~ .x + intercept$b_Intercept))
+
 ```
 
+##### Hypothesis Testing 
+test whether BH increases survival probability
 
+```{r}
+hypothesis(surv_parent_binary_m4,
+           class = NULL,
+           hypothesis = "r_Other_Parent[BH,Intercept] > 0",
+           scope = "standard")
+
+hypothesis(surv_parent_binary_m4,
+           class = NULL,
+           hypothesis = "r_Other_Parent[DPR,Intercept] > 0",
+           scope = "standard")
+```
+This shows that the posterior probability that BH increases survivability is 0.63 and the same prob for DPR is 0.52
+
+Alternative approach.  Same result, less detail
+```{r}
+sum(r_pops_raw$`r_Other_Parent[BH,Intercept]` > 0) / nrow(r_pops_raw) # posterior probability of BH intercept being greater than 0
+```
+
+test whether WV increases survival probability *more* than BH
+```{r}
+hypothesis(surv_parent_binary_m4,
+           class = NULL,
+           hypothesis = "r_Other_Parent[WV,Intercept] > r_Other_Parent[BH,Intercept]",
+           scope = "standard")
+```
+This shows that the posterior probability that WV is better than BH is 0.79
+
+
+Alternative approach.  Same results, less detail
+
+```{r}
+sum(r_pops_raw$`r_Other_Parent[WV,Intercept]` > r_pops_raw$`r_Other_Parent[BH,Intercept]`) / nrow(r_pops_raw) # posterior probability of BH intercept being greater than 0
+
+```
+
+##### Hand calculated model output 
 ```{r}
 posterior::summarize_draws(r_pops) %>%
   mutate(across(mean:q95, inv_logit_scaled))
 #estimates seem to be a little off...
+```
+
+##### Tidybayes tables 
+```{r}
+tibble(Other_Parent = "BH") %>%
+  add_epred_draws(surv_parent_binary_m4) %>%
+  median_qi(.epred) #median matches above chunk 
+
+tibble(Other_Parent = "BH") %>%
+  add_epred_draws(surv_parent_binary_m4) %>%
+  mean_qi(.epred) #mean does not match above chunk 
+
+tibble(Other_Parent = "BH") %>%
+  add_epred_draws(surv_parent_binary_m4) %>%
+  mean_qi(.epred) #mean does not match above chunk 
+```
+
+##### Tidy Plot 
+```{r}
+wl2_surv_wl2F1s %>% 
+  data_grid(Other_Parent) %>%
+  add_epred_draws(surv_parent_binary_m4) %>%
+  ggplot(aes(y = Other_Parent, x = .epred)) +
+  stat_slab() +
+  theme_classic() +
+  labs(x="Posterior Survival Predictions", y="Non-WL2 Parent", title="F1 Survival Post-Transplant") +
+  theme(text=element_text(size=25)) 
 ```
 
 #### Surv Post Transplant
@@ -303,6 +370,8 @@ r_pops_raw <- as_draws_df(surv_parent_binary_m4, variable = "*r_", regex = TRUE)
 r_pops <- r_pops_raw %>% mutate(across(everything(), ~ .x + intercept$b_Intercept))
 ```
 
+
+##### Hypothesis Testing 
 test whether BH increases survival probability
 
 ```{r}
@@ -310,9 +379,13 @@ hypothesis(surv_parent_binary_m4,
            class = NULL,
            hypothesis = "r_Other_Parent[BH,Intercept] > 0",
            scope = "standard")
-```
-This shows that the posterior probability that BH increases survivability is 0.64
 
+hypothesis(surv_parent_binary_m4,
+           class = NULL,
+           hypothesis = "r_Other_Parent[DPR,Intercept] > 0",
+           scope = "standard")
+```
+This shows that the posterior probability that BH increases survivability is 0.63 and the same prob for DPR is 0.52
 
 Alternative approach.  Same result, less detail
 ```{r}
@@ -326,7 +399,7 @@ hypothesis(surv_parent_binary_m4,
            hypothesis = "r_Other_Parent[WV,Intercept] > r_Other_Parent[BH,Intercept]",
            scope = "standard")
 ```
-This shows that the posterior probability that WV is better than BH is 0.78
+This shows that the posterior probability that WV is better than BH is 0.79
 
 
 Alternative approach.  Same results, less detail
@@ -336,12 +409,38 @@ sum(r_pops_raw$`r_Other_Parent[WV,Intercept]` > r_pops_raw$`r_Other_Parent[BH,In
 
 ```
 
-
-
+##### Hand calculated model output 
 ```{r}
 posterior::summarize_draws(r_pops) %>%
   mutate(across(mean:q95, inv_logit_scaled))
 #estimates seem to be a little off...
+```
+
+##### Tidybayes tables 
+```{r}
+tibble(Other_Parent = "BH") %>%
+  add_epred_draws(surv_parent_binary_m4) %>%
+  median_qi(.epred) #median matches above chunk 
+
+tibble(Other_Parent = "BH") %>%
+  add_epred_draws(surv_parent_binary_m4) %>%
+  mean_qi(.epred) #mean does not match above chunk 
+
+tibble(Other_Parent = "BH") %>%
+  add_epred_draws(surv_parent_binary_m4) %>%
+  mean_qi(.epred) #mean does not match above chunk 
+```
+
+##### Tidy Plot 
+```{r}
+wl2_surv_wl2F1s %>% 
+  data_grid(Other_Parent) %>%
+  add_epred_draws(surv_parent_binary_m4) %>%
+  ggplot(aes(y = Other_Parent, x = .epred)) +
+  stat_slab() +
+  theme_classic() +
+  labs(x="Posterior Survival Predictions", y="Non-WL2 Parent", title="F1 Survival Post-Transplant") +
+  theme(text=element_text(size=25)) 
 ```
 
 ## F2s
@@ -473,7 +572,7 @@ wl2_surv_F2_binary_for_model_meansmat %>%
   geom_text(data = wl2_surv_F2_binary_for_model_meansmat, aes(label = N_Surv), vjust = -1) +
   #theme_classic() +
   theme(text=element_text(size=25), axis.text.x = element_text(angle = 45,  hjust = 1))
-ggsave("../output/WL2_Traits/F2s_SurvtoOct_PatPops.png", width = 12, height = 6, units = "in")
+ggsave("../output/WL2_Traits/F2s_SurvtoOct_MatPops.png", width = 12, height = 6, units = "in")
 
 wl2_surv_F2_binary_for_model_meansmat %>% 
   ggplot(aes(x=fct_reorder(maternal.pops, mean_Surv_Post_Transplant), y=mean_Surv_Post_Transplant)) +
@@ -535,6 +634,7 @@ surv_parent_binary_m2 <- brm(surv_parent_binary_bf2,
                              cores=4,
                              iter = 4000, #increased iterations b/c complex model
                              control = list(adapt_delta = 0.9),
+                             sample_prior = "yes", # needed for hypothesis testing
                              prior=prior1) #increased adapt_delta to help with divergent transitions
 ```
 
@@ -559,9 +659,9 @@ To calcualte the stats we need to extract the posterior samples, and add the Int
 ```{r}
 intercept <- as_draws_df(surv_parent_binary_m2, variable = "b_Intercept") %>% as_tibble() %>% select(starts_with("b"))
 
-r_pops <- as_draws_df(surv_parent_binary_m2, variable = "*r_", regex = TRUE) %>% as_tibble() %>% select(starts_with("r"))
+r_pops_raw <- as_draws_df(surv_parent_binary_m2, variable = "*r_", regex = TRUE) %>% as_tibble() %>% select(starts_with("r"))
 
-r_pops <- r_pops %>% mutate(across(everything(), ~ .x + intercept$b_Intercept))
+r_pops <- r_pops_raw %>% mutate(across(everything(), ~ .x + intercept$b_Intercept))
 ```
 
 ```{r}
@@ -585,6 +685,7 @@ surv_parent_binary_m5 <- brm(surv_parent_binary_bf5,
                              cores=4,
                              iter = 5000, #increased iterations b/c complex model
                              control = list(adapt_delta = 0.9),
+                             sample_prior = "yes", # needed for hypothesis testing
                              prior=prior1) #increased adapt_delta to help with divergent transitions
 ```
 
@@ -609,9 +710,9 @@ To calcualte the stats we need to extract the posterior samples, and add the Int
 ```{r}
 intercept <- as_draws_df(surv_parent_binary_m5, variable = "b_Intercept") %>% as_tibble() %>% select(starts_with("b"))
 
-r_pops <- as_draws_df(surv_parent_binary_m5, variable = "*r_", regex = TRUE) %>% as_tibble() %>% select(starts_with("r"))
+r_pops_raw <- as_draws_df(surv_parent_binary_m5, variable = "*r_", regex = TRUE) %>% as_tibble() %>% select(starts_with("r"))
 
-r_pops <- r_pops %>% mutate(across(everything(), ~ .x + intercept$b_Intercept))
+r_pops <- r_pops_raw %>% mutate(across(everything(), ~ .x + intercept$b_Intercept))
 ```
 
 ```{r}
@@ -650,54 +751,4 @@ wl2_surv_F2_MAT_binary_long_means %>%
   labs(title="Survival to Two Weeks Post-Transplant  - WL2 F2s - Maternal Pops") +
   #theme_classic() +
   facet_wrap(~maternal_pop)
-```
-
-### Bayesian random - MATERNAL POPS
-```{r, eval=FALSE}
-surv_parent_binary_bf3 <- brmsformula(Surv_to_Oct ~ (1|maternal.BH)+(1|maternal.CC)+(1|maternal.DPR)+(1|maternal.LV1)+(1|maternal.SQ3)+(1|maternal.TM2)+(1|maternal.WV)+(1|maternal.YO11))
-
-get_prior(surv_parent_binary_bf3, family = "bernoulli", data = wl2_surv_F2_binary)
-```
-
-```{r, eval=FALSE}
-surv_parent_binary_m3 <- brm(surv_parent_binary_bf3, 
-                             family = "bernoulli",
-                             data = wl2_surv_F2_binary,
-                             cores=4,
-                             iter = 4000, #increased iterations b/c complex model
-                             control = list(adapt_delta = 0.9),
-                             prior = prior1) #increased adapt_delta to help with divergent transitions
-#Warning: There were 37 divergent transitions after warmup. 
-```
-
-```{r, eval=FALSE}
-prior_summary(surv_parent_binary_m3)
-
-summary(surv_parent_binary_m3)
-#Rhat <1.05 (good!)
-#ESS > 1000 (good!)
-```
-
-```{r, eval=FALSE}
-plot(surv_parent_binary_m3,  nvariables = 3, ask=FALSE) #plots don't look good 
-
-#pairs(surv_parent_binary_m3)
-
-pp_check(surv_parent_binary_m1)  # posterior predictive checks
-```
-
-To calcualte the stats we need to extract the posterior samples, and add the Intercept to each pop random effect, and then compute the stats.
-
-```{r, eval=FALSE}
-intercept <- as_draws_df(surv_parent_binary_m3, variable = "b_Intercept") %>% as_tibble() %>% select(starts_with("b"))
-
-r_pops <- as_draws_df(surv_parent_binary_m3, variable = "*r_", regex = TRUE) %>% as_tibble() %>% select(starts_with("r"))
-
-r_pops <- r_pops %>% mutate(across(everything(), ~ .x + intercept$b_Intercept))
-```
-
-```{r, eval=FALSE}
-posterior::summarize_draws(r_pops) %>%
-  mutate(across(mean:q95, inv_logit_scaled))
-#estimates seem to be a little off...
 ```
