@@ -247,7 +247,6 @@ r_pops <- r_pops_raw %>% mutate(across(everything(), ~ .x + intercept$b_Intercep
 ```
 
 ##### Hypothesis Testing 
-test whether BH increases survival probability
 
 ```{r}
 hypothesis(surv_parent_binary_m1,
@@ -343,7 +342,7 @@ surv_parent_binary_m4 <- brm(surv_parent_binary_bf4,
                              control = list(adapt_delta = 0.9),
                              sample_prior = "yes", # needed for hypothesis testing
                              prior=prior1) #increased adapt_delta to help with divergent transitions
-#Warning: There were 5 divergent transitions after warmup. 
+#Warning: There were 2 divergent transitions after warmup. 
 ```
 
 
@@ -366,7 +365,7 @@ pp_check(surv_parent_binary_m4)  # posterior predictive checks
 #some diffs between draws 
 ```
 
-To calcualte the stats we need to extract the posterior samples, and add the Intercept to each pop random effect, and then compute the stats.
+To calculate the stats we need to extract the posterior samples, and add the Intercept to each pop random effect, and then compute the stats.
 
 ```{r}
 intercept <- as_draws_df(surv_parent_binary_m4, variable = "b_Intercept") %>% as_tibble() %>% select(starts_with("b"))
@@ -378,7 +377,6 @@ r_pops <- r_pops_raw %>% mutate(across(everything(), ~ .x + intercept$b_Intercep
 
 
 ##### Hypothesis Testing 
-test whether BH increases survival probability
 
 ```{r}
 hypothesis(surv_parent_binary_m4,
@@ -390,8 +388,21 @@ hypothesis(surv_parent_binary_m4,
            class = NULL,
            hypothesis = "r_Other_Parent[DPR,Intercept] > 0",
            scope = "standard")
+
+hypothesis(surv_parent_binary_m4,
+           class = NULL,
+           hypothesis = "r_Other_Parent[SQ3,Intercept] > 0",
+           scope = "standard")
+
+hypothesis(surv_parent_binary_m4,
+           class = NULL,
+           hypothesis = "r_Other_Parent[WV,Intercept] > 0",
+           scope = "standard")
 ```
-This shows that the posterior probability that BH increases survivability is 0.63 and the same prob for DPR is 0.52
+This shows that the posterior probability that BH increases survivability is 0.63
+Same prob for DPR is 0.51
+Same prob for SQ3 is 0.52
+Same prob for WV is 0.91
 
 Alternative approach.  Same result, less detail
 ```{r}
@@ -432,7 +443,7 @@ tibble(Other_Parent = "BH") %>%
   add_epred_draws(surv_parent_binary_m4) %>%
   mean_qi(.epred) #mean does not match above chunk 
 
-tibble(Other_Parent = "BH") %>%
+tibble(Other_Parent = "WV") %>%
   add_epred_draws(surv_parent_binary_m4) %>%
   mean_qi(.epred) #mean does not match above chunk 
 ```
@@ -447,6 +458,7 @@ wl2_surv_wl2F1s %>%
   theme_classic() +
   labs(x="Posterior Survival Predictions", y="Non-WL2 Parent", title="F1 Survival Post-Transplant") +
   theme(text=element_text(size=25)) 
+ggsave("../output/WL2_Traits/F1s_SurvPostTrans_PostProb.png", width = 8, height = 6, units = "in")
 ```
 
 ## F2s
