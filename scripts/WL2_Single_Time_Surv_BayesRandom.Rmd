@@ -200,8 +200,8 @@ xtabs(~Surv_to_Oct+Other_Parent, data=wl2_surv_wl2F1s)
 surv_parent_binary_bf1 <- brmsformula(Surv_to_Oct ~ (1|Other_Parent))
 
 get_prior(surv_parent_binary_bf1, family = "bernoulli", data = wl2_surv_wl2F1s)
-prior1 <- c(set_prior(prior = 'normal(0, 5)', class='Intercept'),
-            set_prior(prior = 'normal(0, 5)', class='sd'))
+prior1 <- c(set_prior(prior = 'normal(0, 1)', class='Intercept'),
+            set_prior(prior = 'normal(0, 1)', class='sd'))
 ```
 
 ```{r}
@@ -213,7 +213,6 @@ surv_parent_binary_m1 <- brm(surv_parent_binary_bf1,
                              sample_prior = "yes", # needed for hypothesis testing
                              control = list(adapt_delta = 0.9),
                              prior=prior1) #increased adapt_delta to help with divergent transitions
-#Warning: There were 5 divergent transitions after warmup. 
 ```
 
 
@@ -221,7 +220,7 @@ surv_parent_binary_m1 <- brm(surv_parent_binary_bf1,
 prior_summary(surv_parent_binary_m1)
 summary(surv_parent_binary_m1)
 #Rhat <1.05 (good!)
-#ESS - some ESS <1000 is that okay?
+#ESS > 1000 (good!)
 ```
 
 ```{r}
@@ -251,39 +250,45 @@ r_pops <- r_pops_raw %>% mutate(across(everything(), ~ .x + intercept$b_Intercep
 test whether BH increases survival probability
 
 ```{r}
-hypothesis(surv_parent_binary_m4,
+hypothesis(surv_parent_binary_m1,
            class = NULL,
-           hypothesis = "r_Other_Parent[BH,Intercept] > 0",
+           hypothesis = "r_Other_Parent[LV1,Intercept] > 0",
            scope = "standard")
 
-hypothesis(surv_parent_binary_m4,
+hypothesis(surv_parent_binary_m1,
            class = NULL,
-           hypothesis = "r_Other_Parent[DPR,Intercept] > 0",
+           hypothesis = "r_Other_Parent[TM2,Intercept] > 0",
+           scope = "standard")
+
+hypothesis(surv_parent_binary_m1,
+           class = NULL,
+           hypothesis = "r_Other_Parent[WV,Intercept] > 0",
            scope = "standard")
 ```
-This shows that the posterior probability that BH increases survivability is 0.63 and the same prob for DPR is 0.52
+This shows that the posterior probability that LV1 increases survivability is 0.43 
+Same prob for TM2 is 0.5
+Same prob for WV = 0.76
 
-Alternative approach.  Same result, less detail
+test whether WV increases survival probability *more* than other pops
 ```{r}
-sum(r_pops_raw$`r_Other_Parent[BH,Intercept]` > 0) / nrow(r_pops_raw) # posterior probability of BH intercept being greater than 0
-```
+hypothesis(surv_parent_binary_m1,
+           class = NULL,
+           hypothesis = "r_Other_Parent[WV,Intercept] > r_Other_Parent[TM2,Intercept]",
+           scope = "standard")
 
-test whether WV increases survival probability *more* than BH
-```{r}
-hypothesis(surv_parent_binary_m4,
+hypothesis(surv_parent_binary_m1,
+           class = NULL,
+           hypothesis = "r_Other_Parent[WV,Intercept] > r_Other_Parent[LV1,Intercept]",
+           scope = "standard")
+
+hypothesis(surv_parent_binary_m1,
            class = NULL,
            hypothesis = "r_Other_Parent[WV,Intercept] > r_Other_Parent[BH,Intercept]",
            scope = "standard")
 ```
-This shows that the posterior probability that WV is better than BH is 0.79
-
-
-Alternative approach.  Same results, less detail
-
-```{r}
-sum(r_pops_raw$`r_Other_Parent[WV,Intercept]` > r_pops_raw$`r_Other_Parent[BH,Intercept]`) / nrow(r_pops_raw) # posterior probability of BH intercept being greater than 0
-
-```
+This shows that the posterior probability that WV is better than TM2 is 0.71
+This shows that the posterior probability that WV is better than LV1 is 0.76
+This shows that the posterior probability that WV is better than BH is 0.83
 
 ##### Hand calculated model output 
 ```{r}
@@ -295,15 +300,15 @@ posterior::summarize_draws(r_pops) %>%
 ##### Tidybayes tables 
 ```{r}
 tibble(Other_Parent = "BH") %>%
-  add_epred_draws(surv_parent_binary_m4) %>%
+  add_epred_draws(surv_parent_binary_m1) %>%
   median_qi(.epred) #median matches above chunk 
 
 tibble(Other_Parent = "BH") %>%
-  add_epred_draws(surv_parent_binary_m4) %>%
+  add_epred_draws(surv_parent_binary_m1) %>%
   mean_qi(.epred) #mean does not match above chunk 
 
-tibble(Other_Parent = "BH") %>%
-  add_epred_draws(surv_parent_binary_m4) %>%
+tibble(Other_Parent = "WV") %>%
+  add_epred_draws(surv_parent_binary_m1) %>%
   mean_qi(.epred) #mean does not match above chunk 
 ```
 
@@ -311,12 +316,13 @@ tibble(Other_Parent = "BH") %>%
 ```{r}
 wl2_surv_wl2F1s %>% 
   data_grid(Other_Parent) %>%
-  add_epred_draws(surv_parent_binary_m4) %>%
+  add_epred_draws(surv_parent_binary_m1) %>%
   ggplot(aes(y = Other_Parent, x = .epred)) +
   stat_slab() +
   theme_classic() +
-  labs(x="Posterior Survival Predictions", y="Non-WL2 Parent", title="F1 Survival Post-Transplant") +
+  labs(x="Posterior Survival Predictions", y="Non-WL2 Parent", title="F1 Survival to October") +
   theme(text=element_text(size=25)) 
+ggsave("../output/WL2_Traits/F1s_SurvtoOct_PostProb.png", width = 8, height = 6, units = "in")
 ```
 
 #### Surv Post Transplant
@@ -705,7 +711,7 @@ pp_check(surv_parent_binary_m5)  # posterior predictive checks
 #some draws differ from posterior distribution 
 ```
 
-To calcualte the stats we need to extract the posterior samples, and add the Intercept to each pop random effect, and then compute the stats.
+To calculate the stats we need to extract the posterior samples, and add the Intercept to each pop random effect, and then compute the stats.
 
 ```{r}
 intercept <- as_draws_df(surv_parent_binary_m5, variable = "b_Intercept") %>% as_tibble() %>% select(starts_with("b"))
