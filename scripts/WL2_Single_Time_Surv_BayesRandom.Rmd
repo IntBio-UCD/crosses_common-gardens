@@ -13,9 +13,6 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Analysis of Survival at WL2 2024 Garden to Plant for BC2 crosses
 
-To Do:
--   See Julin's code for poperly calculating sem for surv
-
 ## Relevant Libraries and Functions
 ```{r}
 library(tidyverse)
@@ -108,6 +105,70 @@ wl2_surv_F1 <- wl2_surv %>%
 wl2_surv_F1
 xtabs(~Surv_to_Oct+WL2.cross, data=wl2_surv_F1) #slightly higher surv in WL2 crosses 
 xtabs(~Surv_Post_Transplant+WL2.cross, data=wl2_surv_F1) #slightly higher surv in TM2 crosses
+```
+
+### Maternal vs. Paternal Surv
+```{r}
+wl2_surv_F1_meansmat <- wl2_surv_F1 %>% 
+  filter(WL2.cross=="TRUE") %>% 
+    filter(maternal.pop != "SQ3", maternal.pop != "LV1") %>% #FOR BC2 PREP
+  group_by(WL2.cross, maternal.pop) %>% 
+  summarise(N_Surv = sum(!is.na(Surv_to_Oct)), 
+            mean_Surv_to_Oct = mean(Surv_to_Oct,na.rm=(TRUE)), 
+            mean_Surv_Post_Transplant = mean(Surv_Post_Transplant,na.rm=(TRUE)))
+wl2_surv_F1_meansmat
+
+wl2_surv_F1_meansmat %>% 
+  ggplot(aes(x=fct_reorder(maternal.pop, mean_Surv_to_Oct), y=mean_Surv_to_Oct)) +
+  geom_col(width = 0.7,position = position_dodge(0.75), colour="black") +
+  labs(title="WL2 F1s", x="Maternal Populations", y="Survival to Oct 2024") +
+  coord_cartesian(ylim = c(0, 1)) +
+  geom_text(data = wl2_surv_F1_meansmat, aes(label = N_Surv), vjust = -1) +
+  #theme_classic() +
+  theme(text=element_text(size=25), axis.text.x = element_text(angle = 45,  hjust = 1))
+ggsave("../output/WL2_Traits/F1s_SurvtoOct_MatPops_BC2PREP.png", width = 8, height = 6, units = "in")
+
+wl2_surv_F1_meansmat %>% 
+  ggplot(aes(x=fct_reorder(maternal.pop, mean_Surv_Post_Transplant), y=mean_Surv_Post_Transplant)) +
+  geom_col(width = 0.7,position = position_dodge(0.75), colour="black") +
+  labs(title="WL2 F1s", x="Maternal Populations", y="Survival Two Weeks \n  Post-Transplant") +
+  coord_cartesian(ylim = c(0, 1.25)) +
+  scale_y_continuous(breaks = c(0.00, 0.25, 0.50, 0.75, 1.00, 1.25)) +
+  geom_text(data = wl2_surv_F1_meansmat, aes(label = N_Surv), vjust = -1) +
+  #theme_classic() +
+  theme(text=element_text(size=25), axis.text.x = element_text(angle = 45,  hjust = 1))
+ggsave("../output/WL2_Traits/F1s_SurvPostTransplant_MatPops_BC2PREP.png", width = 8, height = 6, units = "in")
+```
+
+```{r}
+wl2_surv_F1_meanspat <- wl2_surv_F1 %>% 
+  filter(WL2.cross=="TRUE") %>% 
+  group_by(WL2.cross, paternal.pop) %>% 
+  summarise(N_Surv = sum(!is.na(Surv_to_Oct)), 
+            mean_Surv_to_Oct = mean(Surv_to_Oct,na.rm=(TRUE)), 
+            mean_Surv_Post_Transplant = mean(Surv_Post_Transplant,na.rm=(TRUE)))
+wl2_surv_F1_meanspat
+
+wl2_surv_F1_meanspat %>% 
+  ggplot(aes(x=fct_reorder(paternal.pop, mean_Surv_to_Oct), y=mean_Surv_to_Oct)) +
+  geom_col(width = 0.7,position = position_dodge(0.75), colour="black") +
+  labs(title="WL2 F1s", x="Paternal Populations", y="Survival to Oct 2024") +
+  coord_cartesian(ylim = c(0, 1)) +
+  geom_text(data = wl2_surv_F1_meanspat, aes(label = N_Surv), vjust = -1) +
+  #theme_classic() +
+  theme(text=element_text(size=25), axis.text.x = element_text(angle = 45,  hjust = 1))
+ggsave("../output/WL2_Traits/F1s_SurvtoOct_patPops.png", width = 6, height = 6, units = "in")
+
+wl2_surv_F1_meanspat %>% 
+  ggplot(aes(x=fct_reorder(paternal.pop, mean_Surv_Post_Transplant), y=mean_Surv_Post_Transplant)) +
+  geom_col(width = 0.7,position = position_dodge(0.75), colour="black") +
+  labs(title="WL2 F1s", x="Paternal Populations", y="Survival Two Weeks \n  Post-Transplant") +
+  coord_cartesian(ylim = c(0, 1.25)) +
+  scale_y_continuous(breaks = c(0.00, 0.25, 0.50, 0.75, 1.00, 1.25)) +
+  geom_text(data = wl2_surv_F1_meanspat, aes(label = N_Surv), vjust = -1) +
+  #theme_classic() +
+  theme(text=element_text(size=25), axis.text.x = element_text(angle = 45,  hjust = 1))
+ggsave("../output/WL2_Traits/F1s_SurvPostTransplant_PatPops.png", width = 6, height = 6, units = "in")
 ```
 
 ### Calculate Yes/No Parents
@@ -636,6 +697,76 @@ wl2_surv_F2_binary_for_model_meanspat %>%
 ggsave("../output/WL2_Traits/F2s_SurvPostTransplant_PatPops.png", width = 12, height = 6, units = "in")
 ```
 
+Maternal Pops Plots  - BC2 prep
+```{r}
+wl2_surv_F2_binary_for_model_meansmat_BC2PREP <- wl2_surv_F2_binary_for_model %>% 
+  group_by(WL2.cross, maternal.pops) %>% 
+  filter(maternal.pops == "WL1 x WL2" | maternal.pops == "WL2 x BH" | maternal.pops == "WL2" | 
+           maternal.pops == "WV" | maternal.pops == "WV x WL2" | maternal.pops == "WL2 x TM2" |
+           maternal.pops == "WL2 x DPR" | maternal.pops == "TM2 x WL2" | maternal.pops == "DPR" |
+           maternal.pops == "DPR x WL2" | maternal.pops == "TM2") %>% #FOR BC2 PREP
+  summarise(N_Surv = sum(!is.na(Surv_to_Oct)), 
+            mean_Surv_to_Oct = mean(Surv_to_Oct,na.rm=(TRUE)), 
+            mean_Surv_Post_Transplant = mean(Surv_Post_Transplant,na.rm=(TRUE)))
+wl2_surv_F2_binary_for_model_meansmat_BC2PREP
+
+wl2_surv_F2_binary_for_model_meansmat_BC2PREP %>% 
+  ggplot(aes(x=fct_reorder(maternal.pops, mean_Surv_to_Oct), y=mean_Surv_to_Oct)) +
+  geom_col(width = 0.7,position = position_dodge(0.75), colour="black") +
+  labs(title="WL2 F2s", x="Maternal Populations", y="Survival to Oct 2024") +
+  coord_cartesian(ylim = c(0, 1)) +
+  geom_text(data = wl2_surv_F2_binary_for_model_meansmat_BC2PREP, aes(label = N_Surv), vjust = -1) +
+  #theme_classic() +
+  theme(text=element_text(size=25), axis.text.x = element_text(angle = 45,  hjust = 1))
+ggsave("../output/WL2_Traits/F2s_SurvtoOct_MatPops_BC2PREP.png", width = 8, height = 6, units = "in")
+
+wl2_surv_F2_binary_for_model_meansmat_BC2PREP %>% 
+  ggplot(aes(x=fct_reorder(maternal.pops, mean_Surv_Post_Transplant), y=mean_Surv_Post_Transplant)) +
+  geom_col(width = 0.7,position = position_dodge(0.75), colour="black") +
+  labs(title="WL2 F2s", x="Maternal Populations", y="Survival Two Weeks \n  Post-Transplant") +
+  coord_cartesian(ylim = c(0, 1.25)) +
+  scale_y_continuous(breaks = c(0.00, 0.25, 0.50, 0.75, 1.00, 1.25)) +
+  geom_text(data = wl2_surv_F2_binary_for_model_meansmat_BC2PREP, aes(label = N_Surv), vjust = -1) +
+  #theme_classic() +
+  theme(text=element_text(size=25), axis.text.x = element_text(angle = 45,  hjust = 1))
+ggsave("../output/WL2_Traits/F2s_SurvPostTransplant_MatPops_BC2PREP.png", width = 8, height = 6, units = "in")
+```
+
+Paternal Pops Plots - BC2 prep
+```{r}
+wl2_surv_F2_binary_for_model_meanspat_BC2PREP <- wl2_surv_F2_binary_for_model %>% 
+  group_by(WL2.cross, paternal.pops) %>% 
+  filter(paternal.pops == "BH x WL2" | paternal.pops == "WL2" | 
+           paternal.pops == "WV" | paternal.pops == "WV x WL2" | paternal.pops == "WL2 x TM2" |
+           paternal.pops == "WL2 x DPR" | paternal.pops == "TM2 x WL2" | paternal.pops == "DPR" |
+           paternal.pops == "DPR x WL2" | paternal.pops == "TM2") %>% #FOR BC2 PREP
+  summarise(N_Surv = sum(!is.na(Surv_to_Oct)), 
+            mean_Surv_to_Oct = mean(Surv_to_Oct,na.rm=(TRUE)), 
+            mean_Surv_Post_Transplant = mean(Surv_Post_Transplant,na.rm=(TRUE)))
+wl2_surv_F2_binary_for_model_meanspat_BC2PREP
+
+wl2_surv_F2_binary_for_model_meanspat_BC2PREP %>% 
+  ggplot(aes(x=fct_reorder(paternal.pops, mean_Surv_to_Oct), y=mean_Surv_to_Oct)) +
+  geom_col(width = 0.7,position = position_dodge(0.75), colour="black") +
+  labs(title="WL2 F2s", x="Paternal Populations", y="Survival to Oct 2024") +
+  coord_cartesian(ylim = c(0, 1)) +
+  geom_text(data = wl2_surv_F2_binary_for_model_meanspat_BC2PREP, aes(label = N_Surv), vjust = -1) +
+  #theme_classic() +
+  theme(text=element_text(size=25), axis.text.x = element_text(angle = 45,  hjust = 1))
+ggsave("../output/WL2_Traits/F2s_SurvtoOct_PatPops_BC2PREP.png", width = 12, height = 6, units = "in")
+
+wl2_surv_F2_binary_for_model_meanspat_BC2PREP %>% 
+  ggplot(aes(x=fct_reorder(paternal.pops, mean_Surv_Post_Transplant), y=mean_Surv_Post_Transplant)) +
+  geom_col(width = 0.7,position = position_dodge(0.75), colour="black") +
+  labs(title="WL2 F2s", x="Paternal Populations", y="Survival Two Weeks \n  Post-Transplant") +
+  coord_cartesian(ylim = c(0, 1.25)) +
+  scale_y_continuous(breaks = c(0.00, 0.25, 0.50, 0.75, 1.00, 1.25)) +
+  geom_text(data = wl2_surv_F2_binary_for_model_meanspat_BC2PREP, aes(label = N_Surv), vjust = -1) +
+  #theme_classic() +
+  theme(text=element_text(size=25), axis.text.x = element_text(angle = 45,  hjust = 1))
+ggsave("../output/WL2_Traits/F2s_SurvPostTransplant_PatPops_BC2PREP.png", width = 12, height = 6, units = "in")
+```
+
 ### Bayesian random - maternal and paternal pops 
 
 #### Surv to Oct
@@ -744,7 +875,7 @@ test whether DPR x WL2 increases survival probability *more* than other pops
 ```{r}
 hypothesis(surv_parent_binary_m2,
            class = NULL,
-           hypothesis = "r_paternal.pops[DPR.x.WL2,Intercept] > r_maternal.pops[WV,Intercept]",
+           hypothesis = "r_paternal.pops[DPR.x.WL2,Intercept] > r_paternal.pops[WV,Intercept]",
            scope = "standard")
 
 hypothesis(surv_parent_binary_m2,
@@ -752,8 +883,31 @@ hypothesis(surv_parent_binary_m2,
            hypothesis = "r_paternal.pops[WL2,Intercept] > r_paternal.pops[DPR.x.WL2,Intercept]",
            scope = "standard")
 ```
-posterior probability that DPR x WL2 is better than WV is 0.76 (DADS)
+posterior probability that DPR x WL2 is better than WV is 0.8 (DADS)
 posterior probability that WL2 is better than DPR x WL2 is 0.67 (DADS)
+
+Maternal vs. paternal 
+```{r}
+hypothesis(surv_parent_binary_m2,
+           class = NULL,
+           hypothesis = "r_maternal.pops[DPR,Intercept] > r_paternal.pops[DPR,Intercept]",
+           scope = "standard")
+
+hypothesis(surv_parent_binary_m2,
+           class = NULL,
+           hypothesis = "r_maternal.pops[TM2,Intercept] > r_paternal.pops[TM2,Intercept]",
+           scope = "standard")
+
+hypothesis(surv_parent_binary_m2,
+           class = NULL,
+           hypothesis = "r_maternal.pops[WV,Intercept] > r_paternal.pops[WV,Intercept]",
+           scope = "standard")
+
+hypothesis(surv_parent_binary_m2,
+           class = NULL,
+           hypothesis = "r_paternal.pops[WL2,Intercept] > r_maternal.pops[WL2,Intercept]",
+           scope = "standard")
+```
 
 ##### Hand calculated model output 
 ```{r}

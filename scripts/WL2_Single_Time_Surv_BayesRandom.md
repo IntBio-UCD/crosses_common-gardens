@@ -11,9 +11,6 @@ output:
 
 # Analysis of Survival at WL2 2024 Garden to Plant for BC2 crosses
 
-To Do:
--   See Julin's code for poperly calculating sem for surv
-
 ## Relevant Libraries and Functions
 
 ``` r
@@ -532,6 +529,133 @@ xtabs(~Surv_Post_Transplant+WL2.cross, data=wl2_surv_F1) #slightly higher surv i
 ##                    1    50   30
 ```
 
+### Maternal vs. Paternal Surv
+
+``` r
+wl2_surv_F1_meansmat <- wl2_surv_F1 %>% 
+  filter(WL2.cross=="TRUE") %>% 
+    filter(maternal.pop != "SQ3", maternal.pop != "LV1") %>% #FOR BC2 PREP
+  group_by(WL2.cross, maternal.pop) %>% 
+  summarise(N_Surv = sum(!is.na(Surv_to_Oct)), 
+            mean_Surv_to_Oct = mean(Surv_to_Oct,na.rm=(TRUE)), 
+            mean_Surv_Post_Transplant = mean(Surv_Post_Transplant,na.rm=(TRUE)))
+```
+
+```
+## `summarise()` has grouped output by 'WL2.cross'. You can override using the
+## `.groups` argument.
+```
+
+``` r
+wl2_surv_F1_meansmat
+```
+
+```
+## # A tibble: 5 × 5
+## # Groups:   WL2.cross [1]
+##   WL2.cross maternal.pop N_Surv mean_Surv_to_Oct mean_Surv_Post_Transplant
+##   <lgl>     <chr>         <int>            <dbl>                     <dbl>
+## 1 TRUE      BH                2            0                         1    
+## 2 TRUE      DPR               4            0                         0.75 
+## 3 TRUE      TM2               9            0.222                     0.444
+## 4 TRUE      WL2               4            0                         0.75 
+## 5 TRUE      WV                9            0.444                     1
+```
+
+``` r
+wl2_surv_F1_meansmat %>% 
+  ggplot(aes(x=fct_reorder(maternal.pop, mean_Surv_to_Oct), y=mean_Surv_to_Oct)) +
+  geom_col(width = 0.7,position = position_dodge(0.75), colour="black") +
+  labs(title="WL2 F1s", x="Maternal Populations", y="Survival to Oct 2024") +
+  coord_cartesian(ylim = c(0, 1)) +
+  geom_text(data = wl2_surv_F1_meansmat, aes(label = N_Surv), vjust = -1) +
+  #theme_classic() +
+  theme(text=element_text(size=25), axis.text.x = element_text(angle = 45,  hjust = 1))
+```
+
+![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
+
+``` r
+ggsave("../output/WL2_Traits/F1s_SurvtoOct_MatPops_BC2PREP.png", width = 8, height = 6, units = "in")
+
+wl2_surv_F1_meansmat %>% 
+  ggplot(aes(x=fct_reorder(maternal.pop, mean_Surv_Post_Transplant), y=mean_Surv_Post_Transplant)) +
+  geom_col(width = 0.7,position = position_dodge(0.75), colour="black") +
+  labs(title="WL2 F1s", x="Maternal Populations", y="Survival Two Weeks \n  Post-Transplant") +
+  coord_cartesian(ylim = c(0, 1.25)) +
+  scale_y_continuous(breaks = c(0.00, 0.25, 0.50, 0.75, 1.00, 1.25)) +
+  geom_text(data = wl2_surv_F1_meansmat, aes(label = N_Surv), vjust = -1) +
+  #theme_classic() +
+  theme(text=element_text(size=25), axis.text.x = element_text(angle = 45,  hjust = 1))
+```
+
+![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-7-2.png)<!-- -->
+
+``` r
+ggsave("../output/WL2_Traits/F1s_SurvPostTransplant_MatPops_BC2PREP.png", width = 8, height = 6, units = "in")
+```
+
+
+``` r
+wl2_surv_F1_meanspat <- wl2_surv_F1 %>% 
+  filter(WL2.cross=="TRUE") %>% 
+  group_by(WL2.cross, paternal.pop) %>% 
+  summarise(N_Surv = sum(!is.na(Surv_to_Oct)), 
+            mean_Surv_to_Oct = mean(Surv_to_Oct,na.rm=(TRUE)), 
+            mean_Surv_Post_Transplant = mean(Surv_Post_Transplant,na.rm=(TRUE)))
+```
+
+```
+## `summarise()` has grouped output by 'WL2.cross'. You can override using the
+## `.groups` argument.
+```
+
+``` r
+wl2_surv_F1_meanspat
+```
+
+```
+## # A tibble: 2 × 5
+## # Groups:   WL2.cross [1]
+##   WL2.cross paternal.pop N_Surv mean_Surv_to_Oct mean_Surv_Post_Transplant
+##   <lgl>     <chr>         <int>            <dbl>                     <dbl>
+## 1 TRUE      BH                4            0                         0.75 
+## 2 TRUE      WL2              39            0.205                     0.692
+```
+
+``` r
+wl2_surv_F1_meanspat %>% 
+  ggplot(aes(x=fct_reorder(paternal.pop, mean_Surv_to_Oct), y=mean_Surv_to_Oct)) +
+  geom_col(width = 0.7,position = position_dodge(0.75), colour="black") +
+  labs(title="WL2 F1s", x="Paternal Populations", y="Survival to Oct 2024") +
+  coord_cartesian(ylim = c(0, 1)) +
+  geom_text(data = wl2_surv_F1_meanspat, aes(label = N_Surv), vjust = -1) +
+  #theme_classic() +
+  theme(text=element_text(size=25), axis.text.x = element_text(angle = 45,  hjust = 1))
+```
+
+![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
+
+``` r
+ggsave("../output/WL2_Traits/F1s_SurvtoOct_patPops.png", width = 6, height = 6, units = "in")
+
+wl2_surv_F1_meanspat %>% 
+  ggplot(aes(x=fct_reorder(paternal.pop, mean_Surv_Post_Transplant), y=mean_Surv_Post_Transplant)) +
+  geom_col(width = 0.7,position = position_dodge(0.75), colour="black") +
+  labs(title="WL2 F1s", x="Paternal Populations", y="Survival Two Weeks \n  Post-Transplant") +
+  coord_cartesian(ylim = c(0, 1.25)) +
+  scale_y_continuous(breaks = c(0.00, 0.25, 0.50, 0.75, 1.00, 1.25)) +
+  geom_text(data = wl2_surv_F1_meanspat, aes(label = N_Surv), vjust = -1) +
+  #theme_classic() +
+  theme(text=element_text(size=25), axis.text.x = element_text(angle = 45,  hjust = 1))
+```
+
+![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-8-2.png)<!-- -->
+
+``` r
+ggsave("../output/WL2_Traits/F1s_SurvPostTransplant_PatPops.png", width = 6, height = 6, units = "in")
+```
+
 ### Calculate Yes/No Parents
 
 ``` r
@@ -800,7 +924,7 @@ wl2_surv_F1_binary_long_means %>%
   facet_wrap(~pop)
 ```
 
-![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
+![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-10-1.png)<!-- -->
 
 ``` r
 ggsave("../output/WL2_Traits/F1s_SurvtoOct.png", width = 12, height = 6, units = "in")
@@ -815,7 +939,7 @@ wl2_surv_F1_binary_long_means %>%
   facet_wrap(~pop)
 ```
 
-![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-8-2.png)<!-- -->
+![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-10-2.png)<!-- -->
 
 ``` r
 ggsave("../output/WL2_Traits/F1s_SurvPostTransplant.png", width = 12, height = 6, units = "in")
@@ -1089,11 +1213,11 @@ summary(surv_parent_binary_m1)
 ## Multilevel Hyperparameters:
 ## ~Other_Parent (Number of levels: 6) 
 ##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)     0.71      0.51     0.03     1.94 1.00     3602     4179
+## sd(Intercept)     0.69      0.51     0.03     1.91 1.00     4067     4254
 ## 
 ## Regression Coefficients:
 ##           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## Intercept    -1.34      0.46    -2.25    -0.41 1.00     5897     5000
+## Intercept    -1.35      0.46    -2.26    -0.46 1.00     5941     5022
 ## 
 ## Draws were sampled using sampling(NUTS). For each parameter, Bulk_ESS
 ## and Tail_ESS are effective sample size measures, and Rhat is the potential
@@ -1110,7 +1234,7 @@ summary(surv_parent_binary_m1)
 plot(surv_parent_binary_m1,  nvariables = 3, ask=FALSE) #plots look a little better with prior distribution adjustments 
 ```
 
-![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-13-1.png)<!-- -->
+![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-15-1.png)<!-- -->
 
 ``` r
 #pairs(surv_parent_binary_m1)
@@ -1122,7 +1246,7 @@ pp_check(surv_parent_binary_m1)  # posterior predictive checks
 ## Using 10 posterior draws for ppc type 'dens_overlay' by default.
 ```
 
-![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-13-2.png)<!-- -->
+![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-15-2.png)<!-- -->
 
 ``` r
 #The main use of this function is to check if you model predicts your data accurately (using the estimates). If it does, then you can use that model to generate new data and make accurate predictions.
@@ -1155,9 +1279,9 @@ hypothesis(surv_parent_binary_m1,
 ```
 ## Hypothesis Tests for class :
 ##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
-## 1 (r_Other_Parent[L... > 0    -0.11      0.56    -1.11     0.76       0.75
+## 1 (r_Other_Parent[L... > 0     -0.1      0.56     -1.1     0.76       0.79
 ##   Post.Prob Star
-## 1      0.43     
+## 1      0.44     
 ## ---
 ## 'CI': 90%-CI for one-sided and 95%-CI for two-sided hypotheses.
 ## '*': For one-sided hypotheses, the posterior probability exceeds 95%;
@@ -1175,9 +1299,9 @@ hypothesis(surv_parent_binary_m1,
 ```
 ## Hypothesis Tests for class :
 ##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
-## 1 (r_Other_Parent[T... > 0    -0.02      0.57    -0.99     0.92       0.98
+## 1 (r_Other_Parent[T... > 0    -0.01      0.57       -1     0.92       1.02
 ##   Post.Prob Star
-## 1       0.5     
+## 1      0.51     
 ## ---
 ## 'CI': 90%-CI for one-sided and 95%-CI for two-sided hypotheses.
 ## '*': For one-sided hypotheses, the posterior probability exceeds 95%;
@@ -1195,7 +1319,7 @@ hypothesis(surv_parent_binary_m1,
 ```
 ## Hypothesis Tests for class :
 ##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
-## 1 (r_Other_Parent[W... > 0     0.46      0.61     -0.3     1.63       3.57
+## 1 (r_Other_Parent[W... > 0     0.46      0.61     -0.3     1.61       3.48
 ##   Post.Prob Star
 ## 1      0.78     
 ## ---
@@ -1220,9 +1344,9 @@ hypothesis(surv_parent_binary_m1,
 ```
 ## Hypothesis Tests for class :
 ##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
-## 1 (r_Other_Parent[W... > 0     0.48      0.76    -0.54     1.94        2.7
+## 1 (r_Other_Parent[W... > 0     0.46      0.76    -0.55     1.91        2.6
 ##   Post.Prob Star
-## 1      0.73     
+## 1      0.72     
 ## ---
 ## 'CI': 90%-CI for one-sided and 95%-CI for two-sided hypotheses.
 ## '*': For one-sided hypotheses, the posterior probability exceeds 95%;
@@ -1240,7 +1364,7 @@ hypothesis(surv_parent_binary_m1,
 ```
 ## Hypothesis Tests for class :
 ##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
-## 1 (r_Other_Parent[W... > 0     0.57      0.79    -0.43     2.08       3.26
+## 1 (r_Other_Parent[W... > 0     0.56      0.77    -0.42     2.05       3.32
 ##   Post.Prob Star
 ## 1      0.77     
 ## ---
@@ -1260,7 +1384,7 @@ hypothesis(surv_parent_binary_m1,
 ```
 ## Hypothesis Tests for class :
 ##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
-## 1 (r_Other_Parent[W... > 0     0.97      1.14    -0.25     3.18       4.88
+## 1 (r_Other_Parent[W... > 0     0.96      1.14    -0.26     3.22       4.82
 ##   Post.Prob Star
 ## 1      0.83     
 ## ---
@@ -1284,12 +1408,12 @@ posterior::summarize_draws(r_pops) %>%
 ## # A tibble: 6 × 10
 ##   variable          mean median    sd   mad     q5   q95  rhat ess_bulk ess_tail
 ##   <chr>            <dbl>  <dbl> <dbl> <dbl>  <dbl> <dbl> <dbl>    <dbl>    <dbl>
-## 1 r_Other_Parent[… 0.137  0.159 0.710 0.669 0.0284 0.320  1.00    7083.    7108.
-## 2 r_Other_Parent[… 0.148  0.169 0.705 0.664 0.0328 0.341  1.00    8162.    7623.
-## 3 r_Other_Parent[… 0.191  0.197 0.637 0.627 0.0807 0.354  1.00   12775.    8515.
-## 4 r_Other_Parent[… 0.147  0.169 0.707 0.664 0.0318 0.347  1.00    8258.    7925.
-## 5 r_Other_Parent[… 0.205  0.209 0.641 0.628 0.0875 0.395  1.00   12643.    8517.
-## 6 r_Other_Parent[… 0.295  0.284 0.648 0.645 0.144  0.551  1.00    7239.    8144.
+## 1 r_Other_Parent[… 0.137  0.157 0.710 0.669 0.0277 0.318  1.00    7585.    6707.
+## 2 r_Other_Parent[… 0.149  0.167 0.703 0.664 0.0330 0.345  1.00    7896.    7503.
+## 3 r_Other_Parent[… 0.190  0.196 0.637 0.624 0.0794 0.352  1.00   13202.    8423.
+## 4 r_Other_Parent[… 0.149  0.170 0.705 0.664 0.0326 0.344  1.00    8717.    7479.
+## 5 r_Other_Parent[… 0.205  0.209 0.641 0.628 0.0875 0.392  1.00   12945.    8534.
+## 6 r_Other_Parent[… 0.291  0.281 0.647 0.643 0.141  0.543  1.00    7657.    8416.
 ```
 
 ``` r
@@ -1308,7 +1432,7 @@ tibble(Other_Parent = "BH") %>%
 ## # A tibble: 1 × 8
 ##   Other_Parent  .row .epred .lower .upper .width .point .interval
 ##   <chr>        <int>  <dbl>  <dbl>  <dbl>  <dbl> <chr>  <chr>    
-## 1 BH               1  0.159 0.0177  0.356   0.95 median qi
+## 1 BH               1  0.157 0.0169  0.358   0.95 median qi
 ```
 
 ``` r
@@ -1321,7 +1445,7 @@ tibble(Other_Parent = "BH") %>%
 ## # A tibble: 1 × 8
 ##   Other_Parent  .row .epred .lower .upper .width .point .interval
 ##   <chr>        <int>  <dbl>  <dbl>  <dbl>  <dbl> <chr>  <chr>    
-## 1 BH               1  0.164 0.0177  0.356   0.95 mean   qi
+## 1 BH               1  0.164 0.0169  0.358   0.95 mean   qi
 ```
 
 ``` r
@@ -1334,7 +1458,7 @@ tibble(Other_Parent = "WV") %>%
 ## # A tibble: 1 × 8
 ##   Other_Parent  .row .epred .lower .upper .width .point .interval
 ##   <chr>        <int>  <dbl>  <dbl>  <dbl>  <dbl> <chr>  <chr>    
-## 1 WV               1  0.308  0.123  0.606   0.95 mean   qi
+## 1 WV               1  0.305  0.124  0.605   0.95 mean   qi
 ```
 
 ##### Tidy Plot 
@@ -1350,7 +1474,7 @@ wl2_surv_wl2F1s %>%
   theme(text=element_text(size=25)) 
 ```
 
-![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-19-1.png)<!-- -->
+![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-21-1.png)<!-- -->
 
 ``` r
 ggsave("../output/WL2_Traits/F1s_SurvtoOct_PostProb.png", width = 8, height = 6, units = "in")
@@ -1460,11 +1584,11 @@ summary(surv_parent_binary_m4)
 ## Multilevel Hyperparameters:
 ## ~Other_Parent (Number of levels: 6) 
 ##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)     1.51      1.07     0.13     4.29 1.00     2154     2975
+## sd(Intercept)     1.49      1.05     0.11     4.26 1.00     2204     3016
 ## 
 ## Regression Coefficients:
 ##           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## Intercept     1.18      0.83    -0.28     3.10 1.00     2641     2775
+## Intercept     1.17      0.86    -0.38     3.11 1.00     2390     1768
 ## 
 ## Draws were sampled using sampling(NUTS). For each parameter, Bulk_ESS
 ## and Tail_ESS are effective sample size measures, and Rhat is the potential
@@ -1481,7 +1605,7 @@ summary(surv_parent_binary_m4)
 plot(surv_parent_binary_m4,  nvariables = 3, ask=FALSE) #plots look a little better with prior distribution adjustments 
 ```
 
-![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-23-1.png)<!-- -->
+![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-25-1.png)<!-- -->
 
 ``` r
 #pairs(surv_parent_binary_m4)
@@ -1493,7 +1617,7 @@ pp_check(surv_parent_binary_m4)  # posterior predictive checks
 ## Using 10 posterior draws for ppc type 'dens_overlay' by default.
 ```
 
-![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-23-2.png)<!-- -->
+![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-25-2.png)<!-- -->
 
 ``` r
 #The main use of this function is to check if you model predicts your data accurately (using the estimates). If it does, then you can use that model to generate new data and make accurate predictions.
@@ -1527,7 +1651,7 @@ hypothesis(surv_parent_binary_m4,
 ```
 ## Hypothesis Tests for class :
 ##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
-## 1 (r_Other_Parent[B... > 0     0.33      1.04    -1.26     2.14       1.72
+## 1 (r_Other_Parent[B... > 0     0.34      1.07    -1.27     2.18       1.73
 ##   Post.Prob Star
 ## 1      0.63     
 ## ---
@@ -1547,7 +1671,7 @@ hypothesis(surv_parent_binary_m4,
 ```
 ## Hypothesis Tests for class :
 ##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
-## 1 (r_Other_Parent[D... > 0     0.03      1.08    -1.71     1.79       1.07
+## 1 (r_Other_Parent[D... > 0     0.04       1.1    -1.73     1.86       1.07
 ##   Post.Prob Star
 ## 1      0.52     
 ## ---
@@ -1567,9 +1691,9 @@ hypothesis(surv_parent_binary_m4,
 ```
 ## Hypothesis Tests for class :
 ##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
-## 1 (r_Other_Parent[S... > 0     0.03      1.09    -1.78     1.79       1.08
+## 1 (r_Other_Parent[S... > 0     0.03      1.08    -1.72      1.8       1.03
 ##   Post.Prob Star
-## 1      0.52     
+## 1      0.51     
 ## ---
 ## 'CI': 90%-CI for one-sided and 95%-CI for two-sided hypotheses.
 ## '*': For one-sided hypotheses, the posterior probability exceeds 95%;
@@ -1587,9 +1711,9 @@ hypothesis(surv_parent_binary_m4,
 ```
 ## Hypothesis Tests for class :
 ##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
-## 1 (r_Other_Parent[W... > 0     1.55      1.64    -0.17     4.55       9.57
+## 1 (r_Other_Parent[W... > 0     1.52      1.62    -0.19     4.55       8.84
 ##   Post.Prob Star
-## 1      0.91     
+## 1       0.9     
 ## ---
 ## 'CI': 90%-CI for one-sided and 95%-CI for two-sided hypotheses.
 ## '*': For one-sided hypotheses, the posterior probability exceeds 95%;
@@ -1608,7 +1732,7 @@ sum(r_pops_raw$`r_Other_Parent[BH,Intercept]` > 0) / nrow(r_pops_raw) # posterio
 ```
 
 ```
-## [1] 0.6317
+## [1] 0.6343
 ```
 
 test whether WV increases survival probability *more* than BH
@@ -1623,9 +1747,9 @@ hypothesis(surv_parent_binary_m4,
 ```
 ## Hypothesis Tests for class :
 ##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
-## 1 (r_Other_Parent[W... > 0     1.22      1.75    -0.81     4.33       3.86
+## 1 (r_Other_Parent[W... > 0     1.18      1.71    -0.86     4.31       3.53
 ##   Post.Prob Star
-## 1      0.79     
+## 1      0.78     
 ## ---
 ## 'CI': 90%-CI for one-sided and 95%-CI for two-sided hypotheses.
 ## '*': For one-sided hypotheses, the posterior probability exceeds 95%;
@@ -1643,7 +1767,7 @@ sum(r_pops_raw$`r_Other_Parent[WV,Intercept]` > r_pops_raw$`r_Other_Parent[BH,In
 ```
 
 ```
-## [1] 0.7943
+## [1] 0.7794
 ```
 
 ##### Hand calculated model output 
@@ -1657,12 +1781,12 @@ posterior::summarize_draws(r_pops) %>%
 ## # A tibble: 6 × 10
 ##   variable           mean median    sd   mad    q5   q95  rhat ess_bulk ess_tail
 ##   <chr>             <dbl>  <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>    <dbl>    <dbl>
-## 1 r_Other_Parent[B… 0.819  0.798 0.718 0.700 0.553 0.963  1.00    9704.    7650.
-## 2 r_Other_Parent[D… 0.769  0.752 0.724 0.699 0.445 0.949  1.00    8764.    7599.
-## 3 r_Other_Parent[L… 0.605  0.608 0.642 0.640 0.367 0.798  1.00    8781.    8374.
-## 4 r_Other_Parent[S… 0.770  0.752 0.728 0.700 0.443 0.950  1.00    9816.    7611.
-## 5 r_Other_Parent[T… 0.538  0.544 0.661 0.660 0.270 0.769  1.00    6743.    7263.
-## 6 r_Other_Parent[W… 0.939  0.914 0.852 0.794 0.683 0.997  1.00    3515.    4743.
+## 1 r_Other_Parent[B… 0.819  0.799 0.723 0.701 0.549 0.962  1.00    9149.    6885.
+## 2 r_Other_Parent[D… 0.769  0.753 0.727 0.700 0.435 0.949  1.00    9760.    7014.
+## 3 r_Other_Parent[L… 0.605  0.610 0.642 0.639 0.364 0.795  1.00    8827.    8596.
+## 4 r_Other_Parent[S… 0.767  0.750 0.720 0.695 0.449 0.947  1.00    9022.    7243.
+## 5 r_Other_Parent[T… 0.538  0.546 0.662 0.663 0.268 0.768  1.00    6970.    7831.
+## 6 r_Other_Parent[W… 0.936  0.911 0.847 0.795 0.681 0.997  1.00    3916.    4771.
 ```
 
 ``` r
@@ -1681,7 +1805,7 @@ tibble(Other_Parent = "BH") %>%
 ## # A tibble: 1 × 8
 ##   Other_Parent  .row .epred .lower .upper .width .point .interval
 ##   <chr>        <int>  <dbl>  <dbl>  <dbl>  <dbl> <chr>  <chr>    
-## 1 BH               1  0.798  0.498  0.976   0.95 median qi
+## 1 BH               1  0.799  0.490  0.976   0.95 median qi
 ```
 
 ``` r
@@ -1694,7 +1818,7 @@ tibble(Other_Parent = "BH") %>%
 ## # A tibble: 1 × 8
 ##   Other_Parent  .row .epred .lower .upper .width .point .interval
 ##   <chr>        <int>  <dbl>  <dbl>  <dbl>  <dbl> <chr>  <chr>    
-## 1 BH               1  0.784  0.498  0.976   0.95 mean   qi
+## 1 BH               1  0.783  0.490  0.976   0.95 mean   qi
 ```
 
 ``` r
@@ -1707,7 +1831,7 @@ tibble(Other_Parent = "WV") %>%
 ## # A tibble: 1 × 8
 ##   Other_Parent  .row .epred .lower .upper .width .point .interval
 ##   <chr>        <int>  <dbl>  <dbl>  <dbl>  <dbl> <chr>  <chr>    
-## 1 WV               1  0.886  0.637  0.999   0.95 mean   qi
+## 1 WV               1  0.883  0.640  0.999   0.95 mean   qi
 ```
 
 ##### Tidy Plot 
@@ -1723,7 +1847,7 @@ wl2_surv_wl2F1s %>%
   theme(text=element_text(size=25)) 
 ```
 
-![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-31-1.png)<!-- -->
+![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-33-1.png)<!-- -->
 
 ``` r
 ggsave("../output/WL2_Traits/F1s_SurvPostTrans_PostProb.png", width = 8, height = 6, units = "in")
@@ -2178,7 +2302,7 @@ wl2_surv_F2_binary_long_means %>%
   facet_wrap(~pop)
 ```
 
-![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-34-1.png)<!-- -->
+![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-36-1.png)<!-- -->
 
 ``` r
 ggsave("../output/WL2_Traits/F2s_SurvtoOct.png", width = 12, height = 6, units = "in")
@@ -2193,7 +2317,7 @@ wl2_surv_F2_binary_long_means %>%
   facet_wrap(~pop)
 ```
 
-![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-34-2.png)<!-- -->
+![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-36-2.png)<!-- -->
 
 ``` r
 ggsave("../output/WL2_Traits/F2s_SurvPostTransplant.png", width = 12, height = 6, units = "in")
@@ -2386,7 +2510,7 @@ wl2_surv_F2_binary_for_model_meansmat %>%
   theme(text=element_text(size=25), axis.text.x = element_text(angle = 45,  hjust = 1))
 ```
 
-![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-36-1.png)<!-- -->
+![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-38-1.png)<!-- -->
 
 ``` r
 ggsave("../output/WL2_Traits/F2s_SurvtoOct_MatPops.png", width = 12, height = 6, units = "in")
@@ -2402,7 +2526,7 @@ wl2_surv_F2_binary_for_model_meansmat %>%
   theme(text=element_text(size=25), axis.text.x = element_text(angle = 45,  hjust = 1))
 ```
 
-![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-36-2.png)<!-- -->
+![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-38-2.png)<!-- -->
 
 ``` r
 ggsave("../output/WL2_Traits/F2s_SurvPostTransplant_MatPops.png", width = 12, height = 6, units = "in")
@@ -2460,7 +2584,7 @@ wl2_surv_F2_binary_for_model_meanspat %>%
   theme(text=element_text(size=25), axis.text.x = element_text(angle = 45,  hjust = 1))
 ```
 
-![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-37-1.png)<!-- -->
+![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-39-1.png)<!-- -->
 
 ``` r
 ggsave("../output/WL2_Traits/F2s_SurvtoOct_PatPops.png", width = 12, height = 6, units = "in")
@@ -2476,10 +2600,157 @@ wl2_surv_F2_binary_for_model_meanspat %>%
   theme(text=element_text(size=25), axis.text.x = element_text(angle = 45,  hjust = 1))
 ```
 
-![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-37-2.png)<!-- -->
+![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-39-2.png)<!-- -->
 
 ``` r
 ggsave("../output/WL2_Traits/F2s_SurvPostTransplant_PatPops.png", width = 12, height = 6, units = "in")
+```
+
+Maternal Pops Plots  - BC2 prep
+
+``` r
+wl2_surv_F2_binary_for_model_meansmat_BC2PREP <- wl2_surv_F2_binary_for_model %>% 
+  group_by(WL2.cross, maternal.pops) %>% 
+  filter(maternal.pops == "WL1 x WL2" | maternal.pops == "WL2 x BH" | maternal.pops == "WL2" | 
+           maternal.pops == "WV" | maternal.pops == "WV x WL2" | maternal.pops == "WL2 x TM2" |
+           maternal.pops == "WL2 x DPR" | maternal.pops == "TM2 x WL2" | maternal.pops == "DPR" |
+           maternal.pops == "DPR x WL2" | maternal.pops == "TM2") %>% #FOR BC2 PREP
+  summarise(N_Surv = sum(!is.na(Surv_to_Oct)), 
+            mean_Surv_to_Oct = mean(Surv_to_Oct,na.rm=(TRUE)), 
+            mean_Surv_Post_Transplant = mean(Surv_Post_Transplant,na.rm=(TRUE)))
+```
+
+```
+## `summarise()` has grouped output by 'WL2.cross'. You can override using the
+## `.groups` argument.
+```
+
+``` r
+wl2_surv_F2_binary_for_model_meansmat_BC2PREP
+```
+
+```
+## # A tibble: 11 × 5
+## # Groups:   WL2.cross [1]
+##    WL2.cross maternal.pops N_Surv mean_Surv_to_Oct mean_Surv_Post_Transplant
+##    <lgl>     <chr>          <int>            <dbl>                     <dbl>
+##  1 TRUE      DPR               26           0.231                      0.923
+##  2 TRUE      DPR x WL2         24           0.292                      0.792
+##  3 TRUE      TM2                3           0.333                      1    
+##  4 TRUE      TM2 x WL2         49           0.224                      0.939
+##  5 TRUE      WL1 x WL2         31           0.0968                     0.645
+##  6 TRUE      WL2               24           0.125                      0.792
+##  7 TRUE      WL2 x BH          19           0.105                      0.842
+##  8 TRUE      WL2 x DPR         20           0.2                        0.8  
+##  9 TRUE      WL2 x TM2         17           0.176                      0.882
+## 10 TRUE      WV                16           0.125                      0.938
+## 11 TRUE      WV x WL2          18           0.167                      0.889
+```
+
+``` r
+wl2_surv_F2_binary_for_model_meansmat_BC2PREP %>% 
+  ggplot(aes(x=fct_reorder(maternal.pops, mean_Surv_to_Oct), y=mean_Surv_to_Oct)) +
+  geom_col(width = 0.7,position = position_dodge(0.75), colour="black") +
+  labs(title="WL2 F2s", x="Maternal Populations", y="Survival to Oct 2024") +
+  coord_cartesian(ylim = c(0, 1)) +
+  geom_text(data = wl2_surv_F2_binary_for_model_meansmat_BC2PREP, aes(label = N_Surv), vjust = -1) +
+  #theme_classic() +
+  theme(text=element_text(size=25), axis.text.x = element_text(angle = 45,  hjust = 1))
+```
+
+![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-40-1.png)<!-- -->
+
+``` r
+ggsave("../output/WL2_Traits/F2s_SurvtoOct_MatPops_BC2PREP.png", width = 8, height = 6, units = "in")
+
+wl2_surv_F2_binary_for_model_meansmat_BC2PREP %>% 
+  ggplot(aes(x=fct_reorder(maternal.pops, mean_Surv_Post_Transplant), y=mean_Surv_Post_Transplant)) +
+  geom_col(width = 0.7,position = position_dodge(0.75), colour="black") +
+  labs(title="WL2 F2s", x="Maternal Populations", y="Survival Two Weeks \n  Post-Transplant") +
+  coord_cartesian(ylim = c(0, 1.25)) +
+  scale_y_continuous(breaks = c(0.00, 0.25, 0.50, 0.75, 1.00, 1.25)) +
+  geom_text(data = wl2_surv_F2_binary_for_model_meansmat_BC2PREP, aes(label = N_Surv), vjust = -1) +
+  #theme_classic() +
+  theme(text=element_text(size=25), axis.text.x = element_text(angle = 45,  hjust = 1))
+```
+
+![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-40-2.png)<!-- -->
+
+``` r
+ggsave("../output/WL2_Traits/F2s_SurvPostTransplant_MatPops_BC2PREP.png", width = 8, height = 6, units = "in")
+```
+
+Paternal Pops Plots - BC2 prep
+
+``` r
+wl2_surv_F2_binary_for_model_meanspat_BC2PREP <- wl2_surv_F2_binary_for_model %>% 
+  group_by(WL2.cross, paternal.pops) %>% 
+  filter(paternal.pops == "BH x WL2" | paternal.pops == "WL2" | 
+           paternal.pops == "WV" | paternal.pops == "WV x WL2" | paternal.pops == "WL2 x TM2" |
+           paternal.pops == "WL2 x DPR" | paternal.pops == "TM2 x WL2" | paternal.pops == "DPR" |
+           paternal.pops == "DPR x WL2" | paternal.pops == "TM2") %>% #FOR BC2 PREP
+  summarise(N_Surv = sum(!is.na(Surv_to_Oct)), 
+            mean_Surv_to_Oct = mean(Surv_to_Oct,na.rm=(TRUE)), 
+            mean_Surv_Post_Transplant = mean(Surv_Post_Transplant,na.rm=(TRUE)))
+```
+
+```
+## `summarise()` has grouped output by 'WL2.cross'. You can override using the
+## `.groups` argument.
+```
+
+``` r
+wl2_surv_F2_binary_for_model_meanspat_BC2PREP
+```
+
+```
+## # A tibble: 10 × 5
+## # Groups:   WL2.cross [1]
+##    WL2.cross paternal.pops N_Surv mean_Surv_to_Oct mean_Surv_Post_Transplant
+##    <lgl>     <chr>          <int>            <dbl>                     <dbl>
+##  1 TRUE      BH x WL2           7           0.286                      1    
+##  2 TRUE      DPR                3           0                          0.667
+##  3 TRUE      DPR x WL2         31           0.226                      0.742
+##  4 TRUE      TM2                8           0                          0.75 
+##  5 TRUE      TM2 x WL2         45           0.133                      0.844
+##  6 TRUE      WL2               68           0.25                       0.838
+##  7 TRUE      WL2 x DPR         27           0.185                      1    
+##  8 TRUE      WL2 x TM2         46           0.130                      0.848
+##  9 TRUE      WV                16           0.0625                     0.875
+## 10 TRUE      WV x WL2          34           0.206                      0.853
+```
+
+``` r
+wl2_surv_F2_binary_for_model_meanspat_BC2PREP %>% 
+  ggplot(aes(x=fct_reorder(paternal.pops, mean_Surv_to_Oct), y=mean_Surv_to_Oct)) +
+  geom_col(width = 0.7,position = position_dodge(0.75), colour="black") +
+  labs(title="WL2 F2s", x="Paternal Populations", y="Survival to Oct 2024") +
+  coord_cartesian(ylim = c(0, 1)) +
+  geom_text(data = wl2_surv_F2_binary_for_model_meanspat_BC2PREP, aes(label = N_Surv), vjust = -1) +
+  #theme_classic() +
+  theme(text=element_text(size=25), axis.text.x = element_text(angle = 45,  hjust = 1))
+```
+
+![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-41-1.png)<!-- -->
+
+``` r
+ggsave("../output/WL2_Traits/F2s_SurvtoOct_PatPops_BC2PREP.png", width = 12, height = 6, units = "in")
+
+wl2_surv_F2_binary_for_model_meanspat_BC2PREP %>% 
+  ggplot(aes(x=fct_reorder(paternal.pops, mean_Surv_Post_Transplant), y=mean_Surv_Post_Transplant)) +
+  geom_col(width = 0.7,position = position_dodge(0.75), colour="black") +
+  labs(title="WL2 F2s", x="Paternal Populations", y="Survival Two Weeks \n  Post-Transplant") +
+  coord_cartesian(ylim = c(0, 1.25)) +
+  scale_y_continuous(breaks = c(0.00, 0.25, 0.50, 0.75, 1.00, 1.25)) +
+  geom_text(data = wl2_surv_F2_binary_for_model_meanspat_BC2PREP, aes(label = N_Surv), vjust = -1) +
+  #theme_classic() +
+  theme(text=element_text(size=25), axis.text.x = element_text(angle = 45,  hjust = 1))
+```
+
+![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-41-2.png)<!-- -->
+
+``` r
+ggsave("../output/WL2_Traits/F2s_SurvPostTransplant_PatPops_BC2PREP.png", width = 12, height = 6, units = "in")
 ```
 
 ### Bayesian random - maternal and paternal pops 
@@ -2549,6 +2820,16 @@ surv_parent_binary_m2 <- brm(surv_parent_binary_bf2,
 ## Start sampling
 ```
 
+```
+## Warning: There were 1 divergent transitions after warmup. See
+## https://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup
+## to find out why this is a problem and how to eliminate them.
+```
+
+```
+## Warning: Examine the pairs() plot to diagnose sampling problems
+```
+
 
 ``` r
 prior_summary(surv_parent_binary_m2)
@@ -2576,6 +2857,12 @@ summary(surv_parent_binary_m2)
 ```
 
 ```
+## Warning: There were 1 divergent transitions after warmup. Increasing
+## adapt_delta above 0.9 may help. See
+## http://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup
+```
+
+```
 ##  Family: bernoulli 
 ##   Links: mu = logit 
 ## Formula: Surv_to_Oct ~ (1 | maternal.pops) + (1 | paternal.pops) 
@@ -2586,15 +2873,15 @@ summary(surv_parent_binary_m2)
 ## Multilevel Hyperparameters:
 ## ~maternal.pops (Number of levels: 18) 
 ##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)     0.29      0.21     0.01     0.80 1.00     2696     4002
+## sd(Intercept)     0.29      0.21     0.01     0.77 1.00     2860     4176
 ## 
 ## ~paternal.pops (Number of levels: 15) 
 ##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)     0.47      0.30     0.04     1.20 1.00     2034     2780
+## sd(Intercept)     0.47      0.29     0.04     1.17 1.00     1876     2995
 ## 
 ## Regression Coefficients:
 ##           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## Intercept    -1.82      0.26    -2.41    -1.38 1.00     4051     3177
+## Intercept    -1.81      0.25    -2.37    -1.37 1.00     3902     2963
 ## 
 ## Draws were sampled using sampling(NUTS). For each parameter, Bulk_ESS
 ## and Tail_ESS are effective sample size measures, and Rhat is the potential
@@ -2611,7 +2898,7 @@ summary(surv_parent_binary_m2)
 plot(surv_parent_binary_m2,  nvariables = 3, ask=FALSE) #plots look better
 ```
 
-![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-41-1.png)<!-- -->
+![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-45-1.png)<!-- -->
 
 ``` r
 #pairs(surv_parent_binary_m2)
@@ -2623,7 +2910,7 @@ pp_check(surv_parent_binary_m2)  # posterior predictive checks
 ## Using 10 posterior draws for ppc type 'dens_overlay' by default.
 ```
 
-![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-41-2.png)<!-- -->
+![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-45-2.png)<!-- -->
 
 ``` r
 #some draws differ from posterior distribution 
@@ -2653,7 +2940,7 @@ hypothesis(surv_parent_binary_m2,
 ```
 ## Hypothesis Tests for class :
 ##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
-## 1 (r_maternal.pops[... > 0     0.09      0.37    -0.42     0.75       1.38
+## 1 (r_maternal.pops[... > 0     0.08      0.36    -0.43     0.72       1.38
 ##   Post.Prob Star
 ## 1      0.58     
 ## ---
@@ -2673,7 +2960,7 @@ hypothesis(surv_parent_binary_m2,
 ```
 ## Hypothesis Tests for class :
 ##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
-## 1 (r_maternal.pops[... > 0     0.23      0.33    -0.15     0.89       3.16
+## 1 (r_maternal.pops[... > 0     0.23      0.32    -0.15     0.87       3.09
 ##   Post.Prob Star
 ## 1      0.76     
 ## ---
@@ -2693,7 +2980,7 @@ hypothesis(surv_parent_binary_m2,
 ```
 ## Hypothesis Tests for class :
 ##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
-## 1 (r_maternal.pops[... > 0     0.07      0.35    -0.44      0.7       1.27
+## 1 (r_maternal.pops[... > 0     0.07      0.33    -0.41     0.68        1.3
 ##   Post.Prob Star
 ## 1      0.56     
 ## ---
@@ -2717,9 +3004,9 @@ hypothesis(surv_parent_binary_m2,
 ```
 ## Hypothesis Tests for class :
 ##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
-## 1 (r_paternal.pops[... > 0     0.21      0.47    -0.45     1.09       2.03
+## 1 (r_paternal.pops[... > 0      0.2      0.49    -0.48     1.08       1.89
 ##   Post.Prob Star
-## 1      0.67     
+## 1      0.65     
 ## ---
 ## 'CI': 90%-CI for one-sided and 95%-CI for two-sided hypotheses.
 ## '*': For one-sided hypotheses, the posterior probability exceeds 95%;
@@ -2737,9 +3024,9 @@ hypothesis(surv_parent_binary_m2,
 ```
 ## Hypothesis Tests for class :
 ##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
-## 1 (r_paternal.pops[... > 0     0.28       0.4    -0.27     1.04       3.12
+## 1 (r_paternal.pops[... > 0     0.27       0.4    -0.26     1.03       3.07
 ##   Post.Prob Star
-## 1      0.76     
+## 1      0.75     
 ## ---
 ## 'CI': 90%-CI for one-sided and 95%-CI for two-sided hypotheses.
 ## '*': For one-sided hypotheses, the posterior probability exceeds 95%;
@@ -2757,7 +3044,7 @@ hypothesis(surv_parent_binary_m2,
 ```
 ## Hypothesis Tests for class :
 ##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
-## 1 (r_paternal.pops[... > 0     0.46      0.39    -0.05     1.16       9.84
+## 1 (r_paternal.pops[... > 0     0.45      0.38    -0.04     1.13       9.74
 ##   Post.Prob Star
 ## 1      0.91     
 ## ---
@@ -2783,9 +3070,9 @@ hypothesis(surv_parent_binary_m2,
 ```
 ## Hypothesis Tests for class :
 ##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
-## 1 (r_maternal.pops[... > 0     0.32      0.46    -0.21     1.23        3.2
+## 1 (r_maternal.pops[... > 0     0.31      0.46    -0.22     1.24       2.95
 ##   Post.Prob Star
-## 1      0.76     
+## 1      0.75     
 ## ---
 ## 'CI': 90%-CI for one-sided and 95%-CI for two-sided hypotheses.
 ## '*': For one-sided hypotheses, the posterior probability exceeds 95%;
@@ -2803,7 +3090,7 @@ hypothesis(surv_parent_binary_m2,
 ```
 ## Hypothesis Tests for class :
 ##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
-## 1 (r_maternal.pops[... > 0     0.14       0.4    -0.43      0.9       1.65
+## 1 (r_maternal.pops[... > 0     0.13      0.39    -0.41     0.87       1.63
 ##   Post.Prob Star
 ## 1      0.62     
 ## ---
@@ -2820,16 +3107,16 @@ test whether DPR x WL2 increases survival probability *more* than other pops
 ``` r
 hypothesis(surv_parent_binary_m2,
            class = NULL,
-           hypothesis = "r_paternal.pops[DPR.x.WL2,Intercept] > r_maternal.pops[WV,Intercept]",
+           hypothesis = "r_paternal.pops[DPR.x.WL2,Intercept] > r_paternal.pops[WV,Intercept]",
            scope = "standard")
 ```
 
 ```
 ## Hypothesis Tests for class :
 ##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
-## 1 (r_paternal.pops[... > 0     0.35      0.52    -0.37     1.31       3.03
+## 1 (r_paternal.pops[... > 0     0.51      0.66     -0.3     1.75       3.89
 ##   Post.Prob Star
-## 1      0.75     
+## 1       0.8     
 ## ---
 ## 'CI': 90%-CI for one-sided and 95%-CI for two-sided hypotheses.
 ## '*': For one-sided hypotheses, the posterior probability exceeds 95%;
@@ -2847,7 +3134,7 @@ hypothesis(surv_parent_binary_m2,
 ```
 ## Hypothesis Tests for class :
 ##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
-## 1 (r_paternal.pops[... > 0     0.18      0.42    -0.48     0.91       2.07
+## 1 (r_paternal.pops[... > 0     0.18      0.42    -0.49      0.9       2.03
 ##   Post.Prob Star
 ## 1      0.67     
 ## ---
@@ -2856,8 +3143,90 @@ hypothesis(surv_parent_binary_m2,
 ## for two-sided hypotheses, the value tested against lies outside the 95%-CI.
 ## Posterior probabilities of point hypotheses assume equal prior probabilities.
 ```
-posterior probability that DPR x WL2 is better than WV is 0.76 (DADS)
+posterior probability that DPR x WL2 is better than WV is 0.8 (DADS)
 posterior probability that WL2 is better than DPR x WL2 is 0.67 (DADS)
+
+Maternal vs. paternal 
+
+``` r
+hypothesis(surv_parent_binary_m2,
+           class = NULL,
+           hypothesis = "r_maternal.pops[DPR,Intercept] > r_paternal.pops[DPR,Intercept]",
+           scope = "standard")
+```
+
+```
+## Hypothesis Tests for class :
+##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
+## 1 (r_maternal.pops[... > 0     0.21      0.58    -0.65     1.24       1.81
+##   Post.Prob Star
+## 1      0.64     
+## ---
+## 'CI': 90%-CI for one-sided and 95%-CI for two-sided hypotheses.
+## '*': For one-sided hypotheses, the posterior probability exceeds 95%;
+## for two-sided hypotheses, the value tested against lies outside the 95%-CI.
+## Posterior probabilities of point hypotheses assume equal prior probabilities.
+```
+
+``` r
+hypothesis(surv_parent_binary_m2,
+           class = NULL,
+           hypothesis = "r_maternal.pops[TM2,Intercept] > r_paternal.pops[TM2,Intercept]",
+           scope = "standard")
+```
+
+```
+## Hypothesis Tests for class :
+##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
+## 1 (r_maternal.pops[... > 0     0.34      0.64     -0.5     1.53       2.37
+##   Post.Prob Star
+## 1       0.7     
+## ---
+## 'CI': 90%-CI for one-sided and 95%-CI for two-sided hypotheses.
+## '*': For one-sided hypotheses, the posterior probability exceeds 95%;
+## for two-sided hypotheses, the value tested against lies outside the 95%-CI.
+## Posterior probabilities of point hypotheses assume equal prior probabilities.
+```
+
+``` r
+hypothesis(surv_parent_binary_m2,
+           class = NULL,
+           hypothesis = "r_maternal.pops[WV,Intercept] > r_paternal.pops[WV,Intercept]",
+           scope = "standard")
+```
+
+```
+## Hypothesis Tests for class :
+##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
+## 1 (r_maternal.pops[... > 0     0.17      0.54    -0.61     1.12       1.61
+##   Post.Prob Star
+## 1      0.62     
+## ---
+## 'CI': 90%-CI for one-sided and 95%-CI for two-sided hypotheses.
+## '*': For one-sided hypotheses, the posterior probability exceeds 95%;
+## for two-sided hypotheses, the value tested against lies outside the 95%-CI.
+## Posterior probabilities of point hypotheses assume equal prior probabilities.
+```
+
+``` r
+hypothesis(surv_parent_binary_m2,
+           class = NULL,
+           hypothesis = "r_paternal.pops[WL2,Intercept] > r_maternal.pops[WL2,Intercept]",
+           scope = "standard")
+```
+
+```
+## Hypothesis Tests for class :
+##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
+## 1 (r_paternal.pops[... > 0     0.54       0.5    -0.14     1.42       7.54
+##   Post.Prob Star
+## 1      0.88     
+## ---
+## 'CI': 90%-CI for one-sided and 95%-CI for two-sided hypotheses.
+## '*': For one-sided hypotheses, the posterior probability exceeds 95%;
+## for two-sided hypotheses, the value tested against lies outside the 95%-CI.
+## Posterior probabilities of point hypotheses assume equal prior probabilities.
+```
 
 ##### Hand calculated model output 
 
@@ -2870,16 +3239,16 @@ posterior::summarize_draws(r_pops) %>%
 ## # A tibble: 33 × 10
 ##    variable         mean median    sd   mad     q5   q95  rhat ess_bulk ess_tail
 ##    <chr>           <dbl>  <dbl> <dbl> <dbl>  <dbl> <dbl> <dbl>    <dbl>    <dbl>
-##  1 r_maternal.pop… 0.151  0.150 0.606 0.585 0.0816 0.263  1.00    7576.    5413.
-##  2 r_maternal.pop… 0.152  0.152 0.588 0.577 0.0907 0.240  1.00    5932.    4834.
-##  3 r_maternal.pop… 0.171  0.166 0.593 0.583 0.104  0.287  1.00    5676.    5323.
-##  4 r_maternal.pop… 0.126  0.132 0.590 0.578 0.0683 0.192  1.00    4343.    4744.
-##  5 r_maternal.pop… 0.135  0.139 0.586 0.575 0.0774 0.205  1.00    5409.    4917.
-##  6 r_maternal.pop… 0.148  0.149 0.605 0.585 0.0809 0.256  1.00    6979.    5287.
-##  7 r_maternal.pop… 0.140  0.143 0.600 0.582 0.0748 0.230  1.00    6356.    4665.
-##  8 r_maternal.pop… 0.164  0.162 0.581 0.573 0.105  0.253  1.00    5973.    5282.
-##  9 r_maternal.pop… 0.129  0.136 0.608 0.586 0.0620 0.212  1.00    5186.    4508.
-## 10 r_maternal.pop… 0.129  0.135 0.591 0.578 0.0708 0.200  1.00    5329.    4709.
+##  1 r_maternal.pop… 0.151  0.150 0.606 0.582 0.0822 0.264  1.00    5928.    5220.
+##  2 r_maternal.pop… 0.152  0.153 0.587 0.574 0.0917 0.240  1.00    5535.    4378.
+##  3 r_maternal.pop… 0.170  0.166 0.591 0.581 0.106  0.282  1.00    4872.    4477.
+##  4 r_maternal.pop… 0.128  0.133 0.586 0.577 0.0717 0.190  1.00    4499.    4031.
+##  5 r_maternal.pop… 0.136  0.140 0.584 0.574 0.0783 0.204  1.00    4740.    3785.
+##  6 r_maternal.pop… 0.149  0.149 0.599 0.580 0.0843 0.252  1.00    5422.    4479.
+##  7 r_maternal.pop… 0.141  0.144 0.601 0.582 0.0755 0.234  1.00    6503.    4804.
+##  8 r_maternal.pop… 0.164  0.162 0.579 0.572 0.105  0.253  1.00    4903.    5379.
+##  9 r_maternal.pop… 0.130  0.137 0.605 0.583 0.0653 0.208  1.00    5886.    4000.
+## 10 r_maternal.pop… 0.130  0.135 0.590 0.578 0.0711 0.199  1.00    6301.    5021.
 ## # ℹ 23 more rows
 ```
 
@@ -2980,6 +3349,16 @@ surv_parent_binary_m5 <- brm(surv_parent_binary_bf5,
 ## Start sampling
 ```
 
+```
+## Warning: There were 1 divergent transitions after warmup. See
+## https://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup
+## to find out why this is a problem and how to eliminate them.
+```
+
+```
+## Warning: Examine the pairs() plot to diagnose sampling problems
+```
+
 
 ``` r
 prior_summary(surv_parent_binary_m5)
@@ -3007,6 +3386,12 @@ summary(surv_parent_binary_m5)
 ```
 
 ```
+## Warning: There were 1 divergent transitions after warmup. Increasing
+## adapt_delta above 0.9 may help. See
+## http://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup
+```
+
+```
 ##  Family: bernoulli 
 ##   Links: mu = logit 
 ## Formula: Surv_Post_Transplant ~ (1 | maternal.pops) + (1 | paternal.pops) 
@@ -3017,15 +3402,15 @@ summary(surv_parent_binary_m5)
 ## Multilevel Hyperparameters:
 ## ~maternal.pops (Number of levels: 18) 
 ##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)     0.44      0.24     0.04     0.97 1.00     3003     3958
+## sd(Intercept)     0.44      0.24     0.04     0.96 1.00     3150     3455
 ## 
 ## ~paternal.pops (Number of levels: 15) 
 ##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)     0.66      0.36     0.07     1.47 1.00     2431     3263
+## sd(Intercept)     0.66      0.35     0.07     1.47 1.00     2036     2419
 ## 
 ## Regression Coefficients:
 ##           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## Intercept     1.61      0.28     1.06     2.19 1.00     6269     5787
+## Intercept     1.62      0.29     1.06     2.21 1.00     5702     4760
 ## 
 ## Draws were sampled using sampling(NUTS). For each parameter, Bulk_ESS
 ## and Tail_ESS are effective sample size measures, and Rhat is the potential
@@ -3042,7 +3427,7 @@ summary(surv_parent_binary_m5)
 plot(surv_parent_binary_m5,  nvariables = 3, ask=FALSE) #plots look better
 ```
 
-![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-53-1.png)<!-- -->
+![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-58-1.png)<!-- -->
 
 ``` r
 #pairs(surv_parent_binary_m5)
@@ -3054,7 +3439,7 @@ pp_check(surv_parent_binary_m5)  # posterior predictive checks
 ## Using 10 posterior draws for ppc type 'dens_overlay' by default.
 ```
 
-![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-53-2.png)<!-- -->
+![](WL2_Single_Time_Surv_BayesRandom_files/figure-html/unnamed-chunk-58-2.png)<!-- -->
 
 ``` r
 #some draws differ from posterior distribution 
@@ -3084,7 +3469,7 @@ hypothesis(surv_parent_binary_m5,
 ```
 ## Hypothesis Tests for class :
 ##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
-## 1 (r_maternal.pops[... > 0     0.49      0.43    -0.06      1.3       9.09
+## 1 (r_maternal.pops[... > 0     0.49      0.43    -0.06      1.3       8.93
 ##   Post.Prob Star
 ## 1       0.9     
 ## ---
@@ -3104,7 +3489,7 @@ hypothesis(surv_parent_binary_m5,
 ```
 ## Hypothesis Tests for class :
 ##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
-## 1 (r_maternal.pops[... > 0     0.06      0.49     -0.7      0.9       1.21
+## 1 (r_maternal.pops[... > 0     0.06      0.48     -0.7     0.88       1.21
 ##   Post.Prob Star
 ## 1      0.55     
 ## ---
@@ -3124,7 +3509,7 @@ hypothesis(surv_parent_binary_m5,
 ```
 ## Hypothesis Tests for class :
 ##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
-## 1 (r_maternal.pops[... > 0     0.11      0.48    -0.61     0.96       1.38
+## 1 (r_maternal.pops[... > 0      0.1      0.49    -0.63     0.96       1.37
 ##   Post.Prob Star
 ## 1      0.58     
 ## ---
@@ -3144,7 +3529,7 @@ hypothesis(surv_parent_binary_m5,
 ```
 ## Hypothesis Tests for class :
 ##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
-## 1 (r_maternal.pops[... > 0     0.23      0.44    -0.38     1.06       2.27
+## 1 (r_maternal.pops[... > 0     0.23      0.45    -0.39     1.09       2.19
 ##   Post.Prob Star
 ## 1      0.69     
 ## ---
@@ -3164,9 +3549,9 @@ hypothesis(surv_parent_binary_m5,
 ```
 ## Hypothesis Tests for class :
 ##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
-## 1 (r_maternal.pops[... > 0     0.23      0.41    -0.35     0.99       2.39
+## 1 (r_maternal.pops[... > 0     0.22      0.41    -0.35     0.97       2.36
 ##   Post.Prob Star
-## 1      0.71     
+## 1       0.7     
 ## ---
 ## 'CI': 90%-CI for one-sided and 95%-CI for two-sided hypotheses.
 ## '*': For one-sided hypotheses, the posterior probability exceeds 95%;
@@ -3190,7 +3575,7 @@ hypothesis(surv_parent_binary_m5,
 ```
 ## Hypothesis Tests for class :
 ##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
-## 1 (r_paternal.pops[... > 0     0.87      0.76    -0.04     2.28      12.42
+## 1 (r_paternal.pops[... > 0     0.88      0.75    -0.04     2.28      13.08
 ##   Post.Prob Star
 ## 1      0.93     
 ## ---
@@ -3210,7 +3595,7 @@ hypothesis(surv_parent_binary_m5,
 ```
 ## Hypothesis Tests for class :
 ##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
-## 1 (r_paternal.pops[... > 0     0.51      0.71    -0.37     1.83       3.47
+## 1 (r_paternal.pops[... > 0     0.52      0.71    -0.36     1.85       3.51
 ##   Post.Prob Star
 ## 1      0.78     
 ## ---
@@ -3230,9 +3615,9 @@ hypothesis(surv_parent_binary_m5,
 ```
 ## Hypothesis Tests for class :
 ##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
-## 1 (r_paternal.pops[... > 0     0.14      0.54     -0.7      1.1       1.48
+## 1 (r_paternal.pops[... > 0     0.14      0.55     -0.7     1.09       1.43
 ##   Post.Prob Star
-## 1       0.6     
+## 1      0.59     
 ## ---
 ## 'CI': 90%-CI for one-sided and 95%-CI for two-sided hypotheses.
 ## '*': For one-sided hypotheses, the posterior probability exceeds 95%;
@@ -3250,9 +3635,9 @@ hypothesis(surv_parent_binary_m5,
 ```
 ## Hypothesis Tests for class :
 ##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
-## 1 (r_paternal.pops[... > 0      0.1      0.37    -0.49     0.72       1.57
+## 1 (r_paternal.pops[... > 0      0.1      0.37    -0.49     0.73       1.53
 ##   Post.Prob Star
-## 1      0.61     
+## 1       0.6     
 ## ---
 ## 'CI': 90%-CI for one-sided and 95%-CI for two-sided hypotheses.
 ## '*': For one-sided hypotheses, the posterior probability exceeds 95%;
@@ -3276,7 +3661,7 @@ hypothesis(surv_parent_binary_m5,
 ```
 ## Hypothesis Tests for class :
 ##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
-## 1 (r_maternal.pops[... > 0     0.54      0.56    -0.19     1.57       5.57
+## 1 (r_maternal.pops[... > 0     0.55      0.56    -0.18     1.57       5.77
 ##   Post.Prob Star
 ## 1      0.85     
 ## ---
@@ -3296,9 +3681,9 @@ hypothesis(surv_parent_binary_m5,
 ```
 ## Hypothesis Tests for class :
 ##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
-## 1 (r_maternal.pops[... > 0     0.26      0.54    -0.54     1.21       2.33
+## 1 (r_maternal.pops[... > 0     0.26      0.54    -0.56     1.22       2.21
 ##   Post.Prob Star
-## 1       0.7     
+## 1      0.69     
 ## ---
 ## 'CI': 90%-CI for one-sided and 95%-CI for two-sided hypotheses.
 ## '*': For one-sided hypotheses, the posterior probability exceeds 95%;
@@ -3319,9 +3704,9 @@ hypothesis(surv_parent_binary_m5,
 ```
 ## Hypothesis Tests for class :
 ##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
-## 1 (r_paternal.pops[... > 0     0.78       0.8    -0.23     2.27       6.15
+## 1 (r_paternal.pops[... > 0     0.78      0.79    -0.23     2.21       6.51
 ##   Post.Prob Star
-## 1      0.86     
+## 1      0.87     
 ## ---
 ## 'CI': 90%-CI for one-sided and 95%-CI for two-sided hypotheses.
 ## '*': For one-sided hypotheses, the posterior probability exceeds 95%;
@@ -3339,7 +3724,7 @@ hypothesis(surv_parent_binary_m5,
 ```
 ## Hypothesis Tests for class :
 ##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
-## 1 (r_paternal.pops[... > 0     0.36      0.83    -0.88     1.83        2.1
+## 1 (r_paternal.pops[... > 0     0.36      0.82    -0.88     1.77       2.14
 ##   Post.Prob Star
 ## 1      0.68     
 ## ---
@@ -3362,16 +3747,16 @@ posterior::summarize_draws(r_pops) %>%
 ## # A tibble: 33 × 10
 ##    variable          mean median    sd   mad    q5   q95  rhat ess_bulk ess_tail
 ##    <chr>            <dbl>  <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>    <dbl>    <dbl>
-##  1 r_maternal.pops… 0.842  0.838 0.638 0.617 0.690 0.934  1.00    9996.    7543.
-##  2 r_maternal.pops… 0.863  0.858 0.618 0.607 0.756 0.937  1.00    8106.    7323.
-##  3 r_maternal.pops… 0.826  0.825 0.603 0.594 0.708 0.905  1.00   10107.    7936.
-##  4 r_maternal.pops… 0.833  0.832 0.592 0.585 0.732 0.902  1.00    9537.    7667.
-##  5 r_maternal.pops… 0.810  0.811 0.594 0.589 0.695 0.888  1.00    8703.    7020.
-##  6 r_maternal.pops… 0.848  0.843 0.636 0.615 0.707 0.936  1.00    9870.    7232.
-##  7 r_maternal.pops… 0.837  0.834 0.623 0.609 0.702 0.924  1.00   10388.    7571.
-##  8 r_maternal.pops… 0.892  0.887 0.622 0.620 0.800 0.953  1.00    5365.    6030.
-##  9 r_maternal.pops… 0.829  0.828 0.627 0.611 0.671 0.919  1.00   10407.    7036.
-## 10 r_maternal.pops… 0.774  0.778 0.612 0.609 0.610 0.873  1.00    6407.    7154.
+##  1 r_maternal.pops… 0.843  0.839 0.637 0.615 0.694 0.935  1.00    9617.    6542.
+##  2 r_maternal.pops… 0.863  0.859 0.620 0.610 0.755 0.937  1.00    7413.    7422.
+##  3 r_maternal.pops… 0.826  0.826 0.602 0.596 0.708 0.904  1.00    9140.    7187.
+##  4 r_maternal.pops… 0.834  0.832 0.592 0.587 0.734 0.904  1.00    8404.    7489.
+##  5 r_maternal.pops… 0.810  0.811 0.594 0.589 0.696 0.889  1.00    8082.    6601.
+##  6 r_maternal.pops… 0.849  0.843 0.638 0.616 0.710 0.938  1.00    9368.    7047.
+##  7 r_maternal.pops… 0.839  0.836 0.623 0.609 0.703 0.924  1.00    9451.    7486.
+##  8 r_maternal.pops… 0.892  0.887 0.623 0.619 0.801 0.953  1.00    5318.    7006.
+##  9 r_maternal.pops… 0.831  0.830 0.624 0.610 0.686 0.921  1.00    9935.    7134.
+## 10 r_maternal.pops… 0.775  0.779 0.610 0.607 0.615 0.873  1.00    5873.    7303.
 ## # ℹ 23 more rows
 ```
 
