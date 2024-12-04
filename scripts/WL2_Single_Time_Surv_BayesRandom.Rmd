@@ -570,6 +570,7 @@ xtabs(~Surv_to_Oct+paternal.pops, data=wl2_surv_F2_binary)
 wl2_surv_F2_binary_for_model <- wl2_surv_F2_binary %>% 
   filter(paternal.pops!="TM2 x BH")
 unique(wl2_surv_F2_binary_for_model$paternal.pops)
+unique(wl2_surv_F2_binary_for_model$maternal.pops)
 xtabs(~Surv_to_Oct+paternal.pops, data=wl2_surv_F2_binary_for_model)
 ```
 
@@ -642,7 +643,6 @@ ggsave("../output/WL2_Traits/F2s_SurvPostTransplant_PatPops.png", width = 12, he
 surv_parent_binary_bf2 <- brmsformula(Surv_to_Oct ~ (1|maternal.pops)+(1|paternal.pops))
 
 get_prior(surv_parent_binary_bf2, family = "bernoulli", data = wl2_surv_F2_binary_for_model)
-#excluded plants with only 3 parents 
 ```
 
 ```{r}
@@ -664,7 +664,7 @@ summary(surv_parent_binary_m2)
 ```
 
 ```{r}
-plot(surv_parent_binary_m2,  nvariables = 3, ask=FALSE) #plots don't look good 
+plot(surv_parent_binary_m2,  nvariables = 3, ask=FALSE) #plots look better
 
 #pairs(surv_parent_binary_m2)
 
@@ -682,10 +682,106 @@ r_pops_raw <- as_draws_df(surv_parent_binary_m2, variable = "*r_", regex = TRUE)
 r_pops <- r_pops_raw %>% mutate(across(everything(), ~ .x + intercept$b_Intercept))
 ```
 
+##### Hypothesis Testing 
+
+```{r}
+hypothesis(surv_parent_binary_m2,
+           class = NULL,
+           hypothesis = "r_maternal.pops[CC.x.TM2,Intercept] > 0",
+           scope = "standard")
+
+hypothesis(surv_parent_binary_m2,
+           class = NULL,
+           hypothesis = "r_maternal.pops[DPR.x.WL2,Intercept] > 0",
+           scope = "standard")
+
+hypothesis(surv_parent_binary_m2,
+           class = NULL,
+           hypothesis = "r_maternal.pops[TM2,Intercept] > 0",
+           scope = "standard")
+```
+This shows that the posterior probability that CC x TM2 (mom) increases survivability is 0.58 
+Same prob for DPR x WL2 (MOM) is 0.76
+Same prob for TM2 (mom) = 0.57
+
+```{r}
+hypothesis(surv_parent_binary_m2,
+           class = NULL,
+           hypothesis = "r_paternal.pops[BH.x.WL2,Intercept] > 0",
+           scope = "standard")
+
+hypothesis(surv_parent_binary_m2,
+           class = NULL,
+           hypothesis = "r_paternal.pops[DPR.x.WL2,Intercept] > 0",
+           scope = "standard")
+
+hypothesis(surv_parent_binary_m2,
+           class = NULL,
+           hypothesis = "r_paternal.pops[WL2,Intercept] > 0",
+           scope = "standard")
+```
+posterior probability that CC x TM2 (dad) increases survivability is 0.65
+Same prob for DPR x WL2 (dad) is 0.76
+Same prob for TM2 (dad) = 0.92
+
+
+test whether DPR x WL2 increases survival probability *more* than other pops
+```{r}
+hypothesis(surv_parent_binary_m2,
+           class = NULL,
+           hypothesis = "r_maternal.pops[DPR.x.WL2,Intercept] > r_maternal.pops[WL2,Intercept]",
+           scope = "standard")
+
+hypothesis(surv_parent_binary_m2,
+           class = NULL,
+           hypothesis = "r_maternal.pops[DPR.x.WL2,Intercept] > r_maternal.pops[DPR,Intercept]",
+           scope = "standard")
+```
+This shows that the posterior probability that DPR x WL2 is better than WL2 is 0.75 (MOMS)
+posterior probability that DPR x WL2 is better than DPR is 0.61 (MOMS)
+
+test whether DPR x WL2 increases survival probability *more* than other pops
+```{r}
+hypothesis(surv_parent_binary_m2,
+           class = NULL,
+           hypothesis = "r_paternal.pops[DPR.x.WL2,Intercept] > r_maternal.pops[WV,Intercept]",
+           scope = "standard")
+
+hypothesis(surv_parent_binary_m2,
+           class = NULL,
+           hypothesis = "r_paternal.pops[WL2,Intercept] > r_paternal.pops[DPR.x.WL2,Intercept]",
+           scope = "standard")
+```
+posterior probability that DPR x WL2 is better than WV is 0.76 (DADS)
+posterior probability that WL2 is better than DPR x WL2 is 0.67 (DADS)
+
+##### Hand calculated model output 
 ```{r}
 posterior::summarize_draws(r_pops) %>%
   mutate(across(mean:q95, inv_logit_scaled))
 #estimates seem to be a little off...
+```
+
+##### Tidybayes tables 
+```{r}
+#tibble(maternal.pops = "CC.x.TM2") %>%
+ # add_epred_draws(surv_parent_binary_m2) %>%
+  #median_qi(.epred) 
+#CAN'T USE THIS CODE FOR F2s because it wants info about maternal and paternal pops (pairs)
+```
+
+##### Tidy Plot 
+NEED TO FIGURE OUT HOW TO MAKE THIS PLOT WHEN TO RANDOM EFFECTS IN MODEL 
+```{r, eval=FALSE}
+wl2_surv_F2_binary_for_model %>% 
+  data_grid(maternal.pops, paternal.pops) %>%
+  add_epred_draws(surv_parent_binary_m2) %>%
+  ggplot(aes(y = maternal.pops, x = .epred)) +
+  stat_slab() +
+  theme_classic() +
+  labs(x="Posterior Survival Predictions", y="Maternal Parent", title="F1 Survival to October") +
+  theme(text=element_text(size=25)) 
+ggsave("../output/WL2_Traits/F2s_SurvtoOct_PostProb.png", width = 8, height = 6, units = "in")
 ```
 
 #### Surv Post Transplant
@@ -715,7 +811,7 @@ summary(surv_parent_binary_m5)
 ```
 
 ```{r}
-plot(surv_parent_binary_m5,  nvariables = 3, ask=FALSE) #plots don't look good 
+plot(surv_parent_binary_m5,  nvariables = 3, ask=FALSE) #plots look better
 
 #pairs(surv_parent_binary_m5)
 
@@ -733,10 +829,121 @@ r_pops_raw <- as_draws_df(surv_parent_binary_m5, variable = "*r_", regex = TRUE)
 r_pops <- r_pops_raw %>% mutate(across(everything(), ~ .x + intercept$b_Intercept))
 ```
 
+##### Hypothesis Testing 
+
+```{r}
+hypothesis(surv_parent_binary_m5,
+           class = NULL,
+           hypothesis = "r_maternal.pops[TM2.x.WL2,Intercept] > 0",
+           scope = "standard")
+
+hypothesis(surv_parent_binary_m5,
+           class = NULL,
+           hypothesis = "r_maternal.pops[CC.x.TM2,Intercept] > 0",
+           scope = "standard")
+
+hypothesis(surv_parent_binary_m5,
+           class = NULL,
+           hypothesis = "r_maternal.pops[TM2,Intercept] > 0",
+           scope = "standard")
+
+hypothesis(surv_parent_binary_m5,
+           class = NULL,
+           hypothesis = "r_maternal.pops[WV,Intercept] > 0",
+           scope = "standard")
+
+hypothesis(surv_parent_binary_m5,
+           class = NULL,
+           hypothesis = "r_maternal.pops[DPR,Intercept] > 0",
+           scope = "standard")
+```
+posterior probability that TM2 x WL2 (MOM) increases survivability is 0.9
+Same prob for CC x TM2 (MOM) is 0.54
+Same prob for TM2 (MOM) is 0.59
+Same prob for WV (MOM) is 0.7
+Same prob for DPR (MOM) = 0.7
+
+```{r}
+hypothesis(surv_parent_binary_m5,
+           class = NULL,
+           hypothesis = "r_paternal.pops[WL2.x.DPR,Intercept] > 0",
+           scope = "standard")
+
+hypothesis(surv_parent_binary_m5,
+           class = NULL,
+           hypothesis = "r_paternal.pops[BH.x.WL2,Intercept] > 0",
+           scope = "standard")
+
+hypothesis(surv_parent_binary_m5,
+           class = NULL,
+           hypothesis = "r_paternal.pops[WV,Intercept] > 0",
+           scope = "standard")
+
+hypothesis(surv_parent_binary_m5,
+           class = NULL,
+           hypothesis = "r_paternal.pops[WL2,Intercept] > 0",
+           scope = "standard")
+```
+posterior probability that WL2 x DPR (DAD) increases survivability is 0.93
+Same prob for BH x WL2 (DAD) is 0.79
+Same prob for WV (DAD) is 0.6
+Same prob for WL2 (DAD) = 0.61
+
+test whether TM2 x WL2 increases survival probability *more* than other pops
+```{r}
+hypothesis(surv_parent_binary_m5,
+           class = NULL,
+           hypothesis = "r_maternal.pops[TM2.x.WL2,Intercept] > r_maternal.pops[WL2,Intercept]",
+           scope = "standard")
+
+hypothesis(surv_parent_binary_m5,
+           class = NULL,
+           hypothesis = "r_maternal.pops[TM2.x.WL2,Intercept] > r_maternal.pops[WV,Intercept]",
+           scope = "standard")
+```
+This shows that the posterior probability that TM2 x WL2 is better than WL2 is 0.85 (MOMS)
+posterior probability that TM2 x WL2 is better than WV is 0.7 (MOMS)
+
+```{r}
+hypothesis(surv_parent_binary_m5,
+           class = NULL,
+           hypothesis = "r_paternal.pops[WL2.x.DPR,Intercept] > r_paternal.pops[WL2,Intercept]",
+           scope = "standard")
+
+hypothesis(surv_parent_binary_m5,
+           class = NULL,
+           hypothesis = "r_paternal.pops[WL2.x.DPR,Intercept] > r_paternal.pops[BH.x.WL2,Intercept]",
+           scope = "standard")
+```
+This shows that the posterior probability that WL2 x DPR is better than WL2 is 0.87 (DADS)
+posterior probability that WL2 x DPR is better than BH X WL2 is 0.68 (DADS)
+
+##### Hand calculated model output 
 ```{r}
 posterior::summarize_draws(r_pops) %>%
   mutate(across(mean:q95, inv_logit_scaled))
 #estimates seem to be a little off...
+```
+
+##### Tidybayes tables 
+```{r}
+#tibble(Other_Parent = "BH") %>%
+ # add_epred_draws(surv_parent_binary_m5) %>%
+  #median_qi(.epred) 
+#CAN'T USE THIS CODE FOR F2s because it wants info about maternal and paternal pops (pairs)
+```
+
+NEED TO FIGURE OUT HOW TO MAKE THIS PLOT WHEN TO RANDOM EFFECTS IN MODEL 
+```{r, eval=FALSE}
+wl2_surv_F2_binary_for_model %>% 
+  data_grid(Other_Parent) %>%
+  add_epred_draws(surv_parent_binary_m5) %>%
+  ggplot(aes(y = Other_Parent, x = .epred)) +
+  stat_slab() +
+  theme_classic() +
+  labs(x="Posterior Survival Predictions", y="Non-WL2 Parent", title="F1 Survival to October") +
+  theme(text=element_text(size=25)) 
+ggsave("../output/WL2_Traits/F2s_SurvtoOct_PostProb.png", width = 8, height = 6, units = "in")
 ```
 
 ### MATERNAL POPS (YES/NO) - Plot
