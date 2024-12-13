@@ -163,16 +163,16 @@ bed.block.order,bed.order,AB.CD.order,column.order,Pop.Type,status,block,loc,bed
 677,596,5,1,,buffer,D,C_60_B,C,60,B,,,,buffer
 704,597,6,2,,buffer,A,C_1_C,C,1,C,,,,buffer
 705,598,6,2,,buffer,A,C_1_D,C,1,D,,,,buffer
-706,599,6,2,2023-survivor,2023-survivor,A,C_2_C,C,2,C,SC,5,6,SC_5_6
-707,600,6,2,2023-survivor,2023-survivor,A,C_2_D,C,2,D,CC,9,6,CC_9_6
+706,599,6,2,2023-survivor,2023-survivor,NA,C_2_C,C,2,C,SC,5,6,SC_5_6
+707,600,6,2,2023-survivor,2023-survivor,NA,C_2_D,C,2,D,CC,9,6,CC_9_6
 708,601,6,2,,buffer,A,C_3_C,C,3,C,,,,buffer
 520,602,6,2,F2,available,A,C_3_D,C,3,D,(SQ3 x WL2) x (WL2),,8,87
 521,603,6,2,F2,available,A,C_4_C,C,4,C,(LV1 x WL2) x (YO11 x WL2),,2,987
 709,604,6,2,,buffer,A,C_4_D,C,4,D,,,,buffer
 522,605,6,2,F2,available,A,C_5_C,C,5,C,(BH) x (TM2 x BH),,4,666
-523,606,6,2,,NA,A,C_5_D,C,5,D,,,,NA
+523,606,6,2,F2,available,A,C_5_D,C,5,D,(WL2 x CC) x (WL2 x TM2),,8,1185
 524,607,6,2,F1,available,A,C_6_C,C,6,C,LV1 x TM2,,3,1227
-525,608,6,2,F2,available,A,C_6_D,C,6,D,(WL2 x CC) x (WL2 x TM2),,8,1185
+525,608,6,2,,NA,A,C_6_D,C,6,D,,,,NA
 526,609,6,2,F2,available,A,C_7_C,C,7,C,(WL2 x BH) x (SQ3 x WL2),,11,1172
 527,610,6,2,Parent,available,A,C_7_D,C,7,D,TM2,,17,487
 528,611,6,2,Parent,available,A,C_8_C,C,8,C,WL2,,72,167
@@ -1049,7 +1049,7 @@ bed.block.order,bed.order,AB.CD.order,column.order,Pop.Type,status,block,loc,bed
 1437,1482,16,2,,buffer,N,H_1_D,H,1,D,,,,buffer
 1438,1483,16,2,,buffer,N,H_2_C,H,2,C,,,,buffer
 1439,1484,16,2,,buffer,N,H_2_D,H,2,D,,,,buffer
-1440,1485,16,2,2023-survivor,2023-survivor,N,H_3_C,H,3,C,YO7,7,15,YO7_7_15
+1440,1485,16,2,2023-survivor,2023-survivor,NA,H_3_C,H,3,C,YO7,7,15,YO7_7_15
 1441,1486,16,2,,buffer,N,H_3_D,H,3,D,,,,buffer
 1442,1487,16,2,F2,available,N,H_4_D,H,4,D,(TM2 x WL2) x (WV x WL2),,1,1303
 1443,1488,16,2,F2,available,N,H_5_D,H,5,D,(TM2 x BH) x (BH),,7,749

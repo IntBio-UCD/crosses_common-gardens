@@ -1,0 +1,94 @@
+---
+title: "Correcting_2023_PlantIDs"
+author: "Brandie QC"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Fixing issue with 2023 plant IDs on 2024 data sheets
+Only need to fix the first few size surveys since the final mort/pheno and annual census sheets (10/23) are correct. 
+
+## Load libraries
+```{r}
+library(tidyverse)
+```
+
+## Load the data
+The IDs were wrong for the first 3 size censuses 
+```{r}
+size_0618 <- read_csv("../input/WL2_2024_Data/CorrectedCSVs/WL2_size_survey_20240618_corrected.csv")
+size_0625 <- read_csv("../input/WL2_2024_Data/CorrectedCSVs/WL2_size_survey_20240625_corrected.csv")
+size_0703 <- read_csv("../input/WL2_2024_Data/CorrectedCSVs/WL2_size_survey_20240703_corrected.csv")
+mort_pheno_oct <- read_csv("../input/WL2_2024_Data/CorrectedCSVs/WL2_mort_pheno_20241023_corrected.csv") #double check mort/pheno 
+ann_census_oct <- read_csv("../input/WL2_2024_Data/CorrectedCSVs/WL2_Annual_Census_20241023_corrected.csv") #double check ann census 
+
+pop_loc_info <- read_csv("../input/WL2_2024_Data/Final_2023_2024_Pop_Loc_Info.csv") #final correct pop ID and location info 
+```
+
+## Filter to just the 2023 plants 
+```{r}
+pop_loc_info_2023plants <- pop_loc_info %>% 
+  filter(Pop.Type=="2023-survivor" | Pop.Type=="2023-TM2-fruit") %>% 
+  select(Pop.Type, block:bed, row=bedrow, col=bedcol, pop:unique.ID)
+  #159 2023 plants in the data sheet 
+#pop_loc_info  %>% filter(is.na(block)) %>% filter(!is.na(unique.ID)) %>% filter(unique.ID != "buffer") #same number, different method of filtering 
+#pop_loc_info %>% filter(is.na(as.numeric(unique.ID))) %>% filter(unique.ID != "buffer") #same number, different method of filtering 
+
+#mort_pheno_oct %>% filter(is.na(as.numeric(unique.ID))) %>% filter(unique.ID != "buffer") #correct number in mort/pheno sheet
+#ann_census_oct %>% filter(is.na(as.numeric(unique.ID))) %>% filter(unique.ID != "buffer") #correct number in ann census sheet
+
+size_0618_2023plants <- size_0618 %>% filter(is.na(as.numeric(unique.ID))) %>% filter(unique.ID != "buffer")  #missing 2 plants (mistakenly coded as buffers) - C_2_C and C_2_D
+size_0625_2023plants <- size_0625 %>% filter(is.na(as.numeric(unique.ID))) %>% filter(unique.ID != "buffer") 
+#missing H_34_A, H_3_C + plants mistakenly coded as buffers
+size_0703_2023plants <- size_0703 %>% filter(is.na(as.numeric(unique.ID))) %>% filter(unique.ID != "buffer") 
+#missing D_3_B, H_34_A + plants mistakenly coded as buffers
+```
+
+## Fix June 18 
+```{r}
+size_0618_2023plants_prep <- size_0618_2023plants %>% 
+  select(block:col, wrongID=unique.ID, height.cm:survey.notes) %>%
+  separate(wrongID, c("pop", "mf"), remove = FALSE) %>% 
+  mutate(mf=as.numeric(mf))
+head(size_0618_2023plants_prep)
+
+corrected_size_0618_2023plants <- left_join(pop_loc_info_2023plants, size_0618_2023plants_prep)
+corrected_size_0618_2023plants %>% filter(is.na(wrongID)) #check for plants missing from 0618 sheet
+#YO7_7_15 coded as H_3_D in 0618 sheet, corrected this on the original csv  
+#Only 2 remaining missing plants are the ones noted above (C_2_C and C_2_D)
+write_csv(corrected_size_0618_2023plants, "../input/WL2_2024_Data/CorrectedCSVs/WL2_size_survey_20240618_2023Plants_corrected.csv")
+```
+
+## Fix June 25
+```{r}
+size_0625_2023plants_prep <- size_0625_2023plants %>% 
+  select(block:col, wrongID=unique.ID, height.cm:survey.notes) %>%
+  separate(wrongID, c("pop", "mf"), remove = FALSE) %>% 
+  mutate(mf=as.numeric(mf))
+head(size_0625_2023plants_prep)
+
+corrected_size_0625_2023plants <- left_join(pop_loc_info_2023plants, size_0625_2023plants_prep)
+corrected_size_0625_2023plants %>% filter(is.na(wrongID)) #check for plants missing from 0625 sheet
+#IH_5_9 coded as D_3_A on 0625 sheet, corrected this on the original csv   
+#Only 4 remaining missing plants are the ones noted above (C_2_C, C_2_D, H_34_A, H_3_C)
+write_csv(corrected_size_0625_2023plants, "../input/WL2_2024_Data/CorrectedCSVs/WL2_size_survey_20240625_2023Plants_corrected.csv")
+```
+
+## Fix July 3 
+```{r}
+size_0703_2023plants_prep <- size_0703_2023plants %>% 
+  select(block:col, wrongID=unique.ID, height.cm:survey.notes) %>%
+  separate(wrongID, c("pop", "mf"), remove = FALSE) %>% 
+  mutate(mf=as.numeric(mf))
+head(size_0703_2023plants_prep)
+
+corrected_size_0703_2023plants <- left_join(pop_loc_info_2023plants, size_0703_2023plants_prep)
+corrected_size_0703_2023plants %>% filter(is.na(wrongID)) #check for plants missing from 0703 sheet
+#YO7_7_15 coded as H_3_D in 0703 sheet, corrected this on the original csv  
+#Only 2 remaining missing plants are the ones noted above (C_2_C and C_2_D)
+write_csv(corrected_size_0703_2023plants, "../input/WL2_2024_Data/CorrectedCSVs/WL2_size_survey_20240703_2023Plants_corrected.csv")
+```
