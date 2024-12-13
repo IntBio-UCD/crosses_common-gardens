@@ -5,3 +5,5 @@ Note: The first 3 censuses (0618, 0625, and 0703) have the incorrect plant IDs f
 Accordingly, use the 10/23 mort/pheno and annual census files and not the previous dates for those data. 
 
 Note: For the annual census, some plants started produced more fruit after the annual census was completed, need to decide whether to update the fruit number for those plants!
+
+Note: On the mort/pheno sheet, some plants were noted as "gone" without any additonal information. BQC has converted those dates to "missing.date" instead of "death.date", but the group should verify this is correct.
