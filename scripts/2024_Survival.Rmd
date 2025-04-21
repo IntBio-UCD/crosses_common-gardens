@@ -1,0 +1,65 @@
+---
+title: "2024_Survival"
+author: "Brandie QC"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Checking who was alive at the end of 2024
+
+## Libraries
+```{r}
+library(tidyverse)
+```
+
+
+## Surv Data
+```{r}
+surv_2024 <- read_csv("../input/WL2_2024_Data/CorrectedCSVs/WL2_mort_pheno_20241023_corrected.csv")
+head(surv_2024)
+
+surv_2024 %>% filter(unique.ID=="buffer") #check for buffers
+```
+
+## Pop Info
+```{r}
+pop_info <- read_csv("../input/WL2_2024_Data/Final_2023_2024_Pop_Loc_Info.csv") %>% 
+  select(Pop.Type:unique.ID) %>% 
+  rename(row=bedrow, col=bedcol)
+```
+
+## Merge
+```{r}
+surv_2024_pops <- left_join(surv_2024, pop_info)
+unique(surv_2024_pops$Pop.Type)
+unique(surv_2024_pops$status)
+
+surv_2024_pops %>% filter(Pop.Type=="2023-TM2-fruit") #double check 2023 TM2 fruiting 
+```
+
+
+## Alive in Oct 2024
+```{r}
+alive <- surv_2024_pops %>% 
+  filter(unique.ID != "buffer") %>% #remove buffers
+  filter(Pop.Type!="2023-TM2-fruit") %>% #remove 2023 TM2 fruiting plants 
+  filter(is.na(death.date)) %>% #keep only plants without a death date
+  filter(is.na(missing.date)) %>% #keep only plants without a missing date
+  mutate(deadatplanting = if_else(is.na(survey.notes), NA,
+                                  if_else(survey.notes=="Dead at planting", "Yes", NA))) %>% 
+  filter(is.na(deadatplanting))
+dim(alive) #130 alive
+
+names(alive)
+
+xtabs(~Pop.Type, data=alive)
+#25 parent plants from 2023 still alive
+#16 F1s still alive 
+#58 F2s still alive
+#31 parents planted in 2024 still alive 
+```
+
