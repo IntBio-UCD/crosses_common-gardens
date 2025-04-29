@@ -1,0 +1,132 @@
+---
+title: "WL2_InitialSize_Establishment"
+author: "Brandie QC"
+date: "`r Sys.Date()`"
+output: 
+  html_document: 
+    keep_md: true
+---
+
+# Checking the effects of initial size on establishment probability 
+Establishment = survival first 3 weeks post transplant 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Libraries
+```{r}
+library(tidyverse)
+library(lme4)
+```
+
+## Load Initial Size
+```{r}
+initial_size <- read_csv("../input/WL2_2024_Data/CorrectedCSVs/WL2_Initial_DNA_size_survey_20240607_corrected.csv") %>% 
+  mutate(unique.ID=as.character(unique.ID)) %>% 
+  select(unique.ID:long.leaf.cm)
+head(initial_size)
+```
+
+## Load Survival
+```{r}
+wl2_surv <- read_csv("../input/WL2_2024_Data/CorrectedCSVs/WL2_mort_pheno_20241023_corrected.csv") %>% 
+  select(block:unique.ID, death.date, missing.date, survey.notes)
+head(wl2_surv)
+```
+
+## Load pop info
+```{r}
+pop_info <- read_csv("../input/WL2_2024_Data/Final_2023_2024_Pop_Loc_Info.csv") %>% 
+  select(Pop.Type:bed, row=bedrow, col=bedcol, pop:unique.ID)
+
+unique(pop_info$Pop.Type)
+unique(pop_info$status)
+```
+
+## Merge
+```{r}
+size_surv <- left_join(wl2_surv, initial_size)
+
+size_surv_pops <- left_join(pop_info, size_surv)
+
+size_surv_2024pops <- size_surv_pops %>% filter(Pop.Type != "2023-TM2-fruit", Pop.Type != "2023-survivor")
+unique(size_surv_2024pops$death.date)
+unique(size_surv_2024pops$missing.date)
+```
+
+## Establishment
+```{r}
+establishment <- size_surv_2024pops %>% 
+  mutate(Est_Surv=if_else(is.na(death.date), 1, 
+                          if_else(death.date=="6/18/24" | death.date=="6/25/24" | death.date=="7/2/24", 0,
+                                       1))) %>% 
+  mutate(Est_Surv = if_else(is.na(missing.date), Est_Surv, 
+                            if_else(missing.date=="6/25/24", 0, Est_Surv)))
+
+head(establishment)
+
+establishment %>% filter(missing.date=="6/25/24") #double check it gave 0s to ones that went missing 
+```
+
+## Quick Plots 
+```{r}
+establishment %>% 
+  ggplot(aes(`hypocotyl. length.cm`, Est_Surv)) +
+  geom_point()
+
+establishment %>% 
+  ggplot(aes(height.cm, Est_Surv)) +
+  geom_point()
+
+establishment %>% 
+  ggplot(aes(long.leaf.cm, Est_Surv)) +
+  geom_point()
+```
+
+## PopType Averages
+```{r}
+est_summary <- establishment %>% 
+  group_by(Pop.Type) %>% 
+  summarise(meanEst=mean(Est_Surv, na.rm=TRUE), 
+            meanHyp = mean(`hypocotyl. length.cm`, na.rm=TRUE),
+            meanHeight = mean(height.cm, na.rm=TRUE), 
+            meanLength = mean(long.leaf.cm, na.rm=TRUE))
+est_summary
+#F1s had the highest establishment success, parents the lowest 
+#parents had largest hypocotyl lengths and F2s had the lowest
+#parents were tallest, F2s the shortest
+#F2s had longest leaves, parents had the shortest 
+```
+
+## Quick Models
+```{r}
+hyp_for_models <- establishment %>% filter(!is.na(`hypocotyl. length.cm`))
+
+hyp_est_model1 <- glm(Est_Surv ~ `hypocotyl. length.cm`, family=binomial, data=hyp_for_models)
+summary(hyp_est_model1)
+
+hyp_est_model2 <- glmer(Est_Surv ~ `hypocotyl. length.cm` + (1|Pop.Type), family=binomial, data=hyp_for_models)
+summary(hyp_est_model2) #no significant relationship with hypocotyl length 
+```
+
+```{r}
+height_for_models <- establishment %>% filter(!is.na(height.cm))
+
+height_est_model1 <- glm(Est_Surv ~ height.cm, family=binomial, data=height_for_models)
+summary(height_est_model1)
+
+height_est_model2 <- glmer(Est_Surv ~ height.cm + (1|Pop.Type), family=binomial, data=height_for_models)
+summary(height_est_model2) #sig pos relationship with height (taller survived better)
+```
+
+```{r}
+length_for_models <- establishment %>% filter(!is.na(long.leaf.cm))
+
+length_est_model1 <- glm(Est_Surv ~ long.leaf.cm, family=binomial, data=length_for_models)
+summary(length_est_model1)
+
+length_est_model2 <- glmer(Est_Surv ~ long.leaf.cm + (1|Pop.Type), family=binomial, data=length_for_models)
+summary(length_est_model2) #sig pos relationship with height (longer survived better)
+```
+
