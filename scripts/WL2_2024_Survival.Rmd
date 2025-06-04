@@ -52,7 +52,7 @@ alive <- surv_2024_pops %>%
   mutate(deadatplanting = if_else(is.na(survey.notes), NA,
                                   if_else(survey.notes=="Dead at planting", "Yes", NA))) %>% 
   filter(is.na(deadatplanting))
-dim(alive) #130 alive
+dim(alive) #132 alive
 
 names(alive)
 
@@ -60,6 +60,6 @@ xtabs(~Pop.Type, data=alive)
 #25 parent plants from 2023 still alive
 #16 F1s still alive 
 #58 F2s still alive
-#31 parents planted in 2024 still alive 
+#33 parents planted in 2024 still alive 
 ```
 
