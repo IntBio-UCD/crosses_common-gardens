@@ -1,0 +1,207 @@
+---
+title: "WL2_2024-2025_WintSurv"
+author: "Brandie QC"
+date: '`r Sys.Date()`'
+output: 
+  html_document: 
+    keep_md: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Checking over-winter survival for the winter of 2024-2025
+
+## Libraries
+```{r}
+library(tidyverse)
+
+sem <- function(x, na.rm=FALSE) {           #for caclulating standard error
+  sd(x,na.rm=na.rm)/sqrt(length(na.omit(x)))
+} 
+```
+
+## Load data
+
+### Mort/pheno info
+```{r}
+wintmortpheno <- read_csv("../input/WL2_2025_Data/CorrectedCSVs/WL2_overwinter_survival_20250523_corrected.csv")
+```
+
+## Pop Info 
+```{r}
+pop_info <- read_csv("../input/WL2_2024_Data/Final_2023_2024_Pop_Loc_Info.csv") %>% 
+  select(Pop.Type:unique.ID) %>% 
+  rename(row=bedrow, col=bedcol)
+```
+
+### Elevation Info
+```{r}
+elev_info <- read_csv("../input/Strep_tort_locs.csv")
+
+elev_info_yo <- elev_info %>% mutate(pop = str_replace(`Site code`, "YOSE(\\d+)", "YO\\1")) %>% select(Lat, Long, elev_m=`Elevation (m)`, pop)
+unique(elev_info_yo$pop)
+```
+
+### Merge 
+```{r}
+wintmortpheno_pops <- wintmortpheno %>% 
+  select(bed:unique.ID, last.FR.date, death.date, missing.date, survey.notes) %>% 
+  left_join(pop_info) %>% 
+  filter(unique.ID != "buffer") %>% #remove buffers
+  filter(Pop.Type!="2023-TM2-fruit") #remove 2023 TM2 fruiting plants
+```
+
+## Alive in Oct 2024
+```{r}
+alive_oct <- wintmortpheno_pops %>% 
+  filter(death.date=="5/23/25" | is.na(death.date)) %>% #keep only plants that died on 5/23 or don't have a death date yet 
+  filter(is.na(missing.date)) %>%  #keep only plants without a missing date
+  mutate(deadatplanting = if_else(is.na(survey.notes), NA,
+                                  if_else(survey.notes=="Dead at planting", "Yes", NA))) %>% 
+  filter(is.na(deadatplanting))
+alive_oct 
+
+xtabs(~Pop.Type, data=alive_oct)
+```
+
+## Winter Survival 
+```{r}
+wintersurv <- alive_oct %>% 
+  select(Pop.Type:loc, bed:col, pop:rep, unique.ID:death.date) %>% 
+  mutate(WintSurv=if_else(is.na(death.date), 1, 0)) #1 = surv; 0 = mort
+wintersurv
+
+xtabs(~Pop.Type+WintSurv, data=wintersurv)
+#1/25 2023 plants survived = 4%
+#12/16 F1s = 75%
+#46/58 F2s = 79%
+#21/33 2024 parents = 64% 
+```
+
+## Plot by pop type 
+```{r}
+wintersurv %>% 
+  group_by(Pop.Type) %>% 
+  summarise(meanSurv=mean(WintSurv), semSurv=sem(WintSurv)) %>% 
+  ggplot(aes(x=Pop.Type, y=meanSurv)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) + 
+  geom_errorbar(aes(ymin=meanSurv-semSurv,ymax=meanSurv+semSurv),width=.2, position = 
+                  position_dodge(0.75)) +
+  theme_classic() + 
+  scale_y_continuous(expand = c(0.01, 0), limits = c(-0.01, 1)) +
+  labs(y="Winter Survival", x="Population Type", , title="Population Categories") +
+  annotate("text", x = 1, y= 0.18, label = "25 in Oct") +
+  annotate("text", x = 2, y= 0.9, label = "16 in Oct") +
+  annotate("text", x = 3, y= 0.9, label = "58 in Oct") +
+  annotate("text", x = 4, y= 0.8, label = "33 in Oct") +
+  theme(text=element_text(size=25))
+ggsave("../output/WL2_Traits/WL2_WINTSURV_24-25_PopType.png", width = 10, height = 8, units = "in")
+```
+
+## Means by pop
+```{r}
+by_pop_surv <- wintersurv %>% 
+  group_by(pop, Pop.Type) %>% 
+  summarise(N_Surv = sum(!is.na(WintSurv)), mean_Surv = mean(WintSurv,na.rm=(TRUE)), 
+            sem_surv=sem(WintSurv, na.rm=(TRUE)))
+```
+
+## Plot by pops 
+
+### Parents
+```{r}
+by_pop_parents_surv <- by_pop_surv %>% 
+  filter(Pop.Type == "Parent")
+by_pop_parents_surv
+
+by_pop_parents_elev_surv <- left_join(by_pop_parents_surv, elev_info_yo)
+head(by_pop_parents_elev_surv)
+
+by_pop_parents_elev_surv %>% 
+  ggplot(aes(x=fct_reorder(pop, mean_Surv), y=mean_Surv, fill=elev_m)) + 
+  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  geom_errorbar(aes(ymin=mean_Surv-sem_surv,ymax=mean_Surv+sem_surv),width=.2, position = 
+                  position_dodge(0.75)) +
+  labs(x="Parent Population", y="Winter Survival", fill="Elevation (m)", title="2024 Parents") +
+  theme_classic() + 
+  scale_y_continuous(expand = c(0, 0)) +
+  scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
+  theme(text=element_text(size=25), axis.text.x = element_text(angle = 45, hjust = 1))
+ggsave("../output/WL2_Traits/WL2_WINTSURV_24-25_Parents.png", width = 14, height = 8, units = "in")
+```
+
+### F1s
+```{r}
+by_pop_surv %>% 
+  filter(Pop.Type == "F1") %>% 
+  ggplot(aes(x=fct_reorder(pop, mean_Surv), y=mean_Surv)) + 
+  geom_col(width = 0.7,position = position_dodge(0.75)) + 
+  geom_errorbar(aes(ymin=mean_Surv-sem_surv,ymax=mean_Surv+sem_surv),width=.2, position = 
+                  position_dodge(0.75)) +
+  theme_classic() + 
+  scale_y_continuous(expand = c(0.01, 0)) +
+  labs(x="F1 Population", y="Winter Survival", title="F1s") +
+  theme(text=element_text(size=25), axis.text.x = element_text(angle = 45, hjust = 1))
+ggsave("../output/WL2_Traits/WL2_WINTSURV_24-25_F1s.png", width = 14, height = 8, units = "in")
+```
+
+### F2s
+```{r}
+by_pop_surv %>% 
+  filter(Pop.Type == "F2") %>% 
+  ggplot(aes(x=fct_reorder(pop, mean_Surv), y=mean_Surv)) + 
+  geom_col(width = 0.7,position = position_dodge(0.75)) + 
+  geom_errorbar(aes(ymin=mean_Surv-sem_surv,ymax=mean_Surv+sem_surv),width=.2, position = 
+                  position_dodge(0.75)) +
+  theme_classic() + 
+  scale_y_continuous(expand = c(0.01, 0)) +
+  labs(x="F2 Population", y="Winter Survival") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+#try to split these up 
+
+by_pop_surv %>% 
+  filter(Pop.Type == "F2") %>% 
+  filter(str_detect(pop, "x \\(WL2\\)") | str_detect(pop, "\\(WL2\\) x")) %>% #WL2 BC1s
+  ggplot(aes(x=fct_reorder(pop, mean_Surv), y=mean_Surv)) + 
+  geom_col(width = 0.7,position = position_dodge(0.75)) + 
+  geom_errorbar(aes(ymin=mean_Surv-sem_surv,ymax=mean_Surv+sem_surv),width=.2, position = 
+                  position_dodge(0.75)) +
+  theme_classic() + 
+  scale_y_continuous(expand = c(0.01, 0)) +
+  labs(x="F2 Population", y="Winter Survival", title="WL2 BC1s") +
+  theme(text=element_text(size=18), axis.text.x = element_text(angle = 45, hjust = 1))
+ggsave("../output/WL2_Traits/WL2_WINTSURV_24-25_WL2BC1s.png", width = 12, height = 8, units = "in")
+
+by_pop_surv %>% 
+  filter(Pop.Type == "F2") %>% 
+  filter(!str_detect(pop, "x \\(WL2\\)"), !str_detect(pop, "\\(WL2\\) x")) %>% # F2s that aren't WL2 BC1s
+  filter(!str_detect(pop, "x \\(WV\\)"), !str_detect(pop, "\\(WV\\) x")) %>% #NOT WV BC1s
+  filter(!str_detect(pop, "x \\(DPR\\)"), !str_detect(pop, "\\(DPR\\) x")) %>% #NOT DPR BC1s
+  ggplot(aes(x=fct_reorder(pop, mean_Surv), y=mean_Surv)) + 
+  geom_col(width = 0.7,position = position_dodge(0.75)) + 
+  geom_errorbar(aes(ymin=mean_Surv-sem_surv,ymax=mean_Surv+sem_surv),width=.2, position = 
+                  position_dodge(0.75)) +
+  theme_classic() + 
+  scale_y_continuous(expand = c(0.01, 0)) +
+  labs(x="F2 Population", y="Winter Survival", title="F2s with 4 Parents") +
+  theme(text=element_text(size=12), axis.text.x = element_text(angle = 45, hjust = 1))
+ggsave("../output/WL2_Traits/WL2_WINTSURV_24-25_4PF2s.png", width = 18, height = 8, units = "in")
+
+by_pop_surv %>% 
+  filter(Pop.Type == "F2") %>% 
+  filter(str_detect(pop, "x \\(WV\\)") | str_detect(pop, "\\(WV\\) x") |
+           str_detect(pop, "x \\(DPR\\)") | str_detect(pop, "\\(DPR\\) x")) %>% #Other BC1s
+  ggplot(aes(x=fct_reorder(pop, mean_Surv), y=mean_Surv)) + 
+  geom_col(width = 0.7,position = position_dodge(0.75)) + 
+  geom_errorbar(aes(ymin=mean_Surv-sem_surv,ymax=mean_Surv+sem_surv),width=.2, position = 
+                  position_dodge(0.75)) +
+  theme_classic() + 
+  scale_y_continuous(expand = c(0.01, 0)) +
+  labs(x="F2 Population", y="Winter Survival", title="Other BC1s") +
+  theme(text=element_text(size=18), axis.text.x = element_text(angle = 45, hjust = 1))
+ggsave("../output/WL2_Traits/WL2_WINTSURV_24-25_OtherBC1s.png", width = 10, height = 8, units = "in")
+```
+
