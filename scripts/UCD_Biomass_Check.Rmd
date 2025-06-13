@@ -1,0 +1,80 @@
+---
+title: "UCD_Biomass_Check"
+author: "Brandie QC"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# UCD Biomass Sample Size Check
+
+Checking sample size to decide if we need to sample the bug contaminated samples
+
+## Libraries
+```{r}
+library(tidyverse)
+```
+
+## Load the Data
+```{r}
+biomass <- read_csv("../input/UCD2023_2024_Data/Biomass_20250611_Corrected_InProgress - Sheet1.csv") %>% 
+  select(unique.ID=`Unique ID`, date.collected:survey.notes)
+head(biomass)
+biomass %>% filter(is.na(total.biomass_g)) #no NAs
+```
+
+## Load the Pop Info
+```{r}
+genotypes <- read_csv("../input/UCD2023_2024_Data/Genotypes_2023_2024.csv")
+head(genotypes)
+
+unique(genotypes$`Plant Type`)
+unique(genotypes$pop.id)
+
+genotypes_indivs <- genotypes %>% #take buffers out 
+  filter(pop.id!="buffer") %>% 
+  select(`Plant Type`:rep, unique.ID)
+unique(genotypes_indivs$`Plant Type`)
+```
+
+## Summary by unique ID
+```{r}
+biomass_indivs <- biomass %>% 
+  group_by(unique.ID) %>% 
+  summarise(N=n())
+
+biomass_indivs %>% arrange(desc(N))
+```
+
+## Merge with genos
+```{r}
+biomass_genos <- left_join(genotypes_indivs, biomass_indivs) %>% 
+  mutate(N_Indiv=if_else(is.na(N), 0, 1))
+head(biomass_genos)
+```
+
+## Summarize by pops
+```{r}
+biomass_pops <- biomass_genos %>% 
+  group_by(pop.id) %>% 
+  summarise(Total_N=sum(N_Indiv, na.rm = TRUE), Planted_N=n())
+
+biomass_pops %>% arrange(Total_N, Planted_N)
+zero <- biomass_pops %>% filter(Total_N==0) #15 genotypes without any data
+low <- biomass_pops %>% filter(Total_N>0, Total_N<3, Planted_N>2) #14 genotypes with only 1 or 2 indivs measured (and greater than 2 individuals planted)
+
+highpriority <- bind_rows(zero, low) %>% arrange(Total_N, Planted_N) %>% mutate(Priority = "High")
+
+highpriority_indivs <- left_join(genotypes_indivs, highpriority) %>% 
+  filter(Priority=="High") %>% 
+  arrange(Total_N, Planted_N) %>% 
+  left_join(biomass_indivs) %>% 
+  rename(Indiv_N=N)
+write_csv(highpriority_indivs, "../output/UCD_Biomass_HighPriority_Indivs.csv")
+
+highpriority_indivs %>% filter(!is.na(Indiv_N))
+```
+
