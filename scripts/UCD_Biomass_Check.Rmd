@@ -24,6 +24,18 @@ biomass <- read_csv("../input/UCD2023_2024_Data/Biomass_20250611_Corrected_InPro
   select(unique.ID=`Unique ID`, date.collected:survey.notes)
 head(biomass)
 biomass %>% filter(is.na(total.biomass_g)) #no NAs
+
+anncens <- read_csv("../input/UCD2023_2024_Data/CorrectedCSVs/UCD_annual_census_20240718_corrected.csv")
+head(anncens)
+anncens %>% filter(!is.na(`...15`)) #extra notes
+anncens %>% filter(!str_detect(`num.fruit or date.collected`, "/")) #all numbers of fruit 
+anncens %>% rowwise() %>% filter(is.na(as.numeric(unique.ID))) #all buffers
+
+anncens_collected <- anncens %>% 
+  filter(str_detect(`num.fruit or date.collected`, "/")) %>% 
+  select(unique.ID, date.collected=`num.fruit or date.collected`) %>% 
+  mutate(unique.ID=as.numeric(unique.ID))
+anncens_collected %>% filter(unique.ID=="buffer") #no buffers
 ```
 
 ## Load the Pop Info
@@ -73,8 +85,30 @@ highpriority_indivs <- left_join(genotypes_indivs, highpriority) %>%
   arrange(Total_N, Planted_N) %>% 
   left_join(biomass_indivs) %>% 
   rename(Indiv_N=N)
-write_csv(highpriority_indivs, "../output/UCD_Biomass_HighPriority_Indivs.csv")
 
 highpriority_indivs %>% filter(!is.na(Indiv_N))
+```
+
+## Filter by pops that we actually collected from
+```{r}
+anncens_collected_pops <- right_join(genotypes_indivs, anncens_collected) %>% 
+  select(`Plant Type`, pop.id) %>% 
+  distinct() %>% 
+  mutate(Collected="Y")
+
+highpriority_collected <- left_join(highpriority, anncens_collected_pops) %>% 
+  filter(!is.na(Collected))
+highpriority_collected %>% arrange(pop.id) #22 pops that we collected that we haven't measured yet 
+#note 4 of these are just WL2 mfs
+```
+
+## High Priority indivs collected and not measured
+```{r}
+anncens_collected_indivs <- right_join(genotypes_indivs, anncens_collected)
+highpriority_collected_indivs <- left_join(highpriority_indivs, anncens_collected_indivs) %>% 
+  filter(!is.na(date.collected)) %>% #keep only collected
+  filter(is.na(Indiv_N)) #keep only indivs not measured yet 
+highpriority_collected_indivs #46 individuals from the high priority pops that haven't been measured 
+#write_csv(highpriority_collected_indivs, "../output/UCD_Biomass_HighPriority_Indivs.csv")
 ```
 
