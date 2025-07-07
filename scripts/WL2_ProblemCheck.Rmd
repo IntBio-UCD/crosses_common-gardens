@@ -254,9 +254,23 @@ dat4 %>% filter(col=="p") #9/3
 ### lag lead function
 ```{r}
 unique(dat4$survey_date)
+#checking how to deal with first 3 dates (separete files for 2023 survs and 2024 plants)
+#dat4 %>% 
+#  filter(filename=="WL2_size_survey_20240618_corrected.csv") %>% 
+#  filter(!is.na(as.numeric(unique.ID))) #830 rows which is correct 
+#dat4 %>% 
+#  filter(filename=="WL2_size_survey_20240618_corrected.csv") %>% 
+#  filter(!is.na(unique.ID)) %>% 
+#  filter(is.na(as.numeric(unique.ID)))
+#dat4 %>% 
+#  filter(filename=="WL2_size_survey_20240618_2023Plants_corrected.csv")
 
 dat5 <- dat4 %>% 
   filter(unique.ID!="buffer") %>% #remove buffers 
+  filter(if_else(filename=="WL2_size_survey_20240618_corrected.csv" | 
+                   filename=="WL2_size_survey_20240625_corrected.csv" |
+                   filename=="WL2_size_survey_20240703_corrected.csv",
+                 !is.na(as.numeric(unique.ID)), !is.na(unique.ID))) %>% #deal with first 3 surveys 
   mutate(across(c(row, long.leaf.cm, height.cm, overhd.diam, overhd.perp), as.numeric)) %>% 
   mutate(censusN=ifelse(survey_date=="2024-06-18", 1,
                         ifelse(survey_date=="2024-06-25", 2,
@@ -288,7 +302,7 @@ dat6 <- dat5 %>%  #by bed, row, col
          previous_census_overhd.perp, overhd.perp,
          survey.notes) %>% 
   arrange(bed, row, col, censusN)
-dat8 <- dat6 %>% filter(censusN!=1) %>% filter(is.na(previous_census_height), !is.na(height.cm)) #294 rows 
+dat8 <- dat6 %>% filter(censusN!=1) %>% filter(is.na(previous_census_height), !is.na(height.cm)) #621 rows 
 
 
 dat7 <- dat5 %>% #by uniqueID
@@ -305,9 +319,8 @@ dat7 <- dat5 %>% #by uniqueID
   arrange(unique.ID, censusN)
 head(dat7)
 #Check for data when there is no data in previous week 
-dat9 <- dat7 %>% filter(censusN!=1) %>% filter(is.na(previous_census_height), !is.na(height.cm)) #matches dat 8
+dat9 <- dat7 %>% filter(censusN!=1) %>% filter(is.na(previous_census_height), !is.na(height.cm)) #607 rows 
 dat9
-dat4 %>% filter(unique.ID=="1003")
-#write.csv(dat9, "../output/WL2_Traits/WL2_MissingDataPrevWeek.csv", row.names = FALSE)
+write.csv(dat9, "../output/WL2_Traits/WL2_MissingDataPrevWeek.csv", row.names = FALSE)
 ```
 
