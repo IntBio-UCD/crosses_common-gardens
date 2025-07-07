@@ -1,0 +1,315 @@
+---
+title: "UCD_ProblemCheck"
+author: "Brandie QC"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Code for checking for problems in data
+
+## Annual Census
+```{r}
+#load the libraries
+library(tidyverse)
+
+data <- read_csv("../input/UCD2023_2024_Data/CorrectedCSVs/UCD_annual_census_20240718_corrected.csv")
+  #remove spaces in column names
+  names(data) <- gsub(" ", "", colnames(data))
+  
+  #check for spaces in numbers
+  data2 <- data %>% filter(grepl(" ", diam.mm) | grepl(" ", num.flw) | grepl(" ", num.fruitordate.collected) | 
+                             grepl(" ", long.fruit.cm) | grepl(" ", total.branch) | 
+                             grepl(" ", overhd.diam) | grepl(" ", overhd.perp)) %>%
+    mutate(problem="spaces")
+  
+  #check for extreme values
+  data3 <- data %>% mutate(diam.mm=as.numeric(diam.mm), long.fruit.cm=as.numeric(long.fruit.cm))
+  data3 <- data3 %>% filter(diam.mm > 50, long.fruit.cm > 15) %>% mutate(problem="extreme value")
+  
+  #check for letters in number columns 
+  data4 <- data %>% rowwise() %>% filter(!is.na(diam.mm)) %>% filter(is.na(as.numeric(diam.mm))) %>%
+    mutate(problem="character")
+  data6 <- data %>% rowwise() %>% filter(!is.na(total.branch)) %>% filter(is.na(as.numeric(total.branch))) %>%
+    mutate(problem="character")
+  data8 <- data %>% rowwise() %>% filter(!is.na(num.flw)) %>% filter(is.na(as.numeric(num.flw))) %>%
+    mutate(problem="character")
+  data10 <- data %>% rowwise() %>% filter(!is.na(long.fruit.cm)) %>% filter(is.na(as.numeric(long.fruit.cm))) %>%
+    mutate(problem="character")
+  data11 <- data %>% rowwise() %>% filter(!is.na(overhd.diam)) %>% filter(is.na(as.numeric(overhd.diam))) %>%
+    mutate(problem="character")
+  data12 <- data %>% rowwise() %>% filter(!is.na(overhd.perp)) %>% filter(is.na(as.numeric(overhd.perp))) %>%
+    mutate(problem="character")
+  
+  #combine into one problems list
+  data_probs <- rbind(data2, data3, data4, data6, data8, data9, data11, data12)
+  data_probs
+  write_csv(data_probs, "../output/UCD_Traits/anncens_probs.csv")
+```
+
+## Mortality
+```{r}
+#load the libraries
+library(tidyverse)
+#tutorial at https://bookdown.org/ansellbr/WEHI_tidyR_course_book/week-4-part-3.html
+data_files <- list.files('../input/UCD2023_2024_Data/CorrectedCSVs/',pattern='mort.*corrected.*csv',ignore.case=TRUE)  #edit this to be correct path 
+data_files #make this specific to mortality or size
+
+data_names <- str_remove(data_files, pattern = ".csv")
+data_names
+
+for (i in data_names) {
+  #set up variable file names
+  in_file <- paste("../input/UCD2023_2024_Data/CorrectedCSVs/", i, '.csv', sep = "")   #edit this to be correct path 
+  out_table <- paste("../output/UCD_Traits/", i, '_dataprobs.csv', sep="")
+  
+  #data checking code
+  data <- read_csv(in_file)
+  
+  #remove spaces in column names
+  names(data) <- gsub(" ", "", colnames(data))
+  
+  #check for spaces in numbers
+  data2 <- data %>% filter(grepl(" ", bud.date) | grepl(" ", flower.date) | grepl(" ", fruit.date) | grepl(" ", last.FL.date) | grepl(" ", last.FR.date) | grepl(" ", death.date)) %>% mutate(problem="spaces")
+  
+  #check for non-date format
+  data5 <- data %>% rowwise() %>% filter(!is.na(bud.date)) %>% 
+    filter(is.na(mdy(bud.date))) %>% 
+    mutate(problem="non-date")
+  
+  data6 <- data %>% rowwise() %>% filter(!is.na(flower.date)) %>% 
+    filter(is.na(mdy(flower.date))) %>% 
+    mutate(problem="non-date")
+  
+  data7 <- data %>% rowwise() %>% filter(!is.na(fruit.date)) %>% 
+    filter(is.na(mdy(fruit.date))) %>% 
+    mutate(problem="non-date")
+  
+  data8 <- data %>% rowwise() %>% filter(!is.na(last.FL.date)) %>% 
+    filter(is.na(mdy(last.FL.date))) %>% 
+    mutate(problem="non-date")
+  
+  data9 <- data %>% rowwise() %>% filter(!is.na(last.FR.date)) %>% 
+    filter(is.na(mdy(last.FR.date))) %>% 
+    mutate(problem="non-date")
+  
+  data10 <- data %>% rowwise() %>% filter(!is.na(death.date)) %>% 
+    filter(is.na(mdy(death.date))) %>% 
+    mutate(problem="non-date")
+  
+  #combine into one problems list
+  data_probs <- bind_rows(data2, data5, data6, data7, data8, data9, data10)
+  print(nrow(data_probs))
+  write_csv(data_probs, path=out_table)
+}
+```
+
+## Size Data - basic check 
+```{r}
+#load the libraries
+library(tidyverse)
+#tutorial at https://bookdown.org/ansellbr/WEHI_tidyR_course_book/week-4-part-3.html
+data_files <- list.files('../input/UCD2023_2024_Data/CorrectedCSVs/',pattern='UCD_size.*corrected.*csv',ignore.case=TRUE)  #edit this to be correct path 
+data_files #make this specific to mortality or size
+
+data_names <- str_remove(data_files, pattern = ".csv")
+data_names
+
+for (i in data_names) {
+  #set up variable file names
+  in_file <- paste("../input/UCD2023_2024_Data/CorrectedCSVs/", i, '.csv', sep = "")   #edit this to be correct path 
+  out_table <- paste("../output/UCD_Traits/", i, '_dataprobs.csv', sep="")
+  
+  #data checking code
+  data <- read_csv(in_file)
+  
+  #remove spaces in column names
+  names(data) <- gsub(" ", "", colnames(data))
+  
+  #check for spaces in numbers
+  data2 <- data %>% filter(grepl(" ", height.cm)) %>% 
+    mutate(problem="spaces", , height.cm=as.character(height.cm))
+  
+  #check for extreme values
+  data3 <- data %>% mutate(height.cm=as.double(height.cm))
+  data3 <- data3 %>% filter(height.cm>200) %>% 
+    mutate(problem="extreme value", height.cm=as.character(height.cm))
+  
+  #check for spread out data 
+  data4 <- data
+  data4 <- data4 %>% mutate(herbiv.y.n = na_if(herbiv.y.n, "N/A")) %>% mutate(herbiv.y.n = na_if(herbiv.y.n, "-"))
+  data4$herbiv.y.n <- str_to_upper(data4$herbiv.y.n)
+  data4 <- data4 %>% filter(herbiv.y.n != "Y" & herbiv.y.n != "N") %>% 
+    mutate(problem="herbiv col", height.cm=as.character(height.cm))
+  
+  #check for letters in number columns 
+  data5 <- data %>% rowwise() %>% filter(!is.na(height.cm) & height.cm !="-" & height.cm != "N/A") %>% 
+    filter(is.na(as.numeric(height.cm))) %>% 
+    mutate(problem="character", , height.cm=as.character(height.cm))
+  
+  #combine into one problems list
+  data_probs <- bind_rows(data2, data3, data4, data5)
+  print(nrow(data_probs))
+  write_csv(data_probs, path=out_table)
+}
+```
+
+
+## Size Data (temporal check)
+Check for data when there is no data in previous week 
+* Reason: found a case where someone wrote the data in the wrong row (in the row of a dead plant) 
+
+COME BACK TO THIS AFTER FIXING ISSUES IN ABOVE CODE CHUNK
+
+```{r}
+library(tidyverse)
+
+files <- dir("../input/UCD2023_2024_Data/CorrectedCSVs/",
+             pattern="UCD_size",
+             full.names=TRUE)
+files #list of files 
+
+dat <- tibble(path=files, filename=basename(path)) #storing data in tibble
+dat
+
+# create a new column, "date"
+dat2 <- dat %>%
+  mutate(survey_date=str_extract(filename, "_2[0-9]*"), 
+         survey_date=str_remove(survey_date, "_"), 
+         survey_date=lubridate::ymd(survey_date))
+dat2
+```
+
+### read in the files 
+```{r}
+dat3 <- dat2 %>% 
+  mutate(sheets=map(path, 
+                    read_csv, 
+                    col_types=cols(.default=col_character()), # forces all columns to be character
+    # this is needed because of data sheet problems that cause some numerics to be imported as character  
+                    na = c("", "NA", "-", "N/A") # sets NA strings.
+                    )) %>%
+  select(-path)
+
+#dat3$sheets[[1]] # extract the first imported sheet to check that the above worked
+
+map(dat3$sheets, colnames) %>% #check column names before merging 
+  unlist() %>%
+  unique() %>%
+  sort()
+#have some extra columns ("...10" and "...9")
+
+map(dat3$sheets, head,10) #see which ones have extra columns 
+dat3$sheets[[1]] %>% filter(!is.na(...10)) #extra notes 
+dat3$sheets[[7]] %>% filter(!is.na(...10)) #extra notes 
+dat3$sheets[[16]] %>% filter(!is.na(...9)) #all NA 
+dat3$sheets[[18]] %>% filter(!is.na(...9)) #DATA SPREAD OUT  
+```
+
+### Unnest 
+```{r}
+#unnest
+dat4 <- dat3 %>% unnest(sheets) %>% 
+  select(filename, survey_date, bed:col, unique.ID, height.cm:long.leaf.cm, survey.notes)
+head(dat4)
+names(dat4)
+#dat4 %>% filter(!is.na(pop)) #only in the csvs where 2023 plants had to be corrected 
+#dat4 %>% filter(!is.na(data)) #survey date column from 01/05
+```
+
+### check for data issues
+```{r}
+dat4 %>% rowwise() %>% filter(!is.na(row)) %>% filter(is.na(as.numeric(row))) #SOME ISSUES 
+dat4 %>% rowwise() %>% filter(!is.na(height.cm)) %>% filter(is.na(as.numeric(height.cm))) #SOME ISSUES
+dat4 %>% rowwise() %>% filter(!is.na(long.leaf.cm)) %>% filter(is.na(as.numeric(long.leaf.cm))) #SOME ISSUES 
+dat4 %>% rowwise() %>% filter(!is.na(overhd.diam)) %>% filter(is.na(as.numeric(overhd.diam))) #none
+dat4 %>% rowwise() %>% filter(!is.na(overhd.perp)) %>% filter(is.na(as.numeric(overhd.perp))) #couple of MA instead of NA and one potential frame shift, fixed on CSV 
+
+unique(dat4$block) 
+dat4 %>% filter(block=="o") #7/9, 7/16, 9/3 lowercase o. *6/25, 7/3
+dat4 %>% filter(block=="B.") #7/16 B. as block
+dat4 %>% filter(is.na(block)) #buffers and 2023 plants 
+dat4 %>% filter(unique.ID!="buffer", !str_detect(unique.ID, "_"), is.na(block)) 
+#some 2023 unique IDs missing "_"
+#339 missing block info *6/25 and 7/3
+
+unique(dat4$bed) 
+dat4 %>% filter(bed=="c") #7/9 and 8/20 *6/25
+dat4 %>% filter(bed=="!") #7/9
+dat4 %>% filter(bed=="1") #7/16 
+dat4 %>% filter(bed=="|") #7/30, *6/18, 6/25
+dat4 %>% filter(bed==". D") #8/20
+dat4 %>% filter(bed=="C.") #9/3
+dat4 %>% filter(bed=="J .") #9/10
+
+unique(dat4$row) #no issues 
+
+unique(dat4$col) 
+dat4 %>% filter(col=="c") #7/30 and 8/27 *6/25
+dat4 %>% filter(col=="p") #9/3 
+
+##fixed all above issues in csvs
+```
+
+### lag lead function
+```{r}
+unique(dat4$survey_date)
+
+dat5 <- dat4 %>% 
+  filter(unique.ID!="buffer") %>% #remove buffers 
+  mutate(across(c(row, long.leaf.cm, height.cm, overhd.diam, overhd.perp), as.numeric)) %>% 
+  mutate(censusN=ifelse(survey_date=="2024-06-18", 1,
+                        ifelse(survey_date=="2024-06-25", 2,
+                        ifelse(survey_date=="2024-07-03", 3, 
+                        ifelse(survey_date=="2024-07-09", 4, 
+                        ifelse(survey_date=="2024-07-16", 5, 
+                        ifelse(survey_date=="2024-07-23", 6,
+                        ifelse(survey_date=="2024-07-30", 7, 
+                        ifelse(survey_date=="2024-08-06", 8,
+                        ifelse(survey_date=="2024-08-20", 10,
+                        ifelse(survey_date=="2024-08-27", 11,
+                        ifelse(survey_date=="2024-09-03", 12,
+                        ifelse(survey_date=="2024-09-10", 13,
+                        ifelse(survey_date=="2024-09-24", 14, NA))))))))))))))
+dat5 %>% filter(is.na(censusN)) #none 
+```
+
+### Check for data when there is no data in previous week 
+```{r}
+dat6 <- dat5 %>%  #by bed, row, col
+  group_by(bed, row, col) %>% 
+  mutate(previous_census_height=lag(height.cm, order_by = censusN), 
+         previous_census_length=lag(long.leaf.cm, order_by = censusN),
+         previous_census_overhd.diam=lag(overhd.diam, order_by = censusN), 
+         previous_census_overhd.perp=lag(overhd.perp, order_by = censusN)) %>% 
+  select(censusN, bed, row, col, previous_census_height, height.cm, 
+         previous_census_length, long.leaf.cm,
+         previous_census_overhd.diam, overhd.diam,
+         previous_census_overhd.perp, overhd.perp,
+         survey.notes) %>% 
+  arrange(bed, row, col, censusN)
+dat8 <- dat6 %>% filter(censusN!=1) %>% filter(is.na(previous_census_height), !is.na(height.cm)) #294 rows 
+
+
+dat7 <- dat5 %>% #by uniqueID
+  group_by(unique.ID) %>% 
+  mutate(previous_census_height=lag(height.cm, order_by = censusN), 
+         previous_census_length=lag(long.leaf.cm, order_by = censusN),
+         previous_census_overhd.diam=lag(overhd.diam, order_by = censusN), 
+         previous_census_overhd.perp=lag(overhd.perp, order_by = censusN)) %>% 
+  select(bed, row, col, survey_date,censusN,unique.ID, previous_census_height, height.cm, 
+         previous_census_length, long.leaf.cm, 
+         previous_census_overhd.diam, overhd.diam,
+         previous_census_overhd.perp, overhd.perp,
+         survey.notes) %>% 
+  arrange(unique.ID, censusN)
+head(dat7)
+#Check for data when there is no data in previous week 
+dat9 <- dat7 %>% filter(censusN!=1) %>% filter(is.na(previous_census_height), !is.na(height.cm)) #matches dat 8
+dat9
+dat4 %>% filter(unique.ID=="1003")
+#write.csv(dat9, "../output/UCD_Traits/UCD_MissingDataPrevWeek.csv", row.names = FALSE)
+```
