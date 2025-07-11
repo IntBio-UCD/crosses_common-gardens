@@ -14,6 +14,10 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Libraries
 ```{r}
 library(tidyverse)
+
+sem <- function(x, na.rm=FALSE) {           #for caclulating standard error
+  sd(x,na.rm=na.rm)/sqrt(length(na.omit(x)))
+} 
 ```
 
 
@@ -61,5 +65,26 @@ xtabs(~Pop.Type, data=alive)
 #16 F1s still alive 
 #58 F2s still alive
 #33 parents planted in 2024 still alive 
+```
+
+## F1 Year 1 Survival
+```{r}
+f1_surv<- surv_2024_pops %>% 
+  mutate(Surv=if_else(is.na(death.date), 1, 0)) %>% 
+  filter(Pop.Type=="F1") %>% 
+  group_by(pop) %>% 
+  summarise(n=n(),mean_Surv=mean(Surv, na.rm=TRUE), sem_surv=sem(Surv, na.rm=TRUE)) 
+
+f1_surv %>% 
+  filter(n>1) %>% 
+  ggplot(aes(x=fct_reorder(pop, mean_Surv), y=mean_Surv)) + 
+  geom_col(width = 0.7,position = position_dodge(0.75)) + 
+  geom_errorbar(aes(ymin=mean_Surv-sem_surv,ymax=mean_Surv+sem_surv),width=.2, position = 
+                  position_dodge(0.75)) +
+  theme_classic() + 
+  scale_y_continuous(expand = c(0.01, 0)) +
+  labs(x="F1 Population", y="Survival") +
+  theme(text=element_text(size=25), axis.text.x = element_text(angle = 45, hjust = 1))
+ggsave("../output/WL2_Traits/WL2_SURV_Y1Surv_F1s.png", width = 14, height = 8, units = "in")
 ```
 
