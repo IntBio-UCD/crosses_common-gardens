@@ -1,0 +1,98 @@
+---
+title: "WL2_2025_Size_Check"
+author: "Brandie QC"
+date: '`r Sys.Date()`'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Checking size curve at the field to determine if it's okay to start slowing down size measurements 
+
+## Libraries
+```{r}
+library(tidyverse)
+
+sem <- function(x, na.rm=FALSE) {           #for calculating standard error
+  sd(x,na.rm=na.rm)/sqrt(length(na.omit(x)))
+} 
+```
+
+```{r}
+files <- dir("../input/WL2_2025_Data/CorrectedCSVs/",
+             pattern="size_survey_.*csv",
+             full.names=TRUE) 
+files
+```
+
+```{r}
+dat <- tibble(path=files, filename=basename(path))
+dat
+```
+
+```{r}
+dat2 <- dat %>% 
+  mutate(survey_date=str_extract(filename, "[0-9]{8}")) %>%  #look for numbers, 8 long 
+   mutate(survey_date=lubridate:: ymd(survey_date))
+dat2
+```
+
+```{r}
+dat3 <- dat2 %>%
+  mutate(sheets=map(path, 
+                    read_csv,
+                    #col_types=cols(.default=col_character()), 
+                    na = c("", "NA", "-", "N/A"))) %>% #for each file path, read_csv
+  select(-path)
+dat3
+```
+
+```{r}
+map(dat3$sheets, colnames) %>% #check the column names 
+  unlist() %>%
+  unique() %>%
+  sort() #some unnecessary survey date columns 
+
+map(dat3$sheets, head, 10) #check to make sure the datasheets look good 
+
+dat3$sheets[[2]] %>% rowwise() %>% filter(!is.na(row)) %>%  filter(is.na(as.numeric(row))) #header column that needs to be deleted, fixed in correctedCSVs
+
+dat3$sheets[[3]] %>% rowwise() %>% filter(!is.na(height.cm)) %>%  filter(is.na(as.numeric(height.cm))) #"." after NA, fixed in correctedCSVs
+
+dat3$sheets[[5]] %>% rowwise() %>% filter(!is.na(herbv.scale)) %>%  filter(is.na(as.numeric(herbv.scale))) #"alam" in G20C, fixed in correctedCSVs
+
+dat3$sheets[[6]] %>% rowwise() %>% filter(!is.na(height.cm)) %>%  filter(is.na(as.numeric(height.cm))) #periods in NA
+dat3$sheets[[6]] %>% rowwise() %>% filter(!is.na(overhd.diam)) %>%  filter(is.na(as.numeric(overhd.diam))) #MA instead of NA, fixed in correctedCSVs
+dat3$sheets[[6]] %>% rowwise() %>% filter(!is.na(overhd.perp)) %>%  filter(is.na(as.numeric(overhd.perp))) #verification error, fixed in correctedCSVs
+dat3$sheets[[6]] %>% rowwise() %>% filter(!is.na(herbv.scale)) %>%  filter(is.na(as.numeric(herbv.scale))) #verification error, fixed in correctedCSVs
+
+dat3$sheets[[7]] %>% rowwise() %>% filter(!is.na(height.cm)) %>%  filter(is.na(as.numeric(height.cm))) #verification error, fixed in correctedCSVs
+dat3$sheets[[7]] %>% rowwise() %>% filter(!is.na(leaf.number)) %>%  filter(is.na(as.numeric(leaf.number))) #verification error, fixed in correctedCSVs
+
+dat3$sheets[[8]] %>% rowwise() %>% filter(!is.na(height.cm)) %>%  filter(is.na(as.numeric(height.cm))) #verification error, fixed in correctedCSVs
+dat3$sheets[[8]] %>% rowwise() %>% filter(!is.na(overhd.diam)) %>%  filter(is.na(as.numeric(overhd.diam))) #verification error, fixed in correctedCSVs
+```
+
+```{r}
+#unnest 
+dat4 <- dat3 %>% unnest(sheets) %>%
+  filter(Unique.ID != "buffer") %>% 
+  select(-Survey.date, -`survey date`)
+head(dat4)
+```
+
+```{r}
+dat4 %>% 
+  group_by(survey_date) %>% 
+  summarise(meanHeight=mean(height.cm, na.rm = TRUE), 
+            semHeight=sem(height.cm, na.rm=TRUE)) %>% 
+  ggplot(aes(x=survey_date, y=meanHeight)) + geom_point() + geom_line() +
+  geom_errorbar(aes(ymin=meanHeight-semHeight,ymax=meanHeight+semHeight),width=.2) +
+  labs(y="Avg Height (cm)", x="Survey Date") +
+  theme_classic() +
+  theme(text=element_text(size=25))
+ggsave("../output/WL2_Traits/WL2_2025_Height_Check.png", width = 14, height = 8, units = "in")
+```
+
