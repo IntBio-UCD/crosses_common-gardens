@@ -1,0 +1,39 @@
+---
+title: "Biomass_SeedMassOrg"
+author: "Brandie QC"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Libraries
+```{r}
+library(tidyverse)
+```
+
+
+## Load the Data
+```{r}
+biomass <- read_csv("../input/UCD2023_2024_Data/Biomass_20250721 - Sheet1.csv") %>% 
+  select(unique.ID=`Unique ID`, date.collected, date.meas, total.biomass_g, total.seed.mass_g, survey.notes)
+
+genotype_info <- read_csv("../input/UCD2023_2024_Data/Genotypes_2023_2024.csv") %>% 
+  select(block, unique.ID)
+```
+
+## Merge
+```{r}
+names(biomass)
+names(genotype_info)
+
+biomass_blocks <- biomass %>% 
+  left_join(genotype_info) %>% 
+  select(block, unique.ID:survey.notes) %>% 
+  arrange(block, unique.ID, date.meas)
+biomass_blocks
+write_csv(biomass_blocks, "../output/UCD_Traits/Biomass_Blocks.csv")
+```
+
