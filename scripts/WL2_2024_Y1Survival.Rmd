@@ -88,3 +88,24 @@ f1_surv %>%
 ggsave("../output/WL2_Traits/WL2_SURV_Y1Surv_F1s.png", width = 14, height = 8, units = "in")
 ```
 
+## Parent Pops Year 1 Survival
+```{r}
+parent_surv<- surv_2024_pops %>% 
+  mutate(Surv=if_else(is.na(death.date), 1, 0)) %>% 
+  filter(Pop.Type=="Parent") %>% 
+  group_by(pop) %>% 
+  summarise(n=n(),mean_Surv=mean(Surv, na.rm=TRUE), sem_surv=sem(Surv, na.rm=TRUE)) 
+
+parent_surv %>% 
+  filter(n>1) %>% 
+  ggplot(aes(x=fct_reorder(pop, mean_Surv), y=mean_Surv)) + 
+  geom_col(width = 0.7,position = position_dodge(0.75)) + 
+  geom_errorbar(aes(ymin=mean_Surv-sem_surv,ymax=mean_Surv+sem_surv),width=.2, position = 
+                  position_dodge(0.75)) +
+  theme_classic() + 
+  scale_y_continuous(expand = c(0.01, 0)) +
+  labs(x="Parent Population", y="Survival") +
+  theme(text=element_text(size=25), axis.text.x = element_text(angle = 45, hjust = 1))
+ggsave("../output/WL2_Traits/WL2_SURV_Y1Surv_Parents.png", width = 14, height = 8, units = "in")
+```
+
