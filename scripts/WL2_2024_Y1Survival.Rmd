@@ -2,7 +2,9 @@
 title: "2024_Survival"
 author: "Brandie QC"
 date: "`r Sys.Date()`"
-output: html_document
+output: 
+  html_document: 
+    keep_md: true
 ---
 
 ```{r setup, include=FALSE}
@@ -34,6 +36,15 @@ surv_2024 %>% filter(unique.ID=="buffer") #check for buffers
 pop_info <- read_csv("../input/WL2_2024_Data/Final_2023_2024_Pop_Loc_Info.csv") %>% 
   select(Pop.Type:unique.ID) %>% 
   rename(row=bedrow, col=bedcol)
+```
+
+## Elevation Info
+```{r}
+elev_info <- read_csv("../input/Strep_tort_locs.csv")
+
+elev_info_yo <- elev_info %>% mutate(pop = str_replace(`Site code`, "YOSE(\\d+)", "YO\\1")) %>% select(Lat, Long, elev_m=`Elevation (m)`, pop)
+head(elev_info_yo)
+unique(elev_info_yo$pop)
 ```
 
 ## Merge
@@ -93,18 +104,20 @@ ggsave("../output/WL2_Traits/WL2_SURV_Y1Surv_F1s.png", width = 14, height = 8, u
 parent_surv<- surv_2024_pops %>% 
   mutate(Surv=if_else(is.na(death.date), 1, 0)) %>% 
   filter(Pop.Type=="Parent") %>% 
-  group_by(pop) %>% 
+  left_join(elev_info_yo) %>% 
+  group_by(pop, elev_m) %>% 
   summarise(n=n(),mean_Surv=mean(Surv, na.rm=TRUE), sem_surv=sem(Surv, na.rm=TRUE)) 
 
 parent_surv %>% 
   filter(n>1) %>% 
-  ggplot(aes(x=fct_reorder(pop, mean_Surv), y=mean_Surv)) + 
+  ggplot(aes(x=fct_reorder(pop, mean_Surv), y=mean_Surv, fill=elev_m)) + 
   geom_col(width = 0.7,position = position_dodge(0.75)) + 
   geom_errorbar(aes(ymin=mean_Surv-sem_surv,ymax=mean_Surv+sem_surv),width=.2, position = 
                   position_dodge(0.75)) +
   theme_classic() + 
   scale_y_continuous(expand = c(0.01, 0)) +
   labs(x="Parent Population", y="Survival") +
+  scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=25), axis.text.x = element_text(angle = 45, hjust = 1))
 ggsave("../output/WL2_Traits/WL2_SURV_Y1Surv_Parents.png", width = 14, height = 8, units = "in")
 ```
