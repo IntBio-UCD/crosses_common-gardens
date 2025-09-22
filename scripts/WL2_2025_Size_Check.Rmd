@@ -73,14 +73,22 @@ dat3$sheets[[7]] %>% rowwise() %>% filter(!is.na(leaf.number)) %>%  filter(is.na
 
 dat3$sheets[[8]] %>% rowwise() %>% filter(!is.na(height.cm)) %>%  filter(is.na(as.numeric(height.cm))) #verification error, fixed in correctedCSVs
 dat3$sheets[[8]] %>% rowwise() %>% filter(!is.na(overhd.diam)) %>%  filter(is.na(as.numeric(overhd.diam))) #verification error, fixed in correctedCSVs
+
+dat3$sheets[[9]] %>% rowwise() %>% filter(!is.na(height.cm)) %>%  filter(is.na(as.numeric(height.cm)))
+dat3$sheets[[9]] %>% rowwise() %>% filter(!is.na(herbv.scale)) %>%  filter(is.na(as.numeric(herbv.scale)))
+
+dat3$sheets[[10]] %>% rowwise() %>% filter(!is.na(overhd.perp)) %>%  filter(is.na(as.numeric(overhd.perp)))
+dat3$sheets[[10]] %>% rowwise() %>% filter(!is.na(herbv.scale)) %>%  filter(is.na(as.numeric(herbv.scale)))
 ```
 
 ```{r}
 #unnest 
 dat4 <- dat3 %>% unnest(sheets) %>%
   filter(Unique.ID != "buffer") %>% 
-  select(-Survey.date, -`survey date`)
+  select(-Survey.date, -`survey date`, -survey.date)
 head(dat4)
+
+unique(dat4$survey_date)
 ```
 
 ```{r}
