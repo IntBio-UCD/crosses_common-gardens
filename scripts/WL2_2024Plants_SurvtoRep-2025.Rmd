@@ -1,0 +1,68 @@
+---
+title: "WL2_2024Plants_SurvtoRep-2025"
+author: "Brandie QC"
+date: "`r Sys.Date()`"
+output: 
+  html_document: 
+    keep_md: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Survival to Rep of plants planted in 2024 
+
+## Libraries
+```{r}
+library(tidyverse)
+
+sem <- function(x, na.rm=FALSE) {           #for calculating standard error
+  sd(x,na.rm=na.rm)/sqrt(length(na.omit(x)))
+} 
+```
+
+## Load data
+
+## Mort/pheno
+```{r}
+aug_mort <- read_csv("../input/WL2_2025_Data/CorrectedCSVs/WL2_mort_pheno_20250814_corrected.csv")
+aug_mort %>% filter(!is.na(Unique.ID), Unique.ID!="buffer") %>% filter(is.na(as.numeric(Unique.ID))) #only non-numeric ID is yose plant from 2023
+```
+
+## Pop Info 
+```{r}
+pop_info_2025 <- read_csv("../input/WL2_2025_Data/2025_Pop_Loc_Info Updated.csv") %>% 
+  select(status:Unique.ID)
+```
+
+### Elevation Info
+```{r}
+elev_info <- read_csv("../input/Strep_tort_locs.csv")
+
+elev_info_yo <- elev_info %>% mutate(pop = str_replace(`Site code`, "YOSE(\\d+)", "YO\\1")) %>% select(Lat, Long, elev_m=`Elevation (m)`, pop)
+unique(elev_info_yo$pop)
+```
+
+## Merge
+```{r}
+aug_mort_pops <- aug_mort %>% 
+  select(bed:Unique.ID, bud.date, death.date) %>% 
+  left_join(pop_info_2025) %>% 
+  filter(Unique.ID!="buffer", !is.na(Unique.ID))
+```
+
+## 2024 Plants Only
+```{r}
+aug_mort_pops_2024plants <- aug_mort_pops %>% 
+  filter(status=="2024-survivor") %>% 
+  mutate(Pop.Type=if_else(str_detect(pop.id, "\\) x"), "F2",
+                          if_else(str_detect(pop.id, "x"), "F1",
+                                  "Parent"
+                          )))
+
+aug_mort_pops_2024plants %>% filter(is.na(bud.date)) #only 5 plants have not initiated rep 
+#2 BH  
+#2 WL2 BC1s (with TM2 and YO11)
+#1 F1 (WV x TM2)
+```
