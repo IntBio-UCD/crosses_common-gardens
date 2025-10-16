@@ -29,14 +29,12 @@ files
 
 ```{r}
 dat <- tibble(path=files, filename=basename(path))
-dat
 ```
 
 ```{r}
 dat2 <- dat %>% 
   mutate(survey_date=str_extract(filename, "[0-9]{8}")) %>%  #look for numbers, 8 long 
    mutate(survey_date=lubridate:: ymd(survey_date))
-dat2
 ```
 
 ```{r}
@@ -79,6 +77,11 @@ dat3$sheets[[9]] %>% rowwise() %>% filter(!is.na(herbv.scale)) %>%  filter(is.na
 
 dat3$sheets[[10]] %>% rowwise() %>% filter(!is.na(overhd.perp)) %>%  filter(is.na(as.numeric(overhd.perp)))
 dat3$sheets[[10]] %>% rowwise() %>% filter(!is.na(herbv.scale)) %>%  filter(is.na(as.numeric(herbv.scale)))
+
+dat3$sheets[[12]] %>% rowwise() %>% filter(!is.na(overhd.perp)) %>%  filter(is.na(as.numeric(overhd.perp))) #MA instead of NA
+dat3$sheets[[12]] %>% rowwise() %>% filter(!is.na(herbv.scale)) %>%  filter(is.na(as.numeric(herbv.scale))) #Ns - should check 
+
+dat3$sheets[[13]] %>% rowwise() %>% filter(!is.na(row)) %>%  filter(is.na(as.numeric(row))) #header row 
 ```
 
 ```{r}
