@@ -1,0 +1,251 @@
+---
+title: "Clim_for_Crosses_Gardens"
+author: "Brandie QC"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Script for computing climate distance 
+
+## Load libraries
+
+```{r}
+library(raster) #for the CV function 
+library(tidyverse)
+
+sem <- function(x, na.rm=FALSE) { #standard error function 
+  sd(x,na.rm=na.rm)/sqrt(length(na.omit(x)))
+} 
+```
+
+## Load the pop and location data
+
+```{r}
+#pop info
+pops_common_garden <- read_csv("../../parent_pops_common-gardens/input/WL2_Data/Pops_for_2023_WL2.csv") #pops included in common garden 
+pops_common_garden_nonotes <- pops_common_garden %>% select(parent.pop:phylogroup, elevation.group) #subset columns
+
+#Need to add YO1 for JGI:
+yose1 <- tibble(parent.pop="YO1", phylogroup=NA) 
+pops_common_garden_jgi <- bind_rows(pops_common_garden_nonotes, yose1)
+
+#extra location info 
+pop_loc <- read_csv("../input/Strep_tort_locs.csv")
+
+#need to change YOSE to YO
+pop_loc_yo <- pop_loc %>% mutate(parent.pop = str_replace(`Site code`, "YOSE(\\d+)", "YO\\1")) %>% select(Lat, Long, elev_m=`Elevation (m)`, parent.pop)
+
+#merge in location info
+pop_elev <- left_join(pops_common_garden_jgi, pop_loc_yo)
+
+#add in common garden sites
+sites_loc <- tibble(parent.pop=c("UCD_Garden", "WL2_Garden"), phylogroup=NA, Lat=c("38.53250", "38.82599"), Long=c("-121.78299", "-120.25090"), elev_m=c(16,2020))
+pops_gardens_locs <- bind_rows(pop_elev, sites_loc)
+
+#add row names
+pops_gardens_locs_rowids <- pops_gardens_locs %>% rowid_to_column() %>% mutate(rowid = as.character(rowid))
+```
+
+## Load raw flint data
+
+```{r}
+flint_data1 <- read_csv("../input/Updated_Flint_Climate_Oct2024.csv") #This only goes through Aug 2024
+flint_data2 <- read_csv("../input/Updated_Flint_Sept-Dec2024.csv") #Sept-Dec 2024
+
+#merge:
+flint_data <- bind_rows(flint_data1, flint_data2)
+```
+
+## Convert raw flint into a workable format (original code in "Climate_Shapefile.Rmd")
+
+```{r}
+cwd <- flint_data %>% filter(str_detect(DataFileName, "cwd"))
+cwd_long <- cwd %>% 
+  pivot_longer(!DataFileName, names_to = "rowid", values_to = "cwd") %>% 
+  extract(DataFileName, c("year", "month"), "(\\d+)(.*)", convert = TRUE) %>% 
+  separate(month, into = c("month", "file_type")) %>% select(rowid, year, month, cwd)
+
+pet <- flint_data %>% filter(str_detect(DataFileName, "pet"))
+pet_long <- pet %>% 
+  pivot_longer(!DataFileName, names_to = "rowid", values_to = "pet") %>% 
+  extract(DataFileName, c("year", "month"), "(\\d+)(.*)", convert = TRUE) %>% 
+  separate(month, into = c("month", "file_type")) %>% select(rowid, year, month, pet)
+
+aet <- flint_data %>% 
+  filter(str_detect(DataFileName, "aet"))
+aet_long <- aet %>% 
+  pivot_longer(!DataFileName, names_to = "rowid", values_to = "aet") %>% 
+  extract(DataFileName, c("year", "month"), "(\\d+)(.*)", convert = TRUE) %>% 
+  separate(month, into = c("month", "file_type")) %>% select(rowid, year, month, aet)
+
+pck <- flint_data %>% filter(str_detect(DataFileName, "pck"))
+pck_long <- pck %>% 
+  pivot_longer(!DataFileName, names_to = "rowid", values_to = "pck") %>% 
+  extract(DataFileName, c("year", "month"), "(\\d+)(.*)", convert = TRUE) %>% 
+  separate(month, into = c("month", "file_type")) %>% select(rowid, year, month, pck)
+
+ppt <- flint_data %>% filter(str_detect(DataFileName, "ppt"))
+ppt_long <- ppt %>% 
+  pivot_longer(!DataFileName, names_to = "rowid", values_to = "ppt") %>% 
+  extract(DataFileName, c("year", "month"), "(\\d+)(.*)", convert = TRUE) %>% 
+  separate(month, into = c("month", "file_type")) %>% select(rowid, year, month, ppt)
+
+tmn <- flint_data %>% filter(str_detect(DataFileName, "tmn"))
+tmn_long <- tmn %>% 
+  pivot_longer(!DataFileName, names_to = "rowid", values_to = "tmn") %>% 
+  extract(DataFileName, c("year", "month"), "(\\d+)(.*)", convert = TRUE) %>% 
+  separate(month, into = c("month", "file_type")) %>% select(rowid, year, month, tmn)
+
+tmx <- flint_data %>% filter(str_detect(DataFileName, "tmx"))
+tmx_long <- tmx %>% 
+  pivot_longer(!DataFileName, names_to = "rowid", values_to = "tmx") %>% 
+  extract(DataFileName, c("year", "month"), "(\\d+)(.*)", convert = TRUE) %>% 
+  separate(month, into = c("month", "file_type")) %>% select(rowid, year, month, tmx)
+
+#merge:
+flint_long <- full_join(aet_long, cwd_long)
+flint_long <- full_join(flint_long, pck_long)
+flint_long <- full_join(flint_long, pet_long)
+flint_long <- full_join(flint_long, ppt_long)
+flint_long <- full_join(flint_long, tmn_long)
+flint_long <- full_join(flint_long, tmx_long)
+
+flint_pops <- full_join(pops_gardens_locs_rowids, flint_long) 
+```
+
+Note: flint_pops includes the 2 common garden sites and pops not grown in crosses gardens 
+
+### Subset to only the 10 pops plus the garden sites
+
+TM2, WL2, LV1, SQ3, WL1, YO11, BH, CC, DPR, WV
+
+```{r}
+crosses_parents <- c("TM2", "WL2", "LV1", "SQ3", "WL1", "YO11", "BH", "CC", "DPR", "WV")
+
+pop_elev_climate <- flint_pops %>% 
+  select(parent.pop, elevation.group, elev_m, Lat:Long, year:tmx) %>% #organize the columns 
+  mutate(elevation.group=if_else(parent.pop=="UCD_Garden", "Low",  #add elevation group for gardens
+                                 if_else(parent.pop=="WL2_Garden", "High", elevation.group))) %>% 
+  filter(parent.pop %in% crosses_parents | str_detect(parent.pop, "Garden")) 
+
+unique(pop_elev_climate$parent.pop) #check that filtering worked 
+```
+
+## Flint Water Year
+
+```{r}
+month_nums <- tibble(month=c("jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"),
+                     month_nums=c(1:12)) #give calendar months a number 
+
+#merge:
+flint_all_year_mosnums <- left_join(pop_elev_climate, month_nums) %>% arrange(parent.pop, year, month_nums) 
+
+#define the water year as November-October:
+flint_all_year_wtr_yr <- flint_all_year_mosnums %>% 
+  mutate(wtr_yr = year + month_nums %in% c(11:12)) %>% 
+  mutate(timeframe = case_when(
+                                wtr_yr < 1965 ~ "beforehistoric",
+                                wtr_yr >= 1965 & wtr_yr < 1995 ~ "historic",
+                                wtr_yr >= 1995 & wtr_yr <= 2024 ~ "recent")) %>%
+                         mutate(timeframe = as.factor(timeframe), month = as.factor(month)) %>%
+                         filter(wtr_yr != 1895) %>% #remove years with less than 12 months of data 
+                         mutate(months_wtryr = case_when(
+                           month == "nov" ~ 1,
+                           month == "dec" ~ 2,
+                           month == "jan" ~ 3,
+                           month == "feb" ~ 4,
+                           month == "mar" ~ 5,
+                           month == "apr" ~ 6,
+                           month == "may" ~ 7, 
+                           month == "jun" ~ 8,
+                           month == "jul" ~ 9, 
+                           month == "aug" ~ 10,
+                           month == "sep" ~ 11,
+                           month == "oct" ~ 12 )) %>% 
+  select(parent.pop:month, timeframe, wtr_yr, months_wtryr, aet:tmx)  #organize the columns 
+summary(flint_all_year_wtr_yr)
+
+#water year is calculated Nov - October to match census dates at WL2. Could have issues with this, but move forward for now. Can be changed later. 
+```
+
+## Bioclim water year calculations
+
+Referenced this r code: <https://github.com/rspatial/dismo/blob/master/R/biovars.R>
+
+```{r}
+# Calculating average temp and diurnal range for each month
+bioclim_wtr_yr_prep <- flint_all_year_wtr_yr %>% 
+  mutate(tavg = (tmn + tmx)/2, t_diurnal = (tmx-tmn))
+
+#Bio 1, 2, 4, 7, 12, 15
+bioclim_wtr_yr_calc <- bioclim_wtr_yr_prep %>% 
+  group_by(parent.pop, elevation.group, elev_m, timeframe, wtr_yr) %>% 
+  summarise(ann_tmean=mean(tavg),  #Bio1 - Annual Mean Temperature
+            mean_diurnal_range=mean(t_diurnal), #Bio2 - Mean Diurnal Range
+            temp_seasonality=sd(tavg), #Bio4 - Temperature Seasonality
+            temp_ann_range=(max(tmx))-(min(tmn)), #bio7 - temp annual range
+            ann_ppt=sum(ppt), #bio12 - annual precip
+            ppt_seasonality=cv(ppt+1)) #bio15 - Precipitation Seasonality (+1 to avoid strange CVs for areas where mean rainfaill is < 1)
+
+# Calculating wettest, driest, warmest, and coldest months 
+wettest_month <- bioclim_wtr_yr_prep %>%  #there's one wettest month per pop/year
+  group_by(parent.pop, elevation.group, elev_m, timeframe, wtr_yr) %>% 
+  slice_max(ppt)
+driest_month <- bioclim_wtr_yr_prep %>%  #there's more than one driest month for some pops and years 
+  group_by(parent.pop, elevation.group, elev_m, timeframe, wtr_yr) %>% 
+  slice_min(ppt)
+warmest_month <- bioclim_wtr_yr_prep %>% #there's more than one warmest month for 1 pop/year
+  group_by(parent.pop, elevation.group, elev_m, timeframe, wtr_yr) %>% 
+  slice_max(tavg)
+coldest_month <- bioclim_wtr_yr_prep %>% #there's more than one driest month for some pops and years 
+  group_by(parent.pop, elevation.group, elev_m, timeframe, wtr_yr) %>% 
+  slice_min(tavg)
+
+# Bio 8, 9, 18, 19
+bio8_wtryr <- wettest_month %>% #bio8 = tmean_wettest_month
+  dplyr::select(parent.pop, elevation.group, elev_m, timeframe, wtr_yr, tmean_wettest_month=tavg)
+bio9_wtryr <- driest_month %>% #bio9 = tmean_driest_month
+  group_by(parent.pop, elevation.group, elev_m, timeframe, wtr_yr) %>% 
+  summarise(tmean_driest_month=mean(tavg)) #taking the average b/c some years where there are multiple driest months 
+bio18_wtryr <- warmest_month %>% #bio18 = ppt_warmest_month
+  group_by(parent.pop, elevation.group, elev_m, timeframe, wtr_yr) %>% 
+  summarise(ppt_warmest_month=mean(ppt)) #taking the avg b/c more than one warmest month for one pop/year
+bio19_wtryr <- coldest_month %>% #bio19 = ppt_coldest_month
+  group_by(parent.pop, elevation.group, elev_m, timeframe, wtr_yr) %>% 
+  summarise(ppt_coldest_month=mean(ppt)) #taking the avg b/c more than one coldest month for one pop/year
+#merge:
+bio8_9_wtryr <- full_join(bio8_wtryr, bio9_wtryr) 
+bio18_19_wtryr <- full_join(bio18_wtryr, bio19_wtryr) 
+all_periods_wtryr <- full_join(bio8_9_wtryr, bio18_19_wtryr)
+
+#Merge all bioclims
+bioclim_wtryr <- full_join(bioclim_wtr_yr_calc, all_periods_wtryr)
+summary(bioclim_wtryr)
+```
+
+Note: bioclim_wtryr includes the 2 common garden sites
+
+## Merge Flint and Bioclim
+```{r}
+#summarize flint by year to merge it with the bioclim data
+flint_yrly_avgs_wtr_yr <- flint_all_year_wtr_yr %>% 
+  mutate(timeframe=if_else(str_detect(parent.pop, "Garden"), "2024", timeframe)) %>% #keep only 2024 clim for gardens
+  filter(timeframe!="beforehistoric") %>% 
+  rename(year=wtr_yr, year_cal=year) %>% 
+  group_by(parent.pop, elevation.group, elev_m, Lat, Long, timeframe, year) %>% 
+  summarise_at(c("cwd", "pck", "ppt", "tmn", "tmx"), c(mean), na.rm = TRUE)
+
+#subset bioclim water year
+bioclim_wtryr_to_merge <- bioclim_wtryr %>% 
+  mutate(timeframe=if_else(str_detect(parent.pop, "Garden"), "2024", timeframe)) %>% #keep only 2024 clim for gardens
+  filter(timeframe!="beforehistoric") %>% 
+  rename(year=wtr_yr) 
+
+#merge
+wtr_yr_clim <- left_join(flint_yrly_avgs_wtr_yr, bioclim_wtryr_to_merge) %>% mutate(Season="Water Year")
+write_csv(wtr_yr_clim, "../output/Climate/WtrYr_Clim.csv")
+```
