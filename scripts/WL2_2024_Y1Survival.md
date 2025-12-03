@@ -1,7 +1,7 @@
 ---
 title: "2024_Survival"
 author: "Brandie QC"
-date: "2025-09-22"
+date: "2025-12-02"
 output: 
   html_document: 
     keep_md: true
@@ -325,3 +325,41 @@ parent_surv %>%
 ggsave("../output/WL2_Traits/WL2_SURV_Y1Surv_Parents.png", width = 14, height = 8, units = "in")
 ```
 
+## F1s + Parents
+
+``` r
+names(parent_surv)
+```
+
+```
+## [1] "pop"       "elev_m"    "n"         "mean_Surv" "sem_surv"
+```
+
+``` r
+names(f1_surv)
+```
+
+```
+## [1] "pop"       "n"         "mean_Surv" "sem_surv"
+```
+
+``` r
+parent_surv %>% 
+  select(-elev_m) %>% 
+  bind_rows(f1_surv) %>% 
+  filter(n>2) %>% 
+  ggplot(aes(x=fct_reorder(pop, mean_Surv), y=mean_Surv)) + 
+  geom_col(width = 0.7,position = position_dodge(0.75)) + 
+  geom_errorbar(aes(ymin=mean_Surv-sem_surv,ymax=mean_Surv+sem_surv),width=.2, position = 
+                  position_dodge(0.75)) +
+  theme_classic() + 
+  scale_y_continuous(expand = c(0.01, 0)) +
+  labs(x="Population", y="Survival") +
+  theme(text=element_text(size=25), axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+![](WL2_2024_Y1Survival_files/figure-html/unnamed-chunk-9-1.png)<!-- -->
+
+``` r
+ggsave("../output/WL2_Traits/WL2_Y1Surv_F1s_Parents.png", width = 14, height = 8, units = "in")
+```
