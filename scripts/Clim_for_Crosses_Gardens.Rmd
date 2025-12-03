@@ -233,7 +233,6 @@ Note: bioclim_wtryr includes the 2 common garden sites
 ```{r}
 #summarize flint by year to merge it with the bioclim data
 flint_yrly_avgs_wtr_yr <- flint_all_year_wtr_yr %>% 
-  mutate(timeframe=if_else(str_detect(parent.pop, "Garden"), "2024", timeframe)) %>% #keep only 2024 clim for gardens
   filter(timeframe!="beforehistoric") %>% 
   rename(year=wtr_yr, year_cal=year) %>% 
   group_by(parent.pop, elevation.group, elev_m, Lat, Long, timeframe, year) %>% 
@@ -241,11 +240,12 @@ flint_yrly_avgs_wtr_yr <- flint_all_year_wtr_yr %>%
 
 #subset bioclim water year
 bioclim_wtryr_to_merge <- bioclim_wtryr %>% 
-  mutate(timeframe=if_else(str_detect(parent.pop, "Garden"), "2024", timeframe)) %>% #keep only 2024 clim for gardens
   filter(timeframe!="beforehistoric") %>% 
   rename(year=wtr_yr) 
 
 #merge
-wtr_yr_clim <- left_join(flint_yrly_avgs_wtr_yr, bioclim_wtryr_to_merge) %>% mutate(Season="Water Year")
+wtr_yr_clim <- left_join(flint_yrly_avgs_wtr_yr, bioclim_wtryr_to_merge) %>% 
+  mutate(Season="Water Year") %>% 
+  filter(year<2025) #remove Nov-Dec 2024 b/c that would be the start of the 2025 water year 
 write_csv(wtr_yr_clim, "../output/Climate/WtrYr_Clim.csv")
 ```
