@@ -191,6 +191,7 @@ boot_gowers_historic_wtryr_pops_2024_WL2 <- bind_cols(pops, boot_historic_wtryr_
 
 all_WL2_gowers <- bind_rows(boot_gowers_recent_wtryr_pops_2024_WL2,
                             boot_gowers_historic_wtryr_pops_2024_WL2) 
+write_csv(all_WL2_gowers, "../output/Climate/WL2_2024_Clim_Dist.csv")
 ```
 
 #### 2024 UCD Garden
@@ -227,6 +228,7 @@ boot_gowers_historic_wtryr_pops_2024_UCD <- bind_cols(pops, boot_historic_wtryr_
 
 all_UCD_gowers <- bind_rows(boot_gowers_recent_wtryr_pops_2024_UCD,
                             boot_gowers_historic_wtryr_pops_2024_UCD) 
+write_csv(all_UCD_gowers, "../output/Climate/UCD_2024_Clim_Dist.csv")
 ```
 
 ### Plot the results 
