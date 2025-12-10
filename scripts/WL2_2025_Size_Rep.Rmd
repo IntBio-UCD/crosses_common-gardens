@@ -39,6 +39,8 @@ pheno_2025_pops <- pheno_2025 %>%
   select(bed:Unique.ID, flower.date, death.date) %>% 
   left_join(pop_info_2025) %>% 
   filter(Unique.ID!="buffer", !is.na(Unique.ID))
+
+unique(pheno_2025_pops$status)
 ```
 
 ## 2025 Size 
@@ -81,7 +83,11 @@ sizeatrep_2025 <- all_2025_size %>%
   mutate(flower.date = lubridate::mdy(flower.date)) %>% 
   filter(!is.na(flower.date)) %>% 
   filter(survey_date==flower.date) %>% 
-  select(Unique.ID, survey_date, flower.date, height.cm)
+  select(status, Unique.ID, survey_date, flower.date, height.cm)
 
 summary(sizeatrep_2025)
+
+sizeatrep_2025_2025plants <- sizeatrep_2025 %>% 
+  filter(status=="available") #filter to plants planted in 2025
+summary(sizeatrep_2025_2025plants)
 ```
