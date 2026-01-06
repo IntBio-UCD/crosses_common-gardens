@@ -11,17 +11,16 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# Checking who was alive at the end of 2024
+# Checking survival the end of 2024
 
 ## Libraries
 ```{r}
 library(tidyverse)
 
-sem <- function(x, na.rm=FALSE) {           #for caclulating standard error
+sem <- function(x, na.rm=FALSE) {           #for calculating standard error
   sd(x,na.rm=na.rm)/sqrt(length(na.omit(x)))
 } 
 ```
-
 
 ## Surv Data
 ```{r}
@@ -38,13 +37,14 @@ pop_info <- read_csv("../input/WL2_2024_Data/Final_2023_2024_Pop_Loc_Info.csv") 
   rename(row=bedrow, col=bedcol)
 ```
 
-## Elevation Info
+## Elevation Info / Climate distance
 ```{r}
-elev_info <- read_csv("../input/Strep_tort_locs.csv")
+clim_dist_2024 <- read_csv("../output/Climate/WL2_2024_Clim_Dist.csv") %>% select(-conf.low, -conf.high)
+head(clim_dist_2024)
 
-elev_info_yo <- elev_info %>% mutate(pop = str_replace(`Site code`, "YOSE(\\d+)", "YO\\1")) %>% select(Lat, Long, elev_m=`Elevation (m)`, pop)
-head(elev_info_yo)
-unique(elev_info_yo$pop)
+clim_dist_2024_wide <- clim_dist_2024 %>% 
+  pivot_wider(names_from = timeframe, values_from = Gowers_Dist, names_prefix = "GD_") %>% 
+  rename(pop=parent.pop)
 ```
 
 ## Merge
@@ -52,10 +52,10 @@ unique(elev_info_yo$pop)
 surv_2024_pops <- left_join(surv_2024, pop_info)
 unique(surv_2024_pops$Pop.Type)
 unique(surv_2024_pops$status)
+unique(surv_2024_pops$pop)
 
-surv_2024_pops %>% filter(Pop.Type=="2023-TM2-fruit") #double check 2023 TM2 fruiting 
+#surv_2024_pops %>% filter(Pop.Type=="2023-TM2-fruit") #double check 2023 TM2 fruiting 
 ```
-
 
 ## Alive in Oct 2024
 ```{r}
@@ -66,10 +66,8 @@ alive <- surv_2024_pops %>%
   filter(is.na(missing.date)) %>% #keep only plants without a missing date
   mutate(deadatplanting = if_else(is.na(survey.notes), NA,
                                   if_else(survey.notes=="Dead at planting", "Yes", NA))) %>% 
-  filter(is.na(deadatplanting))
+  filter(is.na(deadatplanting)) #remove plants that were dead at planting 
 dim(alive) #132 alive
-
-names(alive)
 
 xtabs(~Pop.Type, data=alive)
 #25 parent plants from 2023 still alive
