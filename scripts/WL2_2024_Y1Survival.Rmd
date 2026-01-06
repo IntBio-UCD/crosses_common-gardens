@@ -92,7 +92,7 @@ f1_surv<- surv_2024_pops %>%
   mutate(meanElev=(dame_elev+sire_elev)/2, 
          mean_GD_Recent=(dame_GD_Recent+sire_GD_Recent)/2, 
          mean_GD_Historic=(dame_GD_Historic+sire_GD_Historic)/2)
-f1_surv
+head(f1_surv)
   
 f1_surv_summary <- f1_surv %>% 
   group_by(pop, dame_pop, dame_elev, dame_GD_Recent, dame_GD_Historic, meanElev, mean_GD_Recent, mean_GD_Historic) %>% 
@@ -164,11 +164,14 @@ ggsave("../output/WL2_Traits/WL2_2024_Y1Surv_F1s_HistoricCD.png", width = 14, he
 parent_surv<- surv_2024_pops %>% 
   mutate(Surv=if_else(is.na(death.date), 1, 0)) %>% 
   filter(Pop.Type=="Parent") %>% 
-  left_join(elev_info_yo) %>% 
-  group_by(pop, elev_m) %>% 
+  left_join(clim_dist_2024_wide) %>% 
+  select(block, loc, pop:rep, elev_m:Long, GD_Recent, GD_Historic, unique.ID, Surv)
+
+parent_surv_summary <- parent_surv %>% 
+  group_by(pop, elev_m, GD_Recent, GD_Historic) %>% 
   summarise(n=n(),mean_Surv=mean(Surv, na.rm=TRUE), sem_surv=sem(Surv, na.rm=TRUE)) 
 
-parent_surv %>% 
+parent_surv_summary %>% 
   filter(n>1) %>% 
   ggplot(aes(x=fct_reorder(pop, mean_Surv), y=mean_Surv, fill=elev_m)) + 
   geom_col(width = 0.7,position = position_dodge(0.75)) + 
@@ -179,7 +182,31 @@ parent_surv %>%
   labs(x="Parent Population", y="Survival") +
   scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=25), axis.text.x = element_text(angle = 45, hjust = 1))
-ggsave("../output/WL2_Traits/WL2_SURV_Y1Surv_Parents.png", width = 14, height = 8, units = "in")
+ggsave("../output/WL2_Traits/WL2_2024_Y1Surv_Parents.png", width = 14, height = 8, units = "in")
+
+parent_surv_summary %>% 
+  filter(n>1) %>% 
+  ggplot(aes(x=GD_Recent, y=mean_Surv, group=pop, colour=elev_m)) + 
+  geom_point(size=6) + 
+  geom_errorbar(aes(ymin=mean_Surv-sem_surv,ymax=mean_Surv+sem_surv),width=.02, linewidth = 2) +
+  theme_classic() + 
+  scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  labs(x="Recent Water Year Climate Dist", y="Survival") +
+  theme(text=element_text(size=25), axis.text.x = element_text(angle = 45, hjust = 1))
+ggsave("../output/WL2_Traits/WL2_2024_Y1Surv_Parents_RecentCD.png", width = 14, height = 8, units = "in")
+
+parent_surv_summary %>% 
+  filter(n>1) %>% 
+  ggplot(aes(x=GD_Historic, y=mean_Surv, group=pop, colour=elev_m)) + 
+  geom_point(size=6) + 
+  geom_errorbar(aes(ymin=mean_Surv-sem_surv,ymax=mean_Surv+sem_surv),width=.02, linewidth = 2) +
+  theme_classic() + 
+  scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  labs(x="Historic Water Year Climate Dist", y="Survival") +
+  theme(text=element_text(size=25), axis.text.x = element_text(angle = 45, hjust = 1))
+ggsave("../output/WL2_Traits/WL2_2024_Y1Surv_Parents_HistoricCD.png", width = 14, height = 8, units = "in")
 ```
 
 ## F1s + Parents
