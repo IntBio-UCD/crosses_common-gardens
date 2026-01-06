@@ -81,10 +81,24 @@ xtabs(~Pop.Type, data=alive)
 f1_surv<- surv_2024_pops %>% 
   mutate(Surv=if_else(is.na(death.date), 1, 0)) %>% 
   filter(Pop.Type=="F1") %>% 
-  group_by(pop) %>% 
+  separate(pop, c("dame_pop",NA, "sire_pop"), remove = FALSE) %>% 
+  select(block, loc, pop:rep, unique.ID, Surv) %>% 
+  left_join(clim_dist_2024_wide, by=join_by(dame_pop==pop)) %>% 
+  select(-elevation.group, -Season, -Year) %>% 
+  rename(dame_elev=elev_m, dame_Lat=Lat, dame_Long=Long, dame_GD_Recent=GD_Recent, dame_GD_Historic=GD_Historic) %>% 
+  left_join(clim_dist_2024_wide, by=join_by(sire_pop==pop)) %>% 
+  select(-elevation.group, -Season, -Year) %>% 
+  rename(sire_elev=elev_m, sire_Lat=Lat, sire_Long=Long, sire_GD_Recent=GD_Recent, sire_GD_Historic=GD_Historic) %>% 
+  mutate(meanElev=(dame_elev+sire_elev)/2, 
+         mean_GD_Recent=(dame_GD_Recent+sire_GD_Recent)/2, 
+         mean_GD_Historic=(dame_GD_Historic+sire_GD_Historic)/2)
+f1_surv
+  
+f1_surv_summary <- f1_surv %>% 
+  group_by(pop, dame_pop, dame_elev, dame_GD_Recent, dame_GD_Historic, meanElev, mean_GD_Recent, mean_GD_Historic) %>% 
   summarise(n=n(),mean_Surv=mean(Surv, na.rm=TRUE), sem_surv=sem(Surv, na.rm=TRUE)) 
 
-f1_surv %>% 
+f1_surv_summary %>% 
   filter(n>1) %>% 
   ggplot(aes(x=fct_reorder(pop, mean_Surv), y=mean_Surv)) + 
   geom_col(width = 0.7,position = position_dodge(0.75)) + 
@@ -94,7 +108,55 @@ f1_surv %>%
   scale_y_continuous(expand = c(0.01, 0)) +
   labs(x="F1 Population", y="Survival") +
   theme(text=element_text(size=25), axis.text.x = element_text(angle = 45, hjust = 1))
-ggsave("../output/WL2_Traits/WL2_SURV_Y1Surv_F1s.png", width = 14, height = 8, units = "in")
+ggsave("../output/WL2_Traits/WL2_2024_Y1Surv_F1s.png", width = 14, height = 8, units = "in")
+
+f1_surv_summary %>% 
+  filter(n>1) %>% 
+  ggplot(aes(x=fct_reorder(pop, mean_Surv), y=mean_Surv, fill=dame_elev)) + 
+  geom_col(width = 0.7,position = position_dodge(0.75)) + 
+  geom_errorbar(aes(ymin=mean_Surv-sem_surv,ymax=mean_Surv+sem_surv),width=.2, position = 
+                  position_dodge(0.75)) +
+  theme_classic() + 
+  scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  labs(x="F1 Population", y="Survival") +
+  theme(text=element_text(size=25), axis.text.x = element_text(angle = 45, hjust = 1))
+
+f1_surv_summary %>% 
+  filter(n>1) %>% 
+  ggplot(aes(x=fct_reorder(pop, mean_Surv), y=mean_Surv, fill=meanElev)) + 
+  geom_col(width = 0.7,position = position_dodge(0.75)) + 
+  geom_errorbar(aes(ymin=mean_Surv-sem_surv,ymax=mean_Surv+sem_surv),width=.2, position = 
+                  position_dodge(0.75)) +
+  theme_classic() + 
+  scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  labs(x="F1 Population", y="Survival") +
+  theme(text=element_text(size=25), axis.text.x = element_text(angle = 45, hjust = 1))
+
+f1_surv_summary %>% 
+  filter(n>1) %>% 
+  ggplot(aes(x=mean_GD_Recent, y=mean_Surv, group=pop, colour=meanElev)) + 
+  geom_point(size=6) + 
+  geom_errorbar(aes(ymin=mean_Surv-sem_surv,ymax=mean_Surv+sem_surv),width=.02, linewidth = 2) +
+  theme_classic() + 
+  scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  labs(x="Parental Avg \n Recent Water Year Climate Dist", y="Survival") +
+  theme(text=element_text(size=25), axis.text.x = element_text(angle = 45, hjust = 1))
+ggsave("../output/WL2_Traits/WL2_2024_Y1Surv_F1s_RecentCD.png", width = 14, height = 8, units = "in")
+
+f1_surv_summary %>% 
+  filter(n>1) %>% 
+  ggplot(aes(x=mean_GD_Historic, y=mean_Surv, group=pop, colour=meanElev)) + 
+  geom_point(size=6) + 
+  geom_errorbar(aes(ymin=mean_Surv-sem_surv,ymax=mean_Surv+sem_surv),width=.02, linewidth = 2) +
+  theme_classic() + 
+  scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  labs(x="Parental Avg \n Historic Water Year Climate Dist", y="Survival") +
+  theme(text=element_text(size=25), axis.text.x = element_text(angle = 45, hjust = 1))
+ggsave("../output/WL2_Traits/WL2_2024_Y1Surv_F1s_HistoricCD.png", width = 14, height = 8, units = "in")
 ```
 
 ## Parent Pops Year 1 Survival
