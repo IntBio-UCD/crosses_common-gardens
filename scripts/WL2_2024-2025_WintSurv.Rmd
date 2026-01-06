@@ -241,7 +241,7 @@ parents_F1s_combined <- by_pop_parents_surv %>%
   bind_rows(by_pop_surv_F1)
 
 parents_F1s_combined %>%  
-  filter(N_Surv>2) %>% 
+  filter(N_Surv>1) %>% 
   ggplot(aes(x=fct_reorder(pop, mean_Surv), y=mean_Surv, fill=meanElev)) + 
   geom_col(width = 0.7,position = position_dodge(0.75)) + 
   geom_errorbar(aes(ymin=mean_Surv-sem_surv,ymax=mean_Surv+sem_surv),width=.2, position = 
