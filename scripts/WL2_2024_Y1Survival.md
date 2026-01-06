@@ -331,7 +331,7 @@ f1_surv_summary %>%
                   position_dodge(0.75)) +
   theme_classic() + 
   scale_y_continuous(expand = c(0.01, 0)) +
-  labs(x="F1 Population", y="Survival") +
+  labs(x="F1 Population", y="Y1 Survival") +
   theme(text=element_text(size=25), axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
@@ -349,7 +349,7 @@ f1_surv_summary %>%
   theme_classic() + 
   scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
   scale_y_continuous(expand = c(0.01, 0)) +
-  labs(x="F1 Population", y="Survival") +
+  labs(x="F1 Population", y="Y1 Survival") +
   theme(text=element_text(size=25), axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
@@ -365,7 +365,7 @@ f1_surv_summary %>%
   theme_classic() + 
   scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
   scale_y_continuous(expand = c(0.01, 0)) +
-  labs(x="F1 Population", y="Survival") +
+  labs(x="F1 Population", y="Y1 Survival") +
   theme(text=element_text(size=25), axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
@@ -380,7 +380,7 @@ f1_surv_summary %>%
   theme_classic() + 
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   scale_y_continuous(expand = c(0.01, 0)) +
-  labs(x="Parental Avg \n Recent Water Year Climate Dist", y="Survival") +
+  labs(x="Parental Avg \n Recent Water Year Climate Dist", y="Y1 Survival") +
   theme(text=element_text(size=25), axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
@@ -397,7 +397,7 @@ f1_surv_summary %>%
   theme_classic() + 
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   scale_y_continuous(expand = c(0.01, 0)) +
-  labs(x="Parental Avg \n Historic Water Year Climate Dist", y="Survival") +
+  labs(x="Parental Avg \n Historic Water Year Climate Dist", y="Y1 Survival") +
   theme(text=element_text(size=25), axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
@@ -441,7 +441,7 @@ parent_surv_summary %>%
                   position_dodge(0.75)) +
   theme_classic() + 
   scale_y_continuous(expand = c(0.01, 0)) +
-  labs(x="Parent Population", y="Survival") +
+  labs(x="Parent Population", y="Y1 Survival") +
   scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=25), axis.text.x = element_text(angle = 45, hjust = 1))
 ```
@@ -459,7 +459,7 @@ parent_surv_summary %>%
   theme_classic() + 
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   scale_y_continuous(expand = c(0.01, 0)) +
-  labs(x="Recent Water Year Climate Dist", y="Survival") +
+  labs(x="Recent Water Year Climate Dist", y="Y1 Survival") +
   theme(text=element_text(size=25), axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
@@ -476,7 +476,7 @@ parent_surv_summary %>%
   theme_classic() + 
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   scale_y_continuous(expand = c(0.01, 0)) +
-  labs(x="Historic Water Year Climate Dist", y="Survival") +
+  labs(x="Historic Water Year Climate Dist", y="Y1 Survival") +
   theme(text=element_text(size=25), axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
@@ -502,7 +502,7 @@ parents_F1s_combined %>%
   theme_classic() + 
   scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
   scale_y_continuous(expand = c(0.01, 0)) +
-  labs(x="Population", y="Survival", fill="Elevation (m)") +
+  labs(x="Population", y="Y1 Survival", fill="Elevation (m)") +
   theme(text=element_text(size=25), axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
@@ -519,7 +519,7 @@ parents_F1s_combined %>%
   theme_classic() + 
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   scale_y_continuous(expand = c(0.01, 0)) +
-  labs(x="Parental Avg \n Recent Water Year Climate Dist", y="Survival") +
+  labs(x="Parental Avg \n Recent Water Year Climate Dist", y="Y1 Survival") +
   theme(text=element_text(size=25), axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
@@ -536,7 +536,7 @@ parents_F1s_combined %>%
   theme_classic() + 
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   scale_y_continuous(expand = c(0.01, 0)) +
-  labs(x="Parental Avg \n Historic Water Year Climate Dist", y="Survival") +
+  labs(x="Parental Avg \n Historic Water Year Climate Dist", y="Y1 Survival") +
   theme(text=element_text(size=25), axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
