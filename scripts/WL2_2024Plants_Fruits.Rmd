@@ -1,0 +1,21 @@
+---
+title: "WL2_2024Plants_Fruits"
+author: "Brandie QC"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Fruit production of plants planted in 2024
+
+## Libraries
+```{r}
+library(tidyverse)
+
+sem <- function(x, na.rm=FALSE) {           #for calculating standard error
+  sd(x,na.rm=na.rm)/sqrt(length(na.omit(x)))
+} 
+```
