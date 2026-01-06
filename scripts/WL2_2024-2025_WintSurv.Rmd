@@ -17,7 +17,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 library(tidyverse)
 
-sem <- function(x, na.rm=FALSE) {           #for caclulating standard error
+sem <- function(x, na.rm=FALSE) {           #for calculating standard error
   sd(x,na.rm=na.rm)/sqrt(length(na.omit(x)))
 } 
 ```
@@ -36,12 +36,14 @@ pop_info <- read_csv("../input/WL2_2024_Data/Final_2023_2024_Pop_Loc_Info.csv") 
   rename(row=bedrow, col=bedcol)
 ```
 
-### Elevation Info
+## Elevation Info / Climate distance
 ```{r}
-elev_info <- read_csv("../input/Strep_tort_locs.csv")
+clim_dist_2024 <- read_csv("../output/Climate/WL2_2024_Clim_Dist.csv") %>% select(-conf.low, -conf.high)
+head(clim_dist_2024)
 
-elev_info_yo <- elev_info %>% mutate(pop = str_replace(`Site code`, "YOSE(\\d+)", "YO\\1")) %>% select(Lat, Long, elev_m=`Elevation (m)`, pop)
-unique(elev_info_yo$pop)
+clim_dist_2024_wide <- clim_dist_2024 %>% 
+  pivot_wider(names_from = timeframe, values_from = Gowers_Dist, names_prefix = "GD_") %>% 
+  rename(pop=parent.pop)
 ```
 
 ### Merge 
@@ -51,6 +53,8 @@ wintmortpheno_pops <- wintmortpheno %>%
   left_join(pop_info) %>% 
   filter(unique.ID != "buffer") %>% #remove buffers
   filter(Pop.Type!="2023-TM2-fruit") #remove 2023 TM2 fruiting plants
+
+head(wintmortpheno_pops)
 ```
 
 ## Alive in Oct 2024
@@ -61,9 +65,7 @@ alive_oct <- wintmortpheno_pops %>%
   mutate(deadatplanting = if_else(is.na(survey.notes), NA,
                                   if_else(survey.notes=="Dead at planting", "Yes", NA))) %>% 
   filter(is.na(deadatplanting))
-alive_oct 
-
-xtabs(~Pop.Type, data=alive_oct)
+dim(alive_oct) #132 plants alive in Oct (correct number)
 ```
 
 ## Winter Survival 
@@ -71,7 +73,7 @@ xtabs(~Pop.Type, data=alive_oct)
 wintersurv <- alive_oct %>% 
   select(Pop.Type:loc, bed:col, pop:rep, unique.ID:death.date) %>% 
   mutate(WintSurv=if_else(is.na(death.date), 1, 0)) #1 = surv; 0 = mort
-wintersurv
+head(wintersurv)
 
 xtabs(~Pop.Type+WintSurv, data=wintersurv)
 #1/25 2023 plants survived = 4%
@@ -113,13 +115,12 @@ by_pop_surv <- wintersurv %>%
 ### Parents
 ```{r}
 by_pop_parents_surv <- by_pop_surv %>% 
-  filter(Pop.Type == "Parent")
-by_pop_parents_surv
+  filter(Pop.Type == "Parent") %>% 
+  left_join(clim_dist_2024_wide)
+head(by_pop_parents_surv)
 
-by_pop_parents_elev_surv <- left_join(by_pop_parents_surv, elev_info_yo)
-head(by_pop_parents_elev_surv)
-
-by_pop_parents_elev_surv %>% 
+by_pop_parents_surv %>% 
+  filter(N_Surv>1) %>% 
   ggplot(aes(x=fct_reorder(pop, mean_Surv), y=mean_Surv, fill=elev_m)) + 
   geom_col(width = 0.7,position = position_dodge(0.75)) +
   geom_errorbar(aes(ymin=mean_Surv-sem_surv,ymax=mean_Surv+sem_surv),width=.2, position = 
@@ -130,6 +131,30 @@ by_pop_parents_elev_surv %>%
   scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=25), axis.text.x = element_text(angle = 45, hjust = 1))
 ggsave("../output/WL2_Traits/WL2_WINTSURV_24-25_Parents.png", width = 14, height = 8, units = "in")
+
+by_pop_parents_surv %>% 
+  filter(N_Surv>1) %>%
+  ggplot(aes(x=GD_Recent, y=mean_Surv, group=pop, colour=elev_m)) + 
+  geom_point(size=6) + 
+  geom_errorbar(aes(ymin=mean_Surv-sem_surv,ymax=mean_Surv+sem_surv),width=.02, linewidth = 2) +
+  theme_classic() + 
+  scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
+  scale_y_continuous(expand = c(0.01, 0.02)) +
+  labs(x="Recent Water Year Climate Dist", y="Winter Survival") +
+  theme(text=element_text(size=25), axis.text.x = element_text(angle = 45, hjust = 1))
+ggsave("../output/WL2_Traits/WL2_WINTSURV_24-25_Parents_RecentCD.png", width = 14, height = 8, units = "in")
+
+by_pop_parents_surv %>% 
+  filter(N_Surv>1) %>%
+  ggplot(aes(x=GD_Historic, y=mean_Surv, group=pop, colour=elev_m)) + 
+  geom_point(size=6) + 
+  geom_errorbar(aes(ymin=mean_Surv-sem_surv,ymax=mean_Surv+sem_surv),width=.02, linewidth = 2) +
+  theme_classic() + 
+  scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
+  scale_y_continuous(expand = c(0.01, 0.02)) +
+  labs(x="Historic Water Year Climate Dist", y="Winter Survival") +
+  theme(text=element_text(size=25), axis.text.x = element_text(angle = 45, hjust = 1))
+ggsave("../output/WL2_Traits/WL2_WINTSURV_24-25_Parents_HistoricCD.png", width = 14, height = 8, units = "in")
 ```
 
 ### F1s
@@ -145,6 +170,11 @@ by_pop_surv %>%
   labs(x="F1 Population", y="Winter Survival", title="F1s") +
   theme(text=element_text(size=25), axis.text.x = element_text(angle = 45, hjust = 1))
 ggsave("../output/WL2_Traits/WL2_WINTSURV_24-25_F1s.png", width = 14, height = 8, units = "in")
+```
+
+### F1s + Parents
+```{r}
+
 ```
 
 ### F2s
