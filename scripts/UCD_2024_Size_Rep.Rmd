@@ -1,0 +1,96 @@
+---
+title: "UCD_2024_Size_Rep"
+author: "Brandie QC"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Checking size at reproduction for plants planted in 2024 
+
+## Libraries
+```{r}
+library(tidyverse)
+library(lmerTest)
+
+sem <- function(x, na.rm=FALSE) {           #for calculating standard error
+  sd(x,na.rm=na.rm)/sqrt(length(na.omit(x)))
+} 
+```
+
+## Mort/pheno
+```{r}
+pheno_2024 <- read_csv("../input/UCD2023_2024_Data/CorrectedCSVs/UCD_mort_pheno_20240908_corrected.csv") 
+head(pheno_2024)
+
+pheno_2024 %>% filter(unique.ID!="buffer") %>%
+  filter(is.na(as.numeric(unique.ID))) #only non-numeric IDs are buffers
+```
+
+## Pop Info 
+```{r}
+pop_info_2024 <- read_csv("../input/UCD2023_2024_Data/Genotypes_2023_2024.csv") %>% rename(col=column)
+head(pop_info_2024)
+```
+
+## Merge
+```{r}
+pheno_2024_pops <- pheno_2024 %>% 
+  mutate(unique.ID=as.numeric(unique.ID)) %>% 
+  select(bed:unique.ID, flower.date, death.date) %>% 
+  left_join(pop_info_2024) %>% 
+  filter(unique.ID!="buffer")
+
+unique(pheno_2024_pops$`Plant Type`)
+```
+
+## 2024 Size 
+```{r}
+size_2024 <- dir("../input/UCD2023_2024_Data/CorrectedCSVs/",
+             pattern="UCD_size_survey.*corrected.*csv",
+             full.names=TRUE)
+
+size_2024_dat_UCD <- tibble(path=size_2024, filename=basename(path)) %>% 
+  mutate(survey_date=str_extract(filename, "20[0-9]*"),
+         survey_date=lubridate::ymd(survey_date))
+size_2024_dat_UCD
+
+size_2024_dat_UCD2 <- size_2024_dat_UCD %>%
+  mutate(sheets=map(path, 
+                    read_csv,
+                    col_types=cols(.default=col_character()), # forces all columns to be character
+                    na = c("", "NA", "-", "N/A") # sets NA strings. 
+                    )) %>%
+  select(-path)
+
+#check for data issues
+map(size_2024_dat_UCD2$sheets, colnames) %>% #get unique column names 
+  unlist() %>%
+  unique() %>%
+  sort() 
+#lots of survey dates, some extra unnamed cols 
+map(size_2024_dat_UCD2$sheets, head,10) #look at first 10 lines of each sheet 
+#some cases of height being a character col --> some issues (will ignore for now)
+
+all_2024_size <- size_2024_dat_UCD2 %>% 
+  unnest(sheets) %>% 
+  select(bed, col, row, unique.ID, survey_date, height.cm)
+names(all_2024_size)
+```
+
+## Size at Flowering (Individual Level)
+```{r}
+sizeatrep_2024 <- all_2024_size %>% 
+  mutate(row=as.numeric(row), unique.ID=as.numeric(unique.ID), height.cm=as.numeric(height.cm)) %>% #convert cols to numeric for merge
+  left_join(pheno_2024_pops) %>% #merge in pheno info 
+  mutate(flower.date = lubridate::mdy(flower.date)) %>% 
+  filter(!is.na(flower.date)) %>% #get rid of plants that did not flower 
+  filter(survey_date==flower.date) %>% #keep size only for the day flowering was observed 
+  select(`Plant Type`, unique.ID, survey_date, flower.date, height.cm)
+
+summary(sizeatrep_2024)
+```
