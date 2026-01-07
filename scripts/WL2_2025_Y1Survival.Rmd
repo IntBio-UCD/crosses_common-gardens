@@ -11,7 +11,9 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# Preliminary check of survival of plants planted in 2025
+# Survival of plants planted in 2025
+To Do:
+- take into account plants that survived to rep then died 
 
 ## Libraries
 ```{r}
