@@ -1,7 +1,7 @@
 ---
 title: "WL2_2024Plants_SurvtoRep-2025"
 author: "Brandie QC"
-date: "2025-09-22"
+date: "2026-01-06"
 output: 
   html_document: 
     keep_md: true
@@ -41,22 +41,23 @@ sem <- function(x, na.rm=FALSE) {           #for calculating standard error
 ## Mort/pheno
 
 ``` r
-aug_mort <- read_csv("../input/WL2_2025_Data/CorrectedCSVs/WL2_mort_pheno_20250814_corrected.csv")
+mort_pheno_2025 <- read_csv("../input/WL2_2025_Data/CorrectedCSVs/WL2_mort_pheno_20250929_corrected.csv")
 ```
 
 ```
-## Rows: 972 Columns: 12
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: ","
-## chr (11): bed, col, Unique.ID, bud.date, flower.date, fruit.date, last.FL.da...
-## dbl  (1): row
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+## New names:
+## Rows: 972 Columns: 13
+## ── Column specification
+## ──────────────────────────────────────────────────────── Delimiter: "," chr
+## (12): bed, col, Unique.ID, bud.date, flower.date, fruit.date, last.FL.da... dbl
+## (1): row
+## ℹ Use `spec()` to retrieve the full column specification for this data. ℹ
+## Specify the column types or set `show_col_types = FALSE` to quiet this message.
+## • `` -> `...13`
 ```
 
 ``` r
-aug_mort %>% filter(!is.na(Unique.ID), Unique.ID!="buffer") %>% filter(is.na(as.numeric(Unique.ID))) #only non-numeric ID is yose plant from 2023
+mort_pheno_2025 %>% filter(!is.na(Unique.ID), Unique.ID!="buffer") %>% filter(is.na(as.numeric(Unique.ID))) #only non-numeric ID is yose plant from 2023
 ```
 
 ```
@@ -67,12 +68,12 @@ aug_mort %>% filter(!is.na(Unique.ID), Unique.ID!="buffer") %>% filter(is.na(as.
 ```
 
 ```
-## # A tibble: 1 × 12
+## # A tibble: 1 × 13
 ##   bed     row col   Unique.ID bud.date flower.date fruit.date last.FL.date
 ##   <chr> <dbl> <chr> <chr>     <chr>    <chr>       <chr>      <chr>       
 ## 1 G         5 D     YO7_5_7   6/27/25  7/3/25      7/18/25    7/25/25     
-## # ℹ 4 more variables: last.FR.date <chr>, death.date <chr>,
-## #   round2.rep.dates <chr>, survey.notes <chr>
+## # ℹ 5 more variables: last.FR.date <chr>, death.date <chr>,
+## #   round2.rep.dates <chr>, survey.notes <chr>, ...13 <chr>
 ```
 
 ## Pop Info 
@@ -93,41 +94,50 @@ pop_info_2025 <- read_csv("../input/WL2_2025_Data/2025_Pop_Loc_Info Updated.csv"
 ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 ```
 
-### Elevation Info
+## Elevation Info / Climate distance
 
 ``` r
-elev_info <- read_csv("../input/Strep_tort_locs.csv")
+clim_dist_2024 <- read_csv("../output/Climate/WL2_2024_Clim_Dist.csv") %>% select(-conf.low, -conf.high)
 ```
 
 ```
-## Rows: 54 Columns: 7
+## Rows: 20 Columns: 11
 ## ── Column specification ────────────────────────────────────────────────────────
 ## Delimiter: ","
-## chr (6): Species epithet, Species Code, Site, Site code, Lat, Long
-## dbl (1): Elevation (m)
+## chr (4): parent.pop, elevation.group, timeframe, Season
+## dbl (7): elev_m, Lat, Long, Year, Gowers_Dist, conf.low, conf.high
 ## 
 ## ℹ Use `spec()` to retrieve the full column specification for this data.
 ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 ```
 
 ``` r
-elev_info_yo <- elev_info %>% mutate(pop = str_replace(`Site code`, "YOSE(\\d+)", "YO\\1")) %>% select(Lat, Long, elev_m=`Elevation (m)`, pop)
-unique(elev_info_yo$pop)
+head(clim_dist_2024)
 ```
 
 ```
-##  [1] "BH"    "BB"    "CC"    "CP1"   "CP2"   "CP3"   "DP"    "DPR"   "FR"   
-## [10] NA      "HH"    "IH"    "KC1"   "KC2"   "KC3"   "LV1"   "LV2"   "LV3"  
-## [19] "LVTR1" "LVTR2" "LVTR3" "SQ1"   "SQ2"   "SQ3"   "SHA"   "SC"    "TM1"  
-## [28] "TM2"   "WR"    "WV"    "WL1"   "WL2"   "WL3"   "WL4"   "YO1"   "YO10" 
-## [37] "YO11"  "YO12"  "YO13"  "YO2"   "YO3"   "YO4"   "YO5"   "YO6"   "YO7"  
-## [46] "YO8"   "YO9"
+## # A tibble: 6 × 9
+##   parent.pop elevation.group elev_m   Lat  Long timeframe Season      Year
+##   <chr>      <chr>            <dbl> <dbl> <dbl> <chr>     <chr>      <dbl>
+## 1 WL2        high             2020.  38.8 -120. Recent    Water Year  2024
+## 2 SQ3        high             2373.  36.7 -119. Recent    Water Year  2024
+## 3 WL1        mid              1614.  38.8 -120. Recent    Water Year  2024
+## 4 WV         mid               749.  40.7 -123. Recent    Water Year  2024
+## 5 YO11       high             2872.  37.9 -119. Recent    Water Year  2024
+## 6 LV1        high             2593.  40.5 -122. Recent    Water Year  2024
+## # ℹ 1 more variable: Gowers_Dist <dbl>
+```
+
+``` r
+clim_dist_2024_wide <- clim_dist_2024 %>% 
+  pivot_wider(names_from = timeframe, values_from = Gowers_Dist, names_prefix = "GD_") %>% 
+  rename(pop=parent.pop)
 ```
 
 ## Merge
 
 ``` r
-aug_mort_pops <- aug_mort %>% 
+mort_pheno_2025_pops <- mort_pheno_2025 %>% 
   select(bed:Unique.ID, bud.date, death.date) %>% 
   left_join(pop_info_2025) %>% 
   filter(Unique.ID!="buffer", !is.na(Unique.ID))
@@ -140,14 +150,31 @@ aug_mort_pops <- aug_mort %>%
 ## 2024 Plants Only
 
 ``` r
-aug_mort_pops_2024plants <- aug_mort_pops %>% 
+mort_pheno_2025_pops_2024plants <- mort_pheno_2025_pops %>% 
   filter(status=="2024-survivor") %>% 
   mutate(Pop.Type=if_else(str_detect(pop.id, "\\) x"), "F2",
                           if_else(str_detect(pop.id, "x"), "F1",
                                   "Parent"
                           )))
+dim(mort_pheno_2025_pops_2024plants) #only 78 plants - lost one?
+```
 
-aug_mort_pops_2024plants %>% filter(is.na(bud.date)) #only 5 plants have not initiated rep 
+```
+## [1] 78 14
+```
+
+``` r
+xtabs(~Pop.Type, data=mort_pheno_2025_pops_2024plants) #one F2 missing - INVESTIGATE THIS LATER!!
+```
+
+```
+## Pop.Type
+##     F1     F2 Parent 
+##     12     45     21
+```
+
+``` r
+mort_pheno_2025_pops_2024plants %>% filter(is.na(bud.date)) #only 5 plants did not initiate rep 
 ```
 
 ```
@@ -166,4 +193,37 @@ aug_mort_pops_2024plants %>% filter(is.na(bud.date)) #only 5 plants have not ini
 #2 BH  
 #2 WL2 BC1s (with TM2 and YO11)
 #1 F1 (WV x TM2)
+```
+
+## Surv to Budding of 2024 Plants
+
+``` r
+repsurv_2024plants <- mort_pheno_2025_pops_2024plants %>% 
+  select(Pop.Type, bed:col, pop.id:rep, Unique.ID:death.date) %>% 
+  mutate(Surv_to_Rep = if_else(is.na(bud.date), 0, 1)) 
+```
+
+## Plot by pop type 
+
+``` r
+repsurv_2024plants %>% 
+  group_by(Pop.Type) %>% 
+  summarise(meanSurv=mean(Surv_to_Rep), semSurv=sem(Surv_to_Rep)) %>% 
+  ggplot(aes(x=Pop.Type, y=meanSurv)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) + 
+  geom_errorbar(aes(ymin=meanSurv-semSurv,ymax=meanSurv+semSurv),width=.2, position = 
+                  position_dodge(0.75)) +
+  theme_classic() + 
+  scale_y_continuous(expand = c(0.01, 0.02), limits = c(-0.01, 1.08)) +
+  labs(y="Survival to Budding", x="Population Type", , title="Population Categories") +
+  annotate("text", x = 1, y= 1.04, label = "12 in May") +
+  annotate("text", x = 2, y= 1.04, label = "45 in May") +
+  annotate("text", x = 3, y= 1.04, label = "21 in May") +
+  theme(text=element_text(size=25))
+```
+
+![](WL2_2024Plants_SurvtoRep-2025_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
+
+``` r
+ggsave("../output/WL2_Traits/WL2_RepSurv_2024Plants_PopType.png", width = 10, height = 8, units = "in")
 ```

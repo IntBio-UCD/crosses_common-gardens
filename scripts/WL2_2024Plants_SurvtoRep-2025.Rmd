@@ -36,12 +36,14 @@ pop_info_2025 <- read_csv("../input/WL2_2025_Data/2025_Pop_Loc_Info Updated.csv"
   select(status:Unique.ID)
 ```
 
-### Elevation Info
+## Elevation Info / Climate distance
 ```{r}
-elev_info <- read_csv("../input/Strep_tort_locs.csv")
+clim_dist_2024 <- read_csv("../output/Climate/WL2_2024_Clim_Dist.csv") %>% select(-conf.low, -conf.high)
+head(clim_dist_2024)
 
-elev_info_yo <- elev_info %>% mutate(pop = str_replace(`Site code`, "YOSE(\\d+)", "YO\\1")) %>% select(Lat, Long, elev_m=`Elevation (m)`, pop)
-unique(elev_info_yo$pop)
+clim_dist_2024_wide <- clim_dist_2024 %>% 
+  pivot_wider(names_from = timeframe, values_from = Gowers_Dist, names_prefix = "GD_") %>% 
+  rename(pop=parent.pop)
 ```
 
 ## Merge
@@ -60,9 +62,37 @@ mort_pheno_2025_pops_2024plants <- mort_pheno_2025_pops %>%
                           if_else(str_detect(pop.id, "x"), "F1",
                                   "Parent"
                           )))
+dim(mort_pheno_2025_pops_2024plants) #only 78 plants - lost one?
+xtabs(~Pop.Type, data=mort_pheno_2025_pops_2024plants) #one F2 missing - INVESTIGATE THIS LATER!!
 
-mort_pheno_2025_pops_2024plants %>% filter(is.na(bud.date)) #only 5 plants have not initiated rep 
+mort_pheno_2025_pops_2024plants %>% filter(is.na(bud.date)) #only 5 plants did not initiate rep 
 #2 BH  
 #2 WL2 BC1s (with TM2 and YO11)
 #1 F1 (WV x TM2)
+```
+
+## Surv to Budding of 2024 Plants
+```{r}
+repsurv_2024plants <- mort_pheno_2025_pops_2024plants %>% 
+  select(Pop.Type, bed:col, pop.id:rep, Unique.ID:death.date) %>% 
+  mutate(Surv_to_Rep = if_else(is.na(bud.date), 0, 1)) 
+```
+
+## Plot by pop type 
+```{r}
+repsurv_2024plants %>% 
+  group_by(Pop.Type) %>% 
+  summarise(meanSurv=mean(Surv_to_Rep), semSurv=sem(Surv_to_Rep)) %>% 
+  ggplot(aes(x=Pop.Type, y=meanSurv)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) + 
+  geom_errorbar(aes(ymin=meanSurv-semSurv,ymax=meanSurv+semSurv),width=.2, position = 
+                  position_dodge(0.75)) +
+  theme_classic() + 
+  scale_y_continuous(expand = c(0.01, 0.02), limits = c(-0.01, 1.08)) +
+  labs(y="Survival to Budding", x="Population Type", , title="Population Categories") +
+  annotate("text", x = 1, y= 1.04, label = "12 in May") +
+  annotate("text", x = 2, y= 1.04, label = "45 in May") +
+  annotate("text", x = 3, y= 1.04, label = "21 in May") +
+  theme(text=element_text(size=25))
+ggsave("../output/WL2_Traits/WL2_RepSurv_2024Plants_PopType.png", width = 10, height = 8, units = "in")
 ```
