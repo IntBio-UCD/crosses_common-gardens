@@ -15,7 +15,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 library(tidyverse)
 
-sem <- function(x, na.rm=FALSE) {           #for caclulating standard error
+sem <- function(x, na.rm=FALSE) {           #for calculating standard error
   sd(x,na.rm=na.rm)/sqrt(length(na.omit(x)))
 } 
 ```
@@ -24,8 +24,8 @@ sem <- function(x, na.rm=FALSE) {           #for caclulating standard error
 
 ## Mort/pheno
 ```{r}
-aug_mort <- read_csv("../input/WL2_2025_Data/CorrectedCSVs/WL2_mort_pheno_20250814_corrected.csv")
-aug_mort %>% filter(!is.na(Unique.ID), Unique.ID!="buffer") %>% filter(is.na(as.numeric(Unique.ID))) #only non-numeric ID is yose plant from 2023
+mort_pheno_2025 <- read_csv("../input/WL2_2025_Data/CorrectedCSVs/WL2_mort_pheno_20250929_corrected.csv")
+mort_pheno_2025 %>% filter(!is.na(Unique.ID), Unique.ID!="buffer") %>% filter(is.na(as.numeric(Unique.ID))) #only non-numeric ID is yose plant from 2023
 ```
 
 ## Pop Info 
@@ -36,7 +36,7 @@ pop_info_2025 <- read_csv("../input/WL2_2025_Data/2025_Pop_Loc_Info Updated.csv"
 
 ## Merge
 ```{r}
-aug_mort_pops <- aug_mort %>% 
+mort_pheno_2025_pops <- mort_pheno_2025 %>% 
   select(bed:Unique.ID, bud.date, death.date) %>% 
   left_join(pop_info_2025) %>% 
   filter(Unique.ID!="buffer", !is.na(Unique.ID))
@@ -44,7 +44,7 @@ aug_mort_pops <- aug_mort %>%
 
 ## 2025 Plants Only
 ```{r}
-aug_mort_pops_2025plants <- aug_mort_pops %>% 
+mort_pheno_2025_pops_2025plants <- mort_pheno_2025_pops %>% 
   filter(status=="available") %>% 
   mutate(Pop.Type=if_else(str_detect(pop.id, "\\) x"), "F2",
                           if_else(str_detect(pop.id, "x"), "F1",
@@ -52,12 +52,12 @@ aug_mort_pops_2025plants <- aug_mort_pops %>%
                           ))) %>% 
   mutate(AugSurv=if_else(is.na(death.date), 1, 0)) #1 = surv; 0 = mort
 
-xtabs(~Pop.Type, data=aug_mort_pops_2025plants)
-xtabs(~Pop.Type+AugSurv, data=aug_mort_pops_2025plants)
+xtabs(~Pop.Type, data=mort_pheno_2025_pops_2025plants)
+xtabs(~Pop.Type+AugSurv, data=mort_pheno_2025_pops_2025plants)
 #90/112 F1 survived
 #301/380 F2s survived
 #142/194 Parents survived 
 
-aug_mort_pops_2025plants %>% filter(Pop.Type=="F1") %>% distinct(pop.id) #15 F1 types 
+mort_pheno_2025_pops_2025plants %>% filter(Pop.Type=="F1") %>% distinct(pop.id) #15 F1 types 
 ```
 
