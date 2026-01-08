@@ -1,7 +1,7 @@
 ---
 title: "WL2_2025_Mortality"
 author: "Brandie QC"
-date: "2026-01-06"
+date: "2026-01-07"
 output: 
   html_document: 
     keep_md: true
@@ -9,7 +9,9 @@ output:
 
 
 
-# Preliminary check of survival of plants planted in 2025
+# Survival of plants planted in 2025
+To Do:
+- take into account plants that survived to rep then died 
 
 ## Libraries
 
@@ -165,7 +167,8 @@ mort_pheno_2025_pops_2025plants <- mort_pheno_2025_pops %>%
                           if_else(str_detect(pop.id, "x"), "F1",
                                   "Parent"
                           ))) %>% 
-  mutate(AugSurv=if_else(is.na(death.date), 1, 0)) #1 = surv; 0 = mort
+  mutate(Surv=if_else(!is.na(bud.date), 1, 
+                      if_else(is.na(death.date), 1, 0))) #1 = surv; 0 = mort
 
 xtabs(~Pop.Type, data=mort_pheno_2025_pops_2025plants)
 ```
@@ -177,30 +180,45 @@ xtabs(~Pop.Type, data=mort_pheno_2025_pops_2025plants)
 ```
 
 ``` r
-xtabs(~Pop.Type+AugSurv, data=mort_pheno_2025_pops_2025plants)
+xtabs(~Pop.Type+Surv, data=mort_pheno_2025_pops_2025plants)
 ```
 
 ```
-##         AugSurv
+##         Surv
 ## Pop.Type   0   1
 ##   F1      32  80
-##   F2      92 287
-##   Parent  72 121
+##   F2      88 291
+##   Parent  69 124
 ```
 
 ``` r
 #80/112 F1 survived
-#287/380 F2s survived
-#72/194 Parents survived 
+#291/379 F2s survived
+#124/193 Parents survived 
 
 #mort_pheno_2025_pops_2025plants %>% filter(Pop.Type=="F1") %>% distinct(pop.id) #15 F1 types 
+mort_pheno_2025_pops_2025plants %>% filter(!is.na(bud.date)) %>% filter(!is.na(death.date)) #7 plants reproduced and died in 2025
+```
+
+```
+## # A tibble: 7 × 15
+##   bed     row col   Unique.ID bud.date death.date status    block pop.id   mf   
+##   <chr> <dbl> <chr> <chr>     <chr>    <chr>      <chr>     <chr> <chr>    <chr>
+## 1 C        29 D     2269      6/27/25  8/14/25    available B     (WL2 x … 2_1-3
+## 2 D        46 B     2238      6/27/25  7/25/25    available F     (WL2 x … 2-3_…
+## 3 D        31 D     2647      6/17/25  6/27/25    available F     (WL2 x … 2_1-3
+## 4 E        26 A     1713      7/10/25  9/4/25     available I     TM2      1    
+## 5 E        28 C     2637      6/27/25  9/24/25    available I     TM2      9    
+## 6 E        51 C     1715      6/17/25  9/4/25     available J     TM2      2    
+## 7 F        11 A     2288      17-Jun   9/24/25    available J     (WL2 x … 2_1-3
+## # ℹ 5 more variables: dame_mf <chr>, sire_mf <chr>, rep <dbl>, Pop.Type <chr>,
+## #   Surv <dbl>
 ```
 
 ## Plot by pop type 
 
 ``` r
 mort_pheno_2025_pops_2025plants %>% 
-  mutate(Surv=if_else(is.na(death.date), 1, 0)) %>% 
   group_by(Pop.Type) %>% 
   summarise(meanSurv=mean(Surv), semSurv=sem(Surv)) %>% 
   ggplot(aes(x=Pop.Type, y=meanSurv)) +
@@ -223,7 +241,6 @@ ggsave("../output/WL2_Traits/WL2_Y1Surv_2025Plants_PopType.png", width = 10, hei
 
 ``` r
 by_pop_Surv <- mort_pheno_2025_pops_2025plants %>% 
-  mutate(Surv=if_else(is.na(death.date), 1, 0)) %>% 
   group_by(pop.id, Pop.Type) %>% 
   summarise(N_Surv = sum(!is.na(Surv)), mean_Surv = mean(Surv,na.rm=(TRUE)), 
             sem_Surv=sem(Surv, na.rm=(TRUE)))
@@ -262,7 +279,7 @@ head(by_pop_parents_Surv)
 ## 3 DPR    Parent       14     0.286   0.125  39.22846 -120.81518  1019.
 ## 4 LV1    Parent        3     0.333   0.333  40.47471 -121.50486  2593.
 ## 5 SQ3    Parent       18     0.667   0.114  36.72109 -118.84933  2373.
-## 6 TM2    Parent       48     0.604   0.0713 39.59255 -121.55072   379.
+## 6 TM2    Parent       48     0.667   0.0688 39.59255 -121.55072   379.
 ```
 
 ``` r

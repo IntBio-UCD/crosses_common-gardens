@@ -65,21 +65,22 @@ mort_pheno_2025_pops_2025plants <- mort_pheno_2025_pops %>%
                           if_else(str_detect(pop.id, "x"), "F1",
                                   "Parent"
                           ))) %>% 
-  mutate(AugSurv=if_else(is.na(death.date), 1, 0)) #1 = surv; 0 = mort
+  mutate(Surv=if_else(!is.na(bud.date), 1, 
+                      if_else(is.na(death.date), 1, 0))) #1 = surv; 0 = mort
 
 xtabs(~Pop.Type, data=mort_pheno_2025_pops_2025plants)
-xtabs(~Pop.Type+AugSurv, data=mort_pheno_2025_pops_2025plants)
+xtabs(~Pop.Type+Surv, data=mort_pheno_2025_pops_2025plants)
 #80/112 F1 survived
-#287/380 F2s survived
-#72/194 Parents survived 
+#291/379 F2s survived
+#124/193 Parents survived 
 
 #mort_pheno_2025_pops_2025plants %>% filter(Pop.Type=="F1") %>% distinct(pop.id) #15 F1 types 
+mort_pheno_2025_pops_2025plants %>% filter(!is.na(bud.date)) %>% filter(!is.na(death.date)) #7 plants reproduced and died in 2025
 ```
 
 ## Plot by pop type 
 ```{r}
 mort_pheno_2025_pops_2025plants %>% 
-  mutate(Surv=if_else(is.na(death.date), 1, 0)) %>% 
   group_by(Pop.Type) %>% 
   summarise(meanSurv=mean(Surv), semSurv=sem(Surv)) %>% 
   ggplot(aes(x=Pop.Type, y=meanSurv)) +
@@ -96,7 +97,6 @@ ggsave("../output/WL2_Traits/WL2_Y1Surv_2025Plants_PopType.png", width = 10, hei
 ## Means by pop
 ```{r}
 by_pop_Surv <- mort_pheno_2025_pops_2025plants %>% 
-  mutate(Surv=if_else(is.na(death.date), 1, 0)) %>% 
   group_by(pop.id, Pop.Type) %>% 
   summarise(N_Surv = sum(!is.na(Surv)), mean_Surv = mean(Surv,na.rm=(TRUE)), 
             sem_Surv=sem(Surv, na.rm=(TRUE)))
