@@ -1,0 +1,19 @@
+filename,survey_date,bed,row,col,unique.ID,height.cm,long.leaf.cm,survey.notes,problems
+UCD_size_survey_20240105_corrected.csv,2024-01-05,A,13,D,1083,2.9,3 2,NA,leaf length column
+UCD_size_survey_20240105_corrected.csv,2024-01-05,B,17,C,709,3.5,6 2,NA,leaf length column
+UCD_size_survey_20240112_corrected.csv,2024-01-12,D,16,D,1212,12,5. 1,NA,leaf length column
+UCD_size_survey_20240112_corrected.csv,2024-01-12,E,16,A,506,4.2,2 8,NA,leaf length column
+UCD_size_survey_20240119_corrected.csv,2024-01-19,E,29,D,1261,9.3,8 3,NA,leaf length column
+UCD_size_survey_20240119_corrected.csv,2024-01-19,E,43,C,1362,8.7,3 9,NA,leaf length column
+UCD_size_survey_20240126_corrected.csv,2024-01-26,A,45,C,1304,4.3,4. 3,NA,leaf length column
+UCD_size_survey_20240202_corrected.csv,2024-02-02,A,37,D,29,10.4,6. 9,NA,leaf length column
+UCD_size_survey_20240202_corrected.csv,2024-02-02,C,12,C,785,1.2,3. 8,NA,leaf length column
+UCD_size_survey_20240223_corrected.csv,2024-02-23,D,16,B,28,10.2,5. 1,NA,leaf length column
+UCD_size_survey_20240311_corrected.csv,2024-03-11,C,4,C,82,21,6.5.,12/14 top eaten,leaf length column
+UCD_size_survey_20240426_corrected.csv,2024-04-26,F,2,B,1251,92.6,5. 1,NA,leaf length column
+UCD_size_survey_20240516_corrected.csv,2024-05-16,A,6,C,215,103.1,7. 1,NA,leaf length column
+UCD_size_survey_20240516_corrected.csv,2024-05-16,A,41,D,573,84.2,7. 1,NA,leaf length column
+UCD_size_survey_bedsABC_20240319_corrected.csv,2024-03-19,A,34,B,441,59.4,8 3,NA,leaf length column
+UCD_size_survey_bedsABC_20240405_corrected.csv,2024-04-05,A,39,D,453,22.1,4:2,NA,leaf length column
+UCD_size_survey_bedsDEF_20240325_corrected.csv,2024-03-25,E,18,B,1014,22.7,10. 1,NA,leaf length column
+UCD_size_survey_bedsDEF_20240412_corrected.csv,2024-04-12,F,29,C,691,54.6,4. 1,NA,leaf length column

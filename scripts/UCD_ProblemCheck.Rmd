@@ -45,7 +45,7 @@ data <- read_csv("../input/UCD2023_2024_Data/CorrectedCSVs/UCD_annual_census_202
     mutate(problem="character")
   
   #combine into one problems list
-  data_probs <- rbind(data2, data3, data4, data6, data8, data9, data11, data12)
+  data_probs <- rbind(data2, data3, data4, data6, data8, data11, data12)
   data_probs
   write_csv(data_probs, "../output/UCD_Traits/anncens_probs.csv")
 ```
@@ -162,8 +162,6 @@ for (i in data_names) {
 Check for data when there is no data in previous week 
 * Reason: found a case where someone wrote the data in the wrong row (in the row of a dead plant) 
 
-COME BACK TO THIS AFTER FIXING ISSUES IN ABOVE CODE CHUNK
-
 ```{r}
 library(tidyverse)
 
@@ -205,8 +203,6 @@ map(dat3$sheets, colnames) %>% #check column names before merging
 map(dat3$sheets, head,10) #see which ones have extra columns 
 dat3$sheets[[1]] %>% filter(!is.na(...10)) #extra notes 
 dat3$sheets[[7]] %>% filter(!is.na(...10)) #extra notes 
-dat3$sheets[[16]] %>% filter(!is.na(...9)) #all NA 
-dat3$sheets[[18]] %>% filter(!is.na(...9)) #DATA SPREAD OUT  
 ```
 
 ### Unnest 
@@ -216,100 +212,115 @@ dat4 <- dat3 %>% unnest(sheets) %>%
   select(filename, survey_date, bed:col, unique.ID, height.cm:long.leaf.cm, survey.notes)
 head(dat4)
 names(dat4)
-#dat4 %>% filter(!is.na(pop)) #only in the csvs where 2023 plants had to be corrected 
-#dat4 %>% filter(!is.na(data)) #survey date column from 01/05
 ```
 
 ### check for data issues
 ```{r}
-dat4 %>% rowwise() %>% filter(!is.na(row)) %>% filter(is.na(as.numeric(row))) #SOME ISSUES 
-dat4 %>% rowwise() %>% filter(!is.na(height.cm)) %>% filter(is.na(as.numeric(height.cm))) #SOME ISSUES
-dat4 %>% rowwise() %>% filter(!is.na(long.leaf.cm)) %>% filter(is.na(as.numeric(long.leaf.cm))) #SOME ISSUES 
-dat4 %>% rowwise() %>% filter(!is.na(overhd.diam)) %>% filter(is.na(as.numeric(overhd.diam))) #none
-dat4 %>% rowwise() %>% filter(!is.na(overhd.perp)) %>% filter(is.na(as.numeric(overhd.perp))) #couple of MA instead of NA and one potential frame shift, fixed on CSV 
+uniqueID_probs <- dat4 %>% rowwise() %>% 
+  filter(!is.na(unique.ID)) %>% 
+  filter(unique.ID!="buffer") %>% 
+  filter(is.na(as.numeric(unique.ID)) | str_detect(unique.ID, "\\.")) %>% #SOME ISSUES 
+  mutate(problems="uniqueID column")
+write_csv(uniqueID_probs, "../output/UCD_Traits/uniqueID_probs.csv")
 
-unique(dat4$block) 
-dat4 %>% filter(block=="o") #7/9, 7/16, 9/3 lowercase o. *6/25, 7/3
-dat4 %>% filter(block=="B.") #7/16 B. as block
-dat4 %>% filter(is.na(block)) #buffers and 2023 plants 
-dat4 %>% filter(unique.ID!="buffer", !str_detect(unique.ID, "_"), is.na(block)) 
-#some 2023 unique IDs missing "_"
-#339 missing block info *6/25 and 7/3
+row_probs <- dat4 %>% rowwise() %>% 
+  filter(!is.na(row)) %>% 
+  filter(is.na(as.numeric(row))) %>% #SOME ISSUES 
+  mutate(problems="row column")
+write_csv(row_probs, "../output/UCD_Traits/row_probs.csv")
+
+dat4 %>% rowwise() %>% filter(!is.na(height.cm)) %>% filter(is.na(as.numeric(height.cm))) #NONE
+
+leaflngth_probs <- dat4 %>% rowwise() %>% 
+  filter(!is.na(long.leaf.cm)) %>% 
+  filter(is.na(as.numeric(long.leaf.cm))) %>%  #SOME ISSUES 
+  mutate(problems="leaf length column")
+write_csv(leaflngth_probs, "../output/UCD_Traits/leaf_length_probs.csv")
 
 unique(dat4$bed) 
-dat4 %>% filter(bed=="c") #7/9 and 8/20 *6/25
-dat4 %>% filter(bed=="!") #7/9
-dat4 %>% filter(bed=="1") #7/16 
-dat4 %>% filter(bed=="|") #7/30, *6/18, 6/25
-dat4 %>% filter(bed==". D") #8/20
-dat4 %>% filter(bed=="C.") #9/3
-dat4 %>% filter(bed=="J .") #9/10
-
-unique(dat4$row) #no issues 
+dat4 %>% filter(bed=="E'") #4/26
+dat4 %>% filter(bed=="C 1") #4/19
+dat4 %>% filter(bed=="c") #4/19
+dat4 %>% filter(bed=="F -") #5/10
+bed_probs <- dat4 %>% 
+  filter(bed=="E'" | bed=="C 1" | bed=="c" | bed=="F -") %>% 
+  mutate(problems="bed column")
+write_csv(bed_probs, "../output/UCD_Traits/bed_probs.csv")
 
 unique(dat4$col) 
-dat4 %>% filter(col=="c") #7/30 and 8/27 *6/25
-dat4 %>% filter(col=="p") #9/3 
-
-##fixed all above issues in csvs
+dat4 %>% filter(col=="c") #5/3, 5/10
+dat4 %>% filter(col=="C .") #2/23 
+dat4 %>% filter(col=="D .") #3/25 
+col_probs <- dat4 %>% 
+  filter(col=="c" | col=="C ." | col=="D .") %>% 
+  mutate(problems="col column")
+write_csv(col_probs, "../output/UCD_Traits/col_probs.csv")
 ```
 
 ### lag lead function
 ```{r}
-unique(dat4$survey_date)
+dat4 %>% arrange(survey_date) %>% select(survey_date) %>%  distinct() %>% pull()
 
 dat5 <- dat4 %>% 
   filter(unique.ID!="buffer") %>% #remove buffers 
-  mutate(across(c(row, long.leaf.cm, height.cm, overhd.diam, overhd.perp), as.numeric)) %>% 
-  mutate(censusN=ifelse(survey_date=="2024-06-18", 1,
-                        ifelse(survey_date=="2024-06-25", 2,
-                        ifelse(survey_date=="2024-07-03", 3, 
-                        ifelse(survey_date=="2024-07-09", 4, 
-                        ifelse(survey_date=="2024-07-16", 5, 
-                        ifelse(survey_date=="2024-07-23", 6,
-                        ifelse(survey_date=="2024-07-30", 7, 
-                        ifelse(survey_date=="2024-08-06", 8,
-                        ifelse(survey_date=="2024-08-20", 10,
-                        ifelse(survey_date=="2024-08-27", 11,
-                        ifelse(survey_date=="2024-09-03", 12,
-                        ifelse(survey_date=="2024-09-10", 13,
-                        ifelse(survey_date=="2024-09-24", 14, NA))))))))))))))
+  mutate(across(c(row, long.leaf.cm, height.cm), as.numeric)) %>% 
+  mutate(censusN=ifelse(survey_date=="2023-12-14", 1,
+                        ifelse(survey_date=="2024-01-05", 2,
+                        ifelse(survey_date=="2024-01-12", 3, 
+                        ifelse(survey_date=="2024-01-19", 4, 
+                        ifelse(survey_date=="2024-01-26", 5, 
+                        ifelse(survey_date=="2024-02-02", 6,
+                        ifelse(survey_date=="2024-02-09", 7, 
+                        ifelse(survey_date=="2024-02-23", 8,
+                        ifelse(survey_date=="2024-03-11", 10,
+                        ifelse(survey_date=="2024-03-19", 11,
+                        ifelse(survey_date=="2024-03-25", 12,
+                        ifelse(survey_date=="2024-04-05", 13,
+                        ifelse(survey_date=="2024-04-12", 14,
+                               ifelse(survey_date=="2024-04-19", 15,
+                                      ifelse(survey_date=="2024-04-26", 16,
+                                             ifelse(survey_date=="2024-05-03", 17,
+                                            ifelse(survey_date=="2024-05-10", 18,
+                                             ifelse(survey_date=="2024-05-16", 19,
+                                                                  NA)))))))))))))))))))
 dat5 %>% filter(is.na(censusN)) #none 
 ```
 
 ### Check for data when there is no data in previous week 
+*NEED TO COME BACK TO THIS AFTER FIX ABOVE DATA ISSUES 
 ```{r}
 dat6 <- dat5 %>%  #by bed, row, col
   group_by(bed, row, col) %>% 
   mutate(previous_census_height=lag(height.cm, order_by = censusN), 
-         previous_census_length=lag(long.leaf.cm, order_by = censusN),
-         previous_census_overhd.diam=lag(overhd.diam, order_by = censusN), 
-         previous_census_overhd.perp=lag(overhd.perp, order_by = censusN)) %>% 
+         previous_census_length=lag(long.leaf.cm, order_by = censusN)) %>% 
   select(censusN, bed, row, col, previous_census_height, height.cm, 
          previous_census_length, long.leaf.cm,
-         previous_census_overhd.diam, overhd.diam,
-         previous_census_overhd.perp, overhd.perp,
          survey.notes) %>% 
   arrange(bed, row, col, censusN)
-dat8 <- dat6 %>% filter(censusN!=1) %>% filter(is.na(previous_census_height), !is.na(height.cm)) #294 rows 
+dat8 <- dat6 %>% filter(censusN!=1) %>% filter(is.na(previous_census_height), !is.na(height.cm)) 
+dim(dat8) #12 rows 
 
 
 dat7 <- dat5 %>% #by uniqueID
   group_by(unique.ID) %>% 
   mutate(previous_census_height=lag(height.cm, order_by = censusN), 
-         previous_census_length=lag(long.leaf.cm, order_by = censusN),
-         previous_census_overhd.diam=lag(overhd.diam, order_by = censusN), 
-         previous_census_overhd.perp=lag(overhd.perp, order_by = censusN)) %>% 
+         previous_census_length=lag(long.leaf.cm, order_by = censusN)) %>% 
   select(bed, row, col, survey_date,censusN,unique.ID, previous_census_height, height.cm, 
-         previous_census_length, long.leaf.cm, 
-         previous_census_overhd.diam, overhd.diam,
-         previous_census_overhd.perp, overhd.perp,
+         previous_census_length, long.leaf.cm,
          survey.notes) %>% 
   arrange(unique.ID, censusN)
-head(dat7)
+
 #Check for data when there is no data in previous week 
-dat9 <- dat7 %>% filter(censusN!=1) %>% filter(is.na(previous_census_height), !is.na(height.cm)) #matches dat 8
+dat9 <- dat7 %>% filter(censusN!=1) %>% filter(is.na(previous_census_height), !is.na(height.cm)) 
+dim(dat9) #8 rows 
 dat9
-dat4 %>% filter(unique.ID=="1003")
+dat8
+
+dat5 %>% filter(unique.ID=="1093") #resprout
+dat9 %>% filter(unique.ID=="160")
+dat9 %>% filter(unique.ID=="196")
+dat9 %>% filter(unique.ID=="2038")
+dat9 %>% filter(unique.ID=="535")
+
 #write.csv(dat9, "../output/UCD_Traits/UCD_MissingDataPrevWeek.csv", row.names = FALSE)
 ```
