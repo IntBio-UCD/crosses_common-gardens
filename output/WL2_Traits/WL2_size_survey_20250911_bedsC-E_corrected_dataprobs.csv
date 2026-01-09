@@ -1,0 +1,8 @@
+bed,row,col,Unique.ID,height.cm,overhd.diam,overhd.perp,herbv.scale,survey.notes,surevy.date,problem
+C,30,B,341,33.1,29.2,13.7,0,NA,9/11/25,extreme value
+C,50,B,404,50.3,7.7,11.2,0,NA,9/11/25,extreme value
+C,33,C,2339,49,5.2,5.2,1,NA,9/11/25,extreme value
+D,45,B,398,48,16.3,0.3,0,NA,9/11/25,extreme value
+D,47,B,1403,35.3,20.3,9.8,0,NA,9/11/25,extreme value
+D,55,D,1796,39.7,0.3,0.2,0,NA,9/11/25,extreme value
+E,28,C,2637,36.5,6.7,2.5,0,NA,9/11/25,extreme value

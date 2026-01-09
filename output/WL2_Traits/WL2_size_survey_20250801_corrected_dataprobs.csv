@@ -1,0 +1,33 @@
+bed,row,col,Unique.ID,height.cm,overhd.diam,overhd.perp,herbv.scale,survey.notes,surveydate,problem
+C,21,B,698,38.5,46.2,20.1,0,NA,8/1/25,extreme value
+C,28,B,2557,30.3,7.2,1.1,1,NA,8/1/25,extreme value
+C,30,B,341,36.5,30.7,28.5,1,NA,8/1/25,extreme value
+C,31,A,1228,37.1,17.5,17.1,0,NA,8/1/25,extreme value
+C,50,B,404,54.2,14.9,6.4,1,NA,8/1/25,extreme value
+C,23,D,737,36.5,28.4,18.3,0,NA,8/1/25,extreme value
+C,29,C,711,30.6,15.6,11.1,0,NA,8/1/25,extreme value
+C,43,D,1048,36.1,21,5.7,1,NA,8/1/25,extreme value
+C,49,C,2643,35.4,17.1,9.6,0,NA,8/1/25,extreme value
+D,15,B,1107,31.6,23.7,19.1,1,NA,8/1/25,extreme value
+D,30,B,1760,32.2,9.6,2.8,1,NA,8/1/25,extreme value
+D,33,B,246,43.1,38.8,26.2,0,dry leaves,8/1/25,extreme value
+D,45,B,398,51.4,12.2,8.2,0,NA,8/1/25,extreme value
+D,47,B,1403,36.9,29.2,9.1,1,NA,8/1/25,extreme value
+D,57,B,1327,31.7,35.6,24.9,0,NA,8/1/25,extreme value
+D,40,D,1404,34.5,16.2,14.5,0,NA,8/1/25,extreme value
+D,55,D,1796,39.6,13.6,8,0,NA,8/1/25,extreme value
+E,50,B,1193,30.2,8,1.2,0,NA,8/1/25,extreme value
+E,7,D,1406,30.8,34.2,24.6,1,NA,8/1/25,extreme value
+E,27,D,79,32.8,25.9,23.9,0,NA,8/1/25,extreme value
+E,28,C,2637,37.8,9.2,4,0,NA,8/1/25,extreme value
+E,51,C,1715,39.8,6.5,2.4,0,NA,8/1/25,extreme value
+F,11,A,2288,37.1,14.8,9.2,0,NA,8/1/25,extreme value
+F,44,B,2570,30.3,3.7,3,0,NA,8/1/25,extreme value
+F,41,D,314,45.9,33.7,22.9,0,NA,8/1/25,extreme value
+F,44,D,2140,39,9.9,6.1,0,NA,8/1/25,extreme value
+G,42,B,1464,33.2,11.1,8,0,NA,NA,extreme value
+G,4,D,1100,31.3,30,27.3,0,NA,NA,extreme value
+G,34,D,2275,30.5,6.2,8.5,0,NA,NA,extreme value
+G,35,C,1394,34,5,2.1,0,NA,NA,extreme value
+G,38,D,1447,32.4,12,10,0,NA,NA,extreme value
+H,23,B,734,33.7,15.4,18.2,0,NA,NA,extreme value

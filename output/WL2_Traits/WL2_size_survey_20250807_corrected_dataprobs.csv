@@ -1,0 +1,28 @@
+bed,row,col,Unique.ID,height.cm,overhd.diam,overhd.perp,herbv.scale,leaf.number,survey.notes,surveydate,problem
+C,21,B,698,35.2,37.8,19.4,0,0,all branches rep,8/7/25,extreme value
+C,25,B,1459,30.2,22.1,15.6,1,0,all branches NP,8/7/25,extreme value
+C,28,B,2557,30.2,1.2,1,1,0,all branches rep,8/7/25,extreme value
+C,30,B,341,35.2,45.6,25.4,0,0,all branches rep,8/7/25,extreme value
+C,31,A,1228,34.3,16.2,15.7,0,0,all branches rep,8/7/25,extreme value
+C,50,B,404,52.4,16.1,13,1,0,all branches rep,8/7/25,extreme value
+C,43,D,1048,33.6,14.2,6.8,0,0,all branches rep,8/7/25,extreme value
+C,49,C,2643,32.4,14,4.2,0,0,all branches rep,8/7/25,extreme value
+D,33,B,246,42.5,38.3,29.4,1,0,All branches rep,8/7/25,extreme value
+D,45,B,398,49.5,14.3,7.9,0,0,All branches rep,8/7/25,extreme value
+D,47,B,1403,34.6,29.4,11.5,1,0,all branches rep,8/7/25,extreme value
+D,40,C,2340,30.1,11.7,8.7,1,0,All branches rep,8/7/25,extreme value
+D,40,D,1404,35,14.6,13.7,0,0,All branches rep,8/7/25,extreme value
+D,55,D,1796,40.2,10.1,8.6,0,0,all branches rep,8/7/25,extreme value
+E,18,B,372,33.2,18.4,10.9,0,0,all branches rep,8/7/25,extreme value
+E,27,D,79,31.6,29.4,30.4,1,0,all branches rep.,8/7/25,extreme value
+E,28,C,2637,38.8,10.4,3.9,0,0,all branches rep.,8/7/25,extreme value
+E,51,C,1715,33.2,2.1,3.6,0,0,NA,8/7/25,extreme value
+F,11,A,2288,38,14.1,7.6,0,0,all branches rep,8/7/25,extreme value
+F,44,B,2570,31.2,10.6,2.4,0,1,NA,8/7/25,extreme value
+F,41,D,314,46,31.4,20.1,0,0,all branches rep,8/7/25,extreme value
+F,44,D,2140,37.9,11.5,5.6,0,0,all branches rep,8/7/25,extreme value
+G,7,A,2335,46.5,9,1.8,0,0,all branches rep,8/7/25,extreme value
+G,42,B,1464,32.7,11.9,8.9,0,0,all branches Mp,8/7/25,extreme value
+G,35,C,1394,34.4,4.2,1.5,0,0,all branches rep,8/7/25,extreme value
+G,38,D,1447,31.8,11.1,10.5,0,0,all branches rep,8/7/25,extreme value
+H,23,B,734,33.2,26.1,23.4,0,0,all branches rep,8/7/25,extreme value

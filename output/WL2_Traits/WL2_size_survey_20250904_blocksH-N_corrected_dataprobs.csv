@@ -1,0 +1,11 @@
+bed,row,col,Unique.ID,height.cm,overhd.diam,overhd.perp,herbv.scale,survey.notes,survey.date,problem
+E,28,C,2637,37.6,8.7,2,0,NA,9/4/25,extreme value
+E,51,C,1715,36.6,2.7,1.8,0,NA,9/4/25,extreme value
+F,11,A,2288,36.8,13.6,5.5,0,NA,9/4/25,extreme value
+F,44,B,2570,32.6,7.8,2.8,0,NA,9/4/25,extreme value
+F,41,D,314,40.9,30,17.5,0,NA,9/4/25,extreme value
+F,44,D,2140,34.2,10.7,7.1,1,NA,9/4/25,extreme value
+G,7,A,2335,45.6,12.3,5.6,0,NA,9/4/25,extreme value
+G,42,B,1464,33.2,7.9,6.8,0,NA,9/4/25,extreme value
+G,35,C,1394,31.2,6.5,2.7,0,NA,9/4/25,extreme value
+H,23,B,734,33.2,18.2,11.3,0,NA,9/4/25,extreme value

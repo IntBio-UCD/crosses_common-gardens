@@ -1,0 +1,5 @@
+bed,row,col,Unique.ID,height.cm,overhd.diam,overhd.perp,herbv.scale,survey.notes,survey.date,problem
+C,46,B,2392,36.8,4.4,3.3,2,NA,9/24/25,extreme value
+C,50,B,404,51.5,12.7,12.4,0,NA,9/24/25,extreme value
+C,46,D,1766,32.5,9.3,6.4,1,NA,9/24/25,extreme value
+D,45,B,398,38.7,NA,NA,NA,no leaves,9/24/25,extreme value

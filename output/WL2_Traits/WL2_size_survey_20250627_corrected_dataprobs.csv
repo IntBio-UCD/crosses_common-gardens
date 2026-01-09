@@ -1,0 +1,21 @@
+bed,row,col,Unique.ID,height.cm,overhd.diam,overhd.perp,herbv.scale,survey.notes,surveydate,problem
+C,21,B,698,33.5,30.7,16.4,0,NA,27-Jun,extreme value
+C,25,B,1459,30.6,20.9,15.4,1,NA,27-Jun,extreme value
+C,30,B,341,34.2,32.4,27.4,1,NA,27-Jun,extreme value
+C,31,A,1228,31.4,11,7.7,1,NA,27-Jun,extreme value
+C,50,B,404,33.8,7.6,6.4,0,-,27-Jun,extreme value
+C,43,D,1048,31.8,20.6,3.5,1,NA,27-Jun,extreme value
+D,33,B,246,38.3,35.5,30.9,1,NA,27-Jun,extreme value
+D,45,B,398,42.1,3.8,2.6,1,NA,27-Jun,extreme value
+D,47,B,1403,39,25.5,4.6,0,NA,27-Jun,extreme value
+D,40,D,1404,40.8,23.6,20.6,1,NA,27-Jun,extreme value
+D,55,D,1796,34.3,5.3,4.2,1,NA,27-Jun,extreme value
+E,18,B,372,31.5,20.3,16.4,1,NA,27-Jun,extreme value
+E,27,A,95,30.9,26.5,24.4,0,NA,27-Jun,extreme value
+E,28,C,2637,32.3,5.2,5.5,1,NA,27-Jun,extreme value
+E,51,C,1715,31.1,3.3,3,0,NA,27-Jun,extreme value
+F,11,A,2288,31.5,5.5,5,1,NA,27-Jun,extreme value
+F,41,D,314,46.1,22,21.5,1,NA,27-Jun,extreme value
+F,44,D,2140,37.9,6.6,5.4,0,NA,27-Jun,extreme value
+G,39,B,2094,46,3.5,2.6,0,NA,27-Jun,extreme value
+H,23,B,734,33.7,18.5,17,0,NA,NA,extreme value

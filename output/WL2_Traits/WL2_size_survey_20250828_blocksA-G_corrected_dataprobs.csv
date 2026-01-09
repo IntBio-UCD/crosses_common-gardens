@@ -1,0 +1,10 @@
+bed,row,col,Unique.ID,height.cm,overhd.diam,overhd.perp,herbv.scale,survey.notes,survey.date,problem
+C,30,B,341,32.9,35.2,32.4,0,NA,8/28/25,extreme value
+C,31,A,1228,30.3,15.6,12.5,0,Dry; green fruit,8/28/25,extreme value
+C,50,B,404,51,18.2,13.5,0,NA,8/28/25,extreme value
+C,43,D,1048,33.9,17.7,3.1,0,"dry, green fruit",8/28/25,extreme value
+D,33,B,246,37.5,35.1,31.2,0,NA,8/28/25,extreme value
+D,45,B,398,49.1,14.2,8.5,0,NA,8/28/25,extreme value
+D,47,B,1403,32.2,26.5,3.8,0,NA,8/28/25,extreme value
+D,40,c,2340,30.3,11.5,5.1,1,NA,8/28/25,extreme value
+D,55,D,1796,39.6,6.8,5.5,0,NA,8/28/25,extreme value
