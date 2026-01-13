@@ -1,0 +1,28 @@
+---
+title: "WL2_2024_TotalFitness"
+author: "Brandie QC"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Calculating total fitness for plants planted in 2024
+Takes into account 2024 and 2025 data 
+
+Question: Is assisted gene flow better than assisted migration?
+-   If so, would expect F1s (half high, half low elev) to perform better than parents 
+-   If not, parents would do better than F1s 
+-   Also, based on 2023 results would expect High x High F1s to be the worst (esp through first year of life)
+
+## Libraries
+```{r}
+library(tidyverse)
+
+sem <- function(x, na.rm=FALSE) {  #for calculating standard error
+  sd(x,na.rm=na.rm)/sqrt(length(na.omit(x)))
+} 
+```
+
