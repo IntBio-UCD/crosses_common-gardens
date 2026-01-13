@@ -17,7 +17,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 library(tidyverse)
 
-sem <- function(x, na.rm=FALSE) {           #for calculating standard error
+sem <- function(x, na.rm=FALSE) {  #for calculating standard error
   sd(x,na.rm=na.rm)/sqrt(length(na.omit(x)))
 } 
 ```
@@ -95,7 +95,7 @@ f1_surv<- surv_2024_pops %>%
 head(f1_surv)
   
 f1_surv_summary <- f1_surv %>% 
-  group_by(pop,Pop.Type, dame_pop, dame_elev, dame_GD_Recent, dame_GD_Historic, meanElev, mean_GD_Recent, mean_GD_Historic) %>% 
+  group_by(pop,Pop.Type, dame_pop, sire_pop, dame_elev, dame_GD_Recent, dame_GD_Historic, meanElev, mean_GD_Recent, mean_GD_Historic) %>% 
   summarise(n=n(),mean_Surv=mean(Surv, na.rm=TRUE), sem_surv=sem(Surv, na.rm=TRUE)) 
 
 f1_surv_summary %>% 
@@ -251,4 +251,34 @@ parents_F1s_combined %>%
   labs(x="Parental Avg \n Historic Water Year Climate Dist", y="Y1 Survival") +
   theme(text=element_text(size=25), axis.text.x = element_text(angle = 45, hjust = 1))
 ggsave("../output/WL2_Traits/WL2_2024_Y1Surv_F1s_Parents_HistoricCD.png", width = 14, height = 8, units = "in")
+```
+
+## Compare F1s to Mid-Parent Value 
+```{r}
+unique(f1_surv$pop)
+
+parent_surv_summary_prep <- parent_surv_summary %>% 
+  ungroup() %>% 
+  select(pop, mean_Surv) %>% 
+  pivot_wider(names_from = pop, values_from = mean_Surv) %>% 
+  mutate("WV x TM2"=(WV+TM2)/2, "LV1 x WL2"=(LV1+WL2)/2,
+         "LV1 x TM2"=(LV1+TM2)/2, "TM2 x WL2"=(TM2+WL2)/2,
+         "CC x TM2"=(CC+TM2)/2, "WV x WL2"=(WV+WL2)/2,
+         "BH x TM2"=(BH+TM2)/2, "WL2 x BH"=(BH+WL2)/2,
+         "DPR x WL2"=(DPR+WL2)/2, "BH x WL2"=(BH+WL2)/2,
+         "SQ3 x WL2"=(SQ3+WL2)/2, "TM2 x YO11"=(TM2+YO11)/2) %>% 
+  pivot_longer(cols = everything(), names_to = "pop", values_to = "mean_Surv") %>% 
+  filter(str_detect(pop, "x")) %>% 
+  mutate(pop = paste0(pop, "_midParent"))
+
+f1_surv_summary %>% 
+  bind_rows(parent_surv_summary_prep) %>% 
+  ggplot(aes(x=pop, y=mean_Surv, fill=meanElev)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) + 
+  geom_errorbar(aes(ymin=mean_Surv-sem_surv,ymax=mean_Surv+sem_surv),width=.2, position = 
+                  position_dodge(0.75)) +
+  theme_classic() + 
+  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
