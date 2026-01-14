@@ -297,3 +297,47 @@ mid_parent_F1s_fitness %>%
   facet_wrap(vars(elevation.group), scales="free")
 ggsave("../output/WL2_Traits/WL2_2024Plants_TotalFitness.png", width = 20, height = 8, units = "in")
 ```
+
+```{r}
+mid_parent_F1s_fitness %>% 
+  filter(elevation.group=="All High") %>% 
+  ggplot(aes(x=pop, y=mean_TotalFitness)) +
+  geom_errorbar(aes(ymin=mean_TotalFitness-0.01,ymax=mean_TotalFitness+stdev_TotalFitness),width=.2, position = 
+                  position_dodge(0.75)) +
+  geom_col(width = 0.7,position = position_dodge(0.75), fill="#0043F0", colour="#0043F0") + 
+  theme_classic() + 
+  scale_y_continuous(expand = c(0.01, 0)) +
+  theme(text=element_text(size=25),axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(y="Avg Total Fitness + Stdev", x="Population", fill="Avg Elevation (m)", color="Avg Elevation (m)")  + 
+  facet_wrap(vars(elevation.group), scales="free")
+ggsave("../output/WL2_Traits/WL2_2024Plants_TotalFitness_AllHigh.png", width = 8, height = 8, units = "in")
+
+mid_parent_F1s_fitness %>% 
+  filter(elevation.group=="All Low") %>% 
+  ggplot(aes(x=pop, y=mean_TotalFitness)) +
+  geom_errorbar(aes(ymin=mean_TotalFitness-0.01,ymax=mean_TotalFitness+stdev_TotalFitness),width=.2, position = 
+                  position_dodge(0.75)) +
+  geom_col(width = 0.7,position = position_dodge(0.75), fill="#F5A540", colour="#F5A540") + 
+  theme_classic() + 
+  scale_y_continuous(expand = c(0.01, 0)) +
+  theme(text=element_text(size=25),axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(y="Avg Total Fitness + Stdev", x="Population", fill="Avg Elevation (m)", color="Avg Elevation (m)")  + 
+  facet_wrap(vars(elevation.group), scales="free")
+ggsave("../output/WL2_Traits/WL2_2024Plants_TotalFitness_AllLow.png", width = 8, height = 8, units = "in")
+
+mid_parent_F1s_fitness %>% 
+  filter(elevation.group=="Mixed") %>% 
+  ggplot(aes(x=pop, y=mean_TotalFitness, fill=meanElev, colour=meanElev)) +
+  geom_errorbar(aes(ymin=mean_TotalFitness-0.01,ymax=mean_TotalFitness+stdev_TotalFitness),width=.2, position = 
+                  position_dodge(0.75)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) + 
+  theme_classic() + 
+  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_fill_gradient(low = "#b46ca4", high = "#9e60b8") +
+  scale_colour_gradient(low = "#b46ca4", high = "#9e60b8") +
+  theme(text=element_text(size=25),axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(y="Avg Total Fitness + Stdev", x="Population", fill="Avg Elevation (m)", color="Avg Elevation (m)")  + 
+  facet_wrap(vars(elevation.group), scales="free")
+ggsave("../output/WL2_Traits/WL2_2024Plants_TotalFitness_Mixed.png", width = 14, height = 8, units = "in")
+```
+
