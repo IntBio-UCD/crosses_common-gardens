@@ -247,19 +247,53 @@ parent_prep_probfruit <- total_fit_2024plants_summary %>%
 
 mid_parent_F1s_fitness <- total_fit_2024plants_summary %>% 
    filter(Pop.Type=="F1") %>% 
-  bind_rows(parent_prep_probfruit)
+  bind_rows(parent_prep_probfruit) %>% 
+  mutate(elevation.group=if_else(meanElev<1000, "All Low",
+                                 if_else(meanElev>2000, "All High", "Mixed")))
 mid_parent_F1s_fitness
 ```
 
 ## Figures 
 ```{r}
 mid_parent_F1s_fitness %>% 
-  ggplot(aes(x=pop, y=mean_ProbFruit, fill=meanElev)) +
-  geom_col(width = 0.7,position = position_dodge(0.75)) + 
-  geom_errorbar(aes(ymin=0,ymax=mean_ProbFruit+stdev_ProbFruit),width=.2, position = 
+  ggplot(aes(x=pop, y=mean_ProbFruit, fill=meanElev, colour=meanElev)) +
+  geom_errorbar(aes(ymin=mean_ProbFruit-0.01,ymax=mean_ProbFruit+stdev_ProbFruit),width=.2, position = 
                   position_dodge(0.75)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) + 
+  theme_classic() + 
+  scale_y_continuous(expand = c(0.01, 0), limits=c(0,1)) +
+  scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
+  scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
+  theme(text=element_text(size=25),axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(y="Avg Probability of Fruits + Stdev", x="Population", fill="Avg Elevation (m)", color="Avg Elevation (m)") + 
+  facet_wrap(vars(elevation.group), scales="free")
+ggsave("../output/WL2_Traits/WL2_2024Plants_ProbFruit.png", width = 20, height = 8, units = "in")
+
+mid_parent_F1s_fitness %>% 
+  ggplot(aes(x=pop, y=mean_Fecundity, fill=meanElev, colour=meanElev)) +
+  geom_errorbar(aes(ymin=mean_Fecundity-0.01,ymax=mean_Fecundity+stdev_Fecundity),width=.2, position = 
+                  position_dodge(0.75)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) + 
   theme_classic() + 
   scale_y_continuous(expand = c(0.01, 0)) +
   scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
+  theme(text=element_text(size=25),axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(y="Avg Fecundity + Stdev", x="Population", fill="Avg Elevation (m)", color="Avg Elevation (m)")  + 
+  facet_wrap(vars(elevation.group), scales="free")
+ggsave("../output/WL2_Traits/WL2_2024Plants_Fecundity.png", width = 20, height = 8, units = "in")
+
+mid_parent_F1s_fitness %>% 
+  ggplot(aes(x=pop, y=mean_TotalFitness, fill=meanElev, colour=meanElev)) +
+  geom_errorbar(aes(ymin=mean_TotalFitness-0.01,ymax=mean_TotalFitness+stdev_TotalFitness),width=.2, position = 
+                  position_dodge(0.75)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) + 
+  theme_classic() + 
+  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
+  scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
+  theme(text=element_text(size=25),axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(y="Avg Total Fitness + Stdev", x="Population", fill="Avg Elevation (m)", color="Avg Elevation (m)")  + 
+  facet_wrap(vars(elevation.group), scales="free")
+ggsave("../output/WL2_Traits/WL2_2024Plants_TotalFitness.png", width = 20, height = 8, units = "in")
 ```
