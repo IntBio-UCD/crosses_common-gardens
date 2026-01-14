@@ -157,7 +157,8 @@ total_fit_2024plants_summary <- total_fit_2024plants %>%
   summarise(n=n(), n_Fecundity=sum(!is.na(num.fruit)),
             mean_ProbFruit=mean(ProbFruit, na.rm=TRUE), stdev_ProbFruit=sd(ProbFruit, na.rm=TRUE),
             mean_Fecundity=mean(num.fruit, na.rm=TRUE), stdev_Fecundity=sd(num.fruit, na.rm=TRUE),
-            mean_TotalFitness=mean(TotalFitness, na.rm=TRUE), stdev_TotalFitness=sd(TotalFitness, na.rm=TRUE)) 
+            mean_TotalFitness=mean(TotalFitness, na.rm=TRUE), stdev_TotalFitness=sd(TotalFitness, na.rm=TRUE),
+            mean_Y1Surv=mean(Y1Surv, na.rm=TRUE), stdev_Y1Surv=sd(Y1Surv, na.rm=TRUE)) 
 total_fit_2024plants_summary
 ```
 
@@ -168,11 +169,12 @@ F1_info <- total_fit_2024plants_summary %>% filter(Pop.Type=="F1") %>% select(me
 parent_prep_probfruit <- total_fit_2024plants_summary %>% 
   filter(Pop.Type=="Parent") %>% 
   ungroup() %>% 
-  select(pop, mean_ProbFruit:stdev_TotalFitness) %>% 
+  select(pop, mean_ProbFruit:stdev_Y1Surv) %>% 
   pivot_wider(names_from = pop, 
               values_from = c(mean_ProbFruit, stdev_ProbFruit,
                               mean_Fecundity, stdev_Fecundity,
-                              mean_TotalFitness, stdev_TotalFitness)) %>% 
+                              mean_TotalFitness, stdev_TotalFitness,
+                              mean_Y1Surv, stdev_Y1Surv)) %>% 
   mutate("WV x TM2-mean_ProbFruit"=(mean_ProbFruit_WV+mean_ProbFruit_TM2)/2, 
          "LV1 x WL2-mean_ProbFruit"=(mean_ProbFruit_LV1+mean_ProbFruit_WL2)/2,
          "LV1 x TM2-mean_ProbFruit"=(mean_ProbFruit_LV1+mean_ProbFruit_TM2)/2, 
@@ -245,7 +247,31 @@ parent_prep_probfruit <- total_fit_2024plants_summary %>%
          "BH x WL2-stdev_TotalFitness"=sqrt(stdev_TotalFitness_BH^2+stdev_TotalFitness_WL2^2),
          "SQ3 x WL2-stdev_TotalFitness"=sqrt(stdev_TotalFitness_SQ3^2+stdev_TotalFitness_WL2^2), 
          "TM2 x YO11-stdev_TotalFitness"=sqrt(stdev_TotalFitness_TM2^2+stdev_TotalFitness_YO11^2)) %>% 
-  select(`WV x TM2-mean_ProbFruit`:`TM2 x YO11-stdev_TotalFitness`) %>% 
+  mutate("WV x TM2-mean_Y1Surv"=(mean_Y1Surv_WV+mean_Y1Surv_TM2)/2, 
+         "LV1 x WL2-mean_Y1Surv"=(mean_Y1Surv_LV1+mean_Y1Surv_WL2)/2,
+         "LV1 x TM2-mean_Y1Surv"=(mean_Y1Surv_LV1+mean_Y1Surv_TM2)/2, 
+         "TM2 x WL2-mean_Y1Surv"=(mean_Y1Surv_TM2+mean_Y1Surv_WL2)/2,
+         "CC x TM2-mean_Y1Surv"=(mean_Y1Surv_CC+mean_Y1Surv_TM2)/2, 
+         "WV x WL2-mean_Y1Surv"=(mean_Y1Surv_WV+mean_Y1Surv_WL2)/2,
+         "BH x TM2-mean_Y1Surv"=(mean_Y1Surv_BH+mean_Y1Surv_TM2)/2, 
+         "WL2 x BH-mean_Y1Surv"=(mean_Y1Surv_BH+mean_Y1Surv_WL2)/2,
+         "DPR x WL2-mean_Y1Surv"=(mean_Y1Surv_DPR+mean_Y1Surv_WL2)/2, 
+         "BH x WL2-mean_Y1Surv"=(mean_Y1Surv_BH+mean_Y1Surv_WL2)/2,
+         "SQ3 x WL2-mean_Y1Surv"=(mean_Y1Surv_SQ3+mean_Y1Surv_WL2)/2, 
+         "TM2 x YO11-mean_Y1Surv"=(mean_Y1Surv_TM2+mean_Y1Surv_YO11)/2) %>% 
+  mutate("WV x TM2-stdev_Y1Surv"=sqrt(stdev_Y1Surv_WV^2^2+stdev_Y1Surv_TM2^2), 
+         "LV1 x WL2-stdev_Y1Surv"=sqrt(stdev_Y1Surv_LV1^2+stdev_Y1Surv_WL2^2),
+         "LV1 x TM2-stdev_Y1Surv"=sqrt(stdev_Y1Surv_LV1^2+stdev_Y1Surv_TM2^2), 
+         "TM2 x WL2-stdev_Y1Surv"=sqrt(stdev_Y1Surv_TM2^2+stdev_Y1Surv_WL2^2),
+         "CC x TM2-stdev_Y1Surv"=sqrt(stdev_Y1Surv_CC^2+stdev_Y1Surv_TM2^2), 
+         "WV x WL2-stdev_Y1Surv"=sqrt(stdev_Y1Surv_WV^2+stdev_Y1Surv_WL2^2),
+         "BH x TM2-stdev_Y1Surv"=sqrt(stdev_Y1Surv_BH^2+stdev_Y1Surv_TM2^2), 
+         "WL2 x BH-stdev_Y1Surv"=sqrt(stdev_Y1Surv_BH^2+stdev_Y1Surv_WL2^2),
+         "DPR x WL2-stdev_Y1Surv"=sqrt(stdev_Y1Surv_DPR^2+stdev_Y1Surv_WL2^2), 
+         "BH x WL2-stdev_Y1Surv"=sqrt(stdev_Y1Surv_BH^2+stdev_Y1Surv_WL2^2),
+         "SQ3 x WL2-stdev_Y1Surv"=sqrt(stdev_Y1Surv_SQ3^2+stdev_Y1Surv_WL2^2), 
+         "TM2 x YO11-stdev_Y1Surv"=sqrt(stdev_Y1Surv_TM2^2+stdev_Y1Surv_YO11^2)) %>%
+  select(`WV x TM2-mean_ProbFruit`:`TM2 x YO11-stdev_Y1Surv`) %>% 
   pivot_longer(cols = everything(), names_to = c("pop", "measurement"), names_sep = "-", values_to = "value") %>%
   pivot_wider(names_from = measurement, values_from = value) %>% 
   left_join(F1_info) %>% 
@@ -302,6 +328,20 @@ mid_parent_F1s_fitness %>%
   labs(y="Avg Total Fitness + Stdev", x="Population", fill="Avg Elevation (m)", color="Avg Elevation (m)")  + 
   facet_wrap(vars(elevation.group), scales="free")
 ggsave("../output/WL2_Traits/WL2_2024Plants_TotalFitness.png", width = 20, height = 8, units = "in")
+
+mid_parent_F1s_fitness %>% 
+  ggplot(aes(x=pop, y=mean_Y1Surv, fill=meanElev, colour=meanElev)) +
+  geom_errorbar(aes(ymin=mean_Y1Surv-0.01,ymax=mean_Y1Surv+stdev_Y1Surv),width=.2, position = 
+                  position_dodge(0.75)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) + 
+  theme_classic() + 
+  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
+  scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
+  theme(text=element_text(size=25),axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(y="Avg Y1 Survival + Stdev", x="Population", fill="Avg Elevation (m)", color="Avg Elevation (m)")  + 
+  facet_wrap(vars(elevation.group), scales="free")
+ggsave("../output/WL2_Traits/WL2_2024Plants_Y1Surv.png", width = 20, height = 8, units = "in")
 ```
 
 ```{r}
@@ -345,5 +385,36 @@ mid_parent_F1s_fitness %>%
   labs(y="Avg Total Fitness + Stdev", x="Population", fill="Avg Elevation (m)", color="Avg Elevation (m)")  + 
   facet_wrap(vars(elevation.group), scales="free")
 ggsave("../output/WL2_Traits/WL2_2024Plants_TotalFitness_Mixed.png", width = 14, height = 8, units = "in")
+```
+
+### Parents
+```{r}
+total_fit_2024plants_summary %>% 
+  filter(Pop.Type=="Parent") %>% 
+   ggplot(aes(x=fct_reorder(pop, meanElev), y=mean_TotalFitness, fill=meanElev, colour=meanElev)) +
+  geom_errorbar(aes(ymin=mean_TotalFitness-0.01,ymax=mean_TotalFitness+stdev_TotalFitness),width=.2, position = 
+                  position_dodge(0.75)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) + 
+  theme_classic() + 
+  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
+  scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
+  theme(text=element_text(size=25),axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(y="Avg Total Fitness + Stdev", x="Population", fill="Elevation (m)", color="Elevation (m)")
+ggsave("../output/WL2_Traits/WL2_2024Plants_TotalFitness_Parents.png", width = 14, height = 8, units = "in")
+
+total_fit_2024plants_summary %>% 
+  filter(Pop.Type=="Parent") %>% 
+   ggplot(aes(x=fct_reorder(pop, meanElev), y=mean_Y1Surv, fill=meanElev, colour=meanElev)) +
+  geom_errorbar(aes(ymin=mean_Y1Surv-0.01,ymax=mean_Y1Surv+stdev_Y1Surv),width=.2, position = 
+                  position_dodge(0.75)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) + 
+  theme_classic() + 
+  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
+  scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
+  theme(text=element_text(size=25),axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(y="Avg Y1 Survival + Stdev", x="Population", fill="Elevation (m)", color="Elevation (m)")
+ggsave("../output/WL2_Traits/WL2_2024Plants_Y1Surv_Parents.png", width = 14, height = 8, units = "in")
 ```
 
