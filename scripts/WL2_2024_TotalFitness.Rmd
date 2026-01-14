@@ -99,6 +99,12 @@ y2_fitness <- pop_info_2025 %>%
   mutate(SurvtoBud=if_else(!is.na(bud.date), 1, 0)) %>% 
   select(unique.ID=Unique.ID, Pop.Type, pop=pop.id, mf, rep, SurvtoBud, num.fruit)
 y2_fitness %>% filter(SurvtoBud==1, is.na(num.fruit)) #2 plants that survived to rep with no fruit number 
+
+#checked fruiting of plants planted in 2025
+fruits_2025 %>% left_join(pop_info_2025) %>% 
+  filter(Unique.ID!="buffer", !is.na(Unique.ID)) %>% 
+  filter(status=="available") %>% 
+  filter(!is.na(num.fruit)) #no F1s fruited, only TM2 fruited 
 ```
 
 ## Merge y1 and y2 fitness ---> total fitnes
