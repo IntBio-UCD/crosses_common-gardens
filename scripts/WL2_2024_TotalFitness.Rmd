@@ -26,3 +26,170 @@ sem <- function(x, na.rm=FALSE) {  #for calculating standard error
 } 
 ```
 
+## Read in data
+```{r}
+wintsurv <- read_csv("../input/WL2_2025_Data/CorrectedCSVs/WL2_overwinter_survival_20250523_corrected.csv") #contains all year 1 info too
+surv_2025 <- read_csv("../input/WL2_2025_Data/CorrectedCSVs/WL2_mort_pheno_20250929_corrected.csv") %>%  #for surv to budding 
+  select(bed:bud.date, death.date)
+fruits_2025 <- read_csv("../input/WL2_2025_Data/CorrectedCSVs/WL2_ann_cens_20251006_corrected.csv") %>% #for fruit #
+  select(bed:Unique.ID, num.fruit)
+```
+
+## Pop Info
+```{r}
+pop_info_2024 <- read_csv("../input/WL2_2024_Data/Final_2023_2024_Pop_Loc_Info.csv") %>% 
+  select(Pop.Type:unique.ID) %>% 
+  rename(row=bedrow, col=bedcol)
+
+pop_info_2025 <- read_csv("../input/WL2_2025_Data/2025_Pop_Loc_Info Updated.csv") %>% 
+  select(status:Unique.ID)
+```
+
+## Elevation Info / Climate distance
+```{r}
+clim_dist_2024 <- read_csv("../output/Climate/WL2_2024_Clim_Dist.csv") %>% select(-conf.low, -conf.high)
+head(clim_dist_2024)
+
+clim_dist_2024_wide <- clim_dist_2024 %>% 
+  pivot_wider(names_from = timeframe, values_from = Gowers_Dist, names_prefix = "GD_") %>% 
+  rename(pop=parent.pop)
+```
+
+## Calculate y1 fitness and remove plants not planted in 2024
+```{r}
+wintsurv %>%  
+  left_join(pop_info_2024) %>% 
+  filter(Pop.Type=="Parent" | Pop.Type=="F1") %>% filter(!is.na(bud.date)) #none of the 2024 plants reproduced (don't need to take into account any annual plants)
+
+y1_fitness <- wintsurv %>% select(bed:unique.ID, bud.date, death.date, missing.date, survey.notes) %>% 
+  left_join(pop_info_2024) %>% 
+  filter(unique.ID != "buffer") %>% #remove buffers
+  filter(Pop.Type=="Parent" | Pop.Type=="F1") %>%  #keep only plants planted in 2024
+  select(loc, bed:unique.ID, Pop.Type, pop:rep, death.date:survey.notes) %>% 
+  mutate(deadatplanting = if_else(is.na(survey.notes), NA,
+                                  if_else(survey.notes=="Dead at planting", "Yes", NA))) %>% 
+  filter(is.na(deadatplanting)) %>% #remove plants that were dead at planting 
+  filter(is.na(missing.date)) %>% #remove plants that went missing 
+  select(-deadatplanting, -missing.date, -survey.notes) %>% #remove unnecessary rows 
+  mutate(death.date=mdy(death.date)) %>% #convert to date format 
+  mutate(Establishment = if_else(is.na(death.date), 1, 
+                                 if_else(death.date < "2024-07-06", 0, 1)), #establishment = first 3 weeks post-transplant 
+         Y1Surv = if_else(Establishment==0, NA, #can't survive year 1 if you didn't establish 
+                          if_else(is.na(death.date), 1, 
+                                        if_else(death.date < "2024-11-01", 0, 1))), #year 1 ended in Oct
+         WintSurv = if_else(Establishment==0 | Y1Surv==0, NA, #can only have wint surv if survived y1 
+                            if_else(is.na(death.date), 1, 0))) 
+y1_fitness %>% filter(WintSurv==1) #33 plants survived the winter 
+```
+
+## Calculate y2 fitness and remove plants not planted in 2024
+```{r}
+surv_2025 %>% left_join(pop_info_2025) %>% filter(status=="2024-survivor") %>% filter(is.na(death.date)) %>% filter(is.na(bud.date)) #0 2024 plants alive at end of 2025 that did not reproduce
+
+y2_fitness <- pop_info_2025 %>% 
+  left_join(surv_2025) %>% 
+  left_join(fruits_2025) %>% 
+  filter(Unique.ID!="buffer", !is.na(Unique.ID)) %>% 
+  filter(status=="2024-survivor") %>% 
+  mutate(Pop.Type=if_else(str_detect(pop.id, "\\) x"), "F2",
+                          if_else(str_detect(pop.id, "x"), "F1",
+                                  "Parent"
+                          ))) %>% 
+  filter(Pop.Type!="F2") %>% #remove F2s
+  mutate(SurvtoBud=if_else(!is.na(bud.date), 1, 0)) %>% 
+  select(unique.ID=Unique.ID, Pop.Type, pop=pop.id, mf, rep, SurvtoBud, num.fruit)
+y2_fitness %>% filter(SurvtoBud==1, is.na(num.fruit)) #2 plants that survived to rep with no fruit number 
+```
+
+## Merge y1 and y2 fitness ---> total fitnes
+```{r}
+total_fit_2024plants <- y1_fitness %>% 
+  select(-death.date) %>% 
+  mutate(mf=as.character(mf)) %>% #needed for the merge
+  left_join(y2_fitness) %>% 
+  select(-mf) %>% #remove because all NAs
+  mutate(ProbFruit=if_else(is.na(num.fruit) | num.fruit==0, 0, 1),
+         TotalFitness=if_else(ProbFruit==0, 0, num.fruit)) %>% 
+  separate(pop, c("dame_pop",NA, "sire_pop"), remove = FALSE) %>% #define pops for crosses
+  mutate(sire_pop=if_else(Pop.Type=="Parent", dame_pop, sire_pop)) %>% 
+  #add clim and elev info for dames and sires:
+  left_join(clim_dist_2024_wide, by=join_by(dame_pop==pop)) %>% 
+  select(-elevation.group, -Season, -Year) %>% 
+  rename(dame_elev=elev_m, dame_Lat=Lat, dame_Long=Long, dame_GD_Recent=GD_Recent, dame_GD_Historic=GD_Historic) %>% 
+  left_join(clim_dist_2024_wide, by=join_by(sire_pop==pop)) %>% 
+  select(-elevation.group, -Season, -Year) %>% 
+  rename(sire_elev=elev_m, sire_Lat=Lat, sire_Long=Long, sire_GD_Recent=GD_Recent, sire_GD_Historic=GD_Historic) %>% 
+  mutate(meanElev=(dame_elev+sire_elev)/2, 
+         mean_GD_Recent=(dame_GD_Recent+sire_GD_Recent)/2, 
+         mean_GD_Historic=(dame_GD_Historic+sire_GD_Historic)/2) #means for parents are just the parent's actual value since I set that pop as dame and sire 
+#total_fit_2024plants %>% filter(WintSurv==1, is.na(SurvtoBud)) #double check that the merge worked
+head(total_fit_2024plants)
+```
+
+## Box Plots
+```{r}
+total_fit_2024plants %>% 
+  ggplot(aes(x=pop, y=TotalFitness, colour = Pop.Type)) + #0s included 
+  geom_boxplot() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+total_fit_2024plants %>%
+  mutate(num.fruit=if_else(is.na(num.fruit) | num.fruit==0, NA, num.fruit)) %>% 
+  ggplot(aes(x=pop, y=num.fruit, colour = Pop.Type)) + #no 0s 
+  geom_boxplot() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+#no obvious trends of heterosis 
+```
+
+## Means 
+```{r}
+total_fit_2024plants_summary <- total_fit_2024plants %>% 
+  mutate(num.fruit=if_else(is.na(num.fruit) | num.fruit==0, NA, num.fruit)) %>%  #remove 0s
+  group_by(Pop.Type, pop, dame_pop, sire_pop, 
+           dame_elev, dame_GD_Recent, dame_GD_Historic, 
+           meanElev, mean_GD_Recent, mean_GD_Historic) %>% 
+  summarise(n=n(), n_Fecundity=sum(!is.na(num.fruit)),
+            mean_ProbFruit=mean(ProbFruit, na.rm=TRUE), stdev_ProbFruit=sd(ProbFruit, na.rm=TRUE),
+            mean_Fecundity=mean(num.fruit, na.rm=TRUE), stdev_Fecundity=sd(num.fruit, na.rm=TRUE),
+            mean_TotalFitness=mean(TotalFitness, na.rm=TRUE), stdev_TotalFitness=sd(TotalFitness, na.rm=TRUE)) 
+total_fit_2024plants_summary
+```
+
+## Mid-Parent Values
+```{r}
+parent_prep_probfruit <- total_fit_2024plants_summary %>% 
+  filter(Pop.Type=="Parent") %>% 
+  ungroup() %>% 
+  select(pop, mean_ProbFruit:stdev_TotalFitness) %>% 
+  pivot_wider(names_from = pop, 
+              values_from = c(mean_ProbFruit, stdev_ProbFruit,
+                              mean_Fecundity, stdev_Fecundity,
+                              mean_TotalFitness, stdev_TotalFitness)) %>% 
+  mutate("WV x TM2-mean_ProbFruit"=(mean_ProbFruit_WV+mean_ProbFruit_TM2)/2, 
+         "LV1 x WL2-mean_ProbFruit"=(mean_ProbFruit_LV1+mean_ProbFruit_WL2)/2,
+         "LV1 x TM2-mean_ProbFruit"=(mean_ProbFruit_LV1+mean_ProbFruit_TM2)/2, 
+         "TM2 x WL2-mean_ProbFruit"=(mean_ProbFruit_TM2+mean_ProbFruit_WL2)/2,
+         "CC x TM2-mean_ProbFruit"=(mean_ProbFruit_CC+mean_ProbFruit_TM2)/2, 
+         "WV x WL2-mean_ProbFruit"=(mean_ProbFruit_WV+mean_ProbFruit_WL2)/2,
+         "BH x TM2-mean_ProbFruit"=(mean_ProbFruit_BH+mean_ProbFruit_TM2)/2, 
+         "WL2 x BH-mean_ProbFruit"=(mean_ProbFruit_BH+mean_ProbFruit_WL2)/2,
+         "DPR x WL2-mean_ProbFruit"=(mean_ProbFruit_DPR+mean_ProbFruit_WL2)/2, 
+         "BH x WL2-mean_ProbFruit"=(mean_ProbFruit_BH+mean_ProbFruit_WL2)/2,
+         "SQ3 x WL2-mean_ProbFruit"=(mean_ProbFruit_SQ3+mean_ProbFruit_WL2)/2, 
+         "TM2 x YO11-mean_ProbFruit"=(mean_ProbFruit_TM2+mean_ProbFruit_YO11)/2) %>% 
+  mutate("WV x TM2-stdev_ProbFruit"=sqrt(stdev_ProbFruit_WV^2^2+stdev_ProbFruit_TM2^2), 
+         "LV1 x WL2-stdev_ProbFruit"=sqrt(stdev_ProbFruit_LV1^2+stdev_ProbFruit_WL2^2),
+         "LV1 x TM2-stdev_ProbFruit"=sqrt(stdev_ProbFruit_LV1^2+stdev_ProbFruit_TM2^2), 
+         "TM2 x WL2-stdev_ProbFruit"=sqrt(stdev_ProbFruit_TM2^2+stdev_ProbFruit_WL2^2),
+         "CC x TM2-stdev_ProbFruit"=sqrt(stdev_ProbFruit_CC^2+stdev_ProbFruit_TM2^2), 
+         "WV x WL2-stdev_ProbFruit"=sqrt(stdev_ProbFruit_WV^2+stdev_ProbFruit_WL2^2),
+         "BH x TM2-stdev_ProbFruit"=sqrt(stdev_ProbFruit_BH^2+stdev_ProbFruit_TM2^2), 
+         "WL2 x BH-stdev_ProbFruit"=sqrt(stdev_ProbFruit_BH^2+stdev_ProbFruit_WL2^2),
+         "DPR x WL2-stdev_ProbFruit"=sqrt(stdev_ProbFruit_DPR^2+stdev_ProbFruit_WL2^2), 
+         "BH x WL2-stdev_ProbFruit"=sqrt(stdev_ProbFruit_BH^2+stdev_ProbFruit_WL2^2),
+         "SQ3 x WL2-stdev_ProbFruit"=sqrt(stdev_ProbFruit_SQ3^2+stdev_ProbFruit_WL2^2), 
+         "TM2 x YO11-stdev_ProbFruit"=sqrt(stdev_ProbFruit_TM2^2+stdev_ProbFruit_YO11^2)) %>% 
+  select(`WV x TM2-mean_ProbFruit`:`TM2 x YO11-stdev_ProbFruit`) %>% 
+  pivot_longer(cols = everything(), names_to = c("pop", "measurement"), names_sep = "-", values_to = "value") #%>%
+  #mutate(pop = paste0(pop, "_midParent"))
+```
