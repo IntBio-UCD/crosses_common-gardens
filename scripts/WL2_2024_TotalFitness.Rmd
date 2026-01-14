@@ -157,6 +157,8 @@ total_fit_2024plants_summary
 
 ## Mid-Parent Values
 ```{r}
+F1_info <- total_fit_2024plants_summary %>% filter(Pop.Type=="F1") %>% select(meanElev:mean_GD_Historic)
+
 parent_prep_probfruit <- total_fit_2024plants_summary %>% 
   filter(Pop.Type=="Parent") %>% 
   ungroup() %>% 
@@ -189,7 +191,75 @@ parent_prep_probfruit <- total_fit_2024plants_summary %>%
          "BH x WL2-stdev_ProbFruit"=sqrt(stdev_ProbFruit_BH^2+stdev_ProbFruit_WL2^2),
          "SQ3 x WL2-stdev_ProbFruit"=sqrt(stdev_ProbFruit_SQ3^2+stdev_ProbFruit_WL2^2), 
          "TM2 x YO11-stdev_ProbFruit"=sqrt(stdev_ProbFruit_TM2^2+stdev_ProbFruit_YO11^2)) %>% 
-  select(`WV x TM2-mean_ProbFruit`:`TM2 x YO11-stdev_ProbFruit`) %>% 
-  pivot_longer(cols = everything(), names_to = c("pop", "measurement"), names_sep = "-", values_to = "value") #%>%
-  #mutate(pop = paste0(pop, "_midParent"))
+  mutate("WV x TM2-mean_Fecundity"=(mean_Fecundity_WV+mean_Fecundity_TM2)/2, 
+         "LV1 x WL2-mean_Fecundity"=(mean_Fecundity_LV1+mean_Fecundity_WL2)/2,
+         "LV1 x TM2-mean_Fecundity"=(mean_Fecundity_LV1+mean_Fecundity_TM2)/2, 
+         "TM2 x WL2-mean_Fecundity"=(mean_Fecundity_TM2+mean_Fecundity_WL2)/2,
+         "CC x TM2-mean_Fecundity"=(mean_Fecundity_CC+mean_Fecundity_TM2)/2, 
+         "WV x WL2-mean_Fecundity"=(mean_Fecundity_WV+mean_Fecundity_WL2)/2,
+         "BH x TM2-mean_Fecundity"=(mean_Fecundity_BH+mean_Fecundity_TM2)/2, 
+         "WL2 x BH-mean_Fecundity"=(mean_Fecundity_BH+mean_Fecundity_WL2)/2,
+         "DPR x WL2-mean_Fecundity"=(mean_Fecundity_DPR+mean_Fecundity_WL2)/2, 
+         "BH x WL2-mean_Fecundity"=(mean_Fecundity_BH+mean_Fecundity_WL2)/2,
+         "SQ3 x WL2-mean_Fecundity"=(mean_Fecundity_SQ3+mean_Fecundity_WL2)/2, 
+         "TM2 x YO11-mean_Fecundity"=(mean_Fecundity_TM2+mean_Fecundity_YO11)/2) %>% 
+  mutate("WV x TM2-stdev_Fecundity"=sqrt(stdev_Fecundity_WV^2^2+stdev_Fecundity_TM2^2), 
+         "LV1 x WL2-stdev_Fecundity"=sqrt(stdev_Fecundity_LV1^2+stdev_Fecundity_WL2^2),
+         "LV1 x TM2-stdev_Fecundity"=sqrt(stdev_Fecundity_LV1^2+stdev_Fecundity_TM2^2), 
+         "TM2 x WL2-stdev_Fecundity"=sqrt(stdev_Fecundity_TM2^2+stdev_Fecundity_WL2^2),
+         "CC x TM2-stdev_Fecundity"=sqrt(stdev_Fecundity_CC^2+stdev_Fecundity_TM2^2), 
+         "WV x WL2-stdev_Fecundity"=sqrt(stdev_Fecundity_WV^2+stdev_Fecundity_WL2^2),
+         "BH x TM2-stdev_Fecundity"=sqrt(stdev_Fecundity_BH^2+stdev_Fecundity_TM2^2), 
+         "WL2 x BH-stdev_Fecundity"=sqrt(stdev_Fecundity_BH^2+stdev_Fecundity_WL2^2),
+         "DPR x WL2-stdev_Fecundity"=sqrt(stdev_Fecundity_DPR^2+stdev_Fecundity_WL2^2), 
+         "BH x WL2-stdev_Fecundity"=sqrt(stdev_Fecundity_BH^2+stdev_Fecundity_WL2^2),
+         "SQ3 x WL2-stdev_Fecundity"=sqrt(stdev_Fecundity_SQ3^2+stdev_Fecundity_WL2^2), 
+         "TM2 x YO11-stdev_Fecundity"=sqrt(stdev_Fecundity_TM2^2+stdev_Fecundity_YO11^2)) %>% 
+  mutate("WV x TM2-mean_TotalFitness"=(mean_TotalFitness_WV+mean_TotalFitness_TM2)/2, 
+         "LV1 x WL2-mean_TotalFitness"=(mean_TotalFitness_LV1+mean_TotalFitness_WL2)/2,
+         "LV1 x TM2-mean_TotalFitness"=(mean_TotalFitness_LV1+mean_TotalFitness_TM2)/2, 
+         "TM2 x WL2-mean_TotalFitness"=(mean_TotalFitness_TM2+mean_TotalFitness_WL2)/2,
+         "CC x TM2-mean_TotalFitness"=(mean_TotalFitness_CC+mean_TotalFitness_TM2)/2, 
+         "WV x WL2-mean_TotalFitness"=(mean_TotalFitness_WV+mean_TotalFitness_WL2)/2,
+         "BH x TM2-mean_TotalFitness"=(mean_TotalFitness_BH+mean_TotalFitness_TM2)/2, 
+         "WL2 x BH-mean_TotalFitness"=(mean_TotalFitness_BH+mean_TotalFitness_WL2)/2,
+         "DPR x WL2-mean_TotalFitness"=(mean_TotalFitness_DPR+mean_TotalFitness_WL2)/2, 
+         "BH x WL2-mean_TotalFitness"=(mean_TotalFitness_BH+mean_TotalFitness_WL2)/2,
+         "SQ3 x WL2-mean_TotalFitness"=(mean_TotalFitness_SQ3+mean_TotalFitness_WL2)/2, 
+         "TM2 x YO11-mean_TotalFitness"=(mean_TotalFitness_TM2+mean_TotalFitness_YO11)/2) %>% 
+  mutate("WV x TM2-stdev_TotalFitness"=sqrt(stdev_TotalFitness_WV^2^2+stdev_TotalFitness_TM2^2), 
+         "LV1 x WL2-stdev_TotalFitness"=sqrt(stdev_TotalFitness_LV1^2+stdev_TotalFitness_WL2^2),
+         "LV1 x TM2-stdev_TotalFitness"=sqrt(stdev_TotalFitness_LV1^2+stdev_TotalFitness_TM2^2), 
+         "TM2 x WL2-stdev_TotalFitness"=sqrt(stdev_TotalFitness_TM2^2+stdev_TotalFitness_WL2^2),
+         "CC x TM2-stdev_TotalFitness"=sqrt(stdev_TotalFitness_CC^2+stdev_TotalFitness_TM2^2), 
+         "WV x WL2-stdev_TotalFitness"=sqrt(stdev_TotalFitness_WV^2+stdev_TotalFitness_WL2^2),
+         "BH x TM2-stdev_TotalFitness"=sqrt(stdev_TotalFitness_BH^2+stdev_TotalFitness_TM2^2), 
+         "WL2 x BH-stdev_TotalFitness"=sqrt(stdev_TotalFitness_BH^2+stdev_TotalFitness_WL2^2),
+         "DPR x WL2-stdev_TotalFitness"=sqrt(stdev_TotalFitness_DPR^2+stdev_TotalFitness_WL2^2), 
+         "BH x WL2-stdev_TotalFitness"=sqrt(stdev_TotalFitness_BH^2+stdev_TotalFitness_WL2^2),
+         "SQ3 x WL2-stdev_TotalFitness"=sqrt(stdev_TotalFitness_SQ3^2+stdev_TotalFitness_WL2^2), 
+         "TM2 x YO11-stdev_TotalFitness"=sqrt(stdev_TotalFitness_TM2^2+stdev_TotalFitness_YO11^2)) %>% 
+  select(`WV x TM2-mean_ProbFruit`:`TM2 x YO11-stdev_TotalFitness`) %>% 
+  pivot_longer(cols = everything(), names_to = c("pop", "measurement"), names_sep = "-", values_to = "value") %>%
+  pivot_wider(names_from = measurement, values_from = value) %>% 
+  left_join(F1_info) %>% 
+  mutate(pop = paste0(pop, "_midParent"), Pop.Type="midParent")
+
+mid_parent_F1s_fitness <- total_fit_2024plants_summary %>% 
+   filter(Pop.Type=="F1") %>% 
+  bind_rows(parent_prep_probfruit)
+mid_parent_F1s_fitness
+```
+
+## Figures 
+```{r}
+mid_parent_F1s_fitness %>% 
+  ggplot(aes(x=pop, y=mean_ProbFruit, fill=meanElev)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) + 
+  geom_errorbar(aes(ymin=0,ymax=mean_ProbFruit+stdev_ProbFruit),width=.2, position = 
+                  position_dodge(0.75)) +
+  theme_classic() + 
+  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
