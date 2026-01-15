@@ -287,7 +287,6 @@ dat5 %>% filter(is.na(censusN)) #none
 ```
 
 ### Check for data when there is no data in previous week 
-*NEED TO COME BACK TO THIS AFTER FIX ABOVE DATA ISSUES 
 ```{r}
 dat6 <- dat5 %>%  #by bed, row, col
   group_by(bed, row, col) %>% 
@@ -298,7 +297,7 @@ dat6 <- dat5 %>%  #by bed, row, col
          survey.notes) %>% 
   arrange(bed, row, col, censusN)
 dat8 <- dat6 %>% filter(censusN!=1) %>% filter(is.na(previous_census_height), !is.na(height.cm)) 
-dim(dat8) #12 rows 
+dim(dat8) #3 rows 
 
 
 dat7 <- dat5 %>% #by uniqueID
@@ -312,15 +311,16 @@ dat7 <- dat5 %>% #by uniqueID
 
 #Check for data when there is no data in previous week 
 dat9 <- dat7 %>% filter(censusN!=1) %>% filter(is.na(previous_census_height), !is.na(height.cm)) 
-dim(dat9) #8 rows 
+dim(dat9) #5 rows 
 dat9
 dat8
 
-dat5 %>% filter(unique.ID=="1093") #resprout
-dat9 %>% filter(unique.ID=="160")
-dat9 %>% filter(unique.ID=="196")
-dat9 %>% filter(unique.ID=="2038")
-dat9 %>% filter(unique.ID=="535")
+dat5 %>% filter(bed=="B", row=="12", col=="A")
+dat5 %>% filter(unique.ID=="1093") %>% arrange(censusN)#resprout
+dat5 %>% filter(unique.ID=="160") %>% arrange(censusN) #no notes, but it has the wrong bed, row col on Census15 (B6A instead of D34A) 
+dat5 %>% filter(unique.ID=="196") %>% arrange(censusN) #noted as missing for census 12
+dat5 %>% filter(unique.ID=="2038") %>% arrange(censusN) #in two locations for census 12 (B12A, correct is A21C) 
+dat5 %>% filter(unique.ID=="535") %>% arrange(censusN) #notes say "can't reach for census 15
 
 #write.csv(dat9, "../output/UCD_Traits/UCD_MissingDataPrevWeek.csv", row.names = FALSE)
 ```

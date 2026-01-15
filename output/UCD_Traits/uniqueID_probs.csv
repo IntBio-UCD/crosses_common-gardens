@@ -1,4 +1,0 @@
-filename,survey_date,bed,row,col,unique.ID,height.cm,long.leaf.cm,survey.notes,problems
-UCD_size_survey_20240311_corrected.csv,2024-03-11,F,11,C,7.7,43,6.1,NA,uniqueID column
-UCD_size_survey_bedsABC_20240503_corrected.csv,2024-05-03,B,8,D,156 -,17.1,3.1,NA,uniqueID column
-UCD_size_survey_bedsDEF_20240412_corrected.csv,2024-04-12,D,22,C,0.175,8.5,3.5,NA,uniqueID column
