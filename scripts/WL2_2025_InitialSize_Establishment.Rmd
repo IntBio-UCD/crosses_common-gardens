@@ -22,26 +22,27 @@ library(lme4)
 
 ## Load Initial Size
 ```{r}
-initial_size <- read_csv("../input/WL2_2024_Data/CorrectedCSVs/WL2_Initial_DNA_size_survey_20240607_corrected.csv") %>% 
-  mutate(unique.ID=as.character(unique.ID)) %>% 
-  select(unique.ID:long.leaf.cm)
+initial_size <- read_csv("../input/WL2_2025_Data/CorrectedCSVs/WL2_initial_size_DNA_corrected.csv") %>% 
+  mutate(Unique.ID=as.character(Unique.ID)) %>% 
+  select(Unique.ID:long.leaf.cm) %>% 
+  filter(!is.na(height.cm)) 
 head(initial_size)
+
 ```
 
 ## Load Survival
 ```{r}
-wl2_surv <- read_csv("../input/WL2_2024_Data/CorrectedCSVs/WL2_mort_pheno_20241023_corrected.csv") %>% 
-  select(block:unique.ID, death.date, missing.date, survey.notes)
+wl2_surv <- read_csv("../input/WL2_2025_Data/CorrectedCSVs/WL2_mort_pheno_20250929_corrected.csv") %>% 
+  select(bed:Unique.ID, death.date, survey.notes)
 head(wl2_surv)
 ```
 
 ## Load pop info
 ```{r}
-pop_info <- read_csv("../input/WL2_2024_Data/Final_2023_2024_Pop_Loc_Info.csv") %>% 
-  select(Pop.Type:bed, row=bedrow, col=bedcol, pop:unique.ID)
+pop_info <- read_csv("../input/WL2_2025_Data/2025_Pop_Loc_Info Updated.csv") %>% 
+  select(status:Unique.ID) %>% 
+  filter(status == "available")
 
-unique(pop_info$Pop.Type)
-unique(pop_info$status)
 ```
 
 ## Merge
@@ -49,30 +50,30 @@ unique(pop_info$status)
 size_surv <- left_join(wl2_surv, initial_size)
 
 size_surv_pops <- left_join(pop_info, size_surv)
+size_surv_pops %>% filter(is.na(germ.y.n))
 
-size_surv_2024pops <- size_surv_pops %>% filter(Pop.Type != "2023-TM2-fruit", Pop.Type != "2023-survivor")
-unique(size_surv_2024pops$death.date)
-unique(size_surv_2024pops$missing.date)
+size_surv_2025pops <- size_surv_pops %>% filter(!is.na(germ.y.n))
+unique(size_surv_2025pops$death.date)
 ```
 
 ## Establishment
 ```{r}
-establishment <- size_surv_2024pops %>% 
+establishment <- size_surv_2025pops %>% 
   mutate(Est_Surv=if_else(is.na(death.date), 1, 
-                          if_else(death.date=="6/18/24" | death.date=="6/25/24" | death.date=="7/2/24", 0,
+                          if_else(death.date=="6/3/25" | death.date=="6/9/25" |
+                                    death.date=="6/17/25", 0,
                                        1))) %>% 
-  mutate(Est_Surv = if_else(is.na(missing.date), Est_Surv, 
-                            if_else(missing.date=="6/25/24", 0, Est_Surv)))
+  mutate(Pop.Type=if_else(!str_detect(pop.id, "x"), "Parent", 
+                          if_else(str_detect(pop.id, "\\) x"), "F2 or BC1", "F1"))) %>% 
+  select(-status, -germ.y.n)
 
 head(establishment)
-
-establishment %>% filter(missing.date=="6/25/24") #double check it gave 0s to ones that went missing 
 ```
 
 ## Quick Plots 
 ```{r}
 establishment %>% 
-  ggplot(aes(`hypocotyl. length.cm`, Est_Surv)) +
+  ggplot(aes(hypocotyl.length.cm, Est_Surv)) +
   geom_point()
 
 establishment %>% 
@@ -89,22 +90,19 @@ establishment %>%
 est_summary <- establishment %>% 
   group_by(Pop.Type) %>% 
   summarise(meanEst=mean(Est_Surv, na.rm=TRUE), 
-            meanHyp = mean(`hypocotyl. length.cm`, na.rm=TRUE),
+            meanHyp = mean(hypocotyl.length.cm, na.rm=TRUE),
             meanHeight = mean(height.cm, na.rm=TRUE), 
             meanLength = mean(long.leaf.cm, na.rm=TRUE))
 est_summary
-#F1s had the highest establishment success, parents the lowest 
-#parents had largest hypocotyl lengths and F2s had the lowest
-#parents were tallest, F2s the shortest
-#F2s had longest leaves, parents had the shortest 
+#pretty high establishment all around 
 ```
 
 ## Pop Averages
 ```{r}
 est_summary_pops <- establishment %>% 
-  group_by(Pop.Type, pop) %>% 
+  group_by(Pop.Type, pop.id) %>% 
   summarise(meanEst=mean(Est_Surv, na.rm=TRUE), 
-            meanHyp = mean(`hypocotyl. length.cm`, na.rm=TRUE),
+            meanHyp = mean(hypocotyl.length.cm, na.rm=TRUE),
             meanHeight = mean(height.cm, na.rm=TRUE), 
             meanLength = mean(long.leaf.cm, na.rm=TRUE))
 
@@ -135,12 +133,12 @@ est_summary_pops %>%
 
 ## Quick Models
 ```{r}
-hyp_for_models <- establishment %>% filter(!is.na(`hypocotyl. length.cm`))
+hyp_for_models <- establishment %>% filter(!is.na(hypocotyl.length.cm))
 
-hyp_est_model1 <- glm(Est_Surv ~ `hypocotyl. length.cm`, family=binomial, data=hyp_for_models)
+hyp_est_model1 <- glm(Est_Surv ~ hypocotyl.length.cm, family=binomial, data=hyp_for_models)
 summary(hyp_est_model1)
 
-hyp_est_model2 <- glmer(Est_Surv ~ `hypocotyl. length.cm` + (1|Pop.Type), family=binomial, data=hyp_for_models)
+hyp_est_model2 <- glmer(Est_Surv ~ hypocotyl.length.cm + (1|Pop.Type), family=binomial, data=hyp_for_models)
 summary(hyp_est_model2) #no significant relationship with hypocotyl length 
 ```
 
@@ -151,7 +149,7 @@ height_est_model1 <- glm(Est_Surv ~ height.cm, family=binomial, data=height_for_
 summary(height_est_model1)
 
 height_est_model2 <- glmer(Est_Surv ~ height.cm + (1|Pop.Type), family=binomial, data=height_for_models)
-summary(height_est_model2) #sig pos relationship with height (taller survived better)
+summary(height_est_model2) #no sig relationship with height 
 ```
 
 ```{r}

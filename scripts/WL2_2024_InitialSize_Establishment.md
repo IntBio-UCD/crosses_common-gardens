@@ -1,7 +1,7 @@
 ---
 title: "WL2_InitialSize_Establishment"
 author: "Brandie QC"
-date: "2025-04-29"
+date: "2026-03-10"
 output: 
   html_document: 
     keep_md: true
@@ -177,7 +177,7 @@ unique(size_surv_2024pops$death.date)
 ##  [1] "7/2/24"   "7/23/24"  NA         "7/9/24"   "7/16/24"  "6/25/24" 
 ##  [7] "6/18/24"  "9/3/24"   "8/13/24"  "7/30/24"  "8/6/24"   "10/9/24" 
 ## [13] "8/20/24"  "9/24/24"  "10/16/24" "9/17/24"  "8/27/24"  "10/2/24" 
-## [19] "9/10/24"  "10/23/24"
+## [19] "9/10/24"
 ```
 
 ``` r
@@ -185,7 +185,7 @@ unique(size_surv_2024pops$missing.date)
 ```
 
 ```
-## [1] NA         "6/25/24"  "10/16/24" "7/9/24"   "10/23/24"
+## [1] NA         "10/16/24" "7/9/24"   "10/23/24"
 ```
 
 ## Establishment
@@ -221,16 +221,11 @@ establishment %>% filter(missing.date=="6/25/24") #double check it gave 0s to on
 ```
 
 ```
-## # A tibble: 5 × 18
-##   Pop.Type status    block loc    bed     row col   pop       mf   rep unique.ID
-##   <chr>    <chr>     <chr> <chr>  <chr> <dbl> <chr> <chr>  <dbl> <dbl> <chr>    
-## 1 F2       available B     C_31_D C        31 D     (SQ3 …    NA     5 853      
-## 2 Parent   available C     C_46_D C        46 D     DPR       NA     1 429      
-## 3 F1       available F     D_42_A D        42 A     LV1 x…    NA     8 1232     
-## 4 Parent   available G     D_56_A D        56 A     TM2       NA    88 558      
-## 5 F2       available I     E_45_A E        45 A     (LV1 …    NA     8 1025     
-## # ℹ 7 more variables: death.date <chr>, missing.date <chr>, survey.notes <chr>,
-## #   height.cm <dbl>, `hypocotyl. length.cm` <dbl>, long.leaf.cm <dbl>,
+## # A tibble: 0 × 18
+## # ℹ 18 variables: Pop.Type <chr>, status <chr>, block <chr>, loc <chr>,
+## #   bed <chr>, row <dbl>, col <chr>, pop <chr>, mf <dbl>, rep <dbl>,
+## #   unique.ID <chr>, death.date <chr>, missing.date <chr>, survey.notes <chr>,
+## #   height.cm <dbl>, hypocotyl. length.cm <dbl>, long.leaf.cm <dbl>,
 ## #   Est_Surv <dbl>
 ```
 
@@ -247,7 +242,7 @@ establishment %>%
 ## (`geom_point()`).
 ```
 
-![](WL2_InitialSize_Establishment_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
+![](WL2_2024_InitialSize_Establishment_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
 
 ``` r
 establishment %>% 
@@ -260,7 +255,7 @@ establishment %>%
 ## (`geom_point()`).
 ```
 
-![](WL2_InitialSize_Establishment_files/figure-html/unnamed-chunk-7-2.png)<!-- -->
+![](WL2_2024_InitialSize_Establishment_files/figure-html/unnamed-chunk-7-2.png)<!-- -->
 
 ``` r
 establishment %>% 
@@ -273,7 +268,7 @@ establishment %>%
 ## (`geom_point()`).
 ```
 
-![](WL2_InitialSize_Establishment_files/figure-html/unnamed-chunk-7-3.png)<!-- -->
+![](WL2_2024_InitialSize_Establishment_files/figure-html/unnamed-chunk-7-3.png)<!-- -->
 
 ## PopType Averages
 
@@ -302,6 +297,73 @@ est_summary
 #parents were tallest, F2s the shortest
 #F2s had longest leaves, parents had the shortest 
 ```
+
+## Pop Averages
+
+``` r
+est_summary_pops <- establishment %>% 
+  group_by(Pop.Type, pop) %>% 
+  summarise(meanEst=mean(Est_Surv, na.rm=TRUE), 
+            meanHyp = mean(`hypocotyl. length.cm`, na.rm=TRUE),
+            meanHeight = mean(height.cm, na.rm=TRUE), 
+            meanLength = mean(long.leaf.cm, na.rm=TRUE))
+```
+
+```
+## `summarise()` has grouped output by 'Pop.Type'. You can override using the
+## `.groups` argument.
+```
+
+``` r
+est_summary_pops %>% 
+  ggplot(aes(x=meanHyp, y=meanEst)) +
+  geom_point() 
+```
+
+![](WL2_2024_InitialSize_Establishment_files/figure-html/unnamed-chunk-9-1.png)<!-- -->
+
+``` r
+est_summary_pops %>% 
+  ggplot(aes(x=meanHyp, y=meanEst)) +
+  geom_point() + 
+  facet_wrap(~Pop.Type)
+```
+
+![](WL2_2024_InitialSize_Establishment_files/figure-html/unnamed-chunk-9-2.png)<!-- -->
+
+``` r
+est_summary_pops %>% 
+  ggplot(aes(x=meanHeight, y=meanEst)) +
+  geom_point() 
+```
+
+![](WL2_2024_InitialSize_Establishment_files/figure-html/unnamed-chunk-9-3.png)<!-- -->
+
+``` r
+est_summary_pops %>% 
+  ggplot(aes(x=meanHeight, y=meanEst)) +
+  geom_point() + 
+  facet_wrap(~Pop.Type)
+```
+
+![](WL2_2024_InitialSize_Establishment_files/figure-html/unnamed-chunk-9-4.png)<!-- -->
+
+``` r
+est_summary_pops %>% 
+  ggplot(aes(x=meanLength, y=meanEst)) +
+  geom_point() 
+```
+
+![](WL2_2024_InitialSize_Establishment_files/figure-html/unnamed-chunk-9-5.png)<!-- -->
+
+``` r
+est_summary_pops %>% 
+  ggplot(aes(x=meanLength, y=meanEst)) +
+  geom_point() + 
+  facet_wrap(~Pop.Type)
+```
+
+![](WL2_2024_InitialSize_Establishment_files/figure-html/unnamed-chunk-9-6.png)<!-- -->
 
 ## Quick Models
 
