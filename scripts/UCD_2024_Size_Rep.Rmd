@@ -48,6 +48,16 @@ pheno_2024_pops <- pheno_2024 %>%
 unique(pheno_2024_pops$`Plant Type`)
 ```
 
+## What pops reproduced in year 1 (annuals or perennials)
+```{r}
+pheno_2024_pops %>% 
+  filter(!is.na(flower.date)) %>% 
+  group_by(`Plant Type`, pop.id) %>% 
+  summarise(n())
+#TM2, WL2 (only 6 individuals), BH, CC, DPR, SQ3 (only 2 individuals)
+```
+
+
 ## 2024 Size 
 ```{r}
 size_2024 <- dir("../input/UCD2023_2024_Data/CorrectedCSVs/",
