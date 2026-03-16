@@ -162,3 +162,56 @@ length_est_model2 <- glmer(Est_Surv ~ long.leaf.cm + (1|Pop.Type), family=binomi
 summary(length_est_model2) #sig pos relationship with height (longer survived better)
 ```
 
+## Models by Pop type 
+
+### Parents 
+```{r}
+parents_est <- establishment %>% 
+  filter(Pop.Type=="Parent") %>% 
+  filter(!is.na(height.cm)) %>% 
+  filter(!is.na(long.leaf.cm))
+unique(parents_est$pop.id)
+
+height_est_model3 <- glmer(Est_Surv ~ height.cm + (1|pop.id), family=binomial, data=parents_est)
+summary(height_est_model3) #no relat
+
+length_est_model3 <- glmer(Est_Surv ~ long.leaf.cm + (1|pop.id), family=binomial, data=parents_est)
+summary(length_est_model3)
+
+##predictions for figures:
+parents_est_preds <- tibble(long.leaf.cm=seq(from = 0.2, to=4.6, length.out=185))
+
+length_est_preds <- tibble(predictions=predict(length_est_model3, 
+                                               newdata=parents_est_preds,
+                                           re.form= NA, type="response")) %>% 
+  bind_cols(parents_est_preds) 
+length_est_preds %>% ggplot(aes(long.leaf.cm, predictions)) +
+  geom_point() +
+  labs(x="Leaf Length 4 Weeks Post-Strat", y="Predicted Establishment", title="Parents")
+```
+
+### Crosses 
+```{r}
+crosses_est <- establishment %>% 
+  filter(Pop.Type!="Parent") %>% 
+  filter(!is.na(height.cm)) %>% 
+  filter(!is.na(long.leaf.cm))
+unique(crosses_est$pop.id) #74 cross types 
+
+height_est_model4 <- glmer(Est_Surv ~ height.cm + (1|pop.id), family=binomial, data=crosses_est)
+summary(height_est_model4) #height not sig
+
+length_est_model4 <- glmer(Est_Surv ~ long.leaf.cm + (1|pop.id), family=binomial, data=crosses_est)
+summary(length_est_model4)
+
+##predictions for figures:
+crosses_est_preds <- tibble(long.leaf.cm=seq(from = 0.2, to=4.7, length.out=486))
+
+length_est_preds <- tibble(predictions=predict(length_est_model4, 
+                                               newdata=crosses_est_preds,
+                                           re.form= NA, type="response")) %>% 
+  bind_cols(crosses_est_preds) 
+length_est_preds %>% ggplot(aes(long.leaf.cm, predictions)) +
+  geom_point() +
+  labs(x="Leaf Length 4 Weeks Post-Strat", y="Predicted Establishment", title="Crosses")
+```

@@ -1,18 +1,30 @@
 ---
 title: "WL2_InitialSize_Establishment"
 author: "Brandie QC"
-date: "2026-03-10"
+date: "2026-03-16"
 output: 
   html_document: 
     keep_md: true
 ---
 
-# Checking the effects of initial size on establishment probability 
-Establishment = survival first 3 weeks post transplant 
+# Checking the effects of initial size on establishment probability
+
+Establishment = survival first 3 weeks post transplant
+
+To Do:
+
+-   Plot the model predictions - easier to interpret than population averages
+
+-   Analyze parent pops, F1s (put the two parents as random effects), F2s separately
+
+    -   First try one pool is parents and the others is crosses
+
+-   What fraction of the plants are at the “good” size at week 3?
 
 
 
 ## Libraries
+
 
 ``` r
 library(tidyverse)
@@ -46,6 +58,7 @@ library(lme4)
 ```
 
 ## Load Initial Size
+
 
 ``` r
 initial_size <- read_csv("../input/WL2_2024_Data/CorrectedCSVs/WL2_Initial_DNA_size_survey_20240607_corrected.csv") %>% 
@@ -82,6 +95,7 @@ head(initial_size)
 
 ## Load Survival
 
+
 ``` r
 wl2_surv <- read_csv("../input/WL2_2024_Data/CorrectedCSVs/WL2_mort_pheno_20241023_corrected.csv") %>% 
   select(block:unique.ID, death.date, missing.date, survey.notes)
@@ -115,6 +129,7 @@ head(wl2_surv)
 ```
 
 ## Load pop info
+
 
 ``` r
 pop_info <- read_csv("../input/WL2_2024_Data/Final_2023_2024_Pop_Loc_Info.csv") %>% 
@@ -151,6 +166,7 @@ unique(pop_info$status)
 ```
 
 ## Merge
+
 
 ``` r
 size_surv <- left_join(wl2_surv, initial_size)
@@ -189,6 +205,7 @@ unique(size_surv_2024pops$missing.date)
 ```
 
 ## Establishment
+
 
 ``` r
 establishment <- size_surv_2024pops %>% 
@@ -229,7 +246,8 @@ establishment %>% filter(missing.date=="6/25/24") #double check it gave 0s to on
 ## #   Est_Surv <dbl>
 ```
 
-## Quick Plots 
+## Quick Plots
+
 
 ``` r
 establishment %>% 
@@ -272,6 +290,7 @@ establishment %>%
 
 ## PopType Averages
 
+
 ``` r
 est_summary <- establishment %>% 
   group_by(Pop.Type) %>% 
@@ -299,6 +318,7 @@ est_summary
 ```
 
 ## Pop Averages
+
 
 ``` r
 est_summary_pops <- establishment %>% 
@@ -366,6 +386,7 @@ est_summary_pops %>%
 ![](WL2_2024_InitialSize_Establishment_files/figure-html/unnamed-chunk-9-6.png)<!-- -->
 
 ## Quick Models
+
 
 ``` r
 hyp_for_models <- establishment %>% filter(!is.na(`hypocotyl. length.cm`))
@@ -558,3 +579,353 @@ summary(length_est_model2) #sig pos relationship with height (longer survived be
 ## long.lef.cm -0.921
 ```
 
+## Models by Pop type 
+
+### Parents 
+
+``` r
+parents_est <- establishment %>% 
+  filter(Pop.Type=="Parent") %>% 
+  filter(!is.na(height.cm)) %>% 
+  filter(!is.na(long.leaf.cm))
+unique(parents_est$pop)
+```
+
+```
+##  [1] "TM2"  "BH"   "WL2"  "CC"   "WV"   "LV1"  "SQ3"  "WL1"  "DPR"  "YO11"
+```
+
+``` r
+height_est_model3 <- glmer(Est_Surv ~ height.cm + (1|pop), family=binomial, data=parents_est)
+summary(height_est_model3)
+```
+
+```
+## Generalized linear mixed model fit by maximum likelihood (Laplace
+##   Approximation) [glmerMod]
+##  Family: binomial  ( logit )
+## Formula: Est_Surv ~ height.cm + (1 | pop)
+##    Data: parents_est
+## 
+##      AIC      BIC   logLik deviance df.resid 
+##    364.4    375.3   -179.2    358.4      277 
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -1.3563 -0.7227 -0.6003  1.0028  2.0213 
+## 
+## Random effects:
+##  Groups Name        Variance Std.Dev.
+##  pop    (Intercept) 0.5278   0.7265  
+## Number of obs: 280, groups:  pop, 10
+## 
+## Fixed effects:
+##             Estimate Std. Error z value Pr(>|z|)  
+## (Intercept)  -1.0443     0.4273  -2.444   0.0145 *
+## height.cm     0.2742     0.1170   2.344   0.0191 *
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Correlation of Fixed Effects:
+##           (Intr)
+## height.cm -0.689
+```
+
+``` r
+length_est_model3 <- glmer(Est_Surv ~ long.leaf.cm + (1|pop), family=binomial, data=parents_est)
+```
+
+```
+## boundary (singular) fit: see help('isSingular')
+```
+
+``` r
+summary(length_est_model3)
+```
+
+```
+## Generalized linear mixed model fit by maximum likelihood (Laplace
+##   Approximation) [glmerMod]
+##  Family: binomial  ( logit )
+## Formula: Est_Surv ~ long.leaf.cm + (1 | pop)
+##    Data: parents_est
+## 
+##      AIC      BIC   logLik deviance df.resid 
+##    365.3    376.2   -179.6    359.3      277 
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -5.1314 -0.7607 -0.6412  1.1160  1.7984 
+## 
+## Random effects:
+##  Groups Name        Variance Std.Dev.
+##  pop    (Intercept) 0        0       
+## Number of obs: 280, groups:  pop, 10
+## 
+## Fixed effects:
+##              Estimate Std. Error z value Pr(>|z|)    
+## (Intercept)   -1.2878     0.2712  -4.749 2.05e-06 ***
+## long.leaf.cm   0.5698     0.1673   3.406  0.00066 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Correlation of Fixed Effects:
+##             (Intr)
+## long.lef.cm -0.886
+## optimizer (Nelder_Mead) convergence code: 0 (OK)
+## boundary (singular) fit: see help('isSingular')
+```
+
+``` r
+##predictions for figures:
+parents_est_preds <- tibble(height.cm=seq(from = 0.3, to=30, length.out=280),
+                            long.leaf.cm=seq(from = 0.2, to=8, length.out=280))
+
+height_est_preds <- tibble(predictions=predict(height_est_model3, 
+                                               newdata=parents_est_preds,
+                                           re.form= NA, type="response")) %>% 
+  bind_cols(parents_est_preds) 
+height_est_preds %>% ggplot(aes(height.cm, predictions)) +
+  geom_point() +
+  labs(x="Height 3 Weeks Post-Strat", y="Predicted Establishment", title="Parents")
+```
+
+![](WL2_2024_InitialSize_Establishment_files/figure-html/unnamed-chunk-13-1.png)<!-- -->
+
+``` r
+length_est_preds <- tibble(predictions=predict(length_est_model3, 
+                                               newdata=parents_est_preds,
+                                           re.form= NA, type="response")) %>% 
+  bind_cols(parents_est_preds) 
+length_est_preds %>% ggplot(aes(long.leaf.cm, predictions)) +
+  geom_point() +
+  labs(x="Leaf Length 3 Weeks Post-Strat", y="Predicted Establishment", title="Parents")
+```
+
+![](WL2_2024_InitialSize_Establishment_files/figure-html/unnamed-chunk-13-2.png)<!-- -->
+
+
+``` r
+height_est_preds %>% filter(predictions>.50) %>% summarise(min(height.cm))
+```
+
+```
+## # A tibble: 1 × 1
+##   `min(height.cm)`
+##              <dbl>
+## 1             3.81
+```
+
+``` r
+#Min height for prediction of greater than 50% establishment = 3.92
+parents_est %>% mutate(BigEnough=if_else(height.cm>=3.92, 1, 0)) %>% 
+  group_by(BigEnough) %>% 
+  summarise(n=n())
+```
+
+```
+## # A tibble: 2 × 2
+##   BigEnough     n
+##       <dbl> <int>
+## 1         0   187
+## 2         1    93
+```
+
+``` r
+#33% of plants were "Big Enough"
+
+length_est_preds %>% filter(predictions>.50) %>% summarise(min(long.leaf.cm))
+```
+
+```
+## # A tibble: 1 × 1
+##   `min(long.leaf.cm)`
+##                 <dbl>
+## 1                2.27
+```
+
+``` r
+#Min height for prediction of greater than 50% establishment = 2.27
+parents_est %>% mutate(BigEnough=if_else(long.leaf.cm>=2.27, 1, 0)) %>% 
+  group_by(BigEnough) %>% 
+  summarise(n=n())
+```
+
+```
+## # A tibble: 2 × 2
+##   BigEnough     n
+##       <dbl> <int>
+## 1         0   245
+## 2         1    35
+```
+
+``` r
+#12% of plants were "Big Enough"
+```
+
+
+### Crosses 
+
+``` r
+crosses_est <- establishment %>% 
+  filter(Pop.Type!="Parent") %>% 
+  filter(!is.na(height.cm)) %>% 
+  filter(!is.na(long.leaf.cm))
+unique(crosses_est$pop) #74 cross types 
+```
+
+```
+##  [1] "(WV x WL2) x (WV)"          "(LV1 x WL2) x (TM2 x WL2)" 
+##  [3] "(TM2 x WL2) x (SQ3 x WL2)"  "(WL2 x BH) x (SQ3 x WL2)"  
+##  [5] "(TM2 x WL2) x (TM2 x WL2)"  "(LV1 x WL2) x (WL2 x DPR)" 
+##  [7] "(WL1 x WL2) x (BH x WL2)"   "(TM2 x WL2) x (YO11 x WL2)"
+##  [9] "(WL1 x WL2) x (WL2 x TM2)"  "(WL2 x TM2) x (CC x TM2)"  
+## [11] "WV x TM2"                   "(WL2 x DPR) x (WL2)"       
+## [13] "(TM2 x WL2) x (TM2)"        "(SQ3 x WL2) x (YO11 x WL2)"
+## [15] "(SQ3 x WL2) x (SQ3 x WL2)"  "(YO11 x WL2) x (SQ3 x WL2)"
+## [17] "(WL1 x WL2) x (WL2 x CC)"   "(LV1 x WL2) x (WL2)"       
+## [19] "(TM2 x BH) x (TM2 x BH)"    "(LV1 x WL2) x (SQ3 x WL2)" 
+## [21] "(DPR x WL2) x (YO11 x WL2)" "(DPR x WL2) x (WV x WL2)"  
+## [23] "LV1 x WL2"                  "(WV) x (WV x WL2)"         
+## [25] "LV1 x TM2"                  "(YO11 x WL2) x (WL2)"      
+## [27] "(TM2 x BH) x (TM2)"         "TM2 x WL2"                 
+## [29] "(YO11 x WL2) x (DPR x WL2)" "(DPR) x (WL2 x DPR)"       
+## [31] "(WL2 x DPR) x (TM2 x WL2)"  "(SQ3 x WL2) x (TM2 x WL2)" 
+## [33] "(TM2 x WL2) x (WL2)"        "(WL2 x BH) x (WL2 x TM2)"  
+## [35] "(WL2 x CC) x (WL2 x TM2)"   "(WL2) x (DPR x WL2)"       
+## [37] "WV x WL2"                   "(SQ3 x WL2) x (WL2)"       
+## [39] "(LV1 x WL2) x (YO11 x WL2)" "(BH) x (TM2 x BH)"         
+## [41] "(TM2 x BH) x (BH)"          "(WL2) x (WV x WL2)"        
+## [43] "BH x TM2"                   "(YO11 x WL2) x (WL2 x TM2)"
+## [45] "(WL2 x CC) x (SQ3 x WL2)"   "(DPR) x (DPR x WL2)"       
+## [47] "(SQ3 x WL2) x (LV1 x WL2)"  "WL2 x BH"                  
+## [49] "(TM2 x BH) x (TM2 x WL2)"   "(WL1 x TM2) x (WL2 x TM2)" 
+## [51] "(YO11 x WL2) x (WV x WL2)"  "(SQ3 x WL2) x (DPR x WL2)" 
+## [53] "DPR x WL2"                  "(LV1 x WL2) x (LV1 x WL2)" 
+## [55] "BH x WL2"                   "(WV x WL2) x (WL2 x DPR)"  
+## [57] "(WL2 x DPR) x (YO11 x WL2)" "(WL2) x (TM2 x WL2)"       
+## [59] "(TM2) x (TM2 x WL2)"        "SQ3 x WL2"                 
+## [61] "(CC x TM2) x (WL2 x TM2)"   "(TM2 x WL2) x (LV1 x WL2)" 
+## [63] "(DPR x WL2) x (SQ3 x WL2)"  "(TM2 x WL2) x (DPR x WL2)" 
+## [65] "(WL2 x DPR) x (DPR)"        "(YO11 x WL2) x (TM2 x WL2)"
+## [67] "(DPR x WL2) x (DPR x WL2)"  "(DPR x WL2) x (TM2 x WL2)" 
+## [69] "TM2 x YO11"                 "CC x TM2"                  
+## [71] "(TM2) x (TM2 x BH)"         "(TM2 x WL2) x (TM2 x BH)"  
+## [73] "(WL2 x TM2) x (WL2)"        "(TM2 x WL2) x (WV x WL2)"
+```
+
+``` r
+height_est_model4 <- glmer(Est_Surv ~ height.cm + (1|pop), family=binomial, data=crosses_est)
+summary(height_est_model4) #height not sig
+```
+
+```
+## Generalized linear mixed model fit by maximum likelihood (Laplace
+##   Approximation) [glmerMod]
+##  Family: binomial  ( logit )
+## Formula: Est_Surv ~ height.cm + (1 | pop)
+##    Data: crosses_est
+## 
+##      AIC      BIC   logLik deviance df.resid 
+##    751.7    764.6   -372.9    745.7      538 
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -1.3428 -0.9722  0.7631  0.9522  1.3174 
+## 
+## Random effects:
+##  Groups Name        Variance Std.Dev.
+##  pop    (Intercept) 0.1479   0.3846  
+## Number of obs: 541, groups:  pop, 74
+## 
+## Fixed effects:
+##             Estimate Std. Error z value Pr(>|z|)
+## (Intercept) -0.22365    0.23176  -0.965    0.335
+## height.cm    0.08139    0.07012   1.161    0.246
+## 
+## Correlation of Fixed Effects:
+##           (Intr)
+## height.cm -0.895
+```
+
+``` r
+length_est_model4 <- glmer(Est_Surv ~ long.leaf.cm + (1|pop), family=binomial, data=crosses_est)
+summary(length_est_model4)
+```
+
+```
+## Generalized linear mixed model fit by maximum likelihood (Laplace
+##   Approximation) [glmerMod]
+##  Family: binomial  ( logit )
+## Formula: Est_Surv ~ long.leaf.cm + (1 | pop)
+##    Data: crosses_est
+## 
+##      AIC      BIC   logLik deviance df.resid 
+##    715.3    728.2   -354.7    709.3      538 
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -1.9270 -0.9208  0.4490  0.9037  1.9498 
+## 
+## Random effects:
+##  Groups Name        Variance Std.Dev.
+##  pop    (Intercept) 0.08561  0.2926  
+## Number of obs: 541, groups:  pop, 74
+## 
+## Fixed effects:
+##              Estimate Std. Error z value Pr(>|z|)    
+## (Intercept)   -1.4132     0.2687  -5.259 1.45e-07 ***
+## long.leaf.cm   0.8344     0.1458   5.721 1.06e-08 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Correlation of Fixed Effects:
+##             (Intr)
+## long.lef.cm -0.929
+```
+
+``` r
+##predictions for figures:
+crosses_est_preds <- tibble(long.leaf.cm=seq(from = 0.1, to=26, length.out=541))
+
+length_est_preds <- tibble(predictions=predict(length_est_model4, 
+                                               newdata=crosses_est_preds,
+                                           re.form= NA, type="response")) %>% 
+  bind_cols(crosses_est_preds) 
+length_est_preds %>% ggplot(aes(long.leaf.cm, predictions)) +
+  geom_point() +
+  labs(x="Leaf Length 3 Weeks Post-Strat", y="Predicted Establishment", title="Crosses")
+```
+
+![](WL2_2024_InitialSize_Establishment_files/figure-html/unnamed-chunk-15-1.png)<!-- -->
+
+
+``` r
+length_est_preds %>% filter(predictions>.50) %>% summarise(min(long.leaf.cm))
+```
+
+```
+## # A tibble: 1 × 1
+##   `min(long.leaf.cm)`
+##                 <dbl>
+## 1                1.73
+```
+
+``` r
+#Min height for prediction of greater than 50% establishment = 1.73
+crosses_est %>% mutate(BigEnough=if_else(long.leaf.cm>=1.73, 1, 0)) %>% 
+  group_by(BigEnough) %>% 
+  summarise(n=n())
+```
+
+```
+## # A tibble: 2 × 2
+##   BigEnough     n
+##       <dbl> <int>
+## 1         0   284
+## 2         1   257
+```
+
+``` r
+#47.5% of plants were "Big Enough"
+```
