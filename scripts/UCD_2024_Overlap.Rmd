@@ -1,0 +1,141 @@
+---
+title: "UCD_2024_Overlap"
+author: "Brandie QC"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Checking which parents, mfs, and crossing genotypes overlapped between years and gardens
+
+## Libraries
+```{r}
+library(tidyverse)
+```
+
+## UCD 2023 Data
+```{r}
+ucd_mortpheno_2023 <- read_csv("../../parent_pops_common-gardens/input/UCD_Data/CorrectedCSVs/UCD_transplants_pheno_mort_20231016_corrected.csv") 
+
+ucd_mortpheno_2023_pops <- ucd_mortpheno_2023 %>% 
+  select(block:rep, death.date=`Death Date`) %>% 
+  filter(pop!="buffer") %>% 
+  filter(rep != 100) #get rid of individuals that germinated in the field  
+
+ucd_2023_est <- ucd_mortpheno_2023_pops %>% 
+  mutate(death.date=mdy(death.date)) %>% 
+  filter(death.date > "2022-12-24" | is.na(death.date))
+head(ucd_2023_est)
+summary(ucd_2023_est)
+```
+
+## UCD 2024 Data
+```{r}
+ucd_mortpheno_2024 <- read_csv("../input/UCD2023_2024_Data/CorrectedCSVs/UCD_mort_pheno_20240908_corrected.csv") 
+ucd_pop_info_2024 <- read_csv("../input/UCD2023_2024_Data/Genotypes_2023_2024.csv") %>%
+  rename(col=column)
+
+ucd_mortpheno_2024_pops <- ucd_mortpheno_2024 %>% 
+  mutate(unique.ID=as.numeric(unique.ID)) %>% 
+  select(bed:unique.ID, death.date, missing.date) %>% 
+  left_join(ucd_pop_info_2024) %>% 
+  filter(unique.ID!="buffer") %>% 
+  filter(unique.ID!=2032) #REMOVE PLANT 2032 (BED F-39-A) - MULTIPLE PLANTS WERE GROWING IN THAT SPOT. 
+
+ucd_2024_est <- ucd_mortpheno_2024_pops %>% 
+  mutate(death.date=mdy(death.date), missing.date=mdy(missing.date)) %>% 
+  filter(death.date > "2023-12-29" | is.na(death.date))
+head(ucd_2024_est)
+summary(ucd_2024_est)
+```
+
+## WL2 2024 Data
+```{r}
+wl2_mortpheno_2024 <- read_csv("../input/WL2_2024_Data/CorrectedCSVs/WL2_mort_pheno_20241023_corrected.csv")
+wl2_pop_info_2024 <- read_csv("../input/WL2_2024_Data/Final_2023_2024_Pop_Loc_Info.csv") %>% 
+  select(Pop.Type:unique.ID) %>% 
+  rename(row=bedrow, col=bedcol)
+
+wl2_mortpheno_2024_pops <- wl2_mortpheno_2024 %>% 
+  select(bed:unique.ID, death.date, missing.date) %>% 
+  left_join(wl2_pop_info_2024) %>% 
+  filter(unique.ID!="buffer") %>% 
+  filter(Pop.Type!="2023-TM2-fruit", Pop.Type!="2023-survivor")
+
+wl2_2024_est <- wl2_mortpheno_2024_pops %>% 
+  mutate(death.date=mdy(death.date), missing.date=mdy(missing.date)) %>% 
+  filter(death.date > "2024-07-06" | is.na(death.date))
+head(wl2_2024_est)
+summary(wl2_2024_est)
+```
+
+## Temporal Overlap at UCD
+```{r}
+genos_2023 <- ucd_2023_est %>% unite("Genotype", pop:mf, remove = FALSE) %>% 
+  select(Genotype, pop, mf) %>% distinct() %>% 
+  mutate(Year_2023="1")
+genos_2024 <- ucd_2024_est %>% 
+  filter(`Plant Type`!="F1", `Plant Type`!="F2") %>% #no crosses in 2023
+  mutate(pop.id=str_replace(pop.id, "WL2-[0-9]+", "WL2"),
+         pop.id=str_replace(pop.id, "TM2-[0-9]+", "TM2")) %>%  #remove the mf from pop.id column for main parents 
+  unite("Genotype", pop.id:mf, remove = FALSE) %>% 
+  select(Genotype, pop=pop.id, mf) %>% distinct() %>% 
+  mutate(Year_2024="1")
+
+ucd_overlap_temporal <- genos_2024 %>% 
+  left_join(genos_2023) %>% 
+  filter(!is.na(Year_2023)) %>% 
+  arrange(pop) 
+dim(ucd_overlap_temporal) #45 genotypes (pop-mf) overlap between the two gardens 
+unique(ucd_overlap_temporal$pop) #10 pops overlap 
+ucd_overlap_temporal %>% ungroup() %>% group_by(pop) %>% summarise(n=n()) %>% arrange(n)
+#only 1 WV mf
+#only 2 LV1 and WL2 mfs 
+#only 3 SQ3 mfs
+#4-7 mfs for the remaining pops with 7 for TM2 
+
+ucd_overlap_temporal %>% left_join(ucd_2023_est) #360 individuals 
+ucd_overlap_temporal %>% rename(pop.id=pop) %>% left_join(ucd_2024_est) #98 individuals 
+```
+
+## Spatial Overlap in 2024
+```{r}
+wl2_2024_est %>% filter(!is.na(mf)) #no mf info for WL2 2024 plants; there is for 2023 plants that survived to 2024, but not sure we could compare those to low elev plants planted in 2024
+
+pops_ucd_2024 <- ucd_2024_est %>% 
+  mutate(pop.id=str_replace(pop.id, "WL2-[0-9]+", "WL2"),
+         pop.id=str_replace(pop.id, "TM2-[0-9]+", "TM2")) %>%  #remove the mf from pop.id column for main parents 
+  select(pop.id) %>% 
+  distinct() %>% 
+  mutate(UCD_Garden="1")
+
+pops_wl2_2024 <- wl2_2024_est %>% 
+  select(pop.id=pop) %>% 
+  distinct() %>% 
+  mutate(WL2_Garden="1")
+
+ucd_wl2_overlap <- pops_ucd_2024 %>% 
+  left_join(pops_wl2_2024) %>% 
+  filter(!is.na(WL2_Garden))
+dim(ucd_wl2_overlap) #25 pops/cross types overlap between the two gardens
+
+mf_cor_ucd_2024 <- ucd_2024_est %>% 
+  mutate(pop.id=str_replace(pop.id, "WL2-[0-9]+", "WL2"),
+         pop.id=str_replace(pop.id, "TM2-[0-9]+", "TM2"))
+ucd_wl2_overlap_ucdindivs <- ucd_wl2_overlap %>% 
+  left_join(mf_cor_ucd_2024) %>% 
+  group_by(pop.id) %>% 
+  summarise(n=n()) %>% arrange(n)
+sum(ucd_wl2_overlap_ucdindivs$n) #548 individuals 
+summary(ucd_wl2_overlap_ucdindivs) #n ranges from 1-98 with median of 20 across pops/crosses 
+ucd_wl2_overlap_wl2indivs <- ucd_wl2_overlap %>% 
+  rename(pop=pop.id) %>% 
+  left_join(wl2_2024_est) %>% 
+  group_by(pop) %>% 
+  summarise(n=n()) %>% arrange(n)
+sum(ucd_wl2_overlap_wl2indivs$n) #182 individuals 
+summary(ucd_wl2_overlap_wl2indivs) #n ranges from 1-38 with median of 3 across pops/crosses
+```
