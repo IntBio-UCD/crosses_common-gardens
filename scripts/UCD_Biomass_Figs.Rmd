@@ -1,0 +1,104 @@
+---
+title: "UCD_Biomass_Figs"
+author: "Brandie QC"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Figures for differences in biomass at UCD 2023-2024
+
+## Libraries
+```{r}
+library(tidyverse)
+
+sem <- function(x, na.rm=FALSE) {           #for calculating standard error
+  sd(x,na.rm=na.rm)/sqrt(length(na.omit(x)))
+} 
+```
+
+## Biomass Data
+```{r}
+biomass <- read_csv("../input/UCD2023_2024_Data/CorrectedCSVs/UCD_Biomass_20250723_corrected.csv")
+buggy_bags <- read_csv("../input/UCD2023_2024_Data/CorrectedCSVs/UCD_Biomass_Buggy_20251112_corrected.csv")
+
+bugg_bags_to_keep <- buggy_bags %>% 
+  filter(!is.na(total.biomass_g)) %>% 
+  mutate(Keep=if_else(is.na(survey.notes),"Yes",
+                      if_else(survey.notes=="Almost only fruit" | survey.notes=="Vegetative", "No",
+                              "Yes"))) %>% 
+  filter(Keep=="Yes") %>% 
+  select(-Keep)
+
+biomss_all <- bind_rows(biomass, bugg_bags_to_keep) %>% 
+  group_by(unique.ID) %>% 
+  summarise(TotalBiomass=sum(total.biomass_g), N_bags=n())
+```
+
+## Pop Info 
+```{r}
+pop_info_2024 <- read_csv("../input/UCD2023_2024_Data/Genotypes_2023_2024.csv") %>% rename(col=column)
+head(pop_info_2024)
+```
+
+## Elevation Info / Climate distance
+```{r}
+clim_dist <- read_csv("../output/Climate/UCD_2024_Clim_Dist.csv") %>% select(-conf.low, -conf.high)
+head(clim_dist)
+
+clim_dist_wide <- clim_dist %>% 
+  pivot_wider(names_from = timeframe, values_from = Gowers_Dist, names_prefix = "GD_") %>% 
+  rename(pop.id=parent.pop)
+```
+
+## Merge
+```{r}
+biomss_all_pops <- biomss_all %>% 
+  left_join(pop_info_2024) %>% 
+  rename(Plant_Type=`Plant Type`) %>% 
+   mutate(pop.id=str_replace(pop.id, "WL2-[0-9]+", "WL2"),
+         pop.id=str_replace(pop.id, "TM2-[0-9]+", "TM2"))  %>% #remove the mf from pop.id column for main parents
+  mutate(Plant_Type=if_else(str_detect(Plant_Type, "Parent"), "Parent", Plant_Type))
+```
+
+## All Pop Types
+```{r}
+biomss_all_pops_summary <- biomss_all_pops %>% 
+  group_by(Plant_Type, pop.id) %>% 
+  summarise(meanBiomass=mean(TotalBiomass, na.rm=TRUE), 
+            semBiomass=sem(TotalBiomass, na.rm=TRUE)) 
+
+biomss_all_pops_summary$Plant_Type <- factor(biomss_all_pops_summary$Plant_Type, levels = c('Parent', 'F1', 'F2'))
+
+biomss_all_pops_summary %>% 
+  ggplot(aes(pop.id, meanBiomass)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) + 
+  geom_errorbar(aes(ymin=meanBiomass-semBiomass,ymax=meanBiomass+semBiomass),
+                width=.2, position = position_dodge(0.75)) +
+  theme_classic() + 
+  scale_y_continuous(expand = c(0.01, 0)) +
+  labs(x="Population", y="Total Biomass (g)") +
+  theme(text=element_text(size=25), axis.text.x = element_text(angle = 45, hjust = 1)) +
+  facet_wrap(nrow=3, vars(Plant_Type), scales = "free")
+ggsave("../output/UCD_Traits/Biomass_AllPopTypes.png", width = 14, height = 16, units = "in")
+```
+
+## Parents
+```{r}
+biomss_all_pops_summary %>% 
+  filter(Plant_Type=="Parent") %>% 
+  left_join(clim_dist_wide) %>% 
+  ggplot(aes(x=fct_reorder(pop.id, meanBiomass), y=meanBiomass, fill=elev_m)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) + 
+  geom_errorbar(aes(ymin=meanBiomass-semBiomass,ymax=meanBiomass+semBiomass),
+                width=.2, position = position_dodge(0.75)) +
+  theme_classic() + 
+  scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  labs(x="Population", y="Total Biomass (g)", fill="Elevation (m)") +
+  theme(text=element_text(size=25), axis.text.x = element_text(angle = 45, hjust = 1))
+ggsave("../output/UCD_Traits/Biomass_Parents.png", width = 14, height = 8, units = "in")
+```
