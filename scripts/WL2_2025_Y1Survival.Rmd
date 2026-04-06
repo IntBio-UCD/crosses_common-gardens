@@ -181,6 +181,39 @@ parents_F1s_combined %>%
 ggsave("../output/WL2_Traits/WL2_Y1Surv_2025Plants_F1s_Parents.png", width = 14, height = 8, units = "in")
 ```
 
+## Fitness Relative to WL2 parent
+```{r}
+WL2_crosses_2025 <- by_pop_Surv %>% 
+  filter(Pop.Type!="F2") %>% #remove F2s for now
+  filter(str_detect(pop.id, "WL2")) %>% #keep only F1s with WL2 involved 
+  separate(pop.id, c("dame_pop",NA, "sire_pop"), remove = FALSE) %>%  #define pops for F1s
+  mutate(sire_pop=if_else(pop.id=="WL2", "WL2", sire_pop)) %>% #to help with merges
+  left_join(elev_info_yo, by=join_by(dame_pop==pop.id)) %>% 
+  rename(dame_elev=elev_m, dame_Lat=Lat, dame_Long=Long) %>% 
+  left_join(elev_info_yo, by=join_by(sire_pop==pop.id)) %>% 
+  rename(sire_elev=elev_m, sire_Lat=Lat, sire_Long=Long) %>% 
+  mutate(other_Parent_elev=if_else(dame_pop=="WL2", sire_elev, dame_elev)) %>% 
+  mutate(sire_pop=if_else(pop.id=="WL2", NA, sire_pop)) #change sire back to NA for WL2
+WL2_crosses_2025
+```
+
+```{r}
+WL2_crosses_2025 %>% 
+  ggplot(aes(x=fct_reorder(pop.id, mean_Surv), y=mean_Surv, fill=other_Parent_elev)) + 
+  geom_col(width = 0.7,position = position_dodge(0.75)) + 
+  geom_errorbar(aes(ymin=mean_Surv-sem_Surv,ymax=mean_Surv+sem_Surv),width=.2, position = 
+                  position_dodge(0.75)) +
+  theme_classic() + 
+  scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
+  annotate("text", x = 5, y= 0.74, label = "WL2", 
+           colour = "purple", fontface="bold", size = 22 / .pt) +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  labs(x="Population", y="Year 1 Survival in 2025", fill="Elevation \n of Donor (m)") +
+  theme(text=element_text(size=25), axis.text.x = element_text(angle = 45, hjust = 1)) 
+ggsave("../output/WL2_Traits/WL2_2025Plants_Y1Surv_F1sWL2.png", width = 14, height = 8, units = "in")
+```
+
+
 ## Mid Parent 
 
 ### Prep
