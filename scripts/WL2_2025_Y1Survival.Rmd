@@ -12,6 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 # Survival of plants planted in 2025
+Note: This currently doesn't account for establishment!!
 
 ## Libraries
 ```{r}
