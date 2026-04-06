@@ -1,0 +1,130 @@
+---
+title: "WL2_2024-2025_RxnNorms"
+author: "Brandie QC"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Reaction Norms comparing differences between 2024 and 2025 at WL2
+
+## Libraries
+```{r}
+library(tidyverse)
+
+sem <- function(x, na.rm=FALSE) {  #for calculating standard error
+  sd(x,na.rm=na.rm)/sqrt(length(na.omit(x)))
+} 
+```
+
+## Survival Data
+```{r}
+wintsurv_2024 <- read_csv("../input/WL2_2025_Data/CorrectedCSVs/WL2_overwinter_survival_20250523_corrected.csv") #contains all year 1 info too
+
+mort_pheno_2025 <- read_csv("../input/WL2_2025_Data/CorrectedCSVs/WL2_mort_pheno_20250929_corrected.csv")
+mort_pheno_2025 %>% filter(!is.na(...13)) #additional notes 
+mort_pheno_2025 %>% filter(str_detect(survey.notes, "planting")) #some dead pre or at planting 
+```
+
+## Pop Info 
+```{r}
+pop_info_2024 <- read_csv("../input/WL2_2024_Data/Final_2023_2024_Pop_Loc_Info.csv") %>% 
+  select(Pop.Type:unique.ID) %>% 
+  rename(row=bedrow, col=bedcol)
+
+pop_info_2025 <- read_csv("../input/WL2_2025_Data/2025_Pop_Loc_Info Updated.csv") %>% 
+  select(status:Unique.ID)
+```
+
+## Elevation Info
+```{r}
+elev_info <- read_csv("../input/Strep_tort_locs.csv")
+
+elev_info_yo <- elev_info %>% 
+  mutate(pop = str_replace(`Site code`, "YOSE(\\d+)", "YO\\1")) %>% select(Lat, Long, elev_m=`Elevation (m)`, pop)
+head(elev_info_yo)
+unique(elev_info_yo$pop)
+```
+
+## Year 1 Survival for Parents
+
+### 2024
+```{r}
+y1surv_2024 <- wintsurv_2024 %>% 
+  select(bed:unique.ID, death.date, missing.date, survey.notes) %>% 
+  left_join(pop_info_2024) %>% 
+  filter(unique.ID != "buffer") %>% #remove buffers
+  filter(Pop.Type=="Parent") %>%  #keep only parents planted in 2024
+  select(loc, bed:unique.ID, Pop.Type, pop:rep, death.date:survey.notes) %>% 
+  mutate(deadatplanting = if_else(is.na(survey.notes), NA,
+                                  if_else(survey.notes=="Dead at planting", "Yes", NA))) %>% 
+  filter(is.na(deadatplanting)) %>% #remove plants that were dead at planting 
+  filter(is.na(missing.date)) %>% #remove plants that went missing 
+  select(-deadatplanting, -missing.date, -survey.notes) %>% #remove unnecessary cols 
+  mutate(death.date=mdy(death.date)) %>% #convert to date format 
+  mutate(Establishment = if_else(is.na(death.date), 1, 
+                                 if_else(death.date < "2024-07-06", 0, 1)), #establishment = first 3 weeks post-transplant 
+         Y1Surv = if_else(Establishment==0, NA, #can't survive year 1 if you didn't establish 
+                          if_else(is.na(death.date), 1, 
+                                        if_else(death.date < "2024-11-01", 0, 1)))) #year 1 ended in Oct
+
+y1surv_2024_summary <- y1surv_2024 %>% 
+  group_by(pop) %>% 
+  summarise(meanSurv=mean(Y1Surv, na.rm=TRUE), semSurv=sem(Y1Surv, na.rm=TRUE)) %>% 
+  left_join(elev_info_yo) %>% 
+  mutate(Garden_Year = "2024")
+```
+
+### 2025
+```{r}
+y1surv_2025 <- mort_pheno_2025 %>% 
+  select(bed:Unique.ID, bud.date, death.date, survey.notes) %>% 
+  left_join(pop_info_2025) %>% 
+  filter(Unique.ID!="buffer", !is.na(Unique.ID)) %>% 
+  filter(status=="available") %>% #only keep plants planted in 2025
+  mutate(Pop.Type=if_else(str_detect(pop.id, "\\) x"), "F2",
+                          if_else(str_detect(pop.id, "x"), "F1",
+                                  "Parent"
+                          ))) %>% #define different pop types 
+  filter(Pop.Type=="Parent") %>%  #keep only parents 
+  mutate(deadatplanting = if_else(is.na(survey.notes), NA,
+                                  if_else(survey.notes=="dead pre-planting" | 
+                                            survey.notes=="dead at planting",
+                                          "Yes", NA))) %>% 
+  filter(is.na(deadatplanting)) %>% #remove plants that were dead at planting 
+  select(-status, -deadatplanting, -survey.notes) %>% #remove unnecessary cols 
+  mutate(death.date=mdy(death.date)) %>% #convert to date format 
+  mutate(Establishment = if_else(is.na(death.date) | !is.na(bud.date), 1, 
+                                 if_else(death.date < "2025-06-21", 0, 1)), #establishment = first 3 weeks post-transplant 
+         Y1Surv = if_else(Establishment==0, NA, #can't survive year 1 if you didn't establish 
+                          if_else(!is.na(bud.date), 1, #if you reproduced you survived 
+                      if_else(is.na(death.date), 1, 0)))) 
+
+y1surv_2025_summary <- y1surv_2025 %>% 
+  rename(pop=pop.id) %>% 
+  group_by(pop) %>% 
+  summarise(meanSurv=mean(Y1Surv, na.rm=TRUE), semSurv=sem(Y1Surv, na.rm=TRUE)) %>% 
+  left_join(elev_info_yo) %>% 
+  mutate(Garden_Year = "2025")
+```
+
+### Reaction Norms
+```{r}
+y1surv_both <- bind_rows(y1surv_2024_summary, y1surv_2025_summary)
+
+y1surv_both %>% 
+  ggplot(aes(x=Garden_Year, y=meanSurv, group=pop, color=elev_m)) +
+  geom_point(size=1.5) + 
+  geom_line(linewidth=1.5) +
+  geom_errorbar(aes(ymin=meanSurv-semSurv,ymax=meanSurv+semSurv),width=.1) +
+  theme_classic() + 
+  scale_colour_gradient(low = "#F5A540", high = "#0043F0")  +
+  labs(y="Y1 Survival", color="Elevation (m)", x="WL2 Garden Year") +
+  scale_y_continuous(expand = c(0.01, 0.00)) +
+  theme(text=element_text(size=28))
+ggsave("../output/WL2_Traits/WL2_Y1Surv_RxNm_Parents.png", width = 12, height = 6, units = "in")
+```
+
