@@ -52,6 +52,24 @@ head(ucd_2024_est)
 summary(ucd_2024_est)
 ```
 
+## WL2 2023 Data
+```{r}
+wl2_mortpheno_2023 <- read_csv("../../parent_pops_common-gardens/input/WL2_Data/CorrectedCSVs/WL2_mort_pheno_20231020_corrected.csv")
+
+wl2_mortpheno_2023_pops <- wl2_mortpheno_2023 %>% 
+  select(block:rep, death.date) %>% 
+  filter(pop!="buffer") %>% 
+  filter(!str_detect(pop, "\\*")) %>% 
+  mutate(pop=str_replace(pop, "0", "O")) %>% 
+  mutate(mf=as.numeric(mf))
+
+wl2_2023_est <- wl2_mortpheno_2023_pops %>% 
+  mutate(death.date=mdy(death.date)) %>% 
+  filter(death.date > "2023-08-10" | is.na(death.date))
+head(wl2_2023_est)
+summary(wl2_2023_est)
+```
+
 ## WL2 2024 Data
 ```{r}
 wl2_mortpheno_2024 <- read_csv("../input/WL2_2024_Data/CorrectedCSVs/WL2_mort_pheno_20241023_corrected.csv")
@@ -70,6 +88,35 @@ wl2_2024_est <- wl2_mortpheno_2024_pops %>%
   filter(death.date > "2024-07-06" | is.na(death.date))
 head(wl2_2024_est)
 summary(wl2_2024_est)
+```
+
+## WL2 2025 Data
+```{r}
+wl2_mortpheno_2025 <- read_csv("../input/WL2_2025_Data/CorrectedCSVs/WL2_mort_pheno_20250929_corrected.csv")
+wl2_pop_info_2025 <- read_csv("../input/WL2_2025_Data/2025_Pop_Loc_Info Updated.csv") %>% 
+  select(status:Unique.ID)
+
+wl2_mortpheno_2025_pops <- wl2_mortpheno_2025 %>% 
+  select(bed:Unique.ID, bud.date, death.date, survey.notes) %>% 
+  left_join(wl2_pop_info_2025) %>% 
+  filter(Unique.ID!="buffer", !is.na(Unique.ID)) %>% 
+  filter(status=="available") %>% #only keep plants planted in 2025
+  mutate(Pop.Type=if_else(str_detect(pop.id, "\\) x"), "F2",
+                          if_else(str_detect(pop.id, "x"), "F1",
+                                  "Parent"
+                          ))) #define different pop types 
+
+wl2_2025_est <- wl2_mortpheno_2025_pops %>% 
+  mutate(deadatplanting = if_else(is.na(survey.notes), NA,
+                                  if_else(survey.notes=="dead pre-planting" | 
+                                            survey.notes=="dead at planting",
+                                          "Yes", NA))) %>% 
+  filter(is.na(deadatplanting)) %>% #remove plants that were dead at planting 
+  select(-status, -deadatplanting, -survey.notes) %>% #remove unnecessary cols 
+  mutate(death.date=mdy(death.date)) %>% #convert to date format 
+  filter(death.date > "2025-06-21" | is.na(death.date))
+head(wl2_2025_est)
+summary(wl2_2025_est)
 ```
 
 ## Temporal Overlap at UCD
@@ -97,8 +144,41 @@ ucd_overlap_temporal %>% ungroup() %>% group_by(pop) %>% summarise(n=n()) %>% ar
 #only 3 SQ3 mfs
 #4-7 mfs for the remaining pops with 7 for TM2 
 
-ucd_overlap_temporal %>% left_join(ucd_2023_est) #360 individuals 
-ucd_overlap_temporal %>% rename(pop.id=pop) %>% left_join(ucd_2024_est) #98 individuals 
+ucd_overlap_temporal %>% inner_join(ucd_2023_est) #360 individuals 
+ucd2024_ucd2023_overlap_ucdindivs <- ucd_overlap_temporal %>% 
+  rename(pop.id=pop) %>% 
+  inner_join(ucd_2024_est) %>% 
+  mutate(UCD_Garden="1") %>% 
+  select(-rack)
+dim(ucd2024_ucd2023_overlap_ucdindivs) #89 individuals 
+```
+
+## Spatial Overlap in 2023
+```{r}
+wl2_genos_2023 <- wl2_2023_est %>% 
+  unite("Genotype", pop:mf, remove = FALSE) %>% 
+  select(Genotype, pop, mf) %>% distinct() %>% 
+  mutate(WL2_Garden="1") %>% 
+  mutate(Year_2023="1")
+
+ucd_genos_2024 <- genos_2024 %>% mutate(UCD_Garden="1")
+
+ucd2024_wl22023_overlap <- ucd_genos_2024 %>% 
+  left_join(wl2_genos_2023) %>% 
+  filter(!is.na(WL2_Garden)) %>% 
+  arrange(pop) 
+dim(ucd2024_wl22023_overlap) #43 genotypes (pop-mf) overlap between the two gardens 
+unique(ucd2024_wl22023_overlap$pop) #9 pops overlap 
+ucd2024_wl22023_overlap %>% ungroup() %>% group_by(pop) %>% summarise(n=n()) %>% arrange(n)
+#3 mfs for SQ3 and WL2
+#4-7 mfs for remaining pops
+
+ucd2024_wl22023_overlap %>% inner_join(wl2_2023_est) #267 individuals 
+ucd2024_wl22023_overlap_ucdindivs <- ucd2024_wl22023_overlap %>% 
+  rename(pop.id=pop) %>% 
+  inner_join(ucd_2024_est) %>% 
+  select(-missing.date, -rack)
+dim(ucd2024_wl22023_overlap_ucdindivs) #81 individuals 
 ```
 
 ## Spatial Overlap in 2024
@@ -110,27 +190,25 @@ pops_ucd_2024 <- ucd_2024_est %>%
          pop.id=str_replace(pop.id, "TM2-[0-9]+", "TM2")) %>%  #remove the mf from pop.id column for main parents 
   select(pop.id) %>% 
   distinct() %>% 
-  mutate(UCD_Garden="1")
+  mutate(UCD_Garden="1") %>% 
+  mutate(Year_2024="1")
 
 pops_wl2_2024 <- wl2_2024_est %>% 
   select(pop.id=pop) %>% 
   distinct() %>% 
-  mutate(WL2_Garden="1")
+  mutate(WL2_Garden="1") %>% 
+  mutate(Year_2024="1")
 
 ucd_wl2_overlap <- pops_ucd_2024 %>% 
   left_join(pops_wl2_2024) %>% 
-  filter(!is.na(WL2_Garden))
+  filter(!is.na(WL2_Garden)) %>% 
+  arrange(pop.id) 
 dim(ucd_wl2_overlap) #25 pops/cross types overlap between the two gardens
 
 mf_cor_ucd_2024 <- ucd_2024_est %>% 
   mutate(pop.id=str_replace(pop.id, "WL2-[0-9]+", "WL2"),
          pop.id=str_replace(pop.id, "TM2-[0-9]+", "TM2"))
-ucd_wl2_overlap_ucdindivs <- ucd_wl2_overlap %>% 
-  left_join(mf_cor_ucd_2024) %>% 
-  group_by(pop.id) %>% 
-  summarise(n=n()) %>% arrange(n)
-sum(ucd_wl2_overlap_ucdindivs$n) #548 individuals 
-summary(ucd_wl2_overlap_ucdindivs) #n ranges from 1-98 with median of 20 across pops/crosses 
+
 ucd_wl2_overlap_wl2indivs <- ucd_wl2_overlap %>% 
   rename(pop=pop.id) %>% 
   left_join(wl2_2024_est) %>% 
@@ -138,4 +216,84 @@ ucd_wl2_overlap_wl2indivs <- ucd_wl2_overlap %>%
   summarise(n=n()) %>% arrange(n)
 sum(ucd_wl2_overlap_wl2indivs$n) #182 individuals 
 summary(ucd_wl2_overlap_wl2indivs) #n ranges from 1-38 with median of 3 across pops/crosses
+
+ucd2024_wl22024_overlap_ucdindivs <- ucd_wl2_overlap %>% 
+  inner_join(ucd_2024_est) %>% 
+  select(-rack)
+dim(ucd2024_wl22024_overlap_ucdindivs) #370
+```
+
+## Spatial Overlap in 2025
+```{r}
+wl2_2025_est %>% filter(!is.na(mf)) #most plants have mf info 
+ucd_2024_est %>% filter(!is.na(mf)) #only parents have mf info --> need to merge crosses and parents separately 
+
+popmf_wl2_2025 <- wl2_2025_est %>% 
+  filter(Pop.Type=="Parent") %>% 
+  mutate(mf=as.numeric(mf)) %>% 
+  unite("Genotype", pop.id:mf, remove = FALSE) %>% 
+  select(Genotype, pop.id, mf) %>% distinct() %>% 
+  mutate(WL2_Garden="1") %>% 
+  mutate(Year_2025="1")
+
+crosses_wl2_2025 <- wl2_2025_est %>% 
+  filter(Pop.Type!="Parent") %>% 
+  select(pop.id) %>% 
+  distinct() %>% 
+  mutate(WL2_Garden="1") %>% 
+  mutate(Year_2025="1")
+
+ucd_genos_2024_crosses <- ucd_2024_est %>% 
+  filter(!str_detect(`Plant Type`, "Parent")) %>%  #only keep crosses 
+  select(pop.id) %>% 
+  distinct() %>% 
+  mutate(UCD_Garden="1") %>% 
+  mutate(Year_2024="1")
+
+ucd2024_wl22025_overlap_parents <- ucd_genos_2024 %>% 
+  rename(pop.id=pop) %>%
+  left_join(popmf_wl2_2025) %>%  #merge parents 
+  filter(!is.na(WL2_Garden)) %>% 
+  arrange(pop.id) 
+dim(ucd2024_wl22025_overlap_parents) #17 genotypes (pop-mf) overlap between the two gardens 
+unique(ucd2024_wl22025_overlap_parents$pop.id) #6 pops overlap 
+ucd2024_wl22025_overlap_parents %>% ungroup() %>% group_by(pop.id) %>% summarise(n=n()) %>% arrange(n)
+#1 mf for CC and WL1
+#2 mfs for BH
+#5-7 mfs for WL2 and TM2
+
+ucd2024_wl22025_overlap_crosses <- ucd_genos_2024_crosses %>% 
+  left_join(crosses_wl2_2025) %>% 
+  filter(!is.na(WL2_Garden)) %>% 
+  arrange(pop.id) 
+dim(ucd2024_wl22025_overlap_crosses) #14 crosses overlap between the gardens 
+
+ucd2024_wl22025_overlap <- ucd2024_wl22025_overlap_parents %>% 
+  bind_rows(ucd2024_wl22025_overlap_crosses)
+
+ucd2024_wl22025_overlap %>% mutate(mf=as.character(mf)) %>% inner_join(wl2_2025_est) #91 individuals 
+ucd2024_wl22025_overlap_ucdindivs <- ucd2024_wl22025_overlap %>% 
+  inner_join(ucd_2024_est) %>% 
+  select(-rack)
+dim(ucd2024_wl22025_overlap_ucdindivs) #187 individuals 
+```
+
+## Dataframe with all overlaps 
+```{r}
+dim(ucd2024_ucd2023_overlap_ucdindivs)
+dim(ucd2024_wl22023_overlap_ucdindivs)
+dim(ucd2024_wl22024_overlap_ucdindivs)
+dim(ucd2024_wl22025_overlap_ucdindivs)
+
+ucd2024_all_overlaps <- ucd2024_ucd2023_overlap_ucdindivs %>% 
+  full_join(ucd2024_wl22023_overlap_ucdindivs) %>% 
+  full_join(ucd2024_wl22024_overlap_ucdindivs) %>% 
+  full_join(ucd2024_wl22025_overlap_ucdindivs) %>% 
+  select(Plant.Type=`Plant Type`, pop.id:mf, rep, unique.ID, block, bed:col, 
+         UCD_Garden, WL2_Garden, Year_2023, Year_2024, Year_2025)
+dim(ucd2024_all_overlaps) #467 individuals 
+summary(ucd2024_all_overlaps)
+head(ucd2024_all_overlaps)
+
+write_csv(ucd2024_all_overlaps, "../output/UCD2024_Overlaps.csv")
 ```
