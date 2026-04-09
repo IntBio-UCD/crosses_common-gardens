@@ -148,8 +148,8 @@ ucd_overlap_temporal %>% inner_join(ucd_2023_est) #360 individuals
 ucd2024_ucd2023_overlap_ucdindivs <- ucd_overlap_temporal %>% 
   rename(pop.id=pop) %>% 
   inner_join(ucd_2024_est) %>% 
-  mutate(UCD_Garden="1") %>% 
-  select(-rack)
+  mutate(UCD_Garden_2023="1") %>% 
+  select(-rack, -Year_2024, -Year_2023)
 dim(ucd2024_ucd2023_overlap_ucdindivs) #89 individuals 
 ```
 
@@ -177,7 +177,8 @@ ucd2024_wl22023_overlap %>% inner_join(wl2_2023_est) #267 individuals
 ucd2024_wl22023_overlap_ucdindivs <- ucd2024_wl22023_overlap %>% 
   rename(pop.id=pop) %>% 
   inner_join(ucd_2024_est) %>% 
-  select(-missing.date, -rack)
+  mutate(WL2_Garden_2023="1") %>% 
+  select(-missing.date, -rack, -Year_2024, -Year_2023,-UCD_Garden,-WL2_Garden)
 dim(ucd2024_wl22023_overlap_ucdindivs) #81 individuals 
 ```
 
@@ -219,7 +220,8 @@ summary(ucd_wl2_overlap_wl2indivs) #n ranges from 1-38 with median of 3 across p
 
 ucd2024_wl22024_overlap_ucdindivs <- ucd_wl2_overlap %>% 
   inner_join(ucd_2024_est) %>% 
-  select(-rack)
+  mutate(WL2_Garden_2024="1") %>% 
+  select(-rack, UCD_Garden, -WL2_Garden, -Year_2024)
 dim(ucd2024_wl22024_overlap_ucdindivs) #370
 ```
 
@@ -274,7 +276,8 @@ ucd2024_wl22025_overlap <- ucd2024_wl22025_overlap_parents %>%
 ucd2024_wl22025_overlap %>% mutate(mf=as.character(mf)) %>% inner_join(wl2_2025_est) #91 individuals 
 ucd2024_wl22025_overlap_ucdindivs <- ucd2024_wl22025_overlap %>% 
   inner_join(ucd_2024_est) %>% 
-  select(-rack)
+  mutate(WL2_Garden_2025="1") %>% 
+  select(-rack, - Year_2024, -Year_2025, -UCD_Garden, -WL2_Garden)
 dim(ucd2024_wl22025_overlap_ucdindivs) #187 individuals 
 ```
 
@@ -290,8 +293,8 @@ ucd2024_all_overlaps <- ucd2024_ucd2023_overlap_ucdindivs %>%
   full_join(ucd2024_wl22024_overlap_ucdindivs) %>% 
   full_join(ucd2024_wl22025_overlap_ucdindivs) %>% 
   select(Plant.Type=`Plant Type`, pop.id:mf, rep, unique.ID, block, bed:col, 
-         UCD_Garden, WL2_Garden, Year_2023, Year_2024, Year_2025)
-dim(ucd2024_all_overlaps) #467 individuals 
+         UCD_Garden_2023, WL2_Garden_2023, WL2_Garden_2024, WL2_Garden_2025)
+dim(ucd2024_all_overlaps) #446 individuals 
 summary(ucd2024_all_overlaps)
 head(ucd2024_all_overlaps)
 
