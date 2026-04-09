@@ -334,6 +334,7 @@ y1surv_all_years <- y1surv_all_wide %>%
 
 ``` r
 y1surv_all_years %>% 
+  filter(pop!="YO11") %>% #only 1 indiv in 2024
   ggplot(aes(x=Garden_Year, y=meanSurv, group=pop, color=elev_m)) +
   geom_point(size=1.5) + 
   geom_line(linewidth=1.5) +
@@ -351,6 +352,7 @@ y1surv_all_years %>%
 ggsave("../output/WL2_Traits/WL2_Y1Surv_RxNm_Parents.png", width = 14, height = 6, units = "in")
 
 y1surv_all_years %>% 
+  filter(pop!="YO11") %>% #only 1 indiv in 2024
   filter(Garden_Year!=2023) %>% 
   ggplot(aes(x=Garden_Year, y=meanSurv, group=pop, color=elev_m)) +
   geom_point(size=1.5) + 
@@ -634,6 +636,7 @@ all_size <- size_2023_summary %>%
 
 ``` r
 all_size %>% 
+  filter(pop!="LV1", pop!="YO11") %>% #only 1 indiv in 2024  
   ggplot(aes(x=Garden_Year, y=meanHeight, group=pop, color=elev_m)) +
   geom_point(size=1.5) + 
   geom_line(linewidth=1.5) +
