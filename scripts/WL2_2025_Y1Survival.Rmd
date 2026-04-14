@@ -206,12 +206,12 @@ WL2_crosses_2025 %>%
                   position_dodge(0.75)) +
   theme_classic() + 
   scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
-  annotate("text", x = 5, y= 0.74, label = "WL2", 
+  annotate("text", x = 5, y= 0.76, label = "WL2", 
            colour = "purple", fontface="bold", size = 22 / .pt) +
   scale_y_continuous(expand = c(0.01, 0)) +
-  labs(x="Population", y="Year 1 Survival in 2025", fill="Elevation \n of Donor (m)") +
-  theme(text=element_text(size=25), axis.text.x = element_text(angle = 45, hjust = 1)) 
-ggsave("../output/WL2_Traits/WL2_2025Plants_Y1Surv_F1sWL2.png", width = 14, height = 8, units = "in")
+  labs(x="Population", y="Y1 Surv", fill="Elevation \n of Donor (m)") +
+  theme(text=element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1)) 
+ggsave("../output/WL2_Traits/WL2_2025Plants_Y1Surv_F1sWL2.png", width = 12, height = 6, units = "in")
 ```
 
 

@@ -1,7 +1,7 @@
 ---
 title: "WL2_2025_Mortality"
 author: "Brandie QC"
-date: "2026-01-07"
+date: "2026-04-13"
 output: 
   html_document: 
     keep_md: true
@@ -10,8 +10,7 @@ output:
 
 
 # Survival of plants planted in 2025
-To Do:
-- take into account plants that survived to rep then died 
+Note: This currently doesn't account for establishment!!
 
 ## Libraries
 
@@ -392,3 +391,259 @@ parents_F1s_combined %>%
 ``` r
 ggsave("../output/WL2_Traits/WL2_Y1Surv_2025Plants_F1s_Parents.png", width = 14, height = 8, units = "in")
 ```
+
+## Fitness Relative to WL2 parent
+
+``` r
+WL2_crosses_2025 <- by_pop_Surv %>% 
+  filter(Pop.Type!="F2") %>% #remove F2s for now
+  filter(str_detect(pop.id, "WL2")) %>% #keep only F1s with WL2 involved 
+  separate(pop.id, c("dame_pop",NA, "sire_pop"), remove = FALSE) %>%  #define pops for F1s
+  mutate(sire_pop=if_else(pop.id=="WL2", "WL2", sire_pop)) %>% #to help with merges
+  left_join(elev_info_yo, by=join_by(dame_pop==pop.id)) %>% 
+  rename(dame_elev=elev_m, dame_Lat=Lat, dame_Long=Long) %>% 
+  left_join(elev_info_yo, by=join_by(sire_pop==pop.id)) %>% 
+  rename(sire_elev=elev_m, sire_Lat=Lat, sire_Long=Long) %>% 
+  mutate(other_Parent_elev=if_else(dame_pop=="WL2", sire_elev, dame_elev)) %>% 
+  mutate(sire_pop=if_else(pop.id=="WL2", NA, sire_pop)) #change sire back to NA for WL2
+```
+
+```
+## Warning: Expected 3 pieces. Missing pieces filled with `NA` in 1 rows [7].
+```
+
+``` r
+WL2_crosses_2025
+```
+
+```
+## # A tibble: 16 × 14
+## # Groups:   pop.id [16]
+##    pop.id     dame_pop sire_pop Pop.Type N_Surv mean_Surv sem_Surv dame_Lat
+##    <chr>      <chr>    <chr>    <chr>     <int>     <dbl>    <dbl> <chr>   
+##  1 BH x WL2   BH       WL2      F1           14     0.643   0.133  37.40985
+##  2 DPR x WL2  DPR      WL2      F1           10     0.6     0.163  39.22846
+##  3 LV1 x WL2  LV1      WL2      F1            9     0.667   0.167  40.47471
+##  4 SQ3 x WL2  SQ3      WL2      F1            7     0.714   0.184  36.72109
+##  5 TM2 x WL2  TM2      WL2      F1           14     0.714   0.125  39.59255
+##  6 WL1 x WL2  WL1      WL2      F1           13     0.692   0.133  38.78608
+##  7 WL2        WL2      <NA>     Parent       54     0.648   0.0656 38.8263 
+##  8 WL2 x CC   WL2      CC       F1            2     0.5     0.5    38.8263 
+##  9 WL2 x DPR  WL2      DPR      F1            7     0.714   0.184  38.8263 
+## 10 WL2 x LV1  WL2      LV1      F1           11     0.636   0.152  38.8263 
+## 11 WL2 x SQ3  WL2      SQ3      F1            1     1      NA      38.8263 
+## 12 WL2 x TM2  WL2      TM2      F1            2     1       0      38.8263 
+## 13 WL2 x WL1  WL2      WL1      F1            2     1       0      38.8263 
+## 14 WL2 x WV   WL2      WV       F1            5     0.8     0.2    38.8263 
+## 15 WL2 x YO11 WL2      YO11     F1           10     0.9     0.1    38.8263 
+## 16 YO11 x WL2 YO11     WL2      F1            5     0.8     0.2    37.93844
+## # ℹ 6 more variables: dame_Long <chr>, dame_elev <dbl>, sire_Lat <chr>,
+## #   sire_Long <chr>, sire_elev <dbl>, other_Parent_elev <dbl>
+```
+
+
+``` r
+WL2_crosses_2025 %>% 
+  ggplot(aes(x=fct_reorder(pop.id, mean_Surv), y=mean_Surv, fill=other_Parent_elev)) + 
+  geom_col(width = 0.7,position = position_dodge(0.75)) + 
+  geom_errorbar(aes(ymin=mean_Surv-sem_Surv,ymax=mean_Surv+sem_Surv),width=.2, position = 
+                  position_dodge(0.75)) +
+  theme_classic() + 
+  scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
+  annotate("text", x = 5, y= 0.76, label = "WL2", 
+           colour = "purple", fontface="bold", size = 22 / .pt) +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  labs(x="Population", y="Y1 Surv", fill="Elevation \n of Donor (m)") +
+  theme(text=element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1)) 
+```
+
+![](WL2_2025_Y1Survival_files/figure-html/unnamed-chunk-13-1.png)<!-- -->
+
+``` r
+ggsave("../output/WL2_Traits/WL2_2025Plants_Y1Surv_F1sWL2.png", width = 12, height = 6, units = "in")
+```
+
+
+## Mid Parent 
+
+### Prep
+
+``` r
+parent_F1s_surv <- mort_pheno_2025_pops_2025plants %>% 
+  filter(Pop.Type!="F2") %>% #remove F2s
+  select(bed:Unique.ID, Pop.Type, pop.id, rep, Surv) %>% 
+  separate(pop.id, c("dame_pop",NA, "sire_pop"), remove = FALSE) %>% #define pops for crosses
+  mutate(sire_pop=if_else(Pop.Type=="Parent", dame_pop, sire_pop)) %>% 
+  #add clim and elev info for dames and sires:
+  left_join(elev_info_yo, by=join_by(dame_pop==pop.id)) %>% 
+  rename(dame_elev=elev_m, dame_Lat=Lat, dame_Long=Long) %>% 
+  left_join(elev_info_yo, by=join_by(sire_pop==pop.id)) %>% 
+  rename(sire_elev=elev_m, sire_Lat=Lat, sire_Long=Long) %>% 
+  mutate(meanElev=(dame_elev+sire_elev)/2) #means for parents are just the parent's actual value since I set that pop as dame and sire 
+```
+
+```
+## Warning: Expected 3 pieces. Missing pieces filled with `NA` in 193 rows [1, 2, 3, 4, 7,
+## 8, 9, 10, 13, 14, 15, 16, 18, 21, 22, 24, 25, 27, 28, 30, ...].
+```
+
+``` r
+parent_F1s_surv_summary <- parent_F1s_surv %>% 
+  group_by(Pop.Type, pop.id, dame_pop, sire_pop, 
+           dame_elev, meanElev) %>% 
+  summarise(n=n(), 
+            mean_Y1Surv=mean(Surv, na.rm=TRUE), 
+            stdev_Y1Surv=sd(Surv, na.rm=TRUE)) 
+```
+
+```
+## `summarise()` has grouped output by 'Pop.Type', 'pop.id', 'dame_pop',
+## 'sire_pop', 'dame_elev'. You can override using the `.groups` argument.
+```
+
+``` r
+parent_F1s_surv_summary
+```
+
+```
+## # A tibble: 25 × 9
+## # Groups:   Pop.Type, pop.id, dame_pop, sire_pop, dame_elev [25]
+##    Pop.Type pop.id    dame_pop sire_pop dame_elev meanElev     n mean_Y1Surv
+##    <chr>    <chr>     <chr>    <chr>        <dbl>    <dbl> <int>       <dbl>
+##  1 F1       BH x WL2  BH       WL2           511.    1266.    14       0.643
+##  2 F1       DPR x WL2 DPR      WL2          1019.    1519.    10       0.6  
+##  3 F1       LV1 x WL2 LV1      WL2          2593.    2307.     9       0.667
+##  4 F1       SQ3 x WL2 SQ3      WL2          2373.    2197.     7       0.714
+##  5 F1       TM2 x WL2 TM2      WL2           379.    1200.    14       0.714
+##  6 F1       WL1 x WL2 WL1      WL2          1614.    1817.    13       0.692
+##  7 F1       WL2 x CC  WL2      CC           2020.    1167.     2       0.5  
+##  8 F1       WL2 x DPR WL2      DPR          2020.    1519.     7       0.714
+##  9 F1       WL2 x LV1 WL2      LV1          2020.    2307.    11       0.636
+## 10 F1       WL2 x SQ3 WL2      SQ3          2020.    2197.     1       1    
+## # ℹ 15 more rows
+## # ℹ 1 more variable: stdev_Y1Surv <dbl>
+```
+
+### Calculating mid-parent values
+
+``` r
+F1_info <- parent_F1s_surv_summary %>% ungroup() %>% filter(Pop.Type=="F1") %>% select(pop.id, meanElev)
+
+parent_prep_y1surv <- parent_F1s_surv_summary %>% 
+  filter(Pop.Type=="Parent") %>% 
+  ungroup() %>% 
+  select(pop.id, mean_Y1Surv:stdev_Y1Surv) %>% 
+  pivot_wider(names_from = pop.id, 
+              values_from = c(mean_Y1Surv, stdev_Y1Surv)) %>% 
+  mutate("BH x WL2-mean_Y1Surv"=(mean_Y1Surv_BH+mean_Y1Surv_WL2)/2, 
+         "DPR x WL2-mean_Y1Surv"=(mean_Y1Surv_DPR+mean_Y1Surv_WL2)/2,
+         "LV1 x WL2-mean_Y1Surv"=(mean_Y1Surv_LV1+mean_Y1Surv_WL2)/2, 
+         "SQ3 x WL2-mean_Y1Surv"=(mean_Y1Surv_SQ3+mean_Y1Surv_WL2)/2,
+         "TM2 x WL2-mean_Y1Surv"=(mean_Y1Surv_TM2+mean_Y1Surv_WL2)/2, 
+         "WL1 x WL2-mean_Y1Surv"=(mean_Y1Surv_WL1+mean_Y1Surv_WL2)/2,
+         "WL2 x CC-mean_Y1Surv"=(mean_Y1Surv_WL2+mean_Y1Surv_CC)/2, 
+         "WL2 x DPR-mean_Y1Surv"=(mean_Y1Surv_WL2+mean_Y1Surv_DPR)/2,
+         "WL2 x LV1-mean_Y1Surv"=(mean_Y1Surv_WL2+mean_Y1Surv_LV1)/2, 
+         "WL2 x SQ3-mean_Y1Surv"=(mean_Y1Surv_WL2+mean_Y1Surv_SQ3)/2,
+         "WL2 x TM2-mean_Y1Surv"=(mean_Y1Surv_WL2+mean_Y1Surv_TM2)/2, 
+         "WL2 x WL1-mean_Y1Surv"=(mean_Y1Surv_WL2+mean_Y1Surv_WL1)/2,
+         "WL2 x WV-mean_Y1Surv"=(mean_Y1Surv_WL2+mean_Y1Surv_WV)/2,
+         "WL2 x YO11-mean_Y1Surv"=(mean_Y1Surv_WL2+mean_Y1Surv_YO11)/2,
+         "YO11 x WL2-mean_Y1Surv"=(mean_Y1Surv_YO11+mean_Y1Surv_WL2)/2) %>% 
+  mutate("BH x WL2-stdev_Y1Surv"=(stdev_Y1Surv_BH+stdev_Y1Surv_WL2)/2, 
+         "DPR x WL2-stdev_Y1Surv"=(stdev_Y1Surv_DPR+stdev_Y1Surv_WL2)/2,
+         "LV1 x WL2-stdev_Y1Surv"=(stdev_Y1Surv_LV1+stdev_Y1Surv_WL2)/2, 
+         "SQ3 x WL2-stdev_Y1Surv"=(stdev_Y1Surv_SQ3+stdev_Y1Surv_WL2)/2,
+         "TM2 x WL2-stdev_Y1Surv"=(stdev_Y1Surv_TM2+stdev_Y1Surv_WL2)/2, 
+         "WL1 x WL2-stdev_Y1Surv"=(stdev_Y1Surv_WL1+stdev_Y1Surv_WL2)/2,
+         "WL2 x CC-stdev_Y1Surv"=(stdev_Y1Surv_WL2+stdev_Y1Surv_CC)/2, 
+         "WL2 x DPR-stdev_Y1Surv"=(stdev_Y1Surv_WL2+stdev_Y1Surv_DPR)/2,
+         "WL2 x LV1-stdev_Y1Surv"=(stdev_Y1Surv_WL2+stdev_Y1Surv_LV1)/2, 
+         "WL2 x SQ3-stdev_Y1Surv"=(stdev_Y1Surv_WL2+stdev_Y1Surv_SQ3)/2,
+         "WL2 x TM2-stdev_Y1Surv"=(stdev_Y1Surv_WL2+stdev_Y1Surv_TM2)/2, 
+         "WL2 x WL1-stdev_Y1Surv"=(stdev_Y1Surv_WL2+stdev_Y1Surv_WL1)/2,
+         "WL2 x WV-stdev_Y1Surv"=(stdev_Y1Surv_WL2+stdev_Y1Surv_WV)/2,
+         "WL2 x YO11-stdev_Y1Surv"=(stdev_Y1Surv_WL2+stdev_Y1Surv_YO11)/2,
+         "YO11 x WL2-stdev_Y1Surv"=(stdev_Y1Surv_YO11+stdev_Y1Surv_WL2)/2) %>% 
+  select(`BH x WL2-mean_Y1Surv`:`YO11 x WL2-stdev_Y1Surv`) %>% 
+  pivot_longer(cols = everything(), names_to = c("pop.id", "measurement"), names_sep = "-", values_to = "value") %>%
+  pivot_wider(names_from = measurement, values_from = value) %>% 
+  left_join(F1_info) %>% 
+  mutate(pop.id = paste0(pop.id, "_midParent"), Pop.Type="midParent")
+```
+
+```
+## Joining with `by = join_by(pop.id)`
+```
+
+``` r
+mid_parent_F1s_y1surv <- parent_F1s_surv_summary %>% 
+   filter(Pop.Type=="F1") %>% 
+  bind_rows(parent_prep_y1surv) %>% 
+  mutate(elevation.group=if_else(meanElev>2000, "All High", "Mixed"))
+mid_parent_F1s_y1surv
+```
+
+```
+## # A tibble: 30 × 10
+## # Groups:   Pop.Type, pop.id, dame_pop, sire_pop, dame_elev [30]
+##    Pop.Type pop.id    dame_pop sire_pop dame_elev meanElev     n mean_Y1Surv
+##    <chr>    <chr>     <chr>    <chr>        <dbl>    <dbl> <int>       <dbl>
+##  1 F1       BH x WL2  BH       WL2           511.    1266.    14       0.643
+##  2 F1       DPR x WL2 DPR      WL2          1019.    1519.    10       0.6  
+##  3 F1       LV1 x WL2 LV1      WL2          2593.    2307.     9       0.667
+##  4 F1       SQ3 x WL2 SQ3      WL2          2373.    2197.     7       0.714
+##  5 F1       TM2 x WL2 TM2      WL2           379.    1200.    14       0.714
+##  6 F1       WL1 x WL2 WL1      WL2          1614.    1817.    13       0.692
+##  7 F1       WL2 x CC  WL2      CC           2020.    1167.     2       0.5  
+##  8 F1       WL2 x DPR WL2      DPR          2020.    1519.     7       0.714
+##  9 F1       WL2 x LV1 WL2      LV1          2020.    2307.    11       0.636
+## 10 F1       WL2 x SQ3 WL2      SQ3          2020.    2197.     1       1    
+## # ℹ 20 more rows
+## # ℹ 2 more variables: stdev_Y1Surv <dbl>, elevation.group <chr>
+```
+
+### Figures
+
+``` r
+mid_parent_F1s_y1surv %>% 
+  ggplot(aes(x=pop.id, y=mean_Y1Surv, fill=meanElev, colour=meanElev)) +
+  geom_errorbar(aes(ymin=mean_Y1Surv-0.01,ymax=mean_Y1Surv+stdev_Y1Surv),width=.2, position = 
+                  position_dodge(0.75)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) + 
+  theme_classic() + 
+  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_fill_gradient(low = "#b46ca4", high = "#0043F0") +
+  scale_colour_gradient(low = "#b46ca4", high = "#0043F0") +
+  theme(text=element_text(size=25),axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(y="Avg Y1 Survival + Stdev", x="Population", fill="Avg Elevation (m)", color="Avg Elevation (m)") + 
+  facet_wrap(vars(elevation.group), scales="free")
+```
+
+![](WL2_2025_Y1Survival_files/figure-html/unnamed-chunk-16-1.png)<!-- -->
+
+``` r
+ggsave("../output/WL2_Traits/WL2_2025Plants_Y1Surv.png", width = 20, height = 8, units = "in")
+```
+
+
+``` r
+parent_F1s_surv_summary %>% 
+  filter(Pop.Type=="Parent") %>% ggplot(aes(x=fct_reorder(pop.id, meanElev), y=mean_Y1Surv, fill=meanElev, colour=meanElev)) +
+  geom_errorbar(aes(ymin=mean_Y1Surv-0.01,ymax=mean_Y1Surv+stdev_Y1Surv),width=.2, position = 
+                  position_dodge(0.75)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) + 
+  theme_classic() + 
+  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
+  scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
+  theme(text=element_text(size=25),axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(y="Avg Y1 Survival + Stdev", x="Population", fill="Elevation (m)", color="Elevation (m)")
+```
+
+![](WL2_2025_Y1Survival_files/figure-html/unnamed-chunk-17-1.png)<!-- -->
+
+``` r
+ggsave("../output/WL2_Traits/WL2_2025Plants_Y1Surv_Parents.png", width = 14, height = 8, units = "in")
+```
+
