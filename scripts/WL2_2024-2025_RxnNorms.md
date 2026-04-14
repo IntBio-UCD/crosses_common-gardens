@@ -1,7 +1,7 @@
 ---
 title: "WL2_2024-2025_RxnNorms"
 author: "Brandie QC"
-date: "2026-04-09"
+date: "2026-04-13"
 output: 
   html_document: 
     keep_md: true
@@ -31,6 +31,8 @@ library(tidyverse)
 ```
 
 ``` r
+library(ggpubr) #ggarrange
+
 sem <- function(x, na.rm=FALSE) {  #for calculating standard error
   sd(x,na.rm=na.rm)/sqrt(length(na.omit(x)))
 } 
@@ -351,23 +353,22 @@ y1surv_all_years %>%
 ``` r
 ggsave("../output/WL2_Traits/WL2_Y1Surv_RxNm_Parents.png", width = 14, height = 6, units = "in")
 
-y1surv_all_years %>% 
+y1surv_parents_fig <- y1surv_all_years %>% 
   filter(pop!="YO11") %>% #only 1 indiv in 2024
   filter(Garden_Year!=2023) %>% 
   ggplot(aes(x=Garden_Year, y=meanSurv, group=pop, color=elev_m)) +
   geom_point(size=1.5) + 
   geom_line(linewidth=1.5) +
   geom_errorbar(aes(ymin=meanSurv-semSurv,ymax=meanSurv+semSurv),width=.05) +
+  annotate("text", x = 0.85, y= 0.21, label = "WL2", 
+           colour = "purple", fontface="bold", size = 22 / .pt) +
+  annotate("text", x = 2.15, y= 0.74, label = "WL2", 
+           colour = "purple", fontface="bold", size = 22 / .pt) +
   theme_classic() + 
   scale_colour_gradient(low = "#F5A540", high = "#0043F0")  +
   labs(y="Y1 Survival", color="Elevation (m)", x="WL2 Garden Year") +
   scale_y_continuous(expand = c(0.01, 0.00)) +
   theme(text=element_text(size=28))
-```
-
-![](WL2_2024-2025_RxnNorms_files/figure-html/unnamed-chunk-8-2.png)<!-- -->
-
-``` r
 ggsave("../output/WL2_Traits/WL2_Y1Surv_RxNm_Parents_2425.png", width = 12, height = 6, units = "in")
 ```
 
@@ -499,7 +500,7 @@ y1surv_all_F1s_years
 ```
 
 ``` r
-y1surv_all_F1s_years %>% 
+y1surv_F1s_fig <- y1surv_all_F1s_years %>% 
   ggplot(aes(x=Garden_Year, y=meanSurv, group=pop, color=elev_m)) +
   geom_point(size=1.5) + 
   geom_line(linewidth=1.5) +
@@ -509,13 +510,20 @@ y1surv_all_F1s_years %>%
   labs(y="Y1 Survival", color="Elevation (m) \n of Donor", x="WL2 Garden Year") +
   scale_y_continuous(expand = c(0.01, 0.00)) +
   theme(text=element_text(size=28))
-```
-
-![](WL2_2024-2025_RxnNorms_files/figure-html/unnamed-chunk-11-1.png)<!-- -->
-
-``` r
 ggsave("../output/WL2_Traits/WL2_Y1Surv_RxNm_F1s.png", width = 14, height = 6, units = "in")
 ```
+
+## Year 1 Survival for F1s and Parents 
+
+``` r
+y1surv_fig <- ggarrange(y1surv_parents_fig, y1surv_F1s_fig,
+                        labels = c("Parents", "F1s"),  
+                        font.label = list(size=30, face = "plain"),
+                        hjust = c(-1, -2),
+                        ncol=2, nrow=1) 
+ggsave("../output/WL2_Traits/WL2_Y1Surv_RxNm_F1s-Parents.png", width = 26, height = 9, units = "in")
+```
+
 
 ## Size Post-Establishment
 
@@ -648,7 +656,7 @@ all_size %>%
   theme(text=element_text(size=28))
 ```
 
-![](WL2_2024-2025_RxnNorms_files/figure-html/unnamed-chunk-14-1.png)<!-- -->
+![](WL2_2024-2025_RxnNorms_files/figure-html/unnamed-chunk-15-1.png)<!-- -->
 
 ``` r
 ggsave("../output/WL2_Traits/WL2_Height_RxNm_Parents.png", width = 14, height = 6, units = "in")
@@ -750,7 +758,7 @@ size_2024_F1s_summary %>%
   theme(text=element_text(size=25), axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-![](WL2_2024-2025_RxnNorms_files/figure-html/unnamed-chunk-17-1.png)<!-- -->
+![](WL2_2024-2025_RxnNorms_files/figure-html/unnamed-chunk-18-1.png)<!-- -->
 
 ``` r
 ggsave("../output/WL2_Traits/WL22024_Height_WL2F1s.png", width = 14, height = 8, units = "in")
@@ -771,7 +779,7 @@ size_2025_F1s_summary %>%
   theme(text=element_text(size=25), axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-![](WL2_2024-2025_RxnNorms_files/figure-html/unnamed-chunk-18-1.png)<!-- -->
+![](WL2_2024-2025_RxnNorms_files/figure-html/unnamed-chunk-19-1.png)<!-- -->
 
 ``` r
 ggsave("../output/WL2_Traits/WL22025_Height_WL2F1s.png", width = 14, height = 6, units = "in")
