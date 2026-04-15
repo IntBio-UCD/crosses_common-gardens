@@ -17,14 +17,14 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 
 #data <- read_csv("../input/WL2_2024_Data/CorrectedCSVs/WL2_Annual_Census_20241023_corrected.csv")
-data <- read_csv("../input/WL2_2025_Data/CorrectedCSVs/WL2_ann_cens_20251006_corrected.csv")
+data <- read_csv("../input/WL2_2025_Data/CorrectedCSVs/WL2_ann_cens_20251028_corrected.csv")
   #remove spaces in column names
   names(data) <- gsub(" ", "", colnames(data))
   
   #check for spaces in numbers
   data2 <- data %>% filter(grepl(" ", diam.mm) | grepl(" ", num.flw) | grepl(" ", num.fruit) | 
-                             grepl(" ", long.fruit.cm) #| grepl(" ", total.branch) | 
-                             #grepl(" ", overhd.diam) | grepl(" ", overhd.perp)
+                             grepl(" ", long.fruit.cm) | grepl(" ", total.branch) | 
+                             grepl(" ", overhd.diam) | grepl(" ", overhd.perp)
                            ) %>%
     mutate(problem="spaces")
   
@@ -43,14 +43,14 @@ data <- read_csv("../input/WL2_2025_Data/CorrectedCSVs/WL2_ann_cens_20251006_cor
     mutate(problem="character")
   data10 <- data %>% rowwise() %>% filter(!is.na(long.fruit.cm)) %>% filter(is.na(as.numeric(long.fruit.cm))) %>%
     mutate(problem="character")
- # data11 <- data %>% rowwise() %>% filter(!is.na(overhd.diam)) %>% filter(is.na(as.numeric(overhd.diam))) %>%
- #   mutate(problem="character")
- # data12 <- data %>% rowwise() %>% filter(!is.na(overhd.perp)) %>% filter(is.na(as.numeric(overhd.perp))) %>%
- #   mutate(problem="character")
+  data11 <- data %>% rowwise() %>% filter(!is.na(overhd.diam)) %>% filter(is.na(as.numeric(overhd.diam))) %>%
+    mutate(problem="character")
+  data12 <- data %>% rowwise() %>% filter(!is.na(overhd.perp)) %>% filter(is.na(as.numeric(overhd.perp))) %>%
+    mutate(problem="character")
   
   #combine into one problems list
-  data_probs <- rbind(data2, data3, data4, data6, data8, data9, data10 #, 
-                      #data11, data12 #no diameter in anncens data 2025
+  data_probs <- rbind(data2, data3, data4, data6, data8, data9, data10, 
+                      data11, data12 
                       )
   data_probs
   write_csv(data_probs, "../output/WL2_Traits/anncens_probs.csv")
