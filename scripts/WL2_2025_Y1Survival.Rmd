@@ -251,11 +251,29 @@ WL2_crosses_2025 %>%
        color="Elevation \n of Donor (m)", shape="Population") +
   theme(text=element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1)) 
 ggsave("../output/WL2_Traits/WL2_2025Plants_Y1Surv_F1sWL2_GeoDist.png", width = 12, height = 6, units = "in")
-
-WL2_crosses_2025 %>% arrange(other_Parent_GeoDist)
 ```
 
+```{r}
+F1s_2024 <- tibble(pop.id=c("TM2 x WL2", "BH x WL2", "DPR x WL2",
+                            "SQ3 x WL2", "LV1 x WL2", "WL2 x WV", "WL2"))
 
+WL2_crosses_2025 %>% 
+  right_join(F1s_2024) %>% 
+  ggplot(aes(x=other_Parent_GeoDist, y=mean_Surv,
+             group = pop.id, colour=other_Parent_elev)) + 
+  geom_point(size=6, aes(shape=Pop.Type)) +
+  geom_errorbar(aes(ymin=mean_Surv-sem_Surv,ymax=mean_Surv+sem_Surv),
+                 width=0, linewidth = 2) +
+  theme_classic() + 
+  scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
+  annotate("text", x = 136.2622, y= 0.62, label = "WL2", 
+           colour = "purple", fontface="bold", size = 22 / .pt) +
+  scale_y_continuous(expand = c(0.01, 0.03)) +
+  labs(x="Geographic Dist \n of Donor", y="Y1 Surv", 
+       color="Elevation \n of Donor (m)", shape="Population") +
+  theme(text=element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1)) 
+ggsave("../output/WL2_Traits/WL2_2025Plants_Y1Surv_F1sWL2_GeoDist_match2024.png", width = 12, height = 6, units = "in")
+```
 
 ## Mid Parent 
 
