@@ -32,7 +32,7 @@ sem <- function(x, na.rm=FALSE) {  #for calculating standard error
 wintsurv <- read_csv("../input/WL2_2025_Data/CorrectedCSVs/WL2_overwinter_survival_20250523_corrected.csv") #contains all year 1 info too
 surv_2025 <- read_csv("../input/WL2_2025_Data/CorrectedCSVs/WL2_mort_pheno_20250929_corrected.csv") %>%  #for surv to budding 
   select(bed:bud.date, death.date)
-fruits_2025 <- read_csv("../input/WL2_2025_Data/CorrectedCSVs/WL2_ann_cens_20251006_corrected.csv") %>% #for fruit #
+fruits_2025 <- read_csv("../input/WL2_2025_Data/CorrectedCSVs/WL2_ann_cens_20251028_corrected.csv") %>% #for fruit #
   select(bed:Unique.ID, num.fruit)
 ```
 
@@ -99,13 +99,13 @@ y2_fitness <- pop_info_2025 %>%
   filter(Pop.Type!="F2") %>% #remove F2s
   mutate(SurvtoBud=if_else(!is.na(bud.date), 1, 0)) %>% 
   select(unique.ID=Unique.ID, Pop.Type, pop=pop.id, mf, rep, SurvtoBud, num.fruit)
-y2_fitness %>% filter(SurvtoBud==1, is.na(num.fruit)) #2 plants that survived to rep with no fruit number 
 
 #checked fruiting of plants planted in 2025
 fruits_2025 %>% left_join(pop_info_2025) %>% 
   filter(Unique.ID!="buffer", !is.na(Unique.ID)) %>% 
   filter(status=="available") %>% 
-  filter(!is.na(num.fruit)) #no F1s fruited, only TM2 fruited 
+  filter(num.fruit>0) %>% 
+  arrange(pop.id) #just F2s/BC1s, TM2 and TM2 x WL2
 ```
 
 ## Merge y1 and y2 fitness ---> total fitnes
