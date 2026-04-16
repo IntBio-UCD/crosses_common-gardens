@@ -190,7 +190,9 @@ boot_gowers_historic_wtryr_pops_2024_WL2 <- bind_cols(pops, boot_historic_wtryr_
   arrange(Gowers_Dist)
 
 all_WL2_gowers <- bind_rows(boot_gowers_recent_wtryr_pops_2024_WL2,
-                            boot_gowers_historic_wtryr_pops_2024_WL2) 
+                            boot_gowers_historic_wtryr_pops_2024_WL2) %>% 
+  mutate(WL2_Lat=38.82599, WL2_Long=-120.2509) %>% 
+  mutate(Geographic_Dist=distHaversine(cbind(WL2_Long, WL2_Lat), cbind(Long, Lat)))
 write_csv(all_WL2_gowers, "../output/Climate/WL2_2024_Clim_Dist.csv")
 ```
 
@@ -227,7 +229,9 @@ boot_gowers_historic_wtryr_pops_2024_UCD <- bind_cols(pops, boot_historic_wtryr_
   arrange(Gowers_Dist)
 
 all_UCD_gowers <- bind_rows(boot_gowers_recent_wtryr_pops_2024_UCD,
-                            boot_gowers_historic_wtryr_pops_2024_UCD) 
+                            boot_gowers_historic_wtryr_pops_2024_UCD) %>% 
+  mutate(UCD_Lat=38.53250, UCD_Long=-121.78299) %>% 
+  mutate(Geographic_Dist=distHaversine(cbind(UCD_Long, UCD_Lat), cbind(Long, Lat)))
 write_csv(all_UCD_gowers, "../output/Climate/UCD_2024_Clim_Dist.csv")
 ```
 
