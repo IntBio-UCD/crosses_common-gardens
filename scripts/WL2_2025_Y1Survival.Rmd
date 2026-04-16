@@ -12,11 +12,11 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 # Survival of plants planted in 2025
-Note: This currently doesn't account for establishment!!
 
 ## Libraries
 ```{r}
 library(tidyverse)
+library(geosphere) #for calculating geographic distance
 
 sem <- function(x, na.rm=FALSE) {           #for calculating standard error
   sd(x,na.rm=na.rm)/sqrt(length(na.omit(x)))
@@ -40,7 +40,7 @@ pop_info_2025 <- read_csv("../input/WL2_2025_Data/2025_Pop_Loc_Info Updated.csv"
 ## Merge
 ```{r}
 mort_pheno_2025_pops <- mort_pheno_2025 %>% 
-  select(bed:Unique.ID, bud.date, death.date) %>% 
+  select(bed:Unique.ID, bud.date, death.date, survey.notes) %>% 
   left_join(pop_info_2025) %>% 
   filter(Unique.ID!="buffer", !is.na(Unique.ID))
 ```
@@ -50,38 +50,54 @@ mort_pheno_2025_pops <- mort_pheno_2025 %>%
 elev_info <- read_csv("../input/Strep_tort_locs.csv")
 
 elev_info_yo <- elev_info %>% 
-  mutate(pop = str_replace(`Site code`, "YOSE(\\d+)", "YO\\1")) %>% select(Lat, Long, elev_m=`Elevation (m)`, pop) %>% 
-  rename(pop.id=pop)
+  mutate(pop = str_replace(`Site code`, "YOSE(\\d+)", "YO\\1")) %>% 
+  select(Lat, Long, elev_m=`Elevation (m)`, pop) %>% 
+  rename(pop.id=pop) %>% 
+  mutate(Lat=as.numeric(Lat), Long=as.numeric(Long),
+         WL2_Lat=38.82599, WL2_Long=-120.2509) %>% 
+  mutate(Geographic_Dist=distHaversine(cbind(WL2_Long, WL2_Lat), cbind(Long, Lat))) %>% 
+  select(-WL2_Lat, -WL2_Long)
 head(elev_info_yo)
 unique(elev_info_yo$pop.id)
 ```
 
 ## 2025 Plants Only
 ```{r}
-mort_pheno_2025_pops_2025plants <- mort_pheno_2025_pops %>% 
-  filter(status=="available") %>% 
+y1surv_2025plants <- mort_pheno_2025_pops %>% 
+  filter(status=="available") %>% #only keep plants planted in 2025
   mutate(Pop.Type=if_else(str_detect(pop.id, "\\) x"), "F2",
                           if_else(str_detect(pop.id, "x"), "F1",
                                   "Parent"
                           ))) %>% 
-  mutate(Surv=if_else(!is.na(bud.date), 1, 
-                      if_else(is.na(death.date), 1, 0))) #1 = surv; 0 = mort
+  mutate(deadatplanting = if_else(is.na(survey.notes), NA,
+                                  if_else(survey.notes=="dead pre-planting" | 
+                                            survey.notes=="dead at planting",
+                                          "Yes", NA))) %>% 
+  filter(is.na(deadatplanting)) %>% #remove plants that were dead at planting 
+  select(-status, -deadatplanting, -survey.notes) %>% #remove unnecessary cols 
+  mutate(death.date=mdy(death.date)) %>% #convert to date format 
+  mutate(Establishment = if_else(is.na(death.date) | !is.na(bud.date), 1, 
+                                 if_else(death.date < "2025-06-21", 0, 1)), #establishment = first 3 weeks post-transplant 
+         Y1Surv = if_else(Establishment==0, NA, #can't survive year 1 if you didn't establish 
+                          if_else(!is.na(bud.date), 1, #if you reproduced you survived 
+                      if_else(is.na(death.date), 1, 0)))) 
+  
 
-xtabs(~Pop.Type, data=mort_pheno_2025_pops_2025plants)
-xtabs(~Pop.Type+Surv, data=mort_pheno_2025_pops_2025plants)
+xtabs(~Pop.Type, data=y1surv_2025plants)
+xtabs(~Pop.Type+Y1Surv, data=y1surv_2025plants)
 #80/112 F1 survived
-#291/379 F2s survived
-#124/193 Parents survived 
+#288/379 F2s survived
+#118/193 Parents survived 
 
-#mort_pheno_2025_pops_2025plants %>% filter(Pop.Type=="F1") %>% distinct(pop.id) #15 F1 types 
-mort_pheno_2025_pops_2025plants %>% filter(!is.na(bud.date)) %>% filter(!is.na(death.date)) #7 plants reproduced and died in 2025
+#y1surv_2025plants %>% filter(Pop.Type=="F1") %>% distinct(pop.id) #15 F1 types 
+y1surv_2025plants %>% filter(!is.na(bud.date)) %>% filter(!is.na(death.date)) #7 plants reproduced and died in 2025
 ```
 
 ## Plot by pop type 
 ```{r}
-mort_pheno_2025_pops_2025plants %>% 
+y1surv_2025plants %>% 
   group_by(Pop.Type) %>% 
-  summarise(meanSurv=mean(Surv), semSurv=sem(Surv)) %>% 
+  summarise(meanSurv=mean(Y1Surv, na.rm=TRUE), semSurv=sem(Y1Surv, na.rm=TRUE)) %>% 
   ggplot(aes(x=Pop.Type, y=meanSurv)) +
   geom_col(width = 0.7,position = position_dodge(0.75)) + 
   geom_errorbar(aes(ymin=meanSurv-semSurv,ymax=meanSurv+semSurv),width=.2, position = 
@@ -95,10 +111,10 @@ ggsave("../output/WL2_Traits/WL2_Y1Surv_2025Plants_PopType.png", width = 10, hei
 
 ## Means by pop
 ```{r}
-by_pop_Surv <- mort_pheno_2025_pops_2025plants %>% 
+by_pop_Surv <- y1surv_2025plants %>% 
   group_by(pop.id, Pop.Type) %>% 
-  summarise(N_Surv = sum(!is.na(Surv)), mean_Surv = mean(Surv,na.rm=(TRUE)), 
-            sem_Surv=sem(Surv, na.rm=(TRUE)))
+  summarise(N_Surv = sum(!is.na(Y1Surv)), mean_Surv = mean(Y1Surv,na.rm=(TRUE)), 
+            sem_Surv=sem(Y1Surv, na.rm=(TRUE)))
 ```
 
 ## Plot by pops 
@@ -190,11 +206,15 @@ WL2_crosses_2025 <- by_pop_Surv %>%
   separate(pop.id, c("dame_pop",NA, "sire_pop"), remove = FALSE) %>%  #define pops for F1s
   mutate(sire_pop=if_else(pop.id=="WL2", "WL2", sire_pop)) %>% #to help with merges
   left_join(elev_info_yo, by=join_by(dame_pop==pop.id)) %>% 
-  rename(dame_elev=elev_m, dame_Lat=Lat, dame_Long=Long) %>% 
+  rename(dame_elev=elev_m, dame_Lat=Lat, dame_Long=Long, dame_GeoDist=Geographic_Dist) %>% 
   left_join(elev_info_yo, by=join_by(sire_pop==pop.id)) %>% 
-  rename(sire_elev=elev_m, sire_Lat=Lat, sire_Long=Long) %>% 
-  mutate(other_Parent_elev=if_else(dame_pop=="WL2", sire_elev, dame_elev)) %>% 
-  mutate(sire_pop=if_else(pop.id=="WL2", NA, sire_pop)) #change sire back to NA for WL2
+  rename(sire_elev=elev_m, sire_Lat=Lat, sire_Long=Long, sire_GeoDist=Geographic_Dist) %>% 
+  mutate(other_Parent_elev=if_else(dame_pop=="WL2", sire_elev, dame_elev),
+         other_Parent_GeoDist=if_else(dame_pop=="WL2", sire_GeoDist, dame_GeoDist)) %>% 
+  mutate(sire_pop=if_else(pop.id=="WL2", NA, sire_pop)) %>% #change sire back to NA for WL2
+  mutate(Pop.Type=if_else(pop.id=="WL2", "WL2",
+                          if_else(sire_pop=="WL2", "Donor x WL2",
+                                  "WL2 x Donor")))
 WL2_crosses_2025
 ```
 
@@ -214,14 +234,36 @@ WL2_crosses_2025 %>%
 ggsave("../output/WL2_Traits/WL2_2025Plants_Y1Surv_F1sWL2.png", width = 12, height = 6, units = "in")
 ```
 
+```{r}
+WL2_crosses_2025 %>% 
+  filter(N_Surv>1) %>% 
+  ggplot(aes(x=other_Parent_GeoDist, y=mean_Surv,
+             group = pop.id, colour=other_Parent_elev)) + 
+  geom_point(size=6, aes(shape=Pop.Type)) +
+  geom_errorbar(aes(ymin=mean_Surv-sem_Surv,ymax=mean_Surv+sem_Surv),
+                 width=0, linewidth = 2) +
+  theme_classic() + 
+  scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
+  annotate("text", x = 136.2622, y= 0.62, label = "WL2", 
+           colour = "purple", fontface="bold", size = 22 / .pt) +
+  scale_y_continuous(expand = c(0.01, 0.03)) +
+  labs(x="Geographic Dist \n of Donor", y="Y1 Surv", 
+       color="Elevation \n of Donor (m)", shape="Population") +
+  theme(text=element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1)) 
+ggsave("../output/WL2_Traits/WL2_2025Plants_Y1Surv_F1sWL2_GeoDist.png", width = 12, height = 6, units = "in")
+
+WL2_crosses_2025 %>% arrange(other_Parent_GeoDist)
+```
+
+
 
 ## Mid Parent 
 
 ### Prep
 ```{r}
-parent_F1s_surv <- mort_pheno_2025_pops_2025plants %>% 
+parent_F1s_surv <- y1surv_2025plants %>% 
   filter(Pop.Type!="F2") %>% #remove F2s
-  select(bed:Unique.ID, Pop.Type, pop.id, rep, Surv) %>% 
+  select(bed:Unique.ID, Pop.Type, pop.id, rep, Y1Surv) %>% 
   separate(pop.id, c("dame_pop",NA, "sire_pop"), remove = FALSE) %>% #define pops for crosses
   mutate(sire_pop=if_else(Pop.Type=="Parent", dame_pop, sire_pop)) %>% 
   #add clim and elev info for dames and sires:
@@ -235,8 +277,8 @@ parent_F1s_surv_summary <- parent_F1s_surv %>%
   group_by(Pop.Type, pop.id, dame_pop, sire_pop, 
            dame_elev, meanElev) %>% 
   summarise(n=n(), 
-            mean_Y1Surv=mean(Surv, na.rm=TRUE), 
-            stdev_Y1Surv=sd(Surv, na.rm=TRUE)) 
+            mean_Y1Surv=mean(Y1Surv, na.rm=TRUE), 
+            stdev_Y1Surv=sd(Y1Surv, na.rm=TRUE)) 
 parent_F1s_surv_summary
 ```
 

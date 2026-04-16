@@ -1,7 +1,7 @@
 ---
 title: "WL2_2025_Mortality"
 author: "Brandie QC"
-date: "2026-04-13"
+date: "2026-04-16"
 output: 
   html_document: 
     keep_md: true
@@ -10,7 +10,6 @@ output:
 
 
 # Survival of plants planted in 2025
-Note: This currently doesn't account for establishment!!
 
 ## Libraries
 
@@ -32,6 +31,8 @@ library(tidyverse)
 ```
 
 ``` r
+library(geosphere) #for calculating geographic distance
+
 sem <- function(x, na.rm=FALSE) {           #for calculating standard error
   sd(x,na.rm=na.rm)/sqrt(length(na.omit(x)))
 } 
@@ -99,7 +100,7 @@ pop_info_2025 <- read_csv("../input/WL2_2025_Data/2025_Pop_Loc_Info Updated.csv"
 
 ``` r
 mort_pheno_2025_pops <- mort_pheno_2025 %>% 
-  select(bed:Unique.ID, bud.date, death.date) %>% 
+  select(bed:Unique.ID, bud.date, death.date, survey.notes) %>% 
   left_join(pop_info_2025) %>% 
   filter(Unique.ID!="buffer", !is.na(Unique.ID))
 ```
@@ -127,21 +128,38 @@ elev_info <- read_csv("../input/Strep_tort_locs.csv")
 
 ``` r
 elev_info_yo <- elev_info %>% 
-  mutate(pop = str_replace(`Site code`, "YOSE(\\d+)", "YO\\1")) %>% select(Lat, Long, elev_m=`Elevation (m)`, pop) %>% 
-  rename(pop.id=pop)
+  mutate(pop = str_replace(`Site code`, "YOSE(\\d+)", "YO\\1")) %>% 
+  select(Lat, Long, elev_m=`Elevation (m)`, pop) %>% 
+  rename(pop.id=pop) %>% 
+  mutate(Lat=as.numeric(Lat), Long=as.numeric(Long),
+         WL2_Lat=38.82599, WL2_Long=-120.2509) %>% 
+  mutate(Geographic_Dist=distHaversine(cbind(WL2_Long, WL2_Lat), cbind(Long, Lat))) %>% 
+  select(-WL2_Lat, -WL2_Long)
+```
+
+```
+## Warning: There were 2 warnings in `mutate()`.
+## The first warning was:
+## ℹ In argument: `Lat = as.numeric(Lat)`.
+## Caused by warning:
+## ! NAs introduced by coercion
+## ℹ Run `dplyr::last_dplyr_warnings()` to see the 1 remaining warning.
+```
+
+``` r
 head(elev_info_yo)
 ```
 
 ```
-## # A tibble: 6 × 4
-##   Lat      Long       elev_m pop.id
-##   <chr>    <chr>       <dbl> <chr> 
-## 1 37.40985 -119.96458   511. BH    
-## 2 39.55355 -121.4329    283. BB    
-## 3 39.58597 -121.43311   313  CC    
-## 4 38.6382  -120.1422   2422. CP1   
-## 5 38.66169 -120.13065  2244. CP2   
-## 6 38.70649 -120.08797  2266. CP3
+## # A tibble: 6 × 5
+##     Lat  Long elev_m pop.id Geographic_Dist
+##   <dbl> <dbl>  <dbl> <chr>            <dbl>
+## 1  37.4 -120.   511. BH             159626.
+## 2  39.6 -121.   283. BB             130228.
+## 3  39.6 -121.   313  CC             132498.
+## 4  38.6 -120.  2422. CP1             22937.
+## 5  38.7 -120.  2244. CP2             21060.
+## 6  38.7 -120.  2266. CP3             19415.
 ```
 
 ``` r
@@ -160,66 +178,77 @@ unique(elev_info_yo$pop.id)
 ## 2025 Plants Only
 
 ``` r
-mort_pheno_2025_pops_2025plants <- mort_pheno_2025_pops %>% 
-  filter(status=="available") %>% 
+y1surv_2025plants <- mort_pheno_2025_pops %>% 
+  filter(status=="available") %>% #only keep plants planted in 2025
   mutate(Pop.Type=if_else(str_detect(pop.id, "\\) x"), "F2",
                           if_else(str_detect(pop.id, "x"), "F1",
                                   "Parent"
                           ))) %>% 
-  mutate(Surv=if_else(!is.na(bud.date), 1, 
-                      if_else(is.na(death.date), 1, 0))) #1 = surv; 0 = mort
+  mutate(deadatplanting = if_else(is.na(survey.notes), NA,
+                                  if_else(survey.notes=="dead pre-planting" | 
+                                            survey.notes=="dead at planting",
+                                          "Yes", NA))) %>% 
+  filter(is.na(deadatplanting)) %>% #remove plants that were dead at planting 
+  select(-status, -deadatplanting, -survey.notes) %>% #remove unnecessary cols 
+  mutate(death.date=mdy(death.date)) %>% #convert to date format 
+  mutate(Establishment = if_else(is.na(death.date) | !is.na(bud.date), 1, 
+                                 if_else(death.date < "2025-06-21", 0, 1)), #establishment = first 3 weeks post-transplant 
+         Y1Surv = if_else(Establishment==0, NA, #can't survive year 1 if you didn't establish 
+                          if_else(!is.na(bud.date), 1, #if you reproduced you survived 
+                      if_else(is.na(death.date), 1, 0)))) 
+  
 
-xtabs(~Pop.Type, data=mort_pheno_2025_pops_2025plants)
+xtabs(~Pop.Type, data=y1surv_2025plants)
 ```
 
 ```
 ## Pop.Type
 ##     F1     F2 Parent 
-##    112    379    193
+##    112    376    187
 ```
 
 ``` r
-xtabs(~Pop.Type+Surv, data=mort_pheno_2025_pops_2025plants)
+xtabs(~Pop.Type+Y1Surv, data=y1surv_2025plants)
 ```
 
 ```
-##         Surv
+##         Y1Surv
 ## Pop.Type   0   1
-##   F1      32  80
-##   F2      88 291
-##   Parent  69 124
+##   F1      22  80
+##   F2      59 288
+##   Parent  48 118
 ```
 
 ``` r
 #80/112 F1 survived
-#291/379 F2s survived
-#124/193 Parents survived 
+#288/379 F2s survived
+#118/193 Parents survived 
 
-#mort_pheno_2025_pops_2025plants %>% filter(Pop.Type=="F1") %>% distinct(pop.id) #15 F1 types 
-mort_pheno_2025_pops_2025plants %>% filter(!is.na(bud.date)) %>% filter(!is.na(death.date)) #7 plants reproduced and died in 2025
+#y1surv_2025plants %>% filter(Pop.Type=="F1") %>% distinct(pop.id) #15 F1 types 
+y1surv_2025plants %>% filter(!is.na(bud.date)) %>% filter(!is.na(death.date)) #7 plants reproduced and died in 2025
 ```
 
 ```
 ## # A tibble: 7 × 15
-##   bed     row col   Unique.ID bud.date death.date status    block pop.id   mf   
-##   <chr> <dbl> <chr> <chr>     <chr>    <chr>      <chr>     <chr> <chr>    <chr>
-## 1 C        29 D     2269      6/27/25  8/14/25    available B     (WL2 x … 2_1-3
-## 2 D        46 B     2238      6/27/25  7/25/25    available F     (WL2 x … 2-3_…
-## 3 D        31 D     2647      6/17/25  6/27/25    available F     (WL2 x … 2_1-3
-## 4 E        26 A     1713      7/10/25  9/4/25     available I     TM2      1    
-## 5 E        28 C     2637      6/27/25  9/24/25    available I     TM2      9    
-## 6 E        51 C     1715      6/17/25  9/4/25     available J     TM2      2    
-## 7 F        11 A     2288      17-Jun   9/24/25    available J     (WL2 x … 2_1-3
-## # ℹ 5 more variables: dame_mf <chr>, sire_mf <chr>, rep <dbl>, Pop.Type <chr>,
-## #   Surv <dbl>
+##   bed     row col   Unique.ID bud.date death.date block pop.id     mf    dame_mf
+##   <chr> <dbl> <chr> <chr>     <chr>    <date>     <chr> <chr>      <chr> <chr>  
+## 1 C        29 D     2269      6/27/25  2025-08-14 B     (WL2 x TM… 2_1-3 2      
+## 2 D        46 B     2238      6/27/25  2025-07-25 F     (WL2 x TM… 2-3_… 3-Feb  
+## 3 D        31 D     2647      6/17/25  2025-06-27 F     (WL2 x TM… 2_1-3 2      
+## 4 E        26 A     1713      7/10/25  2025-09-04 I     TM2        1     1      
+## 5 E        28 C     2637      6/27/25  2025-09-24 I     TM2        9     9      
+## 6 E        51 C     1715      6/17/25  2025-09-04 J     TM2        2     2      
+## 7 F        11 A     2288      17-Jun   2025-09-24 J     (WL2 x TM… 2_1-3 2      
+## # ℹ 5 more variables: sire_mf <chr>, rep <dbl>, Pop.Type <chr>,
+## #   Establishment <dbl>, Y1Surv <dbl>
 ```
 
 ## Plot by pop type 
 
 ``` r
-mort_pheno_2025_pops_2025plants %>% 
+y1surv_2025plants %>% 
   group_by(Pop.Type) %>% 
-  summarise(meanSurv=mean(Surv), semSurv=sem(Surv)) %>% 
+  summarise(meanSurv=mean(Y1Surv, na.rm=TRUE), semSurv=sem(Y1Surv, na.rm=TRUE)) %>% 
   ggplot(aes(x=Pop.Type, y=meanSurv)) +
   geom_col(width = 0.7,position = position_dodge(0.75)) + 
   geom_errorbar(aes(ymin=meanSurv-semSurv,ymax=meanSurv+semSurv),width=.2, position = 
@@ -239,10 +268,10 @@ ggsave("../output/WL2_Traits/WL2_Y1Surv_2025Plants_PopType.png", width = 10, hei
 ## Means by pop
 
 ``` r
-by_pop_Surv <- mort_pheno_2025_pops_2025plants %>% 
+by_pop_Surv <- y1surv_2025plants %>% 
   group_by(pop.id, Pop.Type) %>% 
-  summarise(N_Surv = sum(!is.na(Surv)), mean_Surv = mean(Surv,na.rm=(TRUE)), 
-            sem_Surv=sem(Surv, na.rm=(TRUE)))
+  summarise(N_Surv = sum(!is.na(Y1Surv)), mean_Surv = mean(Y1Surv,na.rm=(TRUE)), 
+            sem_Surv=sem(Y1Surv, na.rm=(TRUE)))
 ```
 
 ```
@@ -269,16 +298,16 @@ head(by_pop_parents_Surv)
 ```
 
 ```
-## # A tibble: 6 × 8
+## # A tibble: 6 × 9
 ## # Groups:   pop.id [6]
-##   pop.id Pop.Type N_Surv mean_Surv sem_Surv Lat      Long       elev_m
-##   <chr>  <chr>     <int>     <dbl>    <dbl> <chr>    <chr>       <dbl>
-## 1 BH     Parent       11     0.545   0.157  37.40985 -119.96458   511.
-## 2 CC     Parent        4     0.75    0.25   39.58597 -121.43311   313 
-## 3 DPR    Parent       14     0.286   0.125  39.22846 -120.81518  1019.
-## 4 LV1    Parent        3     0.333   0.333  40.47471 -121.50486  2593.
-## 5 SQ3    Parent       18     0.667   0.114  36.72109 -118.84933  2373.
-## 6 TM2    Parent       48     0.667   0.0688 39.59255 -121.55072   379.
+##   pop.id Pop.Type N_Surv mean_Surv sem_Surv   Lat  Long elev_m Geographic_Dist
+##   <chr>  <chr>     <int>     <dbl>    <dbl> <dbl> <dbl>  <dbl>           <dbl>
+## 1 BH     Parent        8     0.75    0.164   37.4 -120.   511.         159626.
+## 2 CC     Parent        4     0.75    0.25    39.6 -121.   313          132498.
+## 3 DPR    Parent        9     0.444   0.176   39.2 -121.  1019.          66246.
+## 4 LV1    Parent        2     0       0       40.5 -122.  2593.         212682.
+## 5 SQ3    Parent       14     0.714   0.125   36.7 -119.  2373.         264780.
+## 6 TM2    Parent       45     0.711   0.0683  39.6 -122.   379.         140893.
 ```
 
 ``` r
@@ -316,18 +345,18 @@ head(by_pop_Surv_F1)
 ```
 
 ```
-## # A tibble: 6 × 14
+## # A tibble: 6 × 16
 ## # Groups:   pop.id [6]
 ##   pop.id dame_pop sire_pop Pop.Type N_Surv mean_Surv sem_Surv dame_Lat dame_Long
-##   <chr>  <chr>    <chr>    <chr>     <int>     <dbl>    <dbl> <chr>    <chr>    
-## 1 BH x … BH       WL2      F1           14     0.643    0.133 37.40985 -119.964…
-## 2 DPR x… DPR      WL2      F1           10     0.6      0.163 39.22846 -120.815…
-## 3 LV1 x… LV1      WL2      F1            9     0.667    0.167 40.47471 -121.504…
-## 4 SQ3 x… SQ3      WL2      F1            7     0.714    0.184 36.72109 -118.849…
-## 5 TM2 x… TM2      WL2      F1           14     0.714    0.125 39.59255 -121.550…
-## 6 WL1 x… WL1      WL2      F1           13     0.692    0.133 38.78608 -120.2143
-## # ℹ 5 more variables: dame_elev <dbl>, sire_Lat <chr>, sire_Long <chr>,
-## #   sire_elev <dbl>, meanElev <dbl>
+##   <chr>  <chr>    <chr>    <chr>     <int>     <dbl>    <dbl>    <dbl>     <dbl>
+## 1 BH x … BH       WL2      F1           13     0.692    0.133     37.4     -120.
+## 2 DPR x… DPR      WL2      F1            9     0.667    0.167     39.2     -121.
+## 3 LV1 x… LV1      WL2      F1            9     0.667    0.167     40.5     -122.
+## 4 SQ3 x… SQ3      WL2      F1            5     1        0         36.7     -119.
+## 5 TM2 x… TM2      WL2      F1           13     0.769    0.122     39.6     -122.
+## 6 WL1 x… WL1      WL2      F1           11     0.818    0.122     38.8     -120.
+## # ℹ 7 more variables: dame_elev <dbl>, Geographic_Dist.x <dbl>, sire_Lat <dbl>,
+## #   sire_Long <dbl>, sire_elev <dbl>, Geographic_Dist.y <dbl>, meanElev <dbl>
 ```
 
 ``` r
@@ -401,11 +430,15 @@ WL2_crosses_2025 <- by_pop_Surv %>%
   separate(pop.id, c("dame_pop",NA, "sire_pop"), remove = FALSE) %>%  #define pops for F1s
   mutate(sire_pop=if_else(pop.id=="WL2", "WL2", sire_pop)) %>% #to help with merges
   left_join(elev_info_yo, by=join_by(dame_pop==pop.id)) %>% 
-  rename(dame_elev=elev_m, dame_Lat=Lat, dame_Long=Long) %>% 
+  rename(dame_elev=elev_m, dame_Lat=Lat, dame_Long=Long, dame_GeoDist=Geographic_Dist) %>% 
   left_join(elev_info_yo, by=join_by(sire_pop==pop.id)) %>% 
-  rename(sire_elev=elev_m, sire_Lat=Lat, sire_Long=Long) %>% 
-  mutate(other_Parent_elev=if_else(dame_pop=="WL2", sire_elev, dame_elev)) %>% 
-  mutate(sire_pop=if_else(pop.id=="WL2", NA, sire_pop)) #change sire back to NA for WL2
+  rename(sire_elev=elev_m, sire_Lat=Lat, sire_Long=Long, sire_GeoDist=Geographic_Dist) %>% 
+  mutate(other_Parent_elev=if_else(dame_pop=="WL2", sire_elev, dame_elev),
+         other_Parent_GeoDist=if_else(dame_pop=="WL2", sire_GeoDist, dame_GeoDist)) %>% 
+  mutate(sire_pop=if_else(pop.id=="WL2", NA, sire_pop)) %>% #change sire back to NA for WL2
+  mutate(Pop.Type=if_else(pop.id=="WL2", "WL2",
+                          if_else(sire_pop=="WL2", "Donor x WL2",
+                                  "WL2 x Donor")))
 ```
 
 ```
@@ -417,28 +450,29 @@ WL2_crosses_2025
 ```
 
 ```
-## # A tibble: 16 × 14
+## # A tibble: 16 × 17
 ## # Groups:   pop.id [16]
-##    pop.id     dame_pop sire_pop Pop.Type N_Surv mean_Surv sem_Surv dame_Lat
-##    <chr>      <chr>    <chr>    <chr>     <int>     <dbl>    <dbl> <chr>   
-##  1 BH x WL2   BH       WL2      F1           14     0.643   0.133  37.40985
-##  2 DPR x WL2  DPR      WL2      F1           10     0.6     0.163  39.22846
-##  3 LV1 x WL2  LV1      WL2      F1            9     0.667   0.167  40.47471
-##  4 SQ3 x WL2  SQ3      WL2      F1            7     0.714   0.184  36.72109
-##  5 TM2 x WL2  TM2      WL2      F1           14     0.714   0.125  39.59255
-##  6 WL1 x WL2  WL1      WL2      F1           13     0.692   0.133  38.78608
-##  7 WL2        WL2      <NA>     Parent       54     0.648   0.0656 38.8263 
-##  8 WL2 x CC   WL2      CC       F1            2     0.5     0.5    38.8263 
-##  9 WL2 x DPR  WL2      DPR      F1            7     0.714   0.184  38.8263 
-## 10 WL2 x LV1  WL2      LV1      F1           11     0.636   0.152  38.8263 
-## 11 WL2 x SQ3  WL2      SQ3      F1            1     1      NA      38.8263 
-## 12 WL2 x TM2  WL2      TM2      F1            2     1       0      38.8263 
-## 13 WL2 x WL1  WL2      WL1      F1            2     1       0      38.8263 
-## 14 WL2 x WV   WL2      WV       F1            5     0.8     0.2    38.8263 
-## 15 WL2 x YO11 WL2      YO11     F1           10     0.9     0.1    38.8263 
-## 16 YO11 x WL2 YO11     WL2      F1            5     0.8     0.2    37.93844
-## # ℹ 6 more variables: dame_Long <chr>, dame_elev <dbl>, sire_Lat <chr>,
-## #   sire_Long <chr>, sire_elev <dbl>, other_Parent_elev <dbl>
+##    pop.id     dame_pop sire_pop Pop.Type    N_Surv mean_Surv sem_Surv dame_Lat
+##    <chr>      <chr>    <chr>    <chr>        <int>     <dbl>    <dbl>    <dbl>
+##  1 BH x WL2   BH       WL2      Donor x WL2     13     0.692   0.133      37.4
+##  2 DPR x WL2  DPR      WL2      Donor x WL2      9     0.667   0.167      39.2
+##  3 LV1 x WL2  LV1      WL2      Donor x WL2      9     0.667   0.167      40.5
+##  4 SQ3 x WL2  SQ3      WL2      Donor x WL2      5     1       0          36.7
+##  5 TM2 x WL2  TM2      WL2      Donor x WL2     13     0.769   0.122      39.6
+##  6 WL1 x WL2  WL1      WL2      Donor x WL2     11     0.818   0.122      38.8
+##  7 WL2        WL2      <NA>     WL2             46     0.739   0.0655     38.8
+##  8 WL2 x CC   WL2      CC       WL2 x Donor      2     0.5     0.5        38.8
+##  9 WL2 x DPR  WL2      DPR      WL2 x Donor      6     0.833   0.167      38.8
+## 10 WL2 x LV1  WL2      LV1      WL2 x Donor     10     0.7     0.153      38.8
+## 11 WL2 x SQ3  WL2      SQ3      WL2 x Donor      1     1      NA          38.8
+## 12 WL2 x TM2  WL2      TM2      WL2 x Donor      2     1       0          38.8
+## 13 WL2 x WL1  WL2      WL1      WL2 x Donor      2     1       0          38.8
+## 14 WL2 x WV   WL2      WV       WL2 x Donor      5     0.8     0.2        38.8
+## 15 WL2 x YO11 WL2      YO11     WL2 x Donor      9     1       0          38.8
+## 16 YO11 x WL2 YO11     WL2      Donor x WL2      5     0.8     0.2        37.9
+## # ℹ 9 more variables: dame_Long <dbl>, dame_elev <dbl>, dame_GeoDist <dbl>,
+## #   sire_Lat <dbl>, sire_Long <dbl>, sire_elev <dbl>, sire_GeoDist <dbl>,
+## #   other_Parent_elev <dbl>, other_Parent_GeoDist <dbl>
 ```
 
 
@@ -464,14 +498,68 @@ ggsave("../output/WL2_Traits/WL2_2025Plants_Y1Surv_F1sWL2.png", width = 12, heig
 ```
 
 
+``` r
+WL2_crosses_2025 %>% 
+  filter(N_Surv>1) %>% 
+  ggplot(aes(x=other_Parent_GeoDist, y=mean_Surv,
+             group = pop.id, colour=other_Parent_elev)) + 
+  geom_point(size=6, aes(shape=Pop.Type)) +
+  geom_errorbar(aes(ymin=mean_Surv-sem_Surv,ymax=mean_Surv+sem_Surv),
+                 width=0, linewidth = 2) +
+  theme_classic() + 
+  scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
+  annotate("text", x = 136.2622, y= 0.62, label = "WL2", 
+           colour = "purple", fontface="bold", size = 22 / .pt) +
+  scale_y_continuous(expand = c(0.01, 0.03)) +
+  labs(x="Geographic Dist \n of Donor", y="Y1 Surv", 
+       color="Elevation \n of Donor (m)", shape="Population") +
+  theme(text=element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1)) 
+```
+
+![](WL2_2025_Y1Survival_files/figure-html/unnamed-chunk-14-1.png)<!-- -->
+
+``` r
+ggsave("../output/WL2_Traits/WL2_2025Plants_Y1Surv_F1sWL2_GeoDist.png", width = 12, height = 6, units = "in")
+
+WL2_crosses_2025 %>% arrange(other_Parent_GeoDist)
+```
+
+```
+## # A tibble: 16 × 17
+## # Groups:   pop.id [16]
+##    pop.id     dame_pop sire_pop Pop.Type    N_Surv mean_Surv sem_Surv dame_Lat
+##    <chr>      <chr>    <chr>    <chr>        <int>     <dbl>    <dbl>    <dbl>
+##  1 WL2        WL2      <NA>     WL2             46     0.739   0.0655     38.8
+##  2 WL1 x WL2  WL1      WL2      Donor x WL2     11     0.818   0.122      38.8
+##  3 WL2 x WL1  WL2      WL1      WL2 x Donor      2     1       0          38.8
+##  4 DPR x WL2  DPR      WL2      Donor x WL2      9     0.667   0.167      39.2
+##  5 WL2 x DPR  WL2      DPR      WL2 x Donor      6     0.833   0.167      38.8
+##  6 WL2 x CC   WL2      CC       WL2 x Donor      2     0.5     0.5        38.8
+##  7 WL2 x YO11 WL2      YO11     WL2 x Donor      9     1       0          38.8
+##  8 YO11 x WL2 YO11     WL2      Donor x WL2      5     0.8     0.2        37.9
+##  9 TM2 x WL2  TM2      WL2      Donor x WL2     13     0.769   0.122      39.6
+## 10 WL2 x TM2  WL2      TM2      WL2 x Donor      2     1       0          38.8
+## 11 BH x WL2   BH       WL2      Donor x WL2     13     0.692   0.133      37.4
+## 12 LV1 x WL2  LV1      WL2      Donor x WL2      9     0.667   0.167      40.5
+## 13 WL2 x LV1  WL2      LV1      WL2 x Donor     10     0.7     0.153      38.8
+## 14 SQ3 x WL2  SQ3      WL2      Donor x WL2      5     1       0          36.7
+## 15 WL2 x SQ3  WL2      SQ3      WL2 x Donor      1     1      NA          38.8
+## 16 WL2 x WV   WL2      WV       WL2 x Donor      5     0.8     0.2        38.8
+## # ℹ 9 more variables: dame_Long <dbl>, dame_elev <dbl>, dame_GeoDist <dbl>,
+## #   sire_Lat <dbl>, sire_Long <dbl>, sire_elev <dbl>, sire_GeoDist <dbl>,
+## #   other_Parent_elev <dbl>, other_Parent_GeoDist <dbl>
+```
+
+
+
 ## Mid Parent 
 
 ### Prep
 
 ``` r
-parent_F1s_surv <- mort_pheno_2025_pops_2025plants %>% 
+parent_F1s_surv <- y1surv_2025plants %>% 
   filter(Pop.Type!="F2") %>% #remove F2s
-  select(bed:Unique.ID, Pop.Type, pop.id, rep, Surv) %>% 
+  select(bed:Unique.ID, Pop.Type, pop.id, rep, Y1Surv) %>% 
   separate(pop.id, c("dame_pop",NA, "sire_pop"), remove = FALSE) %>% #define pops for crosses
   mutate(sire_pop=if_else(Pop.Type=="Parent", dame_pop, sire_pop)) %>% 
   #add clim and elev info for dames and sires:
@@ -483,7 +571,7 @@ parent_F1s_surv <- mort_pheno_2025_pops_2025plants %>%
 ```
 
 ```
-## Warning: Expected 3 pieces. Missing pieces filled with `NA` in 193 rows [1, 2, 3, 4, 7,
+## Warning: Expected 3 pieces. Missing pieces filled with `NA` in 187 rows [1, 2, 3, 4, 7,
 ## 8, 9, 10, 13, 14, 15, 16, 18, 21, 22, 24, 25, 27, 28, 30, ...].
 ```
 
@@ -492,8 +580,8 @@ parent_F1s_surv_summary <- parent_F1s_surv %>%
   group_by(Pop.Type, pop.id, dame_pop, sire_pop, 
            dame_elev, meanElev) %>% 
   summarise(n=n(), 
-            mean_Y1Surv=mean(Surv, na.rm=TRUE), 
-            stdev_Y1Surv=sd(Surv, na.rm=TRUE)) 
+            mean_Y1Surv=mean(Y1Surv, na.rm=TRUE), 
+            stdev_Y1Surv=sd(Y1Surv, na.rm=TRUE)) 
 ```
 
 ```
@@ -510,15 +598,15 @@ parent_F1s_surv_summary
 ## # Groups:   Pop.Type, pop.id, dame_pop, sire_pop, dame_elev [25]
 ##    Pop.Type pop.id    dame_pop sire_pop dame_elev meanElev     n mean_Y1Surv
 ##    <chr>    <chr>     <chr>    <chr>        <dbl>    <dbl> <int>       <dbl>
-##  1 F1       BH x WL2  BH       WL2           511.    1266.    14       0.643
-##  2 F1       DPR x WL2 DPR      WL2          1019.    1519.    10       0.6  
+##  1 F1       BH x WL2  BH       WL2           511.    1266.    14       0.692
+##  2 F1       DPR x WL2 DPR      WL2          1019.    1519.    10       0.667
 ##  3 F1       LV1 x WL2 LV1      WL2          2593.    2307.     9       0.667
-##  4 F1       SQ3 x WL2 SQ3      WL2          2373.    2197.     7       0.714
-##  5 F1       TM2 x WL2 TM2      WL2           379.    1200.    14       0.714
-##  6 F1       WL1 x WL2 WL1      WL2          1614.    1817.    13       0.692
+##  4 F1       SQ3 x WL2 SQ3      WL2          2373.    2197.     7       1    
+##  5 F1       TM2 x WL2 TM2      WL2           379.    1200.    14       0.769
+##  6 F1       WL1 x WL2 WL1      WL2          1614.    1817.    13       0.818
 ##  7 F1       WL2 x CC  WL2      CC           2020.    1167.     2       0.5  
-##  8 F1       WL2 x DPR WL2      DPR          2020.    1519.     7       0.714
-##  9 F1       WL2 x LV1 WL2      LV1          2020.    2307.    11       0.636
+##  8 F1       WL2 x DPR WL2      DPR          2020.    1519.     7       0.833
+##  9 F1       WL2 x LV1 WL2      LV1          2020.    2307.    11       0.7  
 ## 10 F1       WL2 x SQ3 WL2      SQ3          2020.    2197.     1       1    
 ## # ℹ 15 more rows
 ## # ℹ 1 more variable: stdev_Y1Surv <dbl>
@@ -589,15 +677,15 @@ mid_parent_F1s_y1surv
 ## # Groups:   Pop.Type, pop.id, dame_pop, sire_pop, dame_elev [30]
 ##    Pop.Type pop.id    dame_pop sire_pop dame_elev meanElev     n mean_Y1Surv
 ##    <chr>    <chr>     <chr>    <chr>        <dbl>    <dbl> <int>       <dbl>
-##  1 F1       BH x WL2  BH       WL2           511.    1266.    14       0.643
-##  2 F1       DPR x WL2 DPR      WL2          1019.    1519.    10       0.6  
+##  1 F1       BH x WL2  BH       WL2           511.    1266.    14       0.692
+##  2 F1       DPR x WL2 DPR      WL2          1019.    1519.    10       0.667
 ##  3 F1       LV1 x WL2 LV1      WL2          2593.    2307.     9       0.667
-##  4 F1       SQ3 x WL2 SQ3      WL2          2373.    2197.     7       0.714
-##  5 F1       TM2 x WL2 TM2      WL2           379.    1200.    14       0.714
-##  6 F1       WL1 x WL2 WL1      WL2          1614.    1817.    13       0.692
+##  4 F1       SQ3 x WL2 SQ3      WL2          2373.    2197.     7       1    
+##  5 F1       TM2 x WL2 TM2      WL2           379.    1200.    14       0.769
+##  6 F1       WL1 x WL2 WL1      WL2          1614.    1817.    13       0.818
 ##  7 F1       WL2 x CC  WL2      CC           2020.    1167.     2       0.5  
-##  8 F1       WL2 x DPR WL2      DPR          2020.    1519.     7       0.714
-##  9 F1       WL2 x LV1 WL2      LV1          2020.    2307.    11       0.636
+##  8 F1       WL2 x DPR WL2      DPR          2020.    1519.     7       0.833
+##  9 F1       WL2 x LV1 WL2      LV1          2020.    2307.    11       0.7  
 ## 10 F1       WL2 x SQ3 WL2      SQ3          2020.    2197.     1       1    
 ## # ℹ 20 more rows
 ## # ℹ 2 more variables: stdev_Y1Surv <dbl>, elevation.group <chr>
@@ -620,7 +708,7 @@ mid_parent_F1s_y1surv %>%
   facet_wrap(vars(elevation.group), scales="free")
 ```
 
-![](WL2_2025_Y1Survival_files/figure-html/unnamed-chunk-16-1.png)<!-- -->
+![](WL2_2025_Y1Survival_files/figure-html/unnamed-chunk-17-1.png)<!-- -->
 
 ``` r
 ggsave("../output/WL2_Traits/WL2_2025Plants_Y1Surv.png", width = 20, height = 8, units = "in")
@@ -641,7 +729,7 @@ parent_F1s_surv_summary %>%
   labs(y="Avg Y1 Survival + Stdev", x="Population", fill="Elevation (m)", color="Elevation (m)")
 ```
 
-![](WL2_2025_Y1Survival_files/figure-html/unnamed-chunk-17-1.png)<!-- -->
+![](WL2_2025_Y1Survival_files/figure-html/unnamed-chunk-18-1.png)<!-- -->
 
 ``` r
 ggsave("../output/WL2_Traits/WL2_2025Plants_Y1Surv_Parents.png", width = 14, height = 8, units = "in")
