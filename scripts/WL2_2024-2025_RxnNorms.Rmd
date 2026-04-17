@@ -337,6 +337,40 @@ y1surv_F1s_fig
 ggsave("../output/WL2_Traits/WL2_Y1Surv_RxNm_F1s.png", width = 9, height = 6, units = "in")
 ```
 
+With line between WV x WL2 and WL2 x WV
+```{r}
+y1surv_all_F1s_WV <- y1surv_all_F1s %>% 
+  select(pop, Garden_Year, N) %>% 
+  pivot_wider(names_from = Garden_Year, values_from = N) %>% 
+  mutate(All.Years=if_else(pop=="WV x WL2" | pop=="WL2 x WV", TRUE, 
+                           if_else(!is.na(`2025`) & !is.na(`2024`), TRUE, FALSE))) %>% 
+  filter(All.Years != "FALSE") 
+dim(y1surv_all_F1s_WV) #now 7 F1s
+
+y1surv_all_F1s_WV_years <- y1surv_all_F1s_WV %>% 
+  left_join(y1surv_all_F1s) %>% 
+  select(pop, meanSurv:Garden_Year) %>% 
+  separate(pop, c("Pop1", "Pop2"), sep = " x ", remove = FALSE) %>% 
+  left_join(elev_info_yo, by=join_by(Pop1==pop)) %>% 
+  mutate(other_parent=if_else(Pop2=="WL2", Pop1, Pop2))
+y1surv_all_F1s_WV_years
+
+y1surv_all_F1s_WV_years %>% 
+  ggplot(aes(x=Garden_Year, y=meanSurv, group=other_parent, color=elev_m)) +
+  geom_point(size=6) + 
+  geom_line(linewidth=1.5) +
+  geom_errorbar(aes(ymin=meanSurv-semSurv,ymax=meanSurv+semSurv),
+                width=0, linewidth = 2) +
+  theme_classic() + 
+  scale_colour_gradient(low = "#F5A540", high = "#0043F0")  +
+  labs(y="Y1 Survival", color="Elevation (m) \n of Donor", x="WL2 Garden Year") +
+  scale_y_continuous(expand = c(0.01, 0.02)) +
+  theme(text=element_text(size=28))
+y1surv_F1s_fig
+ggsave("../output/WL2_Traits/WL2_Y1Surv_RxNm_F1sWV.png", width = 9, height = 6, units = "in")
+```
+
+
 ## Year 1 Survival for F1s and Parents 
 ```{r}
 y1surv_fig <- ggarrange(y1surv_parents_fig, y1surv_F1s_fig,
