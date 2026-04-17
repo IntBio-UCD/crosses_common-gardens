@@ -22,6 +22,15 @@ Question: Is assisted gene flow better than assisted migration?
 library(tidyverse)
 library(ggpubr) #ggarrange
 
+
+#making topo maps:
+library(elevatr)
+library(terra)
+library(sf)
+library(giscoR)
+library(marmap)
+library(ggrepel) #for repelling labels 
+
 sem <- function(x, na.rm=FALSE) {  #for calculating standard error
   sd(x,na.rm=na.rm)/sqrt(length(na.omit(x)))
 } 
@@ -54,6 +63,38 @@ head(clim_dist_2024)
 clim_dist_2024_wide <- clim_dist_2024 %>% 
   pivot_wider(names_from = timeframe, values_from = Gowers_Dist, names_prefix = "GD_") %>% 
   rename(pop=parent.pop)
+```
+
+## Map of populations (WL2 F1s only)
+```{r}
+garden_loc <- tibble(pop="Wl2_Garden", elev_m=2020, Lat=38.82599, Long=-120.25090)
+wl2_f1s_locs <- clim_dist_2024_wide %>% 
+  select(pop, elev_m:Long) %>%
+  filter(pop=="WL2" | pop=="SQ3" | pop=="LV1" | 
+           pop=="WV" | pop=="DPR" | pop=="TM2" | pop=="BH") %>% 
+  bind_rows(garden_loc)
+states <- map_data("state") %>% filter(region == "california")
+
+ggplot() +
+  geom_polygon(data = states, aes(x = long, y = lat, group = group), fill = "gray") +
+  coord_quickmap(xlim = c(-125, -114), ylim = c(35.8, 41))+
+  geom_point(data = wl2_f1s_locs,
+             aes(x = Long, y = Lat, color=elev_m),
+             size = 6) +
+  geom_label_repel(data = wl2_f1s_locs,
+         aes(x = Long, y = Lat,
+             label = `pop`),
+         min.segment.length = 0,
+         max.overlaps = 100,
+         #force = 3,
+         box.padding = 0.4,
+         label.padding = 0.15,
+         label.size = 0.1,
+         size = 3) +
+  labs(color="Elevation (m)") +
+  scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
+  theme_void()
+ggsave("../output/WL2_Traits/WL2F1s_Map.png", width = 10, height = 10, units = "in")
 ```
 
 ## Calculate y1 fitness and remove plants not planted in 2024
