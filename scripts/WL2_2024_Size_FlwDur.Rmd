@@ -1,0 +1,106 @@
+---
+title: "WL2_2024_Size_FlwDur"
+author: "Brandie QC"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Checking for a relationship between size at flowering and flowering duration
+
+## Libraries
+```{r}
+library(tidyverse)
+library(lmerTest)
+
+sem <- function(x, na.rm=FALSE) {  #for calculating standard error
+  sd(x,na.rm=na.rm)/sqrt(length(na.omit(x)))
+} 
+```
+
+## Rep Duration data from Maya
+```{r}
+rep_dur <- read_csv("../input/WL2_2024_Data/init.repro.csv")
+summary(rep_dur)
+head(rep_dur)
+
+wl2_flw_dur <- rep_dur %>% 
+  select(site, year, bed:rep, flower.duration) %>% 
+  filter(year==24, site=="WL2")
+```
+
+## Pheno 2024
+```{r}
+pheno_2024 <- read_csv("../input/WL2_2024_Data/CorrectedCSVs/WL2_mort_pheno_20241023_corrected.csv") %>% select(bed:unique.ID, flower.date, death.date, missing.date)
+```
+
+## Size 2024
+```{r}
+size_2024 <- dir("../input/WL2_2024_Data/CorrectedCSVs",
+             pattern="WL2_size_survey.*corrected.*csv",
+             full.names=TRUE)
+
+size_2024_dat_wl2 <- tibble(path=size_2024, filename=basename(path)) %>% 
+  mutate(survey_date=str_extract(filename, "20[0-9]*"),
+         survey_date=lubridate::ymd(survey_date))
+size_2024_dat_wl2
+
+size_2024_dat_wl22 <- size_2024_dat_wl2 %>%
+  mutate(sheets=map(path, 
+                    read_csv,
+                    na = c("", "NA", "-", "N/A") # sets NA strings. 
+                    )) %>%
+  select(-path)
+
+#check for data issues
+#map(size_2024_dat_wl22$sheets, colnames) %>% #get unique column names 
+#  unlist() %>%
+#  unique() %>%
+#  sort() 
+map(size_2024_dat_wl22$sheets, head,10) 
+size_2024_dat_wl22$sheets[[7]] %>% filter(!is.na(...10)) # extra notes 
+size_2024_dat_wl22$sheets[[12]] %>% filter(!is.na(...11)) # extra notes
+#remove 2023 plants from first 3 surveys (these plants are in the "2023Plants_corrected" files):
+size_2024_dat_wl22$sheets[[2]] <- size_2024_dat_wl22$sheets[[2]] %>% filter(!is.na(block)) %>% filter(!is.na(unique.ID)) 
+size_2024_dat_wl22$sheets[[4]] <- size_2024_dat_wl22$sheets[[4]] %>% filter(!is.na(block)) %>% filter(!is.na(unique.ID)) 
+size_2024_dat_wl22$sheets[[6]] <- size_2024_dat_wl22$sheets[[6]] %>% filter(!is.na(block)) %>% filter(!is.na(unique.ID)) 
+
+all_2024_size <- size_2024_dat_wl22 %>% 
+  unnest(sheets) %>% 
+  select(bed, col, row, unique.ID, survey_date, height.cm)
+```
+
+## Size at Flowering (Individual Level)
+```{r}
+sizeatrep_2024 <- all_2024_size %>% 
+  left_join(pheno_2024) %>% 
+  mutate(flower.date = lubridate::mdy(flower.date)) %>% 
+  filter(!is.na(flower.date)) %>% 
+  filter(survey_date==flower.date) %>% 
+  filter(!is.na(height.cm)) %>% 
+  select(-death.date, -missing.date)
+summary(sizeatrep_2024)
+```
+
+## flowering duration ~ size at flowering 
+```{r}
+size_flwdur <- sizeatrep_2024 %>% 
+  left_join(wl2_flw_dur) %>% 
+  select(-site, -year) %>% 
+  filter(!is.na(flower.duration))
+
+size_flwdur %>% 
+  ggplot(aes(height.cm, flower.duration)) + 
+  geom_point() + 
+  theme_classic() +
+  labs(x="Height (cm)", y="Flowering Duration (days)")
+ggsave("../output/WL2_Traits/Size_FlwDur_WL2_2024.png", width = 8, height = 6, units = "in")
+
+size_flwdur_mod1 <- lmer(flower.duration ~ height.cm + (1|pop), data=size_flwdur)
+summary(size_flwdur_mod1)
+size_flwdur_mod2 <- lm(flower.duration ~ height.cm, data=size_flwdur)
+summary(size_flwdur_mod2)
+```
