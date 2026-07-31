@@ -2,7 +2,9 @@
 title: "Plasticity_SampleSizes"
 author: "Brandie QC"
 date: "`r Sys.Date()`"
-output: html_document
+output: 
+  html_document: 
+    keep_md: true
 ---
 
 ```{r setup, include=FALSE}
@@ -131,8 +133,8 @@ ucd_mortpheno_2024_pops <- ucd_mortpheno_2024 %>%
   left_join(ucd_pop_info_2024) %>% 
   filter(unique.ID!="buffer") %>% 
   filter(unique.ID!=2032) %>%  #REMOVE PLANT 2032 (BED F-39-A) - MULTIPLE PLANTS WERE GROWING IN THAT SPOT. 
-  mutate(pop.id=if_else(str_detect(pop.id, "WL2"), "WL2",
-                        if_else(str_detect(pop.id, "TM2"), "TM2",
+  mutate(pop.id=if_else(str_detect(pop.id, "WL2-"), "WL2",
+                        if_else(str_detect(pop.id, "TM2-"), "TM2",
                                 pop.id))) #remove mf from pop name of WL2 and TM2 plants 
 
 ucd_2024_est <- ucd_mortpheno_2024_pops %>% 
@@ -156,14 +158,14 @@ wl2_2024_pops <- wl2_2024_est %>%
   group_by(Pop.Type, pop) %>% 
   summarise(WL2_2024=n()) %>% 
   filter(WL2_2024>2) #remove pops/crosses with few indivs
-wl2_2024_est %>% filter(Pop.Type=="Parent") %>% select(pop) %>% distinct() #10 parent pops with establishment (only planted 10 starting this year)
+wl2_2024_est %>% filter(Pop.Type=="Parent") %>% select(pop) %>% distinct() %>% pull() #10 parent pops with establishment (only planted 10 starting this year)
 
 wl2_2025_popmfs <- wl2_2025_est %>% 
   rename(pop=pop.id) %>% 
   group_by(Pop.Type, pop, mf) %>% 
   summarise(WL2_2025=n()) %>% 
   filter(WL2_2025>2) #remove pop-mf combos with few indivs
-#wl2_2025_est %>% filter(Pop.Type=="Parent") %>% select(pop.id) %>% distinct() #10 parent pops with establishment
+wl2_2025_est %>% filter(Pop.Type=="Parent") %>% select(pop.id) %>% distinct() %>% pull() #10 parent pops with establishment
 
 ucd_2023_popmfs <- ucd_2023_est %>% 
   group_by(pop, mf) %>% 
@@ -176,7 +178,7 @@ ucd_2024_popmfs <- ucd_2024_est %>%
   group_by(Pop.Type, pop, mf) %>% 
   summarise(UCD_2024=n()) %>% 
   filter(UCD_2024>2) #remove pop-mf combos with few indivs
-#ucd_2024_est %>% filter(str_detect(`Plant Type`, "Parent")) %>% select(pop.id) %>% distinct() #10 parent pops with establishment
+ucd_2024_est %>% filter(str_detect(`Plant Type`, "Parent")) %>% select(pop.id) %>% distinct() %>% pull() #10 parent pops with establishment
 ```
 
 ## Spatial Plasticity
@@ -184,25 +186,78 @@ ucd_2024_popmfs <- ucd_2024_est %>%
 ### 2023 WL2 vs. 2023 UCD (Pops and mfs)
 
 ```{r}
+wl2_ucd_2023 <- wl2_2023_popmfs %>% 
+  left_join(ucd_2023_popmfs) %>% 
+  filter(!is.na(UCD_2023)) #only keep pop/mfs with match at UCD
+dim(wl2_ucd_2023) #52 pop/mfs
+unique(wl2_ucd_2023$pop) #19 pops 
 
+wl2_ucd_2023 %>% 
+  group_by(pop) %>% 
+  summarise(TotalMfs=n()) %>% 
+  arrange(TotalMfs)
 ```
 
 ### 2023 WL2 vs. 2024 UCD (Pops and mfs)
 
 ```{r}
+wl2_2023_ucd_2024 <- wl2_2023_popmfs %>% 
+  left_join(ucd_2024_popmfs) %>% 
+  filter(!is.na(UCD_2024)) %>% 
+  select(-Pop.Type)
+dim(wl2_2023_ucd_2024) #24 pop/mfs
+unique(wl2_2023_ucd_2024$pop) #7 pops 
 
+wl2_2023_ucd_2024 %>% 
+  group_by(pop) %>% 
+  summarise(TotalMfs=n()) %>% 
+  arrange(TotalMfs)
 ```
 
 ### 2024 WL2 vs. 2024 UCD (Pops only)
 
 ```{r}
+ucd_2024_popmfs_prep <- ucd_2024_est %>% 
+  rename(pop=pop.id, Pop.Type=`Plant Type`) %>% 
+  mutate(Pop.Type=if_else(str_detect(Pop.Type, "Parent"), "Parent", 
+                          Pop.Type)) %>% #change to match wl2_2024
+  group_by(Pop.Type, pop) %>% #don't group by mf since no mf for wl2_2024 
+  summarise(UCD_2024=n()) %>% 
+  filter(UCD_2024>2) 
 
+wl2_ucd_2024 <- wl2_2024_pops %>% 
+  left_join(ucd_2024_popmfs_prep) %>% 
+  filter(!is.na(UCD_2024)) 
+dim(wl2_ucd_2024) #45 pops/cross types 
+
+wl2_ucd_2024 %>% 
+  group_by(Pop.Type) %>% 
+  summarise(Total=n()) #7 parent pops, 6 F1s, 3 F2s 
 ```
 
 ### 2025 WL2 vs. 2024 UCD (Pops and mfs)
 
 ```{r}
+wl2_2025_popmfs_prep <- 
+  wl2_2025_est %>% 
+  rename(pop=pop.id) %>% 
+  mutate(mf=if_else(Pop.Type=="Parent", mf, 
+                    NA)) %>% #only keep mfs for parents since that's the mf info we have for ucd_2024
+  group_by(Pop.Type, pop, mf) %>% 
+  summarise(WL2_2025=n()) %>% 
+  filter(WL2_2025>2) %>% 
+  mutate(mf=as.numeric(mf))
 
+wl2_2025_ucd_2024 <- wl2_2025_popmfs_prep %>% 
+  left_join(ucd_2024_popmfs, join_by(pop,mf)) %>% 
+  filter(!is.na(UCD_2024)) %>% 
+  select(Pop.Type=Pop.Type.x, pop:WL2_2025, UCD_2024)
+dim(wl2_2025_ucd_2024) #20 pops/cross types 
+
+wl2_2025_ucd_2024 %>% 
+  group_by(Pop.Type) %>% 
+  summarise(Total=n()) #9 F1s 
+wl2_2025_ucd_2024 %>% filter(Pop.Type=="Parent") %>% select(pop) %>% distinct() %>% pull() #4 parent pops 
 ```
 
 ### 2026 WL2 vs. 2024 UCD (Pops and mfs)
