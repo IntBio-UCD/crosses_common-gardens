@@ -116,7 +116,8 @@ wl2_mortpheno_2026_pops <- wl2_mortpheno_2026 %>%
   select(Unique.ID, death.date, survey.notes) %>% 
   left_join(wl2_pop_info_2026) %>% 
   filter(!is.na(Unique.ID)) %>% 
-  filter(status=="available") #only keep plants planted in 2026
+  filter(status=="available") %>%  #only keep plants planted in 2026
+  mutate(Type=if_else(Unique.ID=="3755", "BC1", Type)) #add missing type info
 
 wl2_2026_est <- wl2_mortpheno_2026_pops %>% 
   filter(!str_detect(survey.notes, "dead at planting")) %>% 
@@ -194,6 +195,19 @@ wl2_2025_popmfs <- wl2_2025_est %>%
   summarise(WL2_2025=n()) %>% 
   filter(WL2_2025>2) #remove pop-mf combos with few indivs
 wl2_2025_est %>% filter(Pop.Type=="Parent") %>% select(pop.id) %>% distinct() %>% pull() #10 parent pops with establishment
+
+wl2_2026_popmfs <- wl2_2026_est %>% 
+  rename(pop=pop.id, Pop.Type=Type) %>% 
+  group_by(Pop.Type, pop, mf) %>% 
+  summarise(WL2_2026=n()) %>% 
+  filter(WL2_2026>2) #remove pop-mf combos with few indivs
+#above only leaves 3 BC1s and no parents so just summarize by pop instead
+wl2_2026_pops <- wl2_2026_est %>% 
+  rename(pop=pop.id, Pop.Type=Type) %>% 
+  group_by(Pop.Type, pop) %>% 
+  summarise(WL2_2026=n()) %>% 
+  filter(WL2_2026>2) 
+wl2_2026_est %>% filter(Type=="Parent") %>% select(pop.id) %>% distinct() %>% pull() #7 parent pops with establishment
 
 ucd_2023_popmfs <- ucd_2023_est %>% 
   group_by(pop, mf) %>% 
@@ -291,7 +305,11 @@ wl2_2025_ucd_2024 %>% filter(Pop.Type=="Parent") %>% select(pop) %>% distinct() 
 ### 2026 WL2 vs. 2024 UCD (Pops and mfs)
 
 ```{r}
-
+wl2_2026_ucd_2024 <- wl2_2026_pops %>% 
+  left_join(ucd_2024_popmfs_prep) %>% 
+  filter(!is.na(UCD_2024))
+dim(wl2_2026_ucd_2024) #only 3 pops
+unique(wl2_2026_ucd_2024$pop) 
 ```
 
 ## Temporal Plasticity
