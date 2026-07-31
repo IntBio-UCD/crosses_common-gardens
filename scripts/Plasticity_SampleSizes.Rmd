@@ -367,3 +367,13 @@ wl2_temporal_pops <- wl2_2023_popmfs_prep %>%
 wl2_temporal_pops
 ```
 
+```{r}
+wl2_temporal_cross_gardens <- wl2_2024_pops %>% 
+  full_join(wl2_2025_popmfs_prep) %>% 
+  full_join(wl2_2026_pops)
+wl2_temporal_cross_gardens %>% filter(!is.na(WL2_2025)) %>% filter(!is.na(WL2_2024)) #18 pops/cross types overlap b/t 2024 and 2025 
+#3 F1s, 9 F2s, 6 parents
+
+wl2_temporal_cross_gardens %>% filter(!is.na(WL2_2026)) #only 2026 overlap is with WL2 and TM2 for 2024 and 2025
+```
+
