@@ -33,6 +33,7 @@ library(tidyverse)
 
 ## WL2 data
 
+### 2023
 ```{r}
 wl2_mortpheno_2023 <- read_csv("../../parent_pops_common-gardens/input/WL2_Data/CorrectedCSVs/WL2_mort_pheno_20231020_corrected.csv")
 
@@ -52,6 +53,7 @@ wl2_2023_est %>%
   geom_histogram()
 ```
 
+### 2024
 ```{r}
 wl2_mortpheno_2024 <- read_csv("../input/WL2_2024_Data/CorrectedCSVs/WL2_mort_pheno_20241023_corrected.csv")
 wl2_pop_info_2024 <- read_csv("../input/WL2_2024_Data/Final_2023_2024_Pop_Loc_Info.csv") %>% 
@@ -73,6 +75,7 @@ wl2_2024_est %>%
   geom_histogram()
 ```
 
+### 2025
 ```{r}
 wl2_mortpheno_2025 <- read_csv("../input/WL2_2025_Data/CorrectedCSVs/WL2_mort_pheno_20250929_corrected.csv")
 wl2_pop_info_2025 <- read_csv("../input/WL2_2025_Data/2025_Pop_Loc_Info Updated.csv") %>% 
@@ -103,8 +106,32 @@ wl2_2025_est %>%
   geom_histogram()
 ```
 
+### 2026
+```{r}
+wl2_mortpheno_2026 <- read_csv("../input/WL2_2026_Data/CorrectedCSVs/WL2_mort_pheno_20260724_corrected.csv") %>% filter(Unique.ID!="buffer")
+wl2_pop_info_2026 <- read_csv("../input/WL2_2026_Data/Buffer New Bed Map_Corrected.csv") %>% 
+  select(pop.id:Rep, status, Type, Unique.ID) %>% filter(Unique.ID!="buffer")
+
+wl2_mortpheno_2026_pops <- wl2_mortpheno_2026 %>% 
+  select(Unique.ID, death.date, survey.notes) %>% 
+  left_join(wl2_pop_info_2026) %>% 
+  filter(!is.na(Unique.ID)) %>% 
+  filter(status=="available") #only keep plants planted in 2026
+
+wl2_2026_est <- wl2_mortpheno_2026_pops %>% 
+  filter(!str_detect(survey.notes, "dead at planting")) %>% 
+  select(-survey.notes, -status) %>% 
+  mutate(death.date=mdy(death.date)) %>% 
+  filter(death.date > "2026-06-12" | is.na(death.date))
+
+wl2_2026_est %>% 
+  ggplot(aes(death.date)) +
+  geom_histogram()
+```
+
 ## UCD data
 
+### 2023
 ```{r}
 ucd_mortpheno_2023 <- read_csv("../../parent_pops_common-gardens/input/UCD_Data/CorrectedCSVs/UCD_transplants_pheno_mort_20231016_corrected.csv") 
 
@@ -122,6 +149,7 @@ ucd_2023_est %>%
   geom_histogram()
 ```
 
+### 2024
 ```{r}
 ucd_mortpheno_2024 <- read_csv("../input/UCD2023_2024_Data/CorrectedCSVs/UCD_mort_pheno_20241108_corrected.csv") 
 ucd_pop_info_2024 <- read_csv("../input/UCD2023_2024_Data/Genotypes_2023_2024.csv") %>%
