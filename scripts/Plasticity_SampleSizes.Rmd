@@ -317,7 +317,17 @@ unique(wl2_2026_ucd_2024$pop)
 ### UCD: 2023, 2024 (Pops and mfs)
 
 ```{r}
+ucd_temporal <- ucd_2023_popmfs %>% 
+  left_join(ucd_2024_popmfs) %>% 
+  filter(!is.na(UCD_2024))
+dim(ucd_temporal) #22 pop/mfs
 
+unique(ucd_temporal$pop) #6 pops 
+
+ucd_temporal %>% 
+  group_by(pop) %>% 
+  summarise(TotalMfs=n()) %>% 
+  arrange(TotalMfs)
 ```
 
 ### WL2: 2023, 2024 (pops only), 2025, 2026
