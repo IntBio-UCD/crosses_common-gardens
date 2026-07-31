@@ -1,0 +1,226 @@
+---
+title: "Plasticity_SampleSizes"
+author: "Brandie QC"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Figuring out sample sizes for potential plasticity analysis
+
+Potential Analyses:
+
+-   Size post-establishment
+
+-   Size at rep
+
+-   Growth rate
+
+-   Physiology?
+
+-   Changes in above traits (plasticity) --\>/correspond with diffs in fitness?
+
+## Libraries
+
+```{r}
+library(tidyverse)
+```
+
+## WL2 data
+
+```{r}
+wl2_mortpheno_2023 <- read_csv("../../parent_pops_common-gardens/input/WL2_Data/CorrectedCSVs/WL2_mort_pheno_20231020_corrected.csv")
+
+wl2_mortpheno_2023_pops <- wl2_mortpheno_2023 %>% 
+  select(block:rep, death.date) %>% 
+  filter(pop!="buffer") %>% 
+  filter(!str_detect(pop, "\\*")) %>% 
+  mutate(pop=str_replace(pop, "0", "O")) %>% 
+  mutate(mf=as.numeric(mf))
+
+wl2_2023_est <- wl2_mortpheno_2023_pops %>% 
+  mutate(death.date=mdy(death.date)) %>% 
+  filter(death.date > "2023-08-10" | is.na(death.date)) #only keep indivs that established
+
+wl2_2023_est %>% 
+  ggplot(aes(death.date)) +
+  geom_histogram()
+```
+
+```{r}
+wl2_mortpheno_2024 <- read_csv("../input/WL2_2024_Data/CorrectedCSVs/WL2_mort_pheno_20241023_corrected.csv")
+wl2_pop_info_2024 <- read_csv("../input/WL2_2024_Data/Final_2023_2024_Pop_Loc_Info.csv") %>% 
+  select(Pop.Type:unique.ID) %>% 
+  rename(row=bedrow, col=bedcol)
+
+wl2_mortpheno_2024_pops <- wl2_mortpheno_2024 %>% 
+  select(bed:unique.ID, death.date, missing.date) %>% 
+  left_join(wl2_pop_info_2024) %>% 
+  filter(unique.ID!="buffer") %>% 
+  filter(Pop.Type!="2023-TM2-fruit", Pop.Type!="2023-survivor") #keep only 2024 plants 
+
+wl2_2024_est <- wl2_mortpheno_2024_pops %>% 
+  mutate(death.date=mdy(death.date), missing.date=mdy(missing.date)) %>% 
+  filter(death.date > "2024-07-06" | is.na(death.date))
+
+wl2_2024_est %>% 
+  ggplot(aes(death.date)) +
+  geom_histogram()
+```
+
+```{r}
+wl2_mortpheno_2025 <- read_csv("../input/WL2_2025_Data/CorrectedCSVs/WL2_mort_pheno_20250929_corrected.csv")
+wl2_pop_info_2025 <- read_csv("../input/WL2_2025_Data/2025_Pop_Loc_Info Updated.csv") %>% 
+  select(status:Unique.ID)
+
+wl2_mortpheno_2025_pops <- wl2_mortpheno_2025 %>% 
+  select(bed:Unique.ID, bud.date, death.date, survey.notes) %>% 
+  left_join(wl2_pop_info_2025) %>% 
+  filter(Unique.ID!="buffer", !is.na(Unique.ID)) %>% 
+  filter(status=="available") %>% #only keep plants planted in 2025
+  mutate(Pop.Type=if_else(str_detect(pop.id, "\\) x"), "F2",
+                          if_else(str_detect(pop.id, "x"), "F1",
+                                  "Parent"
+                          ))) #define different pop types 
+
+wl2_2025_est <- wl2_mortpheno_2025_pops %>% 
+  mutate(deadatplanting = if_else(is.na(survey.notes), NA,
+                                  if_else(survey.notes=="dead pre-planting" | 
+                                            survey.notes=="dead at planting",
+                                          "Yes", NA))) %>% 
+  filter(is.na(deadatplanting)) %>% #remove plants that were dead at planting 
+  select(-status, -deadatplanting, -survey.notes) %>% #remove unnecessary cols 
+  mutate(death.date=mdy(death.date)) %>% #convert to date format 
+  filter(death.date > "2025-06-21" | is.na(death.date))
+
+wl2_2025_est %>% 
+  ggplot(aes(death.date)) +
+  geom_histogram()
+```
+
+## UCD data
+
+```{r}
+ucd_mortpheno_2023 <- read_csv("../../parent_pops_common-gardens/input/UCD_Data/CorrectedCSVs/UCD_transplants_pheno_mort_20231016_corrected.csv") 
+
+ucd_mortpheno_2023_pops <- ucd_mortpheno_2023 %>% 
+  select(block:rep, death.date=`Death Date`) %>% 
+  filter(pop!="buffer") %>% 
+  filter(rep != 100) #get rid of individuals that germinated in the field  
+
+ucd_2023_est <- ucd_mortpheno_2023_pops %>% 
+  mutate(death.date=mdy(death.date)) %>% 
+  filter(death.date > "2022-12-24" | is.na(death.date)) #keep indivs that established
+
+ucd_2023_est %>% 
+  ggplot(aes(death.date)) +
+  geom_histogram()
+```
+
+```{r}
+ucd_mortpheno_2024 <- read_csv("../input/UCD2023_2024_Data/CorrectedCSVs/UCD_mort_pheno_20241108_corrected.csv") 
+ucd_pop_info_2024 <- read_csv("../input/UCD2023_2024_Data/Genotypes_2023_2024.csv") %>%
+  rename(col=column)
+
+ucd_mortpheno_2024_pops <- ucd_mortpheno_2024 %>% 
+  mutate(unique.ID=as.numeric(unique.ID)) %>% 
+  select(bed:unique.ID, death.date, missing.date) %>% 
+  left_join(ucd_pop_info_2024) %>% 
+  filter(unique.ID!="buffer") %>% 
+  filter(unique.ID!=2032) %>%  #REMOVE PLANT 2032 (BED F-39-A) - MULTIPLE PLANTS WERE GROWING IN THAT SPOT. 
+  mutate(pop.id=if_else(str_detect(pop.id, "WL2"), "WL2",
+                        if_else(str_detect(pop.id, "TM2"), "TM2",
+                                pop.id))) #remove mf from pop name of WL2 and TM2 plants 
+
+ucd_2024_est <- ucd_mortpheno_2024_pops %>% 
+  mutate(death.date=mdy(death.date), missing.date=mdy(missing.date)) %>% 
+  filter(death.date > "2023-12-29" | is.na(death.date))
+
+ucd_2024_est %>% 
+  ggplot(aes(death.date)) +
+  geom_histogram()
+```
+
+## Summaries
+```{r}
+wl2_2023_popmfs <- wl2_2023_est %>% 
+  group_by(pop, mf) %>% 
+  summarise(WL2_2023=n()) %>% 
+  filter(WL2_2023>2) #remove pop-mf combos with few indivs
+unique(wl2_2023_est$pop) #22 pops with establishment 
+
+wl2_2024_pops <- wl2_2024_est %>% 
+  group_by(Pop.Type, pop) %>% 
+  summarise(WL2_2024=n()) %>% 
+  filter(WL2_2024>2) #remove pops/crosses with few indivs
+wl2_2024_est %>% filter(Pop.Type=="Parent") %>% select(pop) %>% distinct() #10 parent pops with establishment (only planted 10 starting this year)
+
+wl2_2025_popmfs <- wl2_2025_est %>% 
+  rename(pop=pop.id) %>% 
+  group_by(Pop.Type, pop, mf) %>% 
+  summarise(WL2_2025=n()) %>% 
+  filter(WL2_2025>2) #remove pop-mf combos with few indivs
+#wl2_2025_est %>% filter(Pop.Type=="Parent") %>% select(pop.id) %>% distinct() #10 parent pops with establishment
+
+ucd_2023_popmfs <- ucd_2023_est %>% 
+  group_by(pop, mf) %>% 
+  summarise(UCD_2023=n()) %>% 
+  filter(UCD_2023>2) #remove pop-mf combos with few indivs
+unique(ucd_2023_est$pop) #23 pops with establishment 
+
+ucd_2024_popmfs <- ucd_2024_est %>% 
+  rename(pop=pop.id, Pop.Type=`Plant Type`) %>% 
+  group_by(Pop.Type, pop, mf) %>% 
+  summarise(UCD_2024=n()) %>% 
+  filter(UCD_2024>2) #remove pop-mf combos with few indivs
+#ucd_2024_est %>% filter(str_detect(`Plant Type`, "Parent")) %>% select(pop.id) %>% distinct() #10 parent pops with establishment
+```
+
+## Spatial Plasticity
+
+### 2023 WL2 vs. 2023 UCD (Pops and mfs)
+
+```{r}
+
+```
+
+### 2023 WL2 vs. 2024 UCD (Pops and mfs)
+
+```{r}
+
+```
+
+### 2024 WL2 vs. 2024 UCD (Pops only)
+
+```{r}
+
+```
+
+### 2025 WL2 vs. 2024 UCD (Pops and mfs)
+
+```{r}
+
+```
+
+### 2026 WL2 vs. 2024 UCD (Pops and mfs)
+
+```{r}
+
+```
+
+## Temporal Plasticity
+
+### UCD: 2023, 2024 (Pops and mfs)
+
+```{r}
+
+```
+
+### WL2: 2023, 2024 (pops only), 2025, 2026
+
+```{r}
+
+```
