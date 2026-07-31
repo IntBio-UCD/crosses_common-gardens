@@ -321,7 +321,6 @@ ucd_temporal <- ucd_2023_popmfs %>%
   left_join(ucd_2024_popmfs) %>% 
   filter(!is.na(UCD_2024))
 dim(ucd_temporal) #22 pop/mfs
-
 unique(ucd_temporal$pop) #6 pops 
 
 ucd_temporal %>% 
@@ -330,8 +329,41 @@ ucd_temporal %>%
   arrange(TotalMfs)
 ```
 
-### WL2: 2023, 2024 (pops only), 2025, 2026
+### WL2: 2023, 2024 (pops only), 2025, 2026 (pops only)
 
 ```{r}
+wl2_2023_2025_popmfs <- wl2_2023_popmfs %>% 
+  mutate(mf=as.character(mf)) %>% 
+  left_join(wl2_2025_popmfs) %>% 
+  filter(!is.na(WL2_2025))
+dim(wl2_2023_2025_popmfs) #13 pop/mfs 
+unique(wl2_2023_2025_popmfs$pop) #5 pops 
 
+wl2_2023_2025_popmfs %>% 
+  group_by(pop) %>% 
+  summarise(TotalMfs=n()) %>% 
+  arrange(TotalMfs)
 ```
+
+```{r}
+wl2_2023_popmfs_prep <- wl2_2023_est %>% 
+  group_by(pop) %>% 
+  summarise(WL2_2023=n()) %>% 
+  filter(WL2_2023>2) 
+wl2_2025_popmfs_prep <- wl2_2025_est %>%
+  rename(pop=pop.id) %>% 
+  group_by(pop) %>% 
+  summarise(WL2_2025=n()) %>% 
+  filter(WL2_2025>2)
+
+wl2_temporal_pops <- wl2_2023_popmfs_prep %>% 
+  left_join(wl2_2024_pops) %>% 
+  select(-Pop.Type) %>% 
+  left_join(wl2_2025_popmfs_prep) %>% 
+  left_join(wl2_2026_pops) %>% 
+  select(-Pop.Type) %>% 
+  filter(pop=="BH" | pop=="CC" | pop=="DPR" | pop=="LV1" | 
+         pop=="SQ3" | pop=="TM2" | pop=="WL1" | pop=="WL2" | pop=="YO11") #remove pops that aren't in any of the 2024, 2025, or 2026 gardens 
+wl2_temporal_pops
+```
+
