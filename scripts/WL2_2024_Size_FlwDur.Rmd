@@ -104,3 +104,54 @@ summary(size_flwdur_mod1)
 size_flwdur_mod2 <- lm(flower.duration ~ height.cm, data=size_flwdur)
 summary(size_flwdur_mod2)
 ```
+
+## fruit per plant 
+```{r}
+fruits <- read_csv("../input/WL2_2024_Data/CorrectedCSVs/WL2_Annual_Census_20241023_corrected.csv") %>% select(unique.ID, phen, num.fruit)
+head(fruits)
+unique(fruits$phen)
+
+fruits %>% filter(!is.na(num.fruit)) %>% filter(phen=="V")
+
+popinfo <- read_csv("../input/WL2_2024_Data/Final_2023_2024_Pop_Loc_Info.csv") %>% select(pop:unique.ID)
+
+fruits_reponly <- fruits %>% 
+  filter(phen=="P"|phen=="F") %>% 
+  left_join(popinfo)
+```
+
+## fruit per plant ~ size at flowering 
+```{r}
+size_fruitN <- sizeatrep_2024 %>% 
+  left_join(fruits_reponly)
+
+size_fruitN %>% 
+  ggplot(aes(height.cm, num.fruit)) + 
+  geom_point() + 
+  theme_classic() +
+  labs(x="Height (cm)", y="Fruit Number")
+ggsave("../output/WL2_Traits/Size_Fruits_WL2_2024.png", width = 8, height = 6, units = "in")
+
+size_fruitN_mod1 <- lmer(num.fruit ~ height.cm + (1|pop), data=size_fruitN)
+summary(size_fruitN_mod1) #sig 
+
+size_fruitN_mod2 <- lm(num.fruit ~ height.cm, data=size_fruitN)
+summary(size_fruitN_mod2) #not sig
+```
+
+## Add predictions to plot
+```{r}
+pred_df <- tibble(height.cm = seq(from = 4, to=78, length.out=65))
+size_fruitN_mod1_preds <- tibble(.pred=predict(size_fruitN_mod1,
+                                           newdata=pred_df,
+                                           re.form= NA, type="response")) %>% 
+  bind_cols(pred_df) 
+
+size_fruitN %>% 
+  ggplot(aes(height.cm, num.fruit)) + 
+  geom_point() + 
+  geom_line(data=size_fruitN_mod1_preds, aes(height.cm, .pred)) +
+  theme_classic() +
+  labs(x="Height (cm)", y="Fruit Number")
+ggsave("../output/WL2_Traits/Size_Fruits_Preds_WL2_2024.png", width = 8, height = 6, units = "in")
+```
