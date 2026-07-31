@@ -1,0 +1,839 @@
+pop.id,mf,dame_mf,sire_mf,Rep,bed,row,col,status,Type,block_2025,block,Unique.ID
+BH,13_2025,13,2025,8,C,6,A,available,Parent,,A,3515
+(DPR X WL2) X WL2,5_2-A,5,2-A,,C,6,B,available,BC1,,A,3763
+(WL1 X WL2) x WL2,,,,,C,7,B,available,,,A,3741
+(WL2 X CC) X WL2,6_12,6,12,,C,8,A,available,BC1,,A,3726
+(SQ3 x WL2) x (WL2),3_13-B,,,4,C,8,B,2025-survivor,,A,,2095
+(WL2 x TM2) x (WL2 x BH),1_2,,,2,C,9,A,2025-survivor,,A,,2291
+(WL2 X WV) X WL2,1_7-16,1,16-Jul,,C,9,B,available,BC1,,A,3892
+,,,,,C,10,A,out-of-bounds,,,,Rock
+WL2,1_2025,1,2025,,C,10,B,available,Parent,,A,3810
+(DPR X WL2) X WL2,16-Jul,,16-Jul,33,C,11,A,available,BC1,,A,3376
+(WL2 X BH) X WL2,2_13-B,2,13-B,3,C,11,B,available,BC1,,A,3188
+(WL2 X DPR) X WL2,4_13-B,4,13-B,,C,12,A,available,BC1,,A,3925
+WV,5_2023,5,2023,,C,12,B,available,Parent,,A,3708
+DPR,1_2025,1,2025,5,C,13,A,available,Parent,,A,3554
+TM2,43_2025,43,2025,,C,13,B,available,Parent,,A,3783
+(WL1 X WL2) x WL2,,,,,C,14,A,available,,,A,3756
+CC,5_2025,5,2025,7,C,14,B,available,Parent,,A,3535
+(WL2 X CC) X WL2,1_12,1,12,12,C,15,A,available,BC1,,A,3427
+(CC X WL2) X WL2,4_3,4,3,,C,15,B,available,BC1,,A,3873
+(WV X WL2) X WL2,,,,10,C,16,A,available,BC1,,A,3200
+(WL1 X WL2) X WL2,10_12,10,12,26,C,16,B,available,BC1,,A,3319
+(WL2 X TM2) X WL2,2_2-16,2,16-Feb,3,C,17,A,available,BC1,,A,3184
+TM2,24_2025,24,2025,,C,17,B,available,Parent,,A,3794
+BH,15_2025,15,2025,,C,18,A,available,Parent,,A,3690
+,,,,,C,18,B,buffer,,,A,buffer
+(WL2 X CC) X WL2,1_3,1,3,,C,19,A,available,BC1,,A,3943
+(WL2 X CC) X WL2,1_3,1,3,47,C,19,B,available,BC1,,B,3462
+YO11,5_2024,5,2024,7,C,20,A,available,Parent,,B,3069
+(WL2 X WV) X WL2,1_7-16,1,16-Jul,,C,20,B,available,BC1,,B,3900
+(WL2 X CC) X WL2,1_3,1,3,36,C,21,A,available,BC1,,B,3451
+WL2,4_2025,4,2025,,C,21,B,available,Parent,,B,3814
+WL2,20_2025,20,2025,57,C,22,A,available,Parent,,B,3140
+BH,13_2025,13,2025,,C,22,B,available,Parent,,B,3691
+(WL2 X DPR) X WL2,3_13-B,3,13-B,,C,23,A,available,BC1,,B,3919
+(WL2 X DPR) X WL2,3_13-B,3,13-B,6,C,23,B,available,BC1,,B,3274
+(WL1 X WL2) x WL2,,,,,C,24,A,available,,,B,3761
+(DPR X WL2) X WL2,5_2-A,5,2-A,1,C,24,B,available,BC1,,B,3344
+(CC X WL2) X WL2,4_3,4,3,,C,25,A,available,BC1,,B,3867
+(TM2 X WL2) X WL2,2_2 16,2,2 16,3,C,25,B,available,BC1,,B,3251
+(WL1 X WL2) X WL2,10_12,10,12,28,C,26,A,available,BC1,,B,3321
+(WL2 X WV) X WL2,1_7-16,1,16-Jul,17,C,26,B,available,BC1,,B,3246
+(DPR X WL2) X WL2,5_12,5,12,,C,27,A,available,BC1,,B,3765
+(WL2 X CC) X WL2,1_3,1,3,,C,27,B,available,BC1,,B,3944
+(WL1 X WL2) X WL2,10_12,10,12,29,C,28,A,available,BC1,,B,3322
+DPR,13_2022,13,2022,9,C,28,B,available,Parent,,B,3558
+WV,5_2023,5,2023,,C,29,A,available,Parent,,B,3707
+(WL1 X WL2) x WL2,,,,,C,30,A,available,,,B,3742
+(WL2 X WL1) X WL2,3_12,3,12,25,C,30,B,available,BC1,,B,3410
+,,,,,C,31,A,buffer,,,B,buffer
+(WL2 X CC) X WL2,1_12,1,12,,C,31,B,available,BC1,,B,3729
+(WL2 X WV) X WL2,1_7-16,1,16-Jul,18,C,32,A,available,BC1,,C,3247
+(LV1 x WL2) x (WL2),6_16-A,,,3,C,32,B,2025-survivor,,B,,2442
+WV,5_2023,5,2023,5,C,33,A,available,Parent,,C,3575
+(DPR X WL2) X WL2,9_7-16,9,16-Jul,,C,33,B,available,BC1,,C,3826
+(WL2 x BH) x (WL2 x CC),1_2,,,10,C,34,A,2025-survivor,,B,,2523
+TM2,5,,,41,C,35,A,2025-survivor,,B,,1745
+CC,8_2025,8,2025,5,C,35,B,available,Parent,,C,3533
+LV1,6_2025,6,2025,,C,36,A,available,Parent,,C,3851
+(DPR X WL2) X WL2,5_2-A,5,2-A,4,C,36,B,available,BC1,,C,3347
+(WL2 X CC) X WL2,6_7-1,6,1-Jul,63,C,37,A,available,BC1,,C,3478
+(WL2 X CC) X WL2,1_3,1,3,,C,37,B,available,BC1,,C,3932
+WL2,27_2025,27,2025,41,C,38,A,available,Parent,,C,3124
+TM2,35_2025,35,2025,52,C,38,B,available,Parent,,C,3643
+(WV X WL2) X WL2,2_13-B,2,13-B,7,C,39,A,available,BC1,,C,3197
+WL2,13_2025,13,2025,77,C,39,B,available,Parent,,C,3160
+TM2,6_2025,6,2025,84,C,40,A,available,Parent,,C,3675
+(WL2 X DPR) X WL2,3_13-B,3,13-B,8,C,40,B,available,BC1,,C,3276
+DPR,15_2022,15,2022,10,C,41,A,available,Parent,,C,3559
+(WL2 X CC) X WL2,1_12,1,12,15,C,41,B,available,BC1,,C,3430
+(WL2 X DPR) X WL2,4_13-B,4,13-B,,C,42,A,available,BC1,,C,3924
+TM2,32_2025,32,2025,,C,42,B,available,Parent,,C,3777
+TM2,6,,,43,C,43,A,2025-survivor,,C,,1747
+(WL1 X WL2) X WL2,10_2-12,10,12-Feb,42,C,43,B,available,BC1,,C,3335
+,,,,,C,44,A,buffer,,,C,buffer
+(WL2 x BH) x (WL2 x CC),1_2,,,9,C,44,B,2025-survivor,,C,,2522
+(WV x TM2) x (WL2 x TM2),3_1,,,2,C,45,A,2025-survivor,,C,,2558
+(TM2) x (TM2 x WL2),2-1_2,,,1,C,45,B,2025-survivor,,C,,2169
+(WL2 X WL1) x WL2,,,,,C,46,A,available,,,D,3722
+(WL2) x (WL2 x TM2),3-14_2,,,13,C,46,B,2025-survivor,,C,,2328
+WV,13_2023,13,2023,14,C,47,A,available,Parent,,D,3584
+(CC X WL2) X WL2,4_7-6,4,6-Jul,16,C,47,B,available,BC1,,D,3228
+(WL1 X WL2) x WL2,,,,,C,48,A,available,,,D,3750
+(WL2 X WV) X WL2,1_7-16,1,16-Jul,19,C,48,B,available,BC1,,D,3248
+(WL2 X WL1) X WL2,3_12,3,12,27,C,49,A,available,BC1,,D,3412
+TM2,36_2025,36,2025,55,C,49,B,available,Parent,,D,3646
+(DPR X WL2) X WL2,5_2-A,5,2-A,5,C,50,A,available,BC1,,D,3348
+(WL2 X CC) X WL2,6_7-16,6,16-Jul,,C,50,B,available,BC1,,D,3725
+BH,1,,,21,C,51,A,2025-survivor,,C,,1620
+LV1,6_2025,6,2025,13,C,51,B,available,Parent,,D,3012
+(WV) x (WV x WL2),3_22,,,2,C,52,A,2025-survivor,,C,,2579
+(WV x WL2) x (WL2 x CC),3_1,,,9,C,52,B,2025-survivor,,C,,2361
+(WL2 X WV) X WL2,,,,,C,53,A,available,BC1,,D,3888
+WL2,27_2025,27,2025,,C,53,B,available,Parent,,D,3803
+WL2,3_2025,3,2025,65,C,54,A,available,Parent,,D,3148
+WL2,27_2025,27,2025,42,C,54,B,available,Parent,,D,3125
+TM2,34_2025,34,2025,,C,55,A,available,Parent,,D,3778
+(WL1 X WL2) X WL2,10_2-A,10,2-A,6,C,55,B,available,BC1,,D,3299
+(WL2 X CC) X WL2,1_3,1,3,,C,56,A,available,BC1,,D,3949
+(WL2 X DPR) X WL2,3_13-B,3,13-B,9,C,56,B,available,BC1,,D,3277
+,,,,,C,57,A,buffer,,,D,buffer
+(TM2) x (TM2 x WL2),2-1_2,,,5,C,57,B,2025-survivor,,D,,2173
+,,,,,C,58,A,buffer,,,D,buffer
+,,,,,C,58,B,buffer,,,D,buffer
+(TM2 X WL2) X WL2,3_2,3,2,7,C,59,A,available,BC1,,E,3255
+WL2,23_2025,23,2025,9,C,59,B,available,Parent,,E,3092
+DPR x WL2,,,,1,C,6,C,2025-survivor,,A,,2476
+(WL1 X WL2) X WL2,11_7-16,11,16-Jul,50,C,6,D,available,BC1,,A,3343
+((WL2 X WL1) X WL2) X WL2),2_28-2,2,28-2,8,C,7,C,available,BC2,,A,3491
+SQ3 x WL2,6-C_8-A,,,3,C,7,D,2025-survivor,,A,,2419
+(WL2 X WL1) X WL2,3_12,3,12,24,C,8,C,available,BC1,,A,3409
+(WL2 X WL1) x WL2,,,,,C,8,D,available,,,A,3829
+(WL2 X CC) X WL2,1_3,1,3,,C,9,C,available,BC1,,A,3884
+,,,,,C,9,D,out-of-bounds,,,,
+(TM2 X WL2) X WL2,3_2-16,3,16-Feb,19,C,10,C,available,BC1,,A,3267
+,,,,,C,10,D,out-of-bounds,,,,
+WL2,27_2025,27,2025,43,C,11,D,available,Parent,,A,3126
+(WL2 X DPR) X WL2,4_13-B,4,13-B,21,C,11,C,available,BC1,,A,3289
+(WL2 X CC) X WL2,1_7-16,1,16-Jul,25,C,12,C,available,BC1,,A,3440
+(WL2 x TM2) x (TM2),2_1-3,,,20,C,12,D,2025-survivor,,A,,2258
+WL2,27_2025,27,2025,36,C,13,C,available,Parent,,A,3119
+TM2,32_2025,32,2025,44,C,13,D,available,Parent,,A,3635
+(WL2 X CC) X WL2,1_3,1,3,51,C,14,C,available,BC1,,A,3466
+WL2,5,,,50,C,14,D,2025-survivor,,A,,1873
+(WL2 X DPR) X WL2,3_13 -B,3,13 -B,4,C,15,C,available,BC1,,A,3272
+TM2,41_2025,41,2025,70,C,15,D,available,Parent,,A,3661
+WL2,18_2025,18,2025,96,C,16,C,available,Parent,,A,3179
+(WL2 X WV) X WL2,1_7-16,1,16-Jul,14,C,16,D,available,BC1,,A,3243
+TM2,3_2025,3,2025,6,C,17,C,available,Parent,,A,3597
+(CC X WL2) X WL2,4_3,4,3,13,C,17,D,available,BC1,,A,3225
+,,,,,C,18,C,buffer,,,A,buffer
+(CC X WL2) X WL2,4_7-6,4,6-Jul,14,C,18,D,available,BC1,,B,3226
+(WV X WL2) X WL2,2_13-B,2,13-B,,C,19,C,available,BC1,,B,3860
+TM2,6_2025,6,2025,82,C,19,D,available,Parent,,B,3673
+WL2,27_2025,27,2025,39,C,20,C,available,Parent,,B,3122
+TM2,8_2025,8,2025,,C,20,D,available,Parent,,B,3788
+(WL2 x WV) x (CC x WL2),1_1,,,8,C,21,C,2025-survivor,,B,,2303
+TM2,2_2025,2,2025,7,C,21,D,available,Parent,,B,3598
+(WL2 X CC) X WL2,1_12,1,12,13,C,22,C,available,BC1,,B,3428
+(WL1 X WL2) X WL2,10_2-12,10,12-Feb,,C,22,D,available,BC1,,B,3958
+WL1,8,,,5,C,23,C,2025-survivor,,B,,2405
+WL2,8_2025,8,2025,,C,23,D,available,Parent,,B,3797
+(WL2 X WL1) x WL2,,,,,C,24,C,available,,,B,3719
+(WL2 X BH) X WL2,2_13-B,2,13-B,,C,24,D,available,BC1,,B,3822
+TM2,35_2025,35,2025,54,C,25,C,available,Parent,,B,3645
+TM2,36_2025,36,2025,,C,25,D,available,Parent,,B,3781
+(WL2 X DPR) X WL2,4_13-B,4,13-B,,C,26,C,available,BC1,,B,3931
+,,,,,C,27,C,out-of-bounds,,,,
+,,,,,C,27,D,out-of-bounds,,,,
+,,,,,C,28,C,out-of-bounds,,,,
+,,,,,C,28,D,out-of-bounds,,,,
+BH,13_2025,13,2025,9,C,29,C,available,Parent,,B,3516
+(WL2 X CC) X WL2,1_3,1,3,,C,29,D,available,BC1,,B,3948
+,,,,,C,30,C,buffer,,,B,buffer
+,,,,,C,30,D,buffer,,,B,buffer
+,,,,,C,31,C,buffer,,,B,buffer
+(WL2 X DPR) X WL2,4_13-B,4,13-B,24,C,31,D,available,BC1,,C,3292
+TM2,2_2025,2,2025,9,C,32,C,available,Parent,,C,3600
+TM2,25_2025,25,2025,,C,32,D,available,Parent,,C,3789
+(WL2 X CC) X WL2,1_7-16,1,16-Jul,,C,33,C,available,BC1,,C,3848
+WL2,18_2025,18,2025,,C,33,D,available,Parent,,C,3818
+BH,12_2025,12,2025,10,C,34,C,available,Parent,,C,3517
+(WL1 X WL2) x WL2,,,,,C,34,D,available,,,C,3751
+(WV x WL2) x (WL2 x CC),3_1,,,10,C,35,C,2025-survivor,,B,,2471
+BH,12_2025,12,2025,,C,35,D,available,Parent,,C,3692
+(WL2 X CC) X WL2,1_12,1,12,,C,36,C,available,BC1,,C,3728
+(WL2 X CC) X WL2,1_7-16,1,16-Jul,24,C,36,D,available,BC1,,C,3439
+(WL2 X WV) X WL2,1_7-16,1,16-Jul,,C,37,C,available,BC1,,C,3897
+(WL2 X WL1) X WL2,3_12,3,12,,C,37,D,available,BC1,,C,3718
+(WL1 X WL2) x WL2,,,,,C,38,C,available,,,C,3743
+(CC X WL2) X WL2,4_3,4,3,,C,38,D,available,BC1,,C,3866
+WL2,23_2025,23,2025,,C,39,C,available,Parent,,C,3808
+WL2,25_2025,25,2025,,C,40,C,available,Parent,,C,3795
+(WL2 X WL1) X WL2,3_12,3,12,26,C,40,D,available,BC1,,C,3411
+(WL1 X WL2) X WL2,10_2-A,10,2-A,5,C,41,C,available,BC1,,C,3298
+(CC X WL2) X WL2,4_7-6,4,6-Jul,15,C,41,D,available,BC1,,C,3227
+(TM2 X WL2) X WL2,3_2-A,3,2-A,17,C,42,C,available,BC1,,C,3265
+(WL2 x WV) x (CC x WL2),1_1,,,8,C,42,D,2025-survivor,,C,,2554
+,,,,,C,43,C,buffer,,,C,buffer
+,,,,,C,43,D,buffer,,,C,buffer
+CC,4_2025,4,2025,16,C,44,C,available,Parent,,D,3544
+BH,12_2025,12,2025,12,C,44,D,available,Parent,,D,3519
+(WL1 X WL2) X WL2,10_2-A,10,2-A,40,C,45,C,available,BC1,,D,3333
+(WL2 X DPR) X WL2,3_13 -B,3,13 -B,,C,45,D,available,BC1,,D,3910
+,,,,,C,46,C,out-of-bounds,,,,
+(CC X WL2) X WL2,4_3,4,3,,C,46,D,available,BC1,,D,3868
+(TM2 X WL2) X WL2,3_2,3,2,,C,47,D,available,BC1,,D,3904
+(WL1 X WL2) x WL2,,,,,C,48,C,available,,,D,3744
+WL2,9_2025,9,2025,,C,48,D,available,Parent,,D,3798
+(WL2 X CC) X WL2,1_12,1,12,19,C,49,C,available,BC1,,D,3434
+(WL2 X CC) X WL2,1_7-16,1,16-Jul,32,C,49,D,available,BC1,,D,3447
+SQ3,1_2023,1,2023,2,C,50,C,available,Parent,,D,3022
+(WL2 X CC) X WL2,1_3,1,3,44,C,50,D,available,BC1,,D,3459
+(WL2 X DPR) X WL2,4_13-B,4,13-B,,C,51,C,available,BC1,,D,3926
+(WL2 X CC) X WL2,1_3,1,3,,C,51,D,available,BC1,,D,3939
+(DPR X WL2) X WL2,7,7,,,C,52,D,available,BC1,,D,3769
+TM2,41_2025,41,2025,71,C,53,C,available,Parent,,D,3662
+TM2,11,,,76,C,53,D,2025-survivor,,C,,2640
+WL1,14_2023,14,2023,4,C,54,C,available,Parent,,D,3045
+TM2,12_2025,12,2025,17,C,55,C,available,Parent,,D,3608
+DPR,19_2022,19,2022,13,C,55,D,available,Parent,,D,3562
+BH,12_2025,12,2025,,C,56,C,available,Parent,,D,3693
+(WL2 x BH) x (WL2 x CC),1_2,,,7,C,56,D,2025-survivor,,D,,2519
+(WV x TM2) x (WL2 x TM2),3_1,,,2,C,57,D,2025-survivor,,D,,2559
+WL2,1_2025,1,2025,,C,58,C,available,Parent,,E,3809
+WL2,2,,,12,C,58,D,2025-survivor,,D,,1835
+WL2 x TM2,,,,4,C,59,C,2025-survivor,,D,,2031
+(WL2) x (WL2 x BH),3-14_1,,,3,C,59,D,2025-survivor,,D,,2457
+(WL2 X CC) X WL2,1_3,1,3,43,D,6,A,available,BC1,,I,3458
+TM2,42_2025,42,2025,74,D,6,B,available,Parent,,I,3665
+,,,,,D,7,A,out-of-bounds,,,,
+BH,3_2025,3,2025,,D,7,B,available,Parent,,I,3699
+,,,,,D,8,A,out-of-bounds,,,,
+(WL1 X WL2) x WL2,,,,,D,8,B,available,,,I,3733
+,,,,,D,9,A,out-of-bounds,,,H,
+,,,,,D,9,B,out-of-bounds,,,H,
+(WL2 X CC) X WL2,1_3,1,3,,D,10,A,available,BC1,,H,3882
+TM2,29_2025,29,2025,25,D,10,B,available,Parent,,H,3616
+(WL2 X CC) X WL2,6_7-16,6,16-Jul,1,D,11,B,available,BC1,,H,3416
+(WL2 X WV) X WL2,15_2-A,15,2-A,3,D,12,A,available,BC1,,H,3232
+WL2,3_2025,3,2025,66,D,12,B,available,Parent,,H,3149
+WL2,25_2025,25,2025,17,D,13,A,available,Parent,,H,3100
+(WL2 X DPR) X WL2,4_13-B,4,13-B,,D,13,B,available,BC1,,H,3927
+(WL1 X WL2) X WL2,10_2-A,10,2-A,12,D,14,A,available,BC1,,H,3305
+(WL2 x BH) x (WL2 x CC),1_2,,,14,D,14,B,2025-survivor,,D,,2205
+TM2,36_2025,36,2025,,D,15,B,available,Parent,,H,3780
+(WV X WL2) X WL2,,,,5,D,16,A,available,BC1,,H,3195
+(WL2 X BH) X WL2,2_3-14,2,14-Mar,5,D,16,B,available,BC1,,H,3190
+(DPR X WL2) X WL2,5_12,5,12,12,D,17,A,available,BC1,,H,3355
+DPR,14_2025,14,2025,21,D,17,B,available,Parent,,H,3570
+SQ3,6_2023,6,2023,11,D,18,A,available,Parent,,H,3031
+(WL2 X CC) X WL2,1_12,1,12,,D,18,B,available,BC1,,H,3837
+(TM2 X WL2) X WL2,2_2-16,2,16-Feb,1,D,19,A,available,BC1,,H,3249
+BH,3_2025,3,2025,21,D,19,B,available,Parent,,H,3528
+WL2,4_2025,4,2025,,D,20,A,available,Parent,,H,3812
+WV,15_2023,15,2023,19,D,20,B,available,Parent,,H,3589
+,,,,,D,21,A,buffer,,,G,buffer
+,,,,,D,21,B,buffer,,,G,buffer 
+TM2,34_2025,34,2025,,D,22,A,available,Parent,,G,3779
+(DPR x TM2) x (TM2 x WL2),3_2,,,6,D,22,B,2025-survivor,,E,,2593
+WL2,24_2025,24,2025,13,D,23,A,available,Parent,,G,3096
+(WL2 X WV) X WL2,1_7-16,1,16-Jul,,D,23,B,available,BC1,,G,3894
+(TM2 x WL2) x (TM2),3_1-3,,,1,D,24,A,2025-survivor,,E,,2597
+(CC x WL2) x (WL2),4_2A,,,15,D,24,B,2025-survivor,,E,,2440
+(DPR X WL2) X WL2,5_12,5,12,11,D,25,A,available,BC1,,G,3354
+(WL2 x BH) x (WL2 x TM2),2_3,,,9,D,25,B,2025-survivor,,E,,2222
+WL2,18_2025,18,2025,94,D,26,A,available,Parent,,G,3177
+(CC X WL2) X WL2,4_7-6,4,6-Jul,,D,26,B,available,BC1,,G,3878
+(WL1 X WL2) x WL2,,,,,D,27,A,available,,,G,3731
+(WL2 X DPR) X WL2,3_13-B,3,13-B,12,D,27,B,available,BC1,,G,3280
+WL2,5,,,41,D,28,A,2025-survivor,,E,,1864
+(WL2 X CC) X WL2,1_12,1,12,,D,28,B,available,BC1,,G,3833
+(WL2 X WL1) X WL2,12,,12,6,D,29,A,available,BC1,,G,3391
+TM2,25_2025,25,2025,,D,29,B,available,Parent,,G,3791
+TM2,34_2025,34,2025,46,D,30,A,available,Parent,,G,3637
+SQ3,5_2023,5,2023,9,D,30,B,available,Parent,,G,3029
+(WL2 X WV) X WL2,15_2-A,15,2-A,2,D,31,A,available,BC1,,G,3231
+(WL2 X CC) X WL2,1_3,1,3,39,D,31,B,available,BC1,,G,3454
+WV,5_2023,5,2023,,D,32,A,available,Parent,,G,3712
+TM2,8,,,61,D,32,B,2025-survivor,,F,,2633
+(WL1 X WL2) X WL2,10_2-A,10,2-A,11,D,33,B,available,BC1,,G,3304
+,,,,,D,34,A,buffer,,,F,buffer
+,,,,,D,34,B,out-of-bounds,,,,
+TM2,11_2025,11,2025,21,D,35,B,available,Parent,,F,3612
+TM2,8_2025,8,2025,89,D,36,A,available,Parent,,F,3680
+(TM2) x (TM2 x WL2),2-1_2,,,5,D,36,B,2025-survivor,,F,,2507
+(CC X WL2) X WL2,4_3,4,3,,D,37,A,available,BC1,,F,3864
+WL2,24_2025,24,2025,,D,37,B,available,Parent,,F,3859
+TM2,9,,,70,D,38,A,2025-survivor,,F,,1774
+TM2,6_2025,6,2025,,D,38,B,available,Parent,,F,3784
+(WL2 x BH) x (WL2 x CC),1_2,,,5,D,39,A,2025-survivor,,F,,2515
+WL2,2,,,15,D,39,B,2025-survivor,,F,,1838
+(WL2 x TM2) x (TM2),2_1-3,,,23,D,40,A,2025-survivor,,F,,2261
+(WL2 X CC) X WL2,1_7-16,1,16-Jul,,D,40,B,available,BC1,,F,3842
+(WL2 x TM2) x (WL2 x BH),1_2,,,2,D,41,A,2025-survivor,,F,,2455
+WL2,1_2025,1,2025,62,D,41,B,available,Parent,,F,3145
+(WL2) x (WL2 x TM2),3-14_2,,,9,D,42,A,2025-survivor,,F,,2324
+DPR,19_2022,19,2022,15,D,42,B,available,Parent,,F,3564
+(WL1 X WL2) x WL2,,,,,D,43,A,available,,,F,3746
+WL2,24_2025,24,2025,12,D,43,B,available,Parent,,F,3095
+(DPR X WL2) X WL2,5_12,5,12,9,D,44,A,available,BC1,,F,3352
+(WL2 X DPR) X WL2,3_13-B,3,13-B,11,D,44,B,available,BC1,,F,3279
+(WL2 x TM2) x (TM2),2_1-3,,,3,D,45,A,2025-survivor,,F,,2241
+BH,,,,12,D,45,B,2024-survivor,,,,398
+SQ3,2_2023,2,2023,4,D,46,A,available,Parent,,F,3024
+WL2,18_2025,18,2025,,D,46,B,available,Parent,,F,3819
+,,,,,D,47,A,buffer,,,E,buffer
+,,,,,D,47,B,buffer,,,E,
+BH,3_2025,3,2025,,D,48,A,available,Parent,,E,3698
+(WL1 X WL2) X WL2,10_12,10,12,31,D,48,B,available,BC1,,E,3324
+(WL2 X WL1) X WL2,12,,12,1,D,49,A,available,BC1,,E,3386
+(DPR X WL2) X WL2,,,,6,D,49,B,available,BC1,,E,3349
+(WL2 X CC) X WL2,1_7-16,1,16-Jul,27,D,50,B,available,BC1,,E,3442
+(WL1 X WL2) x WL2,,,,,D,51,A,available,,,E,3745
+(WL2 X DPR) X WL2,3_13-B,3,13-B,10,D,51,B,available,BC1,,E,3278
+(WL2 X CC) X WL2,6_12,6,12,,D,52,A,available,BC1,,E,3727
+TM2,30_2025,30,2025,,D,52,B,available,Parent,,E,3772
+BH,11_2025,11,2025,15,D,53,A,available,Parent,,E,3522
+(WL2 X CC) X WL2,1_7-16,1,16-Jul,,D,53,B,available,BC1,,E,3844
+(WL2 X CC) X WL2,1_3,1,3,,D,54,A,available,BC1,,E,3938
+SQ3,2_2023,2,2023,3,D,54,B,available,Parent,,E,3023
+(WV x WL2) x (WL2 x CC),3_1,,,15,D,55,A,2025-survivor,,G,,2573
+WL1 x WL2,2-2_10-1,,,6,D,55,B,2025-survivor,,G,,2425
+TM2,39_2025,39,2025,64,D,56,A,available,Parent,,E,3655
+WL1,14_2023,14,2023,5,D,56,B,available,Parent,,E,3046
+(DPR X WL2) X WL2,5_7-16,5,16-Jul,,D,57,A,available,BC1,,E,3767
+(WL2 X BH) X WL2,2_3-14,2,14-Mar,,D,57,B,available,BC1,,E,3823
+(WL1 X WL2) X WL2,10_2-A,10,2-A,14,D,5,C,available,BC1,,I,3307
+(SQ3 x WL2) x (WL2),5_13-B,,,30,D,5,D,2025-survivor,,D,,2121
+,,,,,D,6,C,out-of-bounds,,,,
+,,,,,D,6,D,out-of-bounds,,,,
+,,,,,D,7,D,out-of-bounds,,,,
+(WL2 X TM2) X WL2,,,,1,D,10,C,available,BC1,,H,3182
+,,,,,D,10,D,buffer,,,H,buffer
+(WL1 X WL2) x WL2,,,,,D,11,C,available,,,H,3752
+(WL2 X CC) X WL2,1_7-16,1,16-Jul,23,D,11,D,available,BC1,,H,3438
+(WL1 X WL2) X WL2,10_12,10,12,30,D,12,C,available,BC1,,H,3323
+((WL2 X WL1) X WL2) X WL2),2_28-2,2,28-2,6,D,12,D,available,BC2,,H,3489
+(DPR X WL2) X WL2,9_7-16,9,16-Jul,37,D,13,C,available,BC1,,H,3380
+(WL2 X CC) X WL2,1_3,1,3,45,D,13,D,available,BC1,,H,3460
+TM2,42_2025,42,2025,73,D,14,C,available,Parent,,H,3664
+(WL2 X DPR) X WL2,3_13-B,3,13-B,13,D,14,D,available,BC1,,H,3281
+(WL1 X WL2) x WL2,,,,,D,15,C,available,,,H,3732
+(CC X WL2) X WL2,4_3,4,3,,D,15,D,available,BC1,,H,3874
+(WV x WL2) x (WL2 x BH),2_2,,,1,D,16,C,2025-survivor,,E,,2343
+(WL2 x BH) x (WL2 x TM2),2_3,,,4,D,16,D,2025-survivor,,E,,2539
+TM2,37_2025,37,2025,60,D,17,C,available,Parent,,H,3651
+(WL2 X WV) X WL2,15_2-A,15,2-A,,D,17,D,available,BC1,,H,3889
+(WL2 X DPR) X WL2,4_13-B,4,13-B,22,D,18,C,available,BC1,,H,3290
+(WL2 X CC) X WL2,1_3,1,3,,D,18,D,available,BC1,,H,3936
+WL2,27_2025,27,2025,,D,19,C,available,Parent,,H,3799
+TM2,8_2025,8,2025,,D,19,D,available,Parent,,H,3787
+(WL2 X WL1) X WL2,12,,12,7,D,20,C,available,BC1,,H,3392
+(CC X WL2) X WL2,4_3,4,3,3,D,20,D,available,BC1,,H,3215
+,,,,,D,21,C,buffer,,,G,buffer
+DPR x WL2,,,,4,D,21,D,2025-survivor,,E,,1977
+(WL2 X CC) X WL2,1_3,1,3,46,D,22,C,available,BC1,,G,3461
+,,,,,D,22,D,buffer,,,G,buffer
+(WL2 X CC) X WL2,1_7-16,1,16-Jul,22,D,23,C,available,BC1,,G,3437
+WL2,20_2025,20,2025,,D,23,D,available,Parent,,G,3807
+(WL1 X WL2) x WL2,,,,,D,24,C,available,,,G,3748
+(WL2) x (WL2 x TM2),3-14_2,,,6,D,24,D,2025-survivor,,E,,2461
+WL2 x YO11,2-A_11-2,,,1,D,25,C,2025-survivor,,E,,2047
+(WL2 X CC) X WL2,1_7-16,1,16-Jul,,D,25,D,available,BC1,,G,3846
+((WL2 X WL1) X WL2) X WL2),2_28-2,2,28-2,16,D,26,C,available,BC2,,G,3499
+BH,3,,,1,D,26,D,2025-survivor,,E,,1600
+(TM2 X WL2) X WL2,2_2-16,2,16-Feb,,D,27,C,available,BC1,,G,3901
+DPR,14_2025,14,2025,19,D,27,D,available,Parent,,G,3568
+YO11,10_2024,10,2024,17,D,28,C,available,Parent,,G,3079
+TM2,28_2025,28,2025,23,D,28,D,available,Parent,,G,3614
+WL1,12_2023,12,2023,9,D,29,C,available,Parent,,G,3050
+(CC X WL2) X WL2,4_2A,4,2A,1,D,29,D,available,BC1,,G,3213
+(DPR X WL2) X WL2,16-Jul,,16-Jul,,D,30,C,available,BC1,,G,3825
+WL2,4_2025,4,2025,68,D,30,D,available,Parent,,G,3151
+(WL1 X WL2) X WL2,10_2-12,10,12-Feb,49,D,31,C,available,BC1,,G,3342
+(WL2 X DPR) X WL2,4_13-B,4,13-B,,D,31,D,available,BC1,,G,3922
+(WL2 X DPR) X WL2,3_13-B,3,13-B,,D,32,C,available,BC1,,G,3912
+TM2,44_2025,44,2025,79,D,33,C,available,Parent,,G,3670
+(WV X WL2) X WL2,2_13-B,2,13-B,,D,33,D,available,BC1,,G,3861
+BH,3_2025,3,2025,20,D,34,C,available,Parent,,G,3527
+,,,,,D,34,D,buffer,,,F,buffer
+TM2,35_2025,35,2025,49,D,35,C,available,Parent,,F,3640
+(WL1 X WL2) x WL2,,,,,D,35,D,available,,,F,3759
+(WL2 X CC) X WL2,1_7-16,1,16-Jul,,D,36,C,available,BC1,,F,3843
+(WL2 X DPR) X WL2,4_13-B,4,13-B,,D,36,D,available,BC1,,F,3930
+,,,,,D,37,C,out-of-bounds,,,,
+(WL2 X DPR) X WL2,4_3-14,4,14-Mar,,D,37,D,available,BC1,,F,3907
+(TM2 X WL2) X WL2,2_2-16,2,16-Feb,,D,38,C,available,BC1,,F,3953
+BH,3_2025,3,2025,19,D,38,D,available,Parent,,F,3526
+WL2,4,,,39,D,39,C,2025-survivor,,F,,1862
+WL2,4_2025,4,2025,,D,39,D,available,Parent,,F,3813
+(DPR X WL2) X WL2,9_7-16,9,16-Jul,,D,40,C,available,BC1,,F,3827
+(WL2 X CC) X WL2,1_7-16,1,16-Jul,21,D,40,D,available,BC1,,F,3436
+(WL2 X WV) X WL2,,,,1,D,41,C,available,BC1,,F,3230
+(WL2 X WL1) X WL2,12,,12,4,D,41,D,available,BC1,,F,3389
+TM2,6_2025,6,2025,,D,42,C,available,Parent,,F,3785
+(WL2 X CC) X WL2,1_3,1,3,62,D,42,D,available,BC1,,F,3477
+(WL2 X WV) X WL2,1_7-16,1,16-Jul,,D,43,C,available,BC1,,F,3895
+(WL1 X WL2) X WL2,10_2-12,10,12-Feb,,D,43,D,available,BC1,,F,3957
+(WL1 X WL2) X WL2,10_2-A,10,2-A,9,D,44,C,available,BC1,,F,3302
+WV,5_2023,5,2023,7,D,44,D,available,Parent,,F,3577
+(WL2 X TM2) X WL2,2_2-16,2,16-Feb,,D,45,C,available,BC1,,F,3821
+(WL2 x CC) x (WL2 x BH),1_1,,,2,D,45,D,2025-survivor,,F,,2543
+BH,12_2025,12,2025,,D,46,C,available,Parent,,F,3695
+(WL2 X CC) X WL2,1_3,1,3,,D,46,D,available,BC1,,F,3935
+,,,,,D,47,C,buffer,,,E,
+(WL2 X CC) X WL2,1_3,1,3,42,D,47,D,available,BC1,,F,3457
+,,,,,D,48,D,available,,,E,
+TM2,25_2025,25,2025,94,D,49,C,available,Parent,,E,3685
+(WL2 X CC) X WL2,1_3,1,3,52,D,49,D,available,BC1,,E,3467
+LV1,2_2025,2,2025,5,D,50,C,available,Parent,,E,3004
+CC,6_2025,6,2025,3,D,50,D,available,Parent,,E,3531
+(CC X WL2) X WL2,4_3,4,3,,D,51,C,available,BC1,,E,3863
+(WL2 X WL1) x WL2,,,,,D,51,D,available,,,E,3832
+(CC X WL2) X WL2,4_3,4,3,,D,52,C,available,BC1,,E,3875
+(WL2 X CC) X WL2,1_7-16,1,16-Jul,20,D,52,D,available,BC1,,E,3435
+(CC X WL2) X WL2,4_12,4,12,17,D,53,C,available,BC1,,E,3229
+(WV x WL2) x (WL2 x BH),2_2,,,4,D,53,D,2025-survivor,,G,,2346
+WL2,19_2025,19,2025,49,D,54,C,available,Parent,,E,3132
+(WL1 X WL2) X WL2,10_2-A,10,2-A,7,D,54,D,available,BC1,,E,3300
+WL2,15_2025,15,2025,81,D,55,C,available,Parent,,E,3164
+TM2,12_2025,12,2025,18,D,55,D,available,Parent,,E,3609
+WV,5_2023,5,2023,,D,56,C,available,Parent,,E,3709
+TM2 x WL2,,,,7,D,56,D,2025-survivor,,G,,2485
+(WL2 X DPR) X WL2,4_13-B,4,13-B,,D,57,C,available,BC1,,E,3928
+(WL2 X DPR) X WL2,3_13-B,3,13-B,,D,57,D,available,BC1,,E,3913
+DPR,19_2022,19,2022,14,D,58,C,available,Parent,,E,3563
+TM2,30_2025,30,2025,28,E,5,B,available,Parent,,I,3619
+,,,,,E,6,A,out-of-bounds,,,,
+(WL2 X CC) X WL2,6_7-16,6,16-Jul,2,E,6,B,available,BC1,,I,3417
+WL2,17_2025,17,2025,98,E,7,A,available,Parent,,I,3181
+(WL2 X WL1) X WL2,3_12,3,12,29,E,7,B,available,BC1,,I,3414
+TM2,11_2025,11,2025,,E,8,A,available,Parent,,I,3770
+(DPR X WL2) X WL2,5_12,5,12,14,E,8,B,available,BC1,,I,3357
+(WL2 X DPR) X WL2,3_13-B,3,13-B,,E,9,A,available,BC1,,I,3918
+(WL2 X DPR) X WL2,3_13-B,3,13-B,15,E,9,B,available,BC1,,I,3283
+(CC X WL2) X WL2,4_3,4,3,,E,10,A,available,BC1,,I,3865
+(WV x WL2) x (WV),20_7-3,,,7,E,10,B,2025-survivor,,H,,2374
+(WL2 X CC) X WL2,1_3,1,3,,E,11,A,available,BC1,,I,3945
+(WL2 X CC) X WL2,1_7-16,1,16-Jul,,E,11,B,available,BC1,,I,3839
+WL2,7_2025,7,2025,19,E,12,A,available,Parent,,I,3102
+,,,,,E,12,B,buffer,,,,buffer
+(WL2 X WL1) X WL2,,,,8,E,13,A,available,BC1,,I,3393
+,,,,,E,13,B,out-of-bounds,,,,
+(WL2 X CC) X WL2,1_3,1,3,,E,14,A,available,BC1,,I,3950
+(TM2 X WL2) X WL2,2_2 16,2,2 16,,E,14,B,available,BC1,,I,3902
+,,,,,E,15,A,buffer,,,I,buffer
+,,,,,E,15,B,buffer,,,I,
+(WL2 X CC) X WL2,1_7-16,1,16-Jul,,E,16,A,available,BC1,,J,3849
+(WL2 X WL1) X WL2,2_7-16,2,16-Jul,11,E,16,B,available,BC1,,J,3396
+LV1,1_2025,1,2025,3,E,17,A,available,Parent,,J,3002
+(DPR X WL2) X WL2,9_7-16,9,16-Jul,36,E,17,B,available,BC1,,J,3379
+TM2,26_2025,26,2025,,E,18,A,available,Parent,,J,3775
+(WL2 X CC) X WL2,1_7-16,1,16-Jul,29,E,18,B,available,BC1,,J,3444
+(WL2 X DPR) X WL2,3_13-B,3,13-B,16,E,19,A,available,BC1,,J,3284
+WL2,18_2025,18,2025,95,E,19,B,available,Parent,,J,3178
+(WL1 X WL2) x WL2,,,,,E,20,A,available,,,J,3760
+(CC X WL2) X WL2,4_3,4,3,,E,20,B,available,BC1,,J,3869
+(SQ3 x WL2) x (WL2),12_16-A,,,13,E,21,A,2025-survivor,,H,,2104
+(WL2 X CC) X WL2,1_3,1,3,,E,21,B,available,BC1,,J,3933
+WL2 x DPR,,,,1,E,22,A,2025-survivor,,H,,2014
+(WL2 X WL1) X WL2,3_12,3,12,,E,22,B,available,BC1,,J,3717
+TM2,25_2025,25,2025,,E,23,A,available,Parent,,J,3790
+SQ3,2_2023,2,2023,,E,23,B,available,Parent,,J,3852
+WL2,7_2025,7,2025,20,E,24,A,available,Parent,,J,3103
+TM2,26_2025,26,2025,31,E,24,B,available,Parent,,J,3622
+SQ3,7_2023,7,2023,14,E,25,A,available,Parent,,J,3034
+(WL1 X WL2) X WL2,10_2-A,10,2-A,16,E,25,B,available,BC1,,J,3309
+,,,,,E,26,A,buffer,,,J,buffer
+,,,,,E,26,B,out-of-bounds,,,,
+(WL2 X WV) X WL2,1_7-16,1,16-Jul,6,E,27,A,available,BC1,,K,3235
+(CC X WL2) X WL2,4_3,4,3,6,E,27,B,available,BC1,,K,3218
+TM2,38_2025,38,2025,,E,28,A,available,Parent,,K,3782
+(WL2 x TM2) x (CC x TM2),2-3_2-3,,,8,E,28,B,2025-survivor,,I,,2453
+(SQ3 x WL2) x (WL2),12_16-A,,,15,E,29,A,2025-survivor,,I,,2106
+TM2,26_2025,26,2025,32,E,29,B,available,Parent,,K,3623
+,,,,,E,30,A,out-of-bounds,,,,
+,,,,,E,30,B,out-of-bounds,,,,
+,,,,,E,31,A,out-of-bounds,,,,
+,,,,,E,31,B,out-of-bounds,,,,
+SQ3,5_2023,5,2023,,E,41,A,available,Parent,,K,3853
+(WL2 X WV) X WL2,15_2-A,15,2-A,,E,41,B,available,BC1,,K,3891
+(WL1 X WL2) x WL2,,,,,E,42,A,available,,,K,3754
+WL2 x YO11,2-A_11-2,,,3,E,42,B,2025-survivor,,I,,2434
+WL2,1_2025,1,2025,61,E,43,A,available,Parent,,K,3144
+(WL2 X TM2) X WL2,2_2-16,2,16-Feb,,E,43,B,available,BC1,,K,3820
+,,,,,E,44,A,out-of-bounds,,,,
+(WL2 X CC) X WL2,1_3,1,3,,E,44,B,available,BC1,,K,3947
+BH,11_2025,11,2025,,E,45,A,available,Parent,,K,3696
+SQ3,8_2023,8,2023,15,E,45,B,available,Parent,,K,3035
+(WL2 X WL1) X WL2,2,2,,12,E,46,A,available,BC1,,K,3397
+(WL2 X DPR) X WL2,4_13-B,4,13-B,,E,46,B,available,BC1,,K,3951
+(WL2 X CC) X WL2,1_3,1,3,54,E,47,A,available,BC1,,K,3469
+(WL2 X CC) X WL2,1_12,1,12,,E,47,B,available,BC1,,K,3730
+(WL2 X WL1) x WL2,,,,,E,48,A,available,,,K,3721
+,,,,,E,48,B,out-of-bounds,,,,
+,,,,,E,49,A,buffer,,,K,
+,,,,,E,49,B,buffer,,,K,
+WV,13_2023,13,2023,16,E,50,A,available,Parent,,L,3586
+(WL2 X WL1) x WL2,,,,,E,50,B,available,,,L,3724
+WL2,16_2025,16,2025,91,E,51,A,available,Parent,,L,3174
+TM2,,,,96,E,51,B,2025-survivor,,J,,1800
+WL2 x YO11,2-A_11-2,,,1,E,5,D,2025-survivor,,G,,2432
+(DPR X WL2) X WL2,5_12,5,12,,E,6,C,available,BC1,,I,3766
+,,,,,E,6,D,out-of-bounds,,,,
+(CC X WL2) X WL2,4_3,4,3,4,E,7,D,available,BC1,,I,3216
+(WL2 X CC) X WL2,1_3,1,3,37,E,7,C,available,BC1,,I,3452
+(WL2 x BH) x (WL2 x TM2),2_3,,,9,E,8,C,2025-survivor,,G,,2541
+WL2,27_2025,27,2025,,E,8,D,available,Parent,,I,3802
+(WL2 X DPR) X WL2,4_13-B,4,13-B,25,E,9,C,available,BC1,,I,3293
+(WL2 X WL1) x WL2,,,,,E,9,D,available,,,I,3831
+SQ3,7_2023,7,2023,13,E,10,C,available,Parent,,I,3033
+(WL1 X WL2) X WL2,8_13 13-B,8,13 13-B,34,E,10,D,available,BC1,,I,3327
+WL2,27_2025,27,2025,45,E,11,C,available,Parent,,I,3128
+(WL1 X WL2) x WL2,,,,,E,11,D,available,,,I,3749
+,,,,,E,12,C,buffer,,,,buffer
+WV,5_2023,5,2023,6,E,12,D,available,Parent,,I,3576
+TM2,38_2025,38,2025,63,E,13,C,available,Parent,,I,3654
+(WL2 X WV) X WL2,15_2-A,15,2-A,4,E,13,D,available,BC1,,I,3233
+,,,,,E,14,C,out-of-bounds,,,I,
+,,,,,E,14,D,buffer,,,I,buffer
+(WL1 X WL2) x WL2,,,,,E,15,C,available,,,J,3734
+(CC X WL2) X WL2,4_7-6,4,6-Jul,,E,15,D,available,BC1,,J,3887
+(WL2 X CC) X WL2,1_12,1,12,,E,16,C,available,BC1,,J,3834
+WL2,5_2025,5,2025,69,E,16,D,available,Parent,,J,3152
+(WL2 X DPR) X WL2,3_13-B,3,13-B,,E,17,C,available,BC1,,J,3921
+WL2,27_2025,27,2025,,E,18,C,available,Parent,,J,3801
+(TM2 X WL2) X WL2,2_2-16,2,16-Feb,4,E,18,D,available,BC1,,J,3252
+(WL2 X WL1) x WL2,,,,,E,19,C,available,,,J,3723
+(CC X WL2) X WL2,4_3,4,3,5,E,19,D,available,BC1,,J,3217
+(WL2 X CC) X WL2,1_3,1,3,48,E,20,C,available,BC1,,J,3463
+BH,11_2025,11,2025,,E,20,D,available,Parent,,J,3697
+(WL2 X DPR) X WL2,3_13-B,3,13-B,,E,21,C,available,BC1,,J,3914
+(WL2 X WV) X WL2,1_7-16,1,16-Jul,5,E,21,D,available,BC1,,J,3234
+(WL2 X CC) X WL2,6_7-16,6,16-Jul,3,E,22,C,available,BC1,,J,3418
+(WL2 X WV) X WL2,1_7-16,1,16-Jul,,E,23,C,available,BC1,,J,3896
+(WL1 X WL2) X WL2,10_2-12,10,12-Feb,47,E,23,D,available,BC1,,J,3340
+TM2,34_2025,34,2025,47,E,24,C,available,Parent,,J,3638
+(DPR X WL2) X WL2,5_3,5,3,20,E,24,D,available,BC1,,J,3363
+TM2,41_2025,41,2025,72,E,25,C,available,Parent,,J,3663
+(WL2 X WL1) X WL2,2_7-16,2,16-Jul,,E,25,D,available,BC1,,J,3960
+,,,,,E,26,C,buffer,,,J,buffer
+,,,,,E,26,D,buffer,,,J,buffer
+(WL2 X CC) X WL2,1_3,1,3,38,E,27,C,available,BC1,,K,3453
+WV,13_2023,13,2023,,E,27,D,available,Parent,,K,3714
+(WL2 X CC) X WL2,6_12,6,12,4,E,28,C,available,BC1,,K,3419
+(WL2 X CC) X WL2,1_3,1,3,,E,28,D,available,BC1,,K,3883
+((WL2 X WL1) X WL2) X WL2),2_28-2,2,28-2,9,E,29,C,available,BC2,,K,3492
+(DPR X WL2) X WL2,5_3,5,3,22,E,29,D,available,BC1,,K,3365
+,,,,,E,30,C,out-of-bounds,,,,
+TM2,43_2025,43,2025,77,E,30,D,available,Parent,,K,3668
+,,,,,E,31,C,out-of-bounds,,,,
+,,,,,E,31,D,out-of-bounds,,,,
+DPR x WL2,,,,2,E,41,C,2025-survivor,,I,,2477
+WL2,8_2025,8,2025,24,E,41,D,available,Parent,,K,3107
+BH x WL2,1-3_8-1,3-Jan,1-Aug,9,E,42,C,2025-survivor,,I,,2473
+(WL2 X DPR) X WL2,3_3-B,3,3-B,17,E,42,D,available,BC1,,K,3285
+TM2,40_2025,40,2025,68,E,43,C,available,Parent,,K,3659
+WL2,27_2025,27,2025,,E,43,D,available,Parent,,K,3800
+(WL1 X WL2) X WL2,10_7-16,10,16-Jul,38,E,44,C,available,BC1,,K,3331
+(WL2 X DPR) X WL2,4_3-14,4,14-Mar,,E,44,D,available,BC1,,K,3906
+,,,,,E,45,C,buffer,,,,buffer
+(CC X WL2) X WL2,4_3,4,3,,E,45,D,available,BC1,,K,3871
+(WV X WL2) X WL2,2_13-B,2,13-B,,E,46,C,available,BC1,,K,3862
+(DPR X WL2) X WL2,7_7-16,7,16-Jul,,E,46,D,available,BC1,,K,3824
+DPR,2_2025,2,2025,,E,47,C,available,Parent,,K,3700
+(WL1 X WL2) X WL2,10_2-A,10,2-A,17,E,47,D,available,BC1,,K,3310
+WL2,1_2025,1,2025,,E,48,D,available,Parent,,K,3811
+(WL1 X WL2) x WL2,,,,,E,49,C,available,,,K,3735
+(TM2 x WL2) x (TM2),3_2-13,,,11,E,49,D,2025-survivor,,J,,2600
+(WL2 X DPR) X WL2,4_3-14,4,14-Mar,,E,50,C,available,BC1,,L,3955
+(WL2) x (TM2 x WL2),16_14,,,2,E,50,D,2025-survivor,,J,,2308
+TM2,39_2025,39,2025,66,E,51,C,available,Parent,,L,3657
+(WL2 X WV) X WL2,1_7-16,1,16-Jul,7,E,51,D,available,BC1,,L,3236
+WL2,2,,,19,F,4,A,2025-survivor,,J,,1842
+(WL2 x BH) x (WL2 x CC),1_2,,,16,F,4,B,2025-survivor,,J,,2528
+,,,,,F,5,A,buffer,,,,
+(WL2 X CC) X WL2,1_7-16,1,16-Jul,,F,5,B,available,BC1,,N,3845
+(WV x TM2) x (TM2 x WL2),2_1,,,2,F,6,A,2025-survivor,,J,,2333
+SQ3,7_2023,7,2023,,F,6,B,available,Parent,,N,3856
+WL2,4,,,36,F,7,A,2025-survivor,,J,,1859
+TM2,7_2025,7,2025,87,F,7,B,available,Parent,,N,3678
+WL2 x YO11,2-A_11-2,,,2,F,8,A,2025-survivor,,J,,2048
+(WL2 X WL1) X WL2,3_12,3,12,20,F,8,B,available,BC1,,N,3405
+(WL2 X DPR) X WL2,4_13-B,4,13-B,,F,9,A,available,BC1,,N,3929
+WV,4_2023,4,2023,2,F,9,B,available,Parent,,N,3572
+DPR,15_2022,15,2022,,F,10,A,available,Parent,,N,3703
+,,,,,F,11,A,buffer,,,M,buffer
+,,,,,F,11,B,buffer,,,M,buffer
+(WL2 X CC) X WL2,1_12,1,12,,F,12,A,available,BC1,,M,3835
+(WL2 X WV) X WL2,1_7-16,1,16-Jul,,F,12,B,available,BC1,,M,3893
+(SQ3 x WL2) x (WL2),12_16-A,,,18,F,13,A,2025-survivor,,J,,2109
+(WL2 X DPR) X WL2,4_3-14,4,14-Mar,,F,13,B,available,BC1,,M,3905
+TM2,28_2025,28,2025,,F,14,A,available,Parent,,M,3771
+(WL1 X WL2) x WL2,,,,,F,14,B,available,,,M,3737
+WL2,2_2025,2,2025,86,F,15,A,available,Parent,,M,3169
+(WV x TM2) x (TM2 x WL2),2_1,,,7,F,15,B,2025-survivor,,K,,2611
+(WL2 X CC) X WL2,1_12,1,12,8,F,16,A,available,BC1,,M,3423
+DPR,13_2022,13,2022,,F,16,B,available,Parent,,M,3702
+(WL2 X WL1) X WL2,5_3,5,3,18,F,17,A,available,BC1,,M,3403
+(WL2 X CC) X WL2,1_3,1,3,,F,17,B,available,BC1,,M,3940
+(WL2 X WV) X WL2,1_7-16,1,16-Jul,8,F,18,A,available,BC1,,M,3237
+WV,5_2023,5,2023,,F,18,B,available,Parent,,M,3711
+(WL1 X WL2) X WL2,10_12,10,12,22,F,19,A,available,BC1,,M,3315
+WL2,9_2025,9,2025,26,F,19,B,available,Parent,,M,3109
+WL2,13_2025,13,2025,78,F,20,A,available,Parent,,M,3161
+(WL1 X WL2) X WL2,10_3,10,3,39,F,20,B,available,BC1,,M,3332
+WL2,19_2025,19,2025,,F,21,A,available,Parent,,M,3806
+TM2,25_2025,25,2025,,F,21,B,available,Parent,,M,3792
+(CC X WL2) X WL2,4_3,4,3,8,F,22,A,available,BC1,,M,3220
+SQ3,1_2023,1,2023,,F,22,B,available,Parent,,M,3855
+,,,,,F,23,A,available,,,L,
+,,,,,F,23,B,available,,,L,
+(DPR X WL2) X WL2,9_7-16,9,16-Jul,,F,24,A,available,BC1,,L,3959
+WL2 x SQ3,,,,2,F,24,B,2025-survivor,,K,,2027
+WL2,8_2025,8,2025,25,F,25,A,available,Parent,,L,3108
+(WL2 X DPR) X WL2,3_13-B,3,13-B,,F,25,B,available,BC1,,L,3916
+(WL2 X CC) X WL2,1_3,1,3,53,F,26,A,available,BC1,,L,3468
+SQ3,12,,,9,F,26,B,2025-survivor,,K,,1692
+(WL2 X CC) X WL2,1_12,1,12,,F,27,A,available,BC1,,L,3836
+(WV) x (WV x WL2),3_22,,,4,F,27,B,2025-survivor,,K,,2581
+(WL2 X WV) X WL2,1_7-16,1,16-Jul,,F,28,A,available,BC1,,L,3898
+(WL1 X WL2) X WL2,10_2-A,10,2-A,19,F,28,B,available,BC1,,L,3312
+,,,,,F,29,A,out-of-bounds,,,,
+,,,,,F,29,B,out-of-bounds,,,,
+(WL2 X DPR) X WL2,4_3-14,4,14-Mar,,F,39,A,available,BC1,,L,3909
+(CC X WL2) X WL2,4_3,4,3,7,F,39,B,available,BC1,,L,3219
+SQ3,8_2023,8,2023,,F,40,A,available,Parent,,L,3854
+(WL1 X WL2) X WL2,10_2-A,10,2-A,41,F,40,B,available,BC1,,L,3334
+WL2,4_2025,4,2025,67,F,41,A,available,Parent,,L,3150
+,,,,,F,41,B,buffer,,,,buffer
+(WL2 X CC) X WL2,1_7-16,1,16-Jul,,F,42,A,available,BC1,,L,3847
+(WL2 X CC) X WL2,1_3,1,3,33,F,42,B,available,BC1,,L,3448
+YO11,5,,,17,F,43,A,2025-survivor,,L,,1959
+(CC X WL2) X WL2,4_7-6,4,6-Jul,,F,43,B,available,BC1,,L,3879
+(WL2 x BH) x (WL2 x TM2),2_3,,,1,F,44,A,2025-survivor,,L,,2214
+(YO11 X WL2) X WL2,5_7-16,5,16-Jul,2,F,44,B,available,BC1,,L,3202
+WL2,5,,,48,F,45,A,2025-survivor,,L,,1871
+(WL2 x TM2) x (WL2 x BH),1_2,,,1,F,45,B,2025-survivor,,L,,2290
+(WV x WL2) x (WL2 x BH),2_2,,,7,F,4,C,2025-survivor,,J,,2349
+,,,,,F,4,D,buffer,,,,
+,,,,,F,5,C,buffer,,,,
+,,,,,F,5,D,buffer,,,,
+,,,,,F,6,C,out-of-bounds,,,,
+(WL2 X CC) X WL2,1_3,1,3,40,F,6,D,available,BC1,,N,3455
+(WV X WL2) X WL2,,,,,F,7,C,available,BC1,,N,3941
+(WL1 X WL2) x WL2,,,,,F,7,D,available,,,N,3757
+(WL1 X WL2) x WL2,,,,,F,8,C,available,,,N,3738
+(WL2 X TM2) X WL2,,,,,F,8,D,available,BC1,,N,3942
+(WL2 x BH) x (WL2 x CC),1_2,,,4,F,9,D,2025-survivor,,J,,2195
+(WL2 X DPR) X WL2,4_3-14,4,14-Mar,1,F,10,C,available,BC1,,N,3269
+(WL1 X WL2) X WL2,10_12,10,12,33,F,10,D,available,BC1,,N,3326
+(WL2 X DPR) X WL2,4_13-B,4,13-B,20,F,13,C,available,BC1,,M,3288
+(WL2 X WV) X WL2,1_7-16,1,16-Jul,9,F,11,D,available,BC1,,N,3238
+(DPR X WL2) X WL2,7_12,7,12,29,F,12,C,available,BC1,,M,3372
+,,,,,F,12,D,buffer,,,M,buffer
+,,,,,F,11,C,buffer,,,M,buffer
+TM2,35_2025,35,2025,53,F,13,D,available,Parent,,M,3644
+TM2,33_2025,33,2025,38,F,14,C,available,Parent,,M,3629
+(WL2 X WL1) X WL2,3_12,3,12,,F,14,D,available,BC1,,M,3716
+(WL2 X WL1) x WL2,,,,,F,15,C,available,,,M,3830
+(WL1 X WL2) x WL2,,,,,F,15,D,available,,,M,3755
+(WL2 X CC) X WL2,1_3,1,3,,F,16,C,available,BC1,,M,3881
+(WL2 X CC) X WL2,1_3,1,3,65,F,16,D,available,BC1,,M,3480
+(CC X WL2) X WL2,4_3,4,3,,F,17,C,available,BC1,,M,3876
+(WL2 X DPR) X WL2,3_13-B,3,13-B,,F,17,D,available,BC1,,M,3915
+(WL2 x WV) x (CC x WL2),1_1,,,3,F,18,C,2025-survivor,,K,,2298
+,,,,,F,18,D,buffer,,,,buffer
+(DPR X WL2) X WL2,7_12,7,12,,F,19,C,available,BC1,,M,3768
+(TM2) x (TM2 x WL2),2-1_2,,,3,F,19,D,2025-survivor,,K,,2506
+(WL2 x TM2) x (TM2),2_1-3,,,24,F,20,C,2025-survivor,,K,,2262
+BH,15_2025,15,2025,1,F,20,D,available,Parent,,M,3508
+(WL2 X CC) X WL2,1_7-16,1,16-Jul,31,F,21,C,available,BC1,,M,3446
+,,,,,F,21,D,buffer,,,,buffer
+(TM2 X WL2) X WL2,3_2-16,3,16-Feb,20,F,22,C,available,BC1,,M,3268
+TM2,7_2025,7,2025,86,F,22,D,available,Parent,,M,3677
+SQ3,12_2023,12,2023,19,F,23,C,available,Parent,,M,3039
+(WV X WL2) X WL2,2_13-B,2,13-B,6,F,23,D,available,BC1,,M,3196
+,,,,,F,24,C,buffer,,,L,
+,,,,,F,24,D,buffer,,,L,
+(WL2 x WV) x (CC x WL2),1_1,,,2,F,25,C,2025-survivor,,K,,2545
+TM2,26_2025,26,2025,33,F,25,D,available,Parent,,L,3624
+(TM2 x WL2) x (TM2),3_2-13,,,11,F,26,C,2025-survivor,,K,,2139
+(DPR x TM2) x (TM2 x WL2),3_2,,,2,F,26,D,2025-survivor,,K,,2587
+DPR,13_2022,13,2022,,F,27,C,available,Parent,,L,3701
+WL2,10,,,91,F,27,D,2025-survivor,,K,,1914
+(CC x WL2) x (WL2),4_13-B,,,9,F,28,C,2025-survivor,,K,,2438
+TM2,25_2025,25,2025,96,F,28,D,available,Parent,,L,3687
+,,,,,F,29,C,out-of-bounds,,,,
+,,,,,F,29,D,out-of-bounds,,,,
+WL2,18_2025,18,2025,,F,39,C,available,Parent,,L,3817
+(WL2 X CC) X WL2,1_12,1,12,5,F,39,D,available,BC1,,L,3420
+(WL2 X WL1) X WL2,2,2,,14,F,40,C,available,BC1,,L,3399
+(WL1 X WL2) x WL2,,,,,F,40,D,available,,,L,3736
+(WL2 X WL1) X WL2,5_3,5,3,30,F,41,C,available,BC1,,L,3415
+(DPR X WL2) X WL2,5_2-A,5,2-A,,F,41,D,available,BC1,,L,3762
+(DPR X WL2) X WL2,5_7-16,5,16-Jul,27,F,42,C,available,BC1,,L,3370
+(WL1 X WL2) x WL2,,,,,F,42,D,available,,,L,3758
+(WL2 X DPR) X WL2,3_13-B,3,13-B,18,F,43,C,available,BC1,,L,3286
+(TM2 X WL2) X WL2,3_2,3,2,15,F,43,D,available,BC1,,L,3263
+,,,,,F,44,C,buffer,,,,buffer
+TM2,33_2025,33,2025,,F,44,D,available,Parent,,L,3776
+SQ3,9_2023,9,2023,16,F,45,C,available,Parent,,L,3036
+(WL2 x WV) x (CC x WL2),1_1,,,3,F,45,D,2025-survivor,,L,,2546
+(WL2 X CC) X WL2,1_3,1,3,,F,46,C,available,BC1,,L,3937
+(WL2) x (WL2 x TM2),3-14_2,,,5,G,4,A,2025-survivor,,L,,2460
+WL2 x YO11,8-1_14-10,,,7,G,4,B,2025-survivor,,L,,2053
+,,,,,G,5,A,buffer,,,,
+WL2 x WV,,,,1,G,5,B,2025-survivor,,L,,2491
+(SQ3 x WL2) x (WL2),3_13-B,,,1,G,6,A,2025-survivor,,L,,2092
+(WL2 X CC) X WL2,1_12,1,12,9,G,6,B,available,BC1,,N,3424
+TM2,26_2025,26,2025,,G,7,A,available,Parent,,N,3774
+(WL2 X WL1) x WL2,,,,,G,7,B,available,,,N,3720
+BH,15_2025,15,2025,2,G,8,A,available,Parent,,N,3509
+WL2,7_2025,7,2025,,G,8,B,available,Parent,,N,3796
+WL2,9_2025,9,2025,28,G,9,A,available,Parent,,N,3111
+(CC X WL2) X WL2,4_3,4,3,9,G,9,B,available,BC1,,N,3221
+(WL2 X DPR) X WL2,3_3-B,3,3-B,,G,10,A,available,BC1,,N,3952
+TM2,33_2025,33,2025,39,G,10,B,available,Parent,,N,3630
+(WL2 X CC) X WL2,1_3,1,3,59,G,11,A,available,BC1,,N,3474
+(WV x WL2) x (WV),20_7-3,,,5,G,11,B,2025-survivor,,L,,2372
+(WL2 x TM2) x (TM2),2_1-3,,,25,G,12,A,2025-survivor,,L,,2263
+CC,8_2025,8,2025,6,G,12,B,available,Parent,,N,3534
+(WL2 X WV) X WL2,15_2-A,15,2-A,,G,13,A,available,BC1,,N,3890
+(WL2 X WL1) X WL2,12,,12,,G,13,B,available,BC1,,N,3715
+,,,,,G,14,A,buffer,,,N,buffer
+,,,,,G,14,B,buffer,,,N,buffer
+WV,5_2023,5,2023,,G,15,A,available,Parent,,O,3710
+(WL2 X CC) X WL2,1_7-16,1,16-Jul,,G,15,B,available,BC1,,O,3840
+TM2,38_2025,38,2025,61,G,16,A,available,Parent,,O,3652
+BH,12_2025,12,2025,,G,16,B,available,Parent,,O,3694
+WL2,23_2025,23,2025,,G,17,A,available,Parent,,O,3858
+TM2,24_2025,24,2025,98,G,17,B,available,Parent,,O,3689
+DPR,19_2022,19,2022,,G,18,A,available,Parent,,O,3706
+(WL2 X TM2) X WL2,2_2-16,2,16-Feb,4,G,18,B,available,BC1,,O,3185
+(WL2 X CC) X WL2,1_3,1,3,34,G,19,A,available,BC1,,O,3449
+(WL1 X WL2) X WL2,10_12,10,12,24,G,19,B,available,BC1,,O,3317
+(WL2 X CC) X WL2,1_12,1,12,10,G,20,A,available,BC1,,O,3425
+WL2,10_2025,10,2025,29,G,20,B,available,Parent,,O,3112
+(WL2 X DPR) X WL2,3_13-B,3,13-B,,G,21,A,available,BC1,,O,3917
+(WL2 X DPR) X WL2,4_3-14,4,14-Mar,2,G,21,B,available,BC1,,O,3270
+(DPR x TM2) x (TM2 x WL2),3_2,,,7,G,22,A,2025-survivor,,M,,2084
+(WL1 X WL2) x WL2,,,,,G,22,B,available,,,O,3747
+(WL2 X WL1) X WL2,3_12,3,12,21,G,23,A,available,BC1,,O,3406
+(WL2 x BH) x (WL2 x CC),1_2,,,7,G,23,B,2025-survivor,,M,,2198
+BH,14_2025,14,2025,5,G,24,A,available,Parent,,O,3512
+(WL2 X CC) X WL2,1_3,1,3,49,G,24,B,available,BC1,,O,3464
+(WL2 X WV) X WL2,1_7-16,1,16-Jul,10,G,25,A,available,BC1,,O,3239
+(WV X WL2) X WL2,,,,8,G,25,B,available,BC1,,O,3198
+(CC X WL2) X WL2,4_3,4,3,,G,26,A,available,BC1,,O,3870
+,,,,,G,26,B,buffer,,,O,buffer
+,,,,,G,27,A,buffer,,,O,buffer
+DPR,2_2025,2,2025,3,G,27,B,available,Parent,,P,3552
+(TM2 x WL2) x (TM2),3_2-13,,,16,G,28,A,2025-survivor,,N,,2144
+TM2,30_2025,30,2025,,G,28,B,available,Parent,,P,3773
+(WL2 x TM2) x (TM2),2_1-3,,,13,G,29,A,2025-survivor,,N,,2251
+WL2,19_2025,19,2025,,G,29,B,available,Parent,,P,3805
+TM2,8_2025,8,2025,90,G,30,A,available,Parent,,P,3681
+(TM2 x WL2) x (TM2),3_2-13,,,29,G,30,B,2025-survivor,,N,,2157
+(WL2 X WL1) X WL2,3_12,3,12,28,G,31,A,available,BC1,,P,3413
+BH,3,,,2,G,31,B,2025-survivor,,N,,2615
+(WL2 X WV) X WL2,1_7-16,1,16-Jul,12,G,32,A,available,BC1,,P,3241
+WL2,26_2025,26,2025,34,G,32,B,available,Parent,,P,3117
+(WL2 X WL1) X WL2,3_12,3,12,22,G,33,A,available,BC1,,P,3407
+(SQ3 x WL2) x (WL2),12_16-A,12,16-A,12,G,33,B,2025-survivor,,N,,2500
+CC,5_2025,5,2025,8,G,34,A,available,Parent,,P,3536
+(WL2 X DPR) X WL2,4_13-B,4,13-B,,G,34,B,available,BC1,,P,3923
+(WL2 X DPR) X WL2,4_3-14,4,14-Mar,3,G,35,A,available,BC1,,P,3271
+(DPR X WL2) X WL2,7_7-16,7,16-Jul,32,G,35,B,available,BC1,,P,3375
+(WL2 X CC) X WL2,1_3,1,3,58,G,36,A,available,BC1,,P,3473
+TM2,5_2025,5,2025,2,G,36,B,available,Parent,,P,3593
+(CC X WL2) X WL2,4_3,4,3,,G,37,A,available,BC1,,P,3877
+(WL1 X WL2) x WL2,,,,,G,37,B,available,,,P,3753
+(WL2 X CC) X WL2,1_7-16,1,16-Jul,30,G,38,A,available,BC1,,P,3445
+WL2,27_2025,27,2025,46,G,38,B,available,Parent,,P,3129
+(DPR X WL2) X WL2,9_7-16,9,16-Jul,34,G,39,A,available,BC1,,P,3377
+(SQ3 x WL2) x (WL2),3_13-B,,,3,G,39,B,2025-survivor,,N,,2094
+(TM2) x (TM2 x WL2),2-1_2,,,3,G,40,A,2025-survivor,,N,,2171
+(WL2 x CC) x (WL2 x BH),1_1,,,3,G,41,A,2025-survivor,,N,,2229
+,,,,,G,41,B,buffer,,,,buffer
+(DPR X WL2) X WL2,5_2-A,5,2-A,2,G,42,A,available,BC1,,P,3345
+(YO11 X WL2) X WL2,5_3,5,3,8,G,42,B,available,,,P,3208
+,,,,,G,4,C,buffer,,,,
+,,,,,G,4,D,buffer,,,,
+(DPR x TM2) x (TM2 x WL2),3_2,,,6,G,5,C,2025-survivor,,L,,2083
+,,,,,G,5,D,buffer,,,,
+(WL2 x BH) x (WL2 x CC),2_3,,,22,G,6,C,2025-survivor,,L,,2537
+(TM2 X WL2) X WL2,3_2,3,2,5,G,6,D,available,BC1,,N,3253
+WL2,18_2025,18,2025,,G,7,C,available,Parent,,N,3816
+WL2 x LV1,2-A_14-A,2-A,14-A,6,G,7,D,2025-survivor,,L,,2024
+(TM2 x WL2) x (TM2),3_1-3,,,1,G,8,C,2025-survivor,,L,,2598
+(CC X WL2) X WL2,4_3,4,3,,G,8,D,available,BC1,,N,3872
+WL2,20_2025,20,2025,55,G,9,C,available,Parent,,N,3138
+((WL2 X WL1) X WL2) X WL2),2_28-2,2,28-2,10,G,9,D,available,BC2,,N,3493
+(WL2 X DPR) X WL2,4_3-14,4,14-Mar,,G,10,C,available,BC1,,N,3908
+(WL1 X WL2) X WL2,10_12,10,12,23,G,10,D,available,BC1,,N,3316
+SQ3,13_2023,13,2023,20,G,11,C,available,Parent,,N,3040
+(WL2 X CC) X WL2,1_3,1,3,,G,11,D,available,BC1,,N,3934
+(DPR X WL2) X WL2,7_12,7,12,30,G,12,C,available,BC1,,N,3373
+(WL2 X CC) X WL2,1_7-16,1,16-Jul,,G,12,D,available,BC1,,N,3841
+,,,,,G,13,C,buffer,,,N,buffer
+(DPR X WL2) X WL2,5_2-A,5,2-A,,G,7,D,available,BC1,,N,3764
+TM2,31_2025,31,2025,41,G,14,C,available,Parent,,O,3632
+,,,,,G,14,D,out-of-bounds,,,,
+WL2,27_2025,27,2025,,G,15,C,available,Parent,,O,3804
+WL2,23_2025,23,2025,60,G,15,D,available,Parent,,O,3143
+LV1 x WL2,14_8,14,8,2,G,23,C,2025-survivor,,M,,1979
+WL2,4,,,40,G,16,D,2025-survivor,,M,,1863
+DPR,15_2022,15,2022,,G,17,C,available,Parent,,O,3704
+,,,,,G,17,D,out-of-bounds,,,,
+,,,,,G,18,C,out-of-bounds,,,,
+(WL2 x WV) x (CC x WL2),1_1,,,7,G,18,D,2025-survivor,,M,,2553
+(WL2 X DPR) X WL2,4_13-B,4,13-B,23,G,19,C,available,BC1,,O,3291
+(DPR X WL2) X WL2,7,7,,31,G,19,D,available,BC1,,O,3374
+,,,,,G,20,C,out-of-bounds,,,,
+(DPR X WL2) X WL2,9_7-16,9,16-Jul,,G,20,D,available,BC1,,O,3828
+(WL1 X WL2) X WL2,10_2-12,10,12-Feb,45,G,21,C,available,BC1,,O,3338
+(WV x TM2) x (TM2 x WL2),2_1,2,1,5,G,21,D,2025-survivor,,M,,2336
+TM2,8_2025,8,2025,88,G,22,C,available,Parent,,O,3679
+,,,,,G,22,D,out-of-bounds,,,,
+,,,,,G,23,C,out-of-bounds,,,,
+,,,,,G,23,D,out-of-bounds,,,,
+(SQ3 x WL2) x (WL2),3_13-B,,,2,G,24,C,2025-survivor,,M,,2093
+TM2,6_2025,6,2025,,G,24,D,available,Parent,,O,3786
+WL1,16_2023,16,2023,20,G,25,C,available,Parent,,O,3061
+(WL2 X CC) X WL2,1_3,1,3,,G,25,D,available,BC1,,O,3880
+(CC X WL2) X WL2,4_3,4,3,10,G,26,C,available,BC1,,O,3222
+(WL1 X WL2) x WL2,,,,,G,26,D,available,,,O,3739
+LV1,1_2025,1,2025,,G,27,C,available,Parent,,O,3850
+(WL2) x (WL2 x BH),3-14_1,,,2,G,27,D,2025-survivor,,N,,2310
+BH,14_2025,14,2025,6,G,28,C,available,Parent,,P,3513
+DPR,2_2025,2,2025,2,G,28,D,available,Parent,,O,3551
+(WV X WL2) X WL2,,,,,G,29,C,available,BC1,,P,3886
+(WL2 X CC) X WL2,1_12,1,12,11,G,29,D,available,BC1,,P,3426
+DPR,19_2022,19,2022,,G,30,C,available,Parent,,P,3705
+TM2,8,,,61,G,30,D,2025-survivor,,N,,1765
+WL1,18,18,,13,G,31,C,2025-survivor,,N,,1815
+WL2,5,,,49,G,31,D,2025-survivor,,N,,1872
+(CC X WL2) X WL2,4_3,4,3,11,G,32,C,available,BC1,,P,3223
+(WL1 X WL2) X WL2,10_12,10,12,25,G,32,D,available,BC1,,P,3318
+WL2,23_2025,23,2025,,G,33,C,available,Parent,,P,3857
+(WL1 X WL2) x WL2,,,,,G,33,D,available,,,P,3740
+TM2,24_2025,24,2025,,G,34,C,available,Parent,,P,3793
+(WL2 X DPR) X WL2,3_13-B,3,13-B,,G,34,D,available,BC1,,P,3911
+WV,13_2023,13,2023,,G,35,C,available,Parent,,P,3713
+(WL2 X CC) X WL2,1_12,1,12,,G,35,D,available,BC1,,P,3838
+(WL2 X WV) X WL2,1_7-16,1,16-Jul,,G,36,C,available,BC1,,P,3899
+(TM2 X WL2) X WL2,3_2,3,2,,G,36,D,available,BC1,,P,3903
+WV,12,12,,9,G,37,C,2025-survivor,,N,,1930
+(WL2 X CC) X WL2,1_3,1,3,,G,37,D,available,BC1,,P,3885
+(WL2) x (WL2 x TM2),3-14_2,,,6,G,38,C,2025-survivor,,N,,2321
+TM2,38_2025,38,2025,62,G,38,D,available,Parent,,P,3653
+(WL1 X WL2) X WL2,11_7-16,11,16-Jul,36,G,39,C,available,BC1,,P,3329
+CC,1,,,4,G,39,D,2025-survivor,,N,,1624
+(WL2 X CC) X WL2,1_3,1,3,,G,40,C,available,BC1,,P,3946
+WL2,19_2025,19,2025,51,G,40,D,available,Parent,,P,3134
+WL2,3_2025,3,2025,87,G,41,C,available,Parent,,P,3170
+(WL2 X WL1) X WL2,3_12,3,12,23,G,41,D,available,BC1,,P,3408
+WL1,14_2023,14,2023,6,G,42,C,available,Parent,,P,3047
