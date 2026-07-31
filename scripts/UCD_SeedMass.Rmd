@@ -1,0 +1,87 @@
+---
+title: "UCD_SeedMass"
+author: "Brandie QC"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Load Libraries
+```{r}
+library(tidyverse)
+library(corrplot) #plotting correlations 
+```
+
+## Load Seed Mass Data
+```{r}
+seedmass_a1 <- read_csv("../input/UCD2023_2024_Data/CorrectedCSVs/UCD_2024_SeedMass_A1_corrected.csv") #note this is only for block A1
+head(seedmass_a1) 
+summary(seedmass_a1)
+```
+
+## Quick plots
+```{r}
+seedmass_a1 %>% 
+  ggplot(aes(total.biomass_g, `fruit + seed mass`)) +
+  geom_point() 
+
+seedmass_a1 %>% 
+  ggplot(aes(total.biomass_g, total.seed.mass_g)) +
+  geom_point() 
+
+seedmass_a1 %>% 
+  ggplot(aes(`fruit + seed mass`, total.seed.mass_g)) +
+  geom_point() #looks great!
+```
+
+## Group measurements by individual
+```{r}
+seedmass_a1_indivs <- seedmass_a1 %>% 
+  group_by(unique.ID) %>% 
+  summarise(Biomass=sum(total.biomass_g, na.rm = TRUE),
+            FruitSeedMass=sum(`fruit + seed mass`, na.rm=TRUE), 
+            SeedMass=sum(total.seed.mass_g, na.rm=TRUE))
+```
+
+### Quick plots 
+```{r}
+seedmass_a1_indivs %>% 
+  ggplot(aes(Biomass, FruitSeedMass)) +
+  geom_point() + geom_smooth()
+
+seedmass_a1_indivs %>% 
+  ggplot(aes(Biomass, SeedMass)) +
+  geom_point() + geom_smooth()
+
+seedmass_a1_indivs %>% 
+  ggplot(aes(FruitSeedMass, SeedMass)) +
+  geom_point() + #looks great!
+  geom_smooth()
+```
+
+## Correlations
+```{r}
+#normalize the data
+seedmass_a1_indivs_norm <- seedmass_a1_indivs %>% ungroup() %>% 
+  select(Biomass:SeedMass) %>% scale() 
+
+#test correlations among the traits
+cor.norm = cor(seedmass_a1_indivs_norm) 
+cor.sig <- cor.mtest(seedmass_a1_indivs_norm, method = "pearson")
+
+cor.norm
+cor.sig
+
+corrplot(cor.norm, type="upper",
+         tl.srt = 45, p.mat = cor.sig$p, 
+         sig.level = 0.05, insig="blank")
+```
+
+## Linear Regression between fruit+seed and just seed
+```{r}
+fruitseed_test <- lm(SeedMass~FruitSeedMass, data=seedmass_a1_indivs)
+summary(fruitseed_test)
+```
