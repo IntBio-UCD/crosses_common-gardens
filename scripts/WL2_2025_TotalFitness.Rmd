@@ -1,0 +1,71 @@
+---
+title: "WL2_2025_TotalFitness"
+author: "Brandie QC"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Total Fitness for plants planted in 2025
+Takes into account 2025 and 2026 data
+
+## Libraries
+```{r}
+library(tidyverse)
+
+sem <- function(x, na.rm=FALSE) {  #for calculating standard error
+  sd(x,na.rm=na.rm)/sqrt(length(na.omit(x)))
+} 
+```
+
+## Read in data
+```{r}
+wintsurv_2025_2026 <- read_csv("../input/WL2_2026_Data/CorrectedCSVs/WL2_2026_WinterSurv_corrected.csv")
+unique(wintsurv_2025_2026$death.date) #contains all year 1 info too
+surv_2026 <- read_csv("../input/WL2_2026_Data/CorrectedCSVs/WL2_mort_pheno_20260724_corrected.csv") #for surv to budding - need to update this with end of season data
+unique(surv_2026$bud.date)
+fruits_2026 <- read_csv("../input/WL2_2026_Data/CorrectedCSVs/WL2_ann_cens_20260731_corrected.csv") #for fruit number - need to update this with end of season data
+unique(fruits_2026$`num. fruit`)
+```
+
+## Pop Info
+```{r}
+pop_info_2025 <- read_csv("../input/WL2_2025_Data/2025_Pop_Loc_Info Updated.csv") %>% 
+  select(status:Unique.ID)
+pop_info_2026 <- read_csv("../input/WL2_2026_Data/Buffer New Bed Map_Corrected.csv") %>% rename(rep=Rep)
+```
+
+## Elevation Info / Climate distance
+```{r}
+
+```
+
+## Calculate y1 fitness and remove plants not planted in 2025
+```{r}
+wintsurv_2025_2026 %>%  
+  left_join(pop_info_2025) %>% 
+  filter(status=="available") %>% filter(!is.na(bud.date)) #some plants attempted to be annual 
+
+y1_fitness <- wintsurv %>% select(bed:unique.ID, bud.date, death.date, missing.date, survey.notes) %>% 
+  left_join(pop_info_2024) %>% 
+  filter(unique.ID != "buffer") %>% #remove buffers
+  filter(Pop.Type=="Parent" | Pop.Type=="F1") %>%  #keep only plants planted in 2024
+  select(loc, bed:unique.ID, Pop.Type, pop:rep, death.date:survey.notes) %>% 
+  mutate(deadatplanting = if_else(is.na(survey.notes), NA,
+                                  if_else(survey.notes=="Dead at planting", "Yes", NA))) %>% 
+  filter(is.na(deadatplanting)) %>% #remove plants that were dead at planting 
+  filter(is.na(missing.date)) %>% #remove plants that went missing 
+  select(-deadatplanting, -missing.date, -survey.notes) %>% #remove unnecessary cols 
+  mutate(death.date=mdy(death.date)) %>% #convert to date format 
+  mutate(Establishment = if_else(is.na(death.date), 1, 
+                                 if_else(death.date < "2024-07-06", 0, 1)), #establishment = first 3 weeks post-transplant 
+         Y1Surv = if_else(Establishment==0, NA, #can't survive year 1 if you didn't establish 
+                          if_else(is.na(death.date), 1, 
+                                        if_else(death.date < "2024-11-01", 0, 1))), #year 1 ended in Oct
+         WintSurv = if_else(Establishment==0 | Y1Surv==0, NA, #can only have wint surv if survived y1 
+                            if_else(is.na(death.date), 1, 0))) 
+y1_fitness %>% filter(WintSurv==1) #33 plants survived the winter 
+```
