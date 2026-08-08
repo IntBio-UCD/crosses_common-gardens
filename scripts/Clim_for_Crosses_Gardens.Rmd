@@ -47,10 +47,117 @@ sites_loc <- tibble(parent.pop=c("UCD_Garden", "WL2_Garden"), phylogroup=NA, Lat
 pops_gardens_locs <- bind_rows(pop_elev, sites_loc)
 
 #add row names
-pops_gardens_locs_rowids <- pops_gardens_locs %>% rowid_to_column() %>% mutate(rowid = as.character(rowid))
+pops_gardens_locs_rowids <- pops_gardens_locs %>% 
+  rowid_to_column() %>% 
+  mutate(rowid = as.character(rowid))
 ```
 
-## Load raw flint data
+## Extract WY 2025 from asc files
+This is adapted from John's "Flint_Data_Extraction_from_Box.Rmd" code. 
+Have to download the data (and unzip it) before running the below code chunks
+https://www.sciencebase.gov/catalog/item/69fce794b66b010eddb81d1a 
+```{r, eval=FALSE}
+locs <- pops_gardens_locs_rowids %>% 
+  rename(latitude = Lat, longitude = Long) %>% 
+  # Make duplicate lat/long columns that will be transformed to match the Flint equal area projection
+  mutate(latitude=as.numeric(latitude), 
+         longitude=as.numeric(longitude)) %>% 
+  mutate(latitude_aea = latitude,
+         longitude_aea = longitude)
+
+## define projection of flint data
+flint_prj <- '+proj=aea +lat_1=34 +lat_2=40.5 +lat_0=0 +lon_0=-120 +x_0=0 +y_0=-4000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs' 
+
+## Designate latitude and longitude columns as coordinates
+coordinates(locs) <- ~longitude_aea + latitude_aea
+
+## Define original projection (which is unprojected)
+proj4string(locs) <- CRS("+proj=longlat +ellps=WGS84")
+
+## Transform locations from original projection to be consistent with the flint data
+locs_t <- spTransform(locs, CRS(flint_prj))
+plot(locs_t)
+
+## Make data frame from spatial points object, omit "optional" column
+### This data frame has the original coordinates but also transformed coordinates
+locs_p <- data.frame(locs_t) %>%
+  dplyr::select(-optional)
+```
+
+### Extract asc values
+```{r, eval=FALSE}
+setwd("/Users/bqc/Library/Mobile Documents/com~apple~CloudDocs/Documents/UCDavis_Postdoc/crosses_common-gardens/input/Flint_WY2025/")
+
+climate_variables <- c("aet", "cwd", "pck", "pet", 
+                       "ppt", "tmn", "tmx")
+
+path_name <- c("aet_WY2025","cwd_WY2025","pck_WY2025",
+               "pet_WY2025","ppt_WY2025","tmn_WY2025","tmx_WY2025")
+#path <- c("/Users/bqc/Library/Mobile Documents/com~apple~CloudDocs/Documents/UCDavis_Postdoc/crosses_common-gardens/input/Flint_WY2025/aet_WY2025") #for testing the code
+
+# Month named vectors
+months <- c("jan" = 1, "feb" = 2, "mar" = 3, "apr" = 4,
+            "may" = 5, "jun" = 6, "jul" = 7, "aug" = 8,
+            "sep" = 9, "oct" = 10, "nov" = 11, "dec" = 12)
+
+walk(path_name, .progress = TRUE, .f = function(path) {
+  # Extract variable name from path
+  var_name <- str_extract(path, "[a-z]+(?=_WY2025)") #(?<=/) #for testing the code
+  
+  # Make list for all files pertaining to climate variable
+  file_list <- list.files(path = path, pattern = ".asc", full.names = TRUE)
+  
+  # define a vector for populating pop column
+  pops <- rep(locs$parent.pop, times = length(file_list))
+  
+  # create empty dataframe with pop, year, month, and each climate metric
+  hist_clim <- data.frame(matrix(NA,
+                                 nrow = length(pops),
+                                 ncol = 5)) 
+                         #ncol = vars: pop, year, month, var, var.data
+  
+  colnames(hist_clim) <- c("pop", "year", "month", "var", "var.data")
+  
+  hist_clim$pop <- pops
+  hist_clim$var <- var_name
+  
+  # For loop filling in empty data frame
+  # loop over files
+  for (j in 1:length(file_list)) {
+    # loop over rows of hist_clim to populate the dataframe
+    file_name <- basename(file_list[j]) # Lose the directory names
+    dec_file_name <- sub('.gz$', '', file_list[j], fixed = TRUE)
+    # Can do following due to uniform naming scheme
+    hist_clim[((j - 1) * nrow(locs_p) + 1):(j * nrow(locs_p)), 5] <-
+        raster::extract(raster(dec_file_name), locs_t)
+    hist_clim[((j - 1) * nrow(locs_p) + 1):(j * nrow(locs_p)), 3] <-
+      months[[str_sub(file_name, 8, 10)]]
+    hist_clim[((j - 1) * nrow(locs_p) + 1):(j * nrow(locs_p)), 2] <-
+      as.numeric(str_sub(file_name, 4, 7))
+    file.remove(dec_file_name)
+  }
+
+# Sort the data frame
+  hist_clim <- arrange(hist_clim, year, month)
+  
+# Save the data frame
+  new_file_name <- paste0("Test_", var_name, "_WY2025.csv")
+  write.csv(hist_clim, new_file_name, row.names = FALSE)
+})
+```
+
+### Merge
+```{r, eval=FALSE}
+setwd("/Users/bqc/Library/Mobile Documents/com~apple~CloudDocs/Documents/UCDavis_Postdoc/crosses_common-gardens/input/Flint_WY2025/")
+file_list <- list.files(pattern = "_WY2025.csv", full.names = TRUE)
+all_climate <- map(file_list, read_csv)
+all_climate <- reduce(all_climate, bind_rows) 
+head(all_climate)
+all_climate <- all_climate %>% pivot_wider(names_from = var, values_from = var.data)
+write_csv(all_climate, "Flint_All_WY2025.csv")
+```
+
+## Load raw flint data for water years prior to 2025
 
 ```{r}
 flint_data1 <- read_csv("../input/Updated_Flint_Climate_Oct2024.csv") #This only goes through Aug 2024
@@ -119,6 +226,22 @@ flint_pops <- full_join(pops_gardens_locs_rowids, flint_long)
 
 Note: flint_pops includes the 2 common garden sites and pops not grown in crosses gardens 
 
+### Merge pre and post 2025 flint data
+```{r}
+all_climate <- read_csv("../input/Flint_WY2025/Flint_All_WY2025.csv")
+all_climate_pops <- all_climate %>% 
+  rename(parent.pop=pop) %>% 
+  left_join(pops_gardens_locs_rowids) %>% 
+  mutate(month=month(month, label = TRUE, abbr = TRUE)) %>% #convert from nums to char names 
+  mutate(month=as.character(month),
+         month=tolower(month)) %>% 
+  filter(year!="2024") #remove 2024 so no repeats with flint_pops
+  
+
+all_flint_pops <- bind_rows(flint_pops, all_climate_pops)
+head(all_flint_pops)
+```
+
 ### Subset to only the 10 pops plus the garden sites
 
 TM2, WL2, LV1, SQ3, WL1, YO11, BH, CC, DPR, WV
@@ -126,7 +249,7 @@ TM2, WL2, LV1, SQ3, WL1, YO11, BH, CC, DPR, WV
 ```{r}
 crosses_parents <- c("TM2", "WL2", "LV1", "SQ3", "WL1", "YO11", "BH", "CC", "DPR", "WV")
 
-pop_elev_climate <- flint_pops %>% 
+pop_elev_climate <- all_flint_pops %>% 
   select(parent.pop, elevation.group, elev_m, Lat:Long, year:tmx) %>% #organize the columns 
   mutate(elevation.group=if_else(parent.pop=="UCD_Garden", "Low",  #add elevation group for gardens
                                  if_else(parent.pop=="WL2_Garden", "High", elevation.group))) %>% 
@@ -135,7 +258,7 @@ pop_elev_climate <- flint_pops %>%
 unique(pop_elev_climate$parent.pop) #check that filtering worked 
 ```
 
-## Flint Water Year
+## Flint Water Year (Nov-Oct)
 
 ```{r}
 month_nums <- tibble(month=c("jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"),
@@ -150,7 +273,7 @@ flint_all_year_wtr_yr <- flint_all_year_mosnums %>%
   mutate(timeframe = case_when(
                                 wtr_yr < 1965 ~ "beforehistoric",
                                 wtr_yr >= 1965 & wtr_yr < 1995 ~ "historic",
-                                wtr_yr >= 1995 & wtr_yr <= 2024 ~ "recent")) %>%
+                                wtr_yr >= 1995 & wtr_yr <= 2025 ~ "recent")) %>%
                          mutate(timeframe = as.factor(timeframe), month = as.factor(month)) %>%
                          filter(wtr_yr != 1895) %>% #remove years with less than 12 months of data 
                          mutate(months_wtryr = case_when(
@@ -170,6 +293,7 @@ flint_all_year_wtr_yr <- flint_all_year_mosnums %>%
 summary(flint_all_year_wtr_yr)
 
 #water year is calculated Nov - October to match census dates at WL2. Could have issues with this, but move forward for now. Can be changed later. 
+##Note: we don't currently have Oct for 2025!
 ```
 
 ## Bioclim water year calculations
@@ -245,7 +369,117 @@ bioclim_wtryr_to_merge <- bioclim_wtryr %>%
 
 #merge
 wtr_yr_clim <- left_join(flint_yrly_avgs_wtr_yr, bioclim_wtryr_to_merge) %>% 
-  mutate(Season="Water Year") %>% 
-  filter(year<2025) #remove Nov-Dec 2024 b/c that would be the start of the 2025 water year 
-write_csv(wtr_yr_clim, "../output/Climate/WtrYr_Clim.csv")
+  mutate(Season="Water Year")
+write_csv(wtr_yr_clim, "../output/Climate/WtrYr_Clim_2025NoOct.csv")
+```
+
+## Flint Water Year (Oct-Sep)
+
+```{r}
+#define the water year as Octover-Sept:
+flint_all_year_wtr_yr_trad <- flint_all_year_mosnums %>% 
+  mutate(wtr_yr = year + month_nums %in% c(10:12)) %>% 
+  mutate(timeframe = case_when(
+                                wtr_yr < 1965 ~ "beforehistoric",
+                                wtr_yr >= 1965 & wtr_yr < 1995 ~ "historic",
+                                wtr_yr >= 1995 & wtr_yr <= 2025 ~ "recent")) %>%
+                         mutate(timeframe = as.factor(timeframe), month = as.factor(month)) %>%
+                         filter(wtr_yr != 1895) %>% #remove years with less than 12 months of data 
+                         mutate(months_wtryr = case_when(
+                           month == "oct" ~ 1,
+                           month == "nov" ~ 2,
+                           month == "dec" ~ 3,
+                           month == "jan" ~ 4,
+                           month == "feb" ~ 5,
+                           month == "mar" ~ 6,
+                           month == "apr" ~ 7,
+                           month == "may" ~ 8, 
+                           month == "jun" ~ 9,
+                           month == "jul" ~ 10, 
+                           month == "aug" ~ 11,
+                           month == "sep" ~ 12)) %>% 
+  select(parent.pop:month, timeframe, wtr_yr, months_wtryr, aet:tmx)  #organize the columns 
+summary(flint_all_year_wtr_yr_trad)
+
+#water year is calculated Nov - October to match census dates at WL2. Could have issues with this, but move forward for now. Can be changed later. 
+##Note: we don't currently have Oct for 2025!
+```
+
+## Bioclim water year calculations
+
+Referenced this r code: <https://github.com/rspatial/dismo/blob/master/R/biovars.R>
+
+```{r}
+# Calculating average temp and diurnal range for each month
+bioclim_wtr_yr_trad_prep <- flint_all_year_wtr_yr_trad %>% 
+  mutate(tavg = (tmn + tmx)/2, t_diurnal = (tmx-tmn))
+
+#Bio 1, 2, 4, 7, 12, 15
+bioclim_wtr_yr_trad_calc <- bioclim_wtr_yr_trad_prep %>% 
+  group_by(parent.pop, elevation.group, elev_m, timeframe, wtr_yr) %>% 
+  summarise(ann_tmean=mean(tavg),  #Bio1 - Annual Mean Temperature
+            mean_diurnal_range=mean(t_diurnal), #Bio2 - Mean Diurnal Range
+            temp_seasonality=sd(tavg), #Bio4 - Temperature Seasonality
+            temp_ann_range=(max(tmx))-(min(tmn)), #bio7 - temp annual range
+            ann_ppt=sum(ppt), #bio12 - annual precip
+            ppt_seasonality=cv(ppt+1)) #bio15 - Precipitation Seasonality (+1 to avoid strange CVs for areas where mean rainfaill is < 1)
+
+# Calculating wettest, driest, warmest, and coldest months 
+wettest_month_trad <- bioclim_wtr_yr_trad_prep %>%  #there's one wettest month per pop/year
+  group_by(parent.pop, elevation.group, elev_m, timeframe, wtr_yr) %>% 
+  slice_max(ppt)
+driest_month_trad <- bioclim_wtr_yr_trad_prep %>%  #there's more than one driest month for some pops and years 
+  group_by(parent.pop, elevation.group, elev_m, timeframe, wtr_yr) %>% 
+  slice_min(ppt)
+warmest_month_trad <- bioclim_wtr_yr_trad_prep %>% #there's more than one warmest month for 1 pop/year
+  group_by(parent.pop, elevation.group, elev_m, timeframe, wtr_yr) %>% 
+  slice_max(tavg)
+coldest_month_trad <- bioclim_wtr_yr_trad_prep %>% #there's more than one driest month for some pops and years 
+  group_by(parent.pop, elevation.group, elev_m, timeframe, wtr_yr) %>% 
+  slice_min(tavg)
+
+# Bio 8, 9, 18, 19
+bio8_wtryr_trad <- wettest_month_trad %>% #bio8 = tmean_wettest_month
+  dplyr::select(parent.pop, elevation.group, elev_m, timeframe, wtr_yr, tmean_wettest_month=tavg)
+bio9_wtryr_trad <- driest_month_trad %>% #bio9 = tmean_driest_month
+  group_by(parent.pop, elevation.group, elev_m, timeframe, wtr_yr) %>% 
+  summarise(tmean_driest_month=mean(tavg)) #taking the average b/c some years where there are multiple driest months 
+bio18_wtryr_trad <- warmest_month_trad %>% #bio18 = ppt_warmest_month
+  group_by(parent.pop, elevation.group, elev_m, timeframe, wtr_yr) %>% 
+  summarise(ppt_warmest_month=mean(ppt)) #taking the avg b/c more than one warmest month for one pop/year
+bio19_wtryr_trad <- coldest_month_trad %>% #bio19 = ppt_coldest_month
+  group_by(parent.pop, elevation.group, elev_m, timeframe, wtr_yr) %>% 
+  summarise(ppt_coldest_month=mean(ppt)) #taking the avg b/c more than one coldest month for one pop/year
+#merge:
+bio8_9_wtryr_trad <- full_join(bio8_wtryr_trad, bio9_wtryr_trad) 
+bio18_19_wtryr_trad <- full_join(bio18_wtryr_trad, bio19_wtryr_trad) 
+all_periods_wtryr_trad <- full_join(bio8_9_wtryr_trad, bio18_19_wtryr_trad)
+
+#Merge all bioclims
+bioclim_wtryr_trad <- full_join(bioclim_wtr_yr_trad_calc, all_periods_wtryr_trad)
+summary(bioclim_wtryr_trad)
+```
+
+Note: bioclim_wtryr includes the 2 common garden sites
+
+## Merge Flint and Bioclim
+```{r}
+#summarize flint by year to merge it with the bioclim data
+flint_yrly_avgs_wtr_yr_trad <- flint_all_year_wtr_yr_trad %>% 
+  filter(timeframe!="beforehistoric") %>% 
+  rename(year=wtr_yr, year_cal=year) %>% 
+  group_by(parent.pop, elevation.group, elev_m, Lat, Long, timeframe, year) %>% 
+  summarise_at(c("cwd", "pck", "ppt", "tmn", "tmx"), c(mean), na.rm = TRUE)
+
+#subset bioclim water year
+bioclim_wtryr_trad_to_merge <- bioclim_wtryr_trad %>% 
+  filter(timeframe!="beforehistoric") %>% 
+  rename(year=wtr_yr) 
+
+#merge
+wtr_yr_clim_trad <- left_join(flint_yrly_avgs_wtr_yr_trad, bioclim_wtryr_trad_to_merge) %>% 
+  mutate(Season="Water Year")
+write_csv(wtr_yr_clim_trad, "../output/Climate/WtrYr_Clim_2025TradWtrYr.csv")
+
+flint_all_year_wtr_yr_trad %>% filter(wtr_yr==2025)
 ```
