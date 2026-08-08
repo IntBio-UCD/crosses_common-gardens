@@ -55,7 +55,7 @@ pops_gardens_locs_rowids <- pops_gardens_locs %>%
 ## Extract WY 2025 from asc files
 This is adapted from John's "Flint_Data_Extraction_from_Box.Rmd" code. 
 Have to download the data (and unzip it) before running the below code chunks
-https://www.sciencebase.gov/catalog/item/69fce794b66b010eddb81d1a 
+Data is availalbe on the IntBio Box or online at https://www.sciencebase.gov/catalog/item/69fce794b66b010eddb81d1a 
 ```{r, eval=FALSE}
 locs <- pops_gardens_locs_rowids %>% 
   rename(latitude = Lat, longitude = Long) %>% 
