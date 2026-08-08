@@ -12,9 +12,11 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 # Total Fitness for plants planted in 2025
+
 Takes into account 2025 and 2026 data
 
 ## Libraries
+
 ```{r}
 library(tidyverse)
 
@@ -24,16 +26,20 @@ sem <- function(x, na.rm=FALSE) {  #for calculating standard error
 ```
 
 ## Read in data
+
 ```{r}
 wintsurv_2025_2026 <- read_csv("../input/WL2_2026_Data/CorrectedCSVs/WL2_2026_WinterSurv_corrected.csv")
 unique(wintsurv_2025_2026$death.date) #contains all year 1 info too
+
 surv_2026 <- read_csv("../input/WL2_2026_Data/CorrectedCSVs/WL2_mort_pheno_20260724_corrected.csv") #for surv to budding - need to update this with end of season data
 unique(surv_2026$bud.date)
+
 fruits_2026 <- read_csv("../input/WL2_2026_Data/CorrectedCSVs/WL2_ann_cens_20260731_corrected.csv") #for fruit number - need to update this with end of season data
 unique(fruits_2026$`num. fruit`)
 ```
 
 ## Pop Info
+
 ```{r}
 pop_info_2025 <- read_csv("../input/WL2_2025_Data/2025_Pop_Loc_Info Updated.csv") %>% 
   select(status:Unique.ID) %>% 
@@ -46,11 +52,13 @@ pop_info_2026 <- read_csv("../input/WL2_2026_Data/Buffer New Bed Map_Corrected.c
 ```
 
 ## Elevation Info / Climate distance
+
 ```{r}
 
 ```
 
 ## Calculate y1 fitness and remove plants not planted in 2025
+
 ```{r}
 wintsurv_2025_2026 %>%  
   left_join(pop_info_2025) %>% 
@@ -77,6 +85,7 @@ y1_fitness %>% filter(WintSurv==1) #126 plants survived the winter
 ```
 
 ## Calculate y2 fitness and remove plants not planted in 2025
+
 ```{r}
 surv_2026 %>% left_join(pop_info_2026) %>% filter(status=="2025-survivor") %>% filter(is.na(death.date)) %>% filter(is.na(bud.date)) #1 2025 plant alive that has not reproduced yet 
 
@@ -90,7 +99,8 @@ y2_fitness <- pop_info_2026 %>%
   select(Unique.ID, pop.id, mf, rep, SurvtoBud, num.fruit=`num. fruit`)
 ```
 
-## Merge y1 and y2 fitness ---> total fitnes
+## Merge y1 and y2 fitness ---\> total fitnes
+
 ```{r}
 total_fit_2025plants <- y1_fitness %>% 
   select(-bud.date, -death.date) %>% 
@@ -104,6 +114,7 @@ summary(total_fit_2025plants)
 ```
 
 ## Means
+
 ```{r}
 total_fit_2025plants_summary <- total_fit_2025plants %>% 
   group_by(Pop.Type, pop.id) %>% 
@@ -121,6 +132,7 @@ total_fit_2025plants_summary
 ## Figures
 
 ### Winter Surv
+
 ```{r}
 total_fit_2025plants_summary %>% 
   filter(Pop.Type=="Parent") %>% 
