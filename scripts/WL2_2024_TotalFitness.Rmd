@@ -103,10 +103,11 @@ wintsurv %>%
   left_join(pop_info_2024) %>% 
   filter(Pop.Type=="Parent" | Pop.Type=="F1") %>% filter(!is.na(bud.date)) #none of the 2024 plants reproduced (don't need to take into account any annual plants)
 
-y1_fitness <- wintsurv %>% select(bed:unique.ID, bud.date, death.date, missing.date, survey.notes) %>% 
+y1_fitness <- wintsurv %>% 
+  select(bed:unique.ID, bud.date, death.date, missing.date, survey.notes) %>% 
   left_join(pop_info_2024) %>% 
   filter(unique.ID != "buffer") %>% #remove buffers
-  filter(Pop.Type=="Parent" | Pop.Type=="F1") %>%  #keep only plants planted in 2024
+  filter(Pop.Type=="Parent" | Pop.Type=="F1" | Pop.Type=="F2") %>%  #keep only plants planted in 2024
   select(loc, bed:unique.ID, Pop.Type, pop:rep, death.date:survey.notes) %>% 
   mutate(deadatplanting = if_else(is.na(survey.notes), NA,
                                   if_else(survey.notes=="Dead at planting", "Yes", NA))) %>% 
@@ -137,7 +138,7 @@ y2_fitness <- pop_info_2025 %>%
                           if_else(str_detect(pop.id, "x"), "F1",
                                   "Parent"
                           ))) %>% 
-  filter(Pop.Type!="F2") %>% #remove F2s
+  #filter(Pop.Type!="F2") %>% #remove F2s
   mutate(SurvtoBud=if_else(!is.na(bud.date), 1, 0)) %>% 
   select(unique.ID=Unique.ID, Pop.Type, pop=pop.id, mf, rep, SurvtoBud, num.fruit)
 
@@ -157,7 +158,11 @@ total_fit_2024plants <- y1_fitness %>%
   left_join(y2_fitness) %>% 
   select(-mf) %>% #remove because all NAs
   mutate(ProbFruit=if_else(is.na(num.fruit) | num.fruit==0, 0, 1),
-         TotalFitness=if_else(ProbFruit==0, 0, num.fruit)) %>% 
+         TotalFitness=if_else(ProbFruit==0, 0, num.fruit)) 
+write_csv(total_fit_2024plants, "../output/WL2_Traits/WL2_2024_AllFitness.csv")
+
+total_fit_2024plants_noF2s <- total_fit_2024plants %>% 
+  filter(Pop.Type!="F2") %>% 
   separate(pop, c("dame_pop",NA, "sire_pop"), remove = FALSE) %>% #define pops for crosses
   mutate(sire_pop=if_else(Pop.Type=="Parent", dame_pop, sire_pop)) %>% 
   #add clim and elev info for dames and sires:
@@ -174,17 +179,17 @@ total_fit_2024plants <- y1_fitness %>%
          mean_GD_Recent=(dame_GD_Recent+sire_GD_Recent)/2, 
          mean_GD_Historic=(dame_GD_Historic+sire_GD_Historic)/2) #means for parents are just the parent's actual value since I set that pop as dame and sire 
 #total_fit_2024plants %>% filter(WintSurv==1, is.na(SurvtoBud)) #double check that the merge worked
-head(total_fit_2024plants)
+head(total_fit_2024plants_noF2s)
 ```
 
 ## Box Plots
 ```{r}
-total_fit_2024plants %>% 
+total_fit_2024plants_noF2s %>% 
   ggplot(aes(x=pop, y=TotalFitness, colour = Pop.Type)) + #0s included 
   geom_boxplot() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-total_fit_2024plants %>%
+total_fit_2024plants_noF2s %>%
   mutate(num.fruit=if_else(is.na(num.fruit) | num.fruit==0, NA, num.fruit)) %>% 
   ggplot(aes(x=pop, y=num.fruit, colour = Pop.Type)) + #no 0s 
   geom_boxplot() +
@@ -194,7 +199,7 @@ total_fit_2024plants %>%
 
 ## Means 
 ```{r}
-total_fit_2024plants_summary <- total_fit_2024plants %>% 
+total_fit_2024plants_summary <- total_fit_2024plants_noF2s %>% 
   mutate(num.fruit=if_else(is.na(num.fruit) | num.fruit==0, NA, num.fruit)) %>%  #remove 0s
   group_by(Pop.Type, pop, dame_pop, sire_pop, 
            dame_elev, dame_GeoDist,
@@ -211,7 +216,7 @@ total_fit_2024plants_summary
 
 ## Fitness Relative to WL2 parent
 ```{r}
-WL2_crosses <- total_fit_2024plants %>% 
+WL2_crosses <- total_fit_2024plants_noF2s %>% 
   mutate(num.fruit=if_else(is.na(num.fruit) | num.fruit==0, NA, num.fruit)) %>%  #remove 0s
   filter(str_detect(pop, "WL2")) %>% 
   mutate(other_Parent_elev=if_else(dame_pop=="WL2", sire_elev, dame_elev),
@@ -251,237 +256,6 @@ WL2_crosses %>%
   theme(text=element_text(size=25),axis.text.x = element_text(angle = 45, hjust = 1)) + 
   labs(y="Avg Total Fitness", x="Population", fill="Elevation (m)", color="Elevation (m)")
 ggsave("../output/WL2_Traits/WL2_2024Plants_TotalFitness_WL2Crosses.png", width = 14, height = 8, units = "in")
-
-WL2_crosses %>% 
-   ggplot(aes(x=other_Parent_climdist, y=mean_TotalFitness, 
-              group = pop, colour=other_Parent_elev)) +
-  geom_errorbar(aes(ymin=mean_TotalFitness-sem_TotalFitness,
-                    ymax=mean_TotalFitness+sem_TotalFitness), width=0, linewidth = 2) +
-  geom_point(size=6, aes(shape=Pop.Type)) +
-  annotate("text", x = 0.1600569, y= 2.2, label = "WL2", 
-           colour = "purple", fontface="bold", size = 22 / .pt) +
-  theme_classic() + 
-  scale_y_continuous(expand = c(0.01, 0)) +
-  scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
-  theme(text=element_text(size=30)) + 
-  labs(y="Avg Total Fitness", x="Recent Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
-ggsave("../output/WL2_Traits/WL2_2024Plants_TotalFitness_WL2Crosses_ClimDist.png", width = 12, height = 6, units = "in")
-
-WL2_crosses %>% 
-   ggplot(aes(x=other_Parent_GeoDist, y=mean_TotalFitness, 
-              group = pop, colour=other_Parent_elev)) +
-  geom_errorbar(aes(ymin=mean_TotalFitness-sem_TotalFitness,
-                    ymax=mean_TotalFitness+sem_TotalFitness), width=0, linewidth = 2) +
-  geom_point(size=6, aes(shape=Pop.Type)) +
-  annotate("text", x = 136.2622, y= 2.2, label = "WL2", 
-           colour = "purple", fontface="bold", size = 22 / .pt) +
-  theme_classic() + 
-  scale_y_continuous(expand = c(0.01, 0)) +
-  scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
-  theme(text=element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1)) + 
-  labs(y="Avg Total Fitness", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
-ggsave("../output/WL2_Traits/WL2_2024Plants_TotalFitness_WL2Crosses_GeoDist.png", width = 12, height = 6, units = "in")
-```
-
-```{r}
-WL2_crosses %>% 
-   ggplot(aes(x=other_Parent_climdist, y=mean_Establishment, 
-              group = pop, colour=other_Parent_elev)) +
-  geom_errorbar(aes(ymin=mean_Establishment-sem_Establishment,
-                    ymax=mean_Establishment+sem_Establishment), width=0, linewidth = 2) +
-  geom_point(size=6, aes(shape=Pop.Type)) +
-  annotate("text", x = 0.1600569, y= 0.4, label = "WL2", 
-           colour = "purple", fontface="bold", size = 22 / .pt) +
-  theme_classic() + 
-  scale_y_continuous(expand = c(0.01, 0.03)) +
-  scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
-  theme(text=element_text(size=30)) + 
-  labs(y="Establishment", x="Recent Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
-ggsave("../output/WL2_Traits/WL2_2024Plants_Establishment_WL2Crosses_ClimDist.png", width = 12, height = 6, units = "in")
-
-WL2_crosses %>% 
-   ggplot(aes(x=other_Parent_GeoDist, y=mean_Establishment, 
-              group = pop, colour=other_Parent_elev)) +
-  geom_errorbar(aes(ymin=mean_Establishment-sem_Establishment,
-                    ymax=mean_Establishment+sem_Establishment), width=0, linewidth = 2) +
-  geom_point(size=6, aes(shape=Pop.Type)) +
-  annotate("text", x = 136.2622, y= 0.4, label = "WL2", 
-           colour = "purple", fontface="bold", size = 22 / .pt) +
-  theme_classic() + 
-  scale_y_continuous(expand = c(0.01, 0.03)) +
-  scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
-  theme(text=element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1)) + 
-  labs(y="Establishment", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
-ggsave("../output/WL2_Traits/WL2_2024Plants_Establishment_WL2Crosses_GeoDist.png", width = 12, height = 6, units = "in")
-```
-
-```{r}
-y1_surv <- WL2_crosses %>% 
-   ggplot(aes(x=other_Parent_climdist, y=mean_Y1Surv, 
-              group = pop, colour=other_Parent_elev)) +
-  geom_errorbar(aes(ymin=mean_Y1Surv-sem_Y1Surv,
-                    ymax=mean_Y1Surv+sem_Y1Surv), width=0, linewidth = 2) +
-  geom_point(size=6, aes(shape=Pop.Type)) +
-  annotate("text", x = 0.1600569, y= 0.35, label = "WL2", 
-           colour = "purple", fontface="bold", size = 22 / .pt) +
-  theme_classic() + 
-  scale_y_continuous(expand = c(0.01, 0)) +
-  scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
-  theme(text=element_text(size=30)) + 
-  labs(y="Y1 Surv", x="Recent Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
-ggsave("../output/WL2_Traits/WL2_2024Plants_Y1Surv_WL2Crosses_ClimDist.png", width = 12, height = 6, units = "in")
-
-WL2_crosses %>% 
-   ggplot(aes(x=other_Parent_GeoDist, y=mean_Y1Surv, 
-              group = pop, colour=other_Parent_elev)) +
-  geom_errorbar(aes(ymin=mean_Y1Surv-sem_Y1Surv,
-                    ymax=mean_Y1Surv+sem_Y1Surv), width=0, linewidth = 2) +
-  geom_point(size=6, aes(shape=Pop.Type)) +
-  annotate("text", x = 136.2622, y= 0.35, label = "WL2", 
-           colour = "purple", fontface="bold", size = 22 / .pt) +
-  theme_classic() + 
-  scale_y_continuous(expand = c(0.01, 0)) +
-  scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
-  theme(text=element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1)) + 
-  labs(y="Y1 Surv", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
-ggsave("../output/WL2_Traits/WL2_2024Plants_Y1Surv_WL2Crosses_GeoDist.png", width = 12, height = 6, units = "in")
-```
-
-```{r}
-WL2_crosses %>% 
-   ggplot(aes(x=other_Parent_climdist, y=mean_WintSurv, 
-              group = pop, colour=other_Parent_elev)) +
-  geom_errorbar(aes(ymin=mean_WintSurv-sem_WintSurv,
-                    ymax=mean_WintSurv+sem_WintSurv), width=0, linewidth = 2) +
-  geom_point(size=6, aes(shape=Pop.Type)) +
-  annotate("text", x = 0.2, y= 1, label = "WL2", 
-           colour = "purple", fontface="bold", size = 22 / .pt) +
-  theme_classic() + 
-  scale_y_continuous(expand = c(0.01, 0)) +
-  scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
-  theme(text=element_text(size=30)) + 
-  labs(y="Winter Surv", x="Recent Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
-ggsave("../output/WL2_Traits/WL2_2024Plants_WintSurv_WL2Crosses_ClimDist.png", width = 12, height = 6, units = "in")
-
-WL2_crosses %>% 
-   ggplot(aes(x=other_Parent_GeoDist, y=mean_WintSurv, 
-              group = pop, colour=other_Parent_elev)) +
-  geom_errorbar(aes(ymin=mean_WintSurv-sem_WintSurv,
-                    ymax=mean_WintSurv+sem_WintSurv), width=0, linewidth = 2) +
-  geom_point(size=6, aes(shape=Pop.Type)) +
-  annotate("text", x = 136.2622, y= 1, label = "WL2", 
-           colour = "purple", fontface="bold", size = 22 / .pt) +
-  theme_classic() + 
-  scale_y_continuous(expand = c(0.01, 0)) +
-  scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
-  theme(text=element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1)) + 
-  labs(y="Winter Surv", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
-ggsave("../output/WL2_Traits/WL2_2024Plants_WintSurv_WL2Crosses_GeoDist.png", width = 12, height = 6, units = "in")
-```
-
-```{r}
-WL2_crosses %>% 
-   ggplot(aes(x=other_Parent_climdist, y=mean_SurvtoBud, 
-              group = pop, colour=other_Parent_elev)) +
-  geom_errorbar(aes(ymin=mean_SurvtoBud-sem_SurvtoBud,
-                    ymax=mean_SurvtoBud+sem_SurvtoBud), width=0, linewidth = 2) +
-  geom_point(size=6, aes(shape=Pop.Type)) +
-  annotate("text", x = 0.2, y= 1, label = "WL2", 
-           colour = "purple", fontface="bold", size = 22 / .pt) +
-  theme_classic() + 
-  scale_y_continuous(expand = c(0.01, 0)) +
-  scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
-  theme(text=element_text(size=30)) + 
-  labs(y="Surv to Bud Y2", x="Recent Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
-ggsave("../output/WL2_Traits/WL2_2024Plants_SurvtoBud_WL2Crosses_ClimDist.png", width = 12, height = 6, units = "in")
-
-WL2_crosses %>% 
-   ggplot(aes(x=other_Parent_GeoDist, y=mean_SurvtoBud, 
-              group = pop, colour=other_Parent_elev)) +
-  geom_errorbar(aes(ymin=mean_SurvtoBud-sem_SurvtoBud,
-                    ymax=mean_SurvtoBud+sem_SurvtoBud), width=0, linewidth = 2) +
-  geom_point(size=6, aes(shape=Pop.Type)) +
-  annotate("text", x = 136.2622, y= 1, label = "WL2", 
-           colour = "purple", fontface="bold", size = 22 / .pt) +
-  theme_classic() + 
-  scale_y_continuous(expand = c(0.01, 0)) +
-  scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
-  theme(text=element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1)) + 
-  labs(y="Surv to Bud Y2", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
-ggsave("../output/WL2_Traits/WL2_2024Plants_SurvtoBud_WL2Crosses_GeoDist.png", width = 12, height = 6, units = "in")
-```
-
-```{r}
-prob_rep <- WL2_crosses %>% 
-   ggplot(aes(x=other_Parent_climdist, y=mean_ProbFruit, 
-              group = pop, colour=other_Parent_elev)) +
-  geom_errorbar(aes(ymin=mean_ProbFruit-sem_ProbFruit,
-                    ymax=mean_ProbFruit+sem_ProbFruit), width=0, linewidth = 2) +
-  geom_point(size=6, aes(shape=Pop.Type)) +
-  annotate("text", x = 0.1600569, y= 0.13, label = "WL2", 
-           colour = "purple", fontface="bold", size = 22 / .pt) +
-  theme_classic() + 
-  scale_y_continuous(expand = c(0.01, 0)) +
-  scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
-  theme(text=element_text(size=30)) + 
-  labs(y="Probability of \n Reproducing", x="Recent Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
-ggsave("../output/WL2_Traits/WL2_2024Plants_ProbFruit_WL2Crosses_ClimDist.png", width = 12, height = 6, units = "in")
-
-WL2_crosses %>% 
-   ggplot(aes(x=other_Parent_GeoDist, y=mean_ProbFruit, 
-              group = pop, colour=other_Parent_elev)) +
-  geom_errorbar(aes(ymin=mean_ProbFruit-sem_ProbFruit,
-                    ymax=mean_ProbFruit+sem_ProbFruit), width=0, linewidth = 2) +
-  geom_point(size=6, aes(shape=Pop.Type)) +
-  annotate("text", x = 136.2622, y= 0.13, label = "WL2", 
-           colour = "purple", fontface="bold", size = 22 / .pt) +
-  theme_classic() + 
-  scale_y_continuous(expand = c(0.01, 0)) +
-  scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
-  theme(text=element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1)) + 
-  labs(y="Probability of \n Reproducing", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
-ggsave("../output/WL2_Traits/WL2_2024Plants_ProbFruit_WL2Crosses_GeoDist.png", width = 12, height = 6, units = "in")
-```
-
-```{r}
-WL2_crosses %>% 
-   ggplot(aes(x=other_Parent_climdist, y=mean_Fecundity, 
-              group = pop, colour=other_Parent_elev)) +
-  geom_errorbar(aes(ymin=mean_Fecundity-sem_Fecundity,
-                    ymax=mean_Fecundity+sem_Fecundity), width=0, linewidth = 2) +
-  geom_point(size=6, aes(shape=Pop.Type)) +
-  annotate("text", x = 0.2, y= 17.33333, label = "WL2", 
-           colour = "purple", fontface="bold", size = 22 / .pt) +
-  theme_classic() + 
-  scale_y_continuous(expand = c(0.01, 0)) +
-  scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
-  theme(text=element_text(size=30)) + 
-  labs(y="Fruit Number", x="Recent Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
-ggsave("../output/WL2_Traits/WL2_2024Plants_Fecundity_WL2Crosses_ClimDist.png", width = 12, height = 6, units = "in")
-
-WL2_crosses %>% 
-   ggplot(aes(x=other_Parent_GeoDist, y=mean_Fecundity, 
-              group = pop, colour=other_Parent_elev)) +
-  geom_errorbar(aes(ymin=mean_Fecundity-sem_Fecundity,
-                    ymax=mean_Fecundity+sem_Fecundity), width=0, linewidth = 2) +
-  geom_point(size=6, aes(shape=Pop.Type)) +
-  annotate("text", x = 38000, y= 17.33333, label = "WL2", 
-           colour = "purple", fontface="bold", size = 22 / .pt) +
-  theme_classic() + 
-  scale_y_continuous(expand = c(0.01, 0)) +
-  scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
-  theme(text=element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1)) + 
-  labs(y="Fruit Number", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
-ggsave("../output/WL2_Traits/WL2_2024Plants_Fecundity_WL2Crosses_GeoDist.png", width = 12, height = 6, units = "in")
-```
-
-## Figure for NSF Report
-```{r}
-fig_2024 <- ggarrange(y1_surv, prob_rep,
-                        labels = c("A)", "B)"),  
-                        font.label = list(size=30, face = "plain"), 
-                        ncol=2, nrow=1) 
-ggsave("../output/WL2_Traits/WL2_2024Plants_WL2Crosses_ClimDist.png", width = 26, height = 9, units = "in")
 ```
 
 ## Mid-Parent Values
