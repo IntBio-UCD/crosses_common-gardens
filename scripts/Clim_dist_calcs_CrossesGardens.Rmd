@@ -9,8 +9,8 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# Code for calculating climate distance (Figure S3)
-
+# Code for calculating climate distance
+Update for 2025 water year 
 
 ## Load Libraries
 ```{r}
@@ -19,16 +19,18 @@ library(boot) #for bootstrapping
 library(broom) #for tidy function
 library(geosphere) #for calculating geographic distance
 library(lmerTest) #for mixed effect models 
+
+set.seed(112) #to get consistent bootstrap results
 ```
 
 ## Load Climate Data
 ```{r}
-all_clim <- read_csv("../output/Climate/WtrYr_Clim.csv")
+all_clim <- read_csv("../output/Climate/WtrYr_Clim_2025TradWtrYr.csv")
 ```
 
 ## Garden Climate
 ```{r}
-#Nov 2023-October 2024
+#Oct 2023-Sept 2024
 wl2_garden_2024_wtryr <- all_clim %>% 
   filter(parent.pop=="WL2_Garden", year==2024) %>%
   rename_with(.cols = c(8:22), ~paste0(.x, '_Garden')) %>% 
@@ -36,6 +38,12 @@ wl2_garden_2024_wtryr <- all_clim %>%
 
 ucd_garden_2024_wtryr <- all_clim %>% 
   filter(parent.pop=="UCD_Garden", year==2024) %>%
+  rename_with(.cols = c(8:22), ~paste0(.x, '_Garden')) %>% 
+  select(cwd_Garden:ppt_coldest_month_Garden)
+
+#Oct 2024-Sept 2025
+wl2_garden_2025_wtryr <- all_clim %>% 
+  filter(parent.pop=="WL2_Garden", year==2025) %>%
   rename_with(.cols = c(8:22), ~paste0(.x, '_Garden')) %>% 
   select(cwd_Garden:ppt_coldest_month_Garden)
 ```
@@ -63,17 +71,22 @@ pops <- all_clim %>%
 
 #home climates
 recent_wtryr_clim <- all_clim %>% 
-  filter(timeframe=="recent", Season=="Water Year", !str_detect(parent.pop, "Garden"))
+  filter(timeframe=="recent", year!=2025, #30 year averages start from 2024 back
+         Season=="Water Year", 
+         !str_detect(parent.pop, "Garden"))
 recent_wtryr_clim_nest <- recent_wtryr_clim %>% nest(.by=year) #nest to prepare for bootstrapping 
 recent_wtryr_clim_nest
 
 historic_wtryr_clim <- all_clim %>% 
-  filter(timeframe=="historic", Season=="Water Year", !str_detect(parent.pop, "Garden"))
+  filter(timeframe=="historic", year!=2025,
+         Season=="Water Year", !str_detect(parent.pop, "Garden"))
 historic_wtryr_clim_nest <- historic_wtryr_clim %>% nest(.by=year) #nest to prepare for bootstrapping 
 historic_wtryr_clim_nest
 
 #Range prep
 wl2_garden_2024_wtryr_range_prep <- wl2_garden_2024_wtryr %>% 
+  rename_with(~str_remove(., "_Garden"), everything())
+wl2_garden_2025_wtryr_range_prep <- wl2_garden_2025_wtryr %>% 
   rename_with(~str_remove(., "_Garden"), everything())
 ucd_garden_2024_wtryr_range_prep <- ucd_garden_2024_wtryr %>% 
   rename_with(~str_remove(., "_Garden"), everything())
@@ -235,6 +248,45 @@ all_UCD_gowers <- bind_rows(boot_gowers_recent_wtryr_pops_2024_UCD,
 write_csv(all_UCD_gowers, "../output/Climate/UCD_2024_Clim_Dist.csv")
 ```
 
+#### 2025 WL2 Garden
+```{r}
+# water year - recent
+gowers.boot_2025_WL2_recent_wtryr <- boot(data=recent_wtryr_clim_nest, statistic=gowers_calc, R=1000, P=15, 
+                                      garden_clim=wl2_garden_2025_wtryr, 
+                                      garden_range=wl2_garden_2025_wtryr_range_prep) #will sample each row (year) with replacement 
+
+for(i in 1:10) {
+  plot(gowers.boot_2025_WL2_recent_wtryr, index=i) #distributions look normal for the most part 
+}
+
+boot_recent_wtryr_results_2025_WL2 <- tidy(gowers.boot_2025_WL2_recent_wtryr,conf.int=TRUE,conf.method="norm") %>%  #all pops
+  rename(Gowers_Dist = statistic) %>% 
+  mutate(timeframe="Recent", Season="Water Year", Year=2025)
+boot_gowers_recent_wtryr_pops_2025_WL2 <- bind_cols(pops, boot_recent_wtryr_results_2025_WL2) %>% 
+  select(parent.pop:Long, timeframe, Season, Year, Gowers_Dist, conf.low, conf.high) %>% 
+  arrange(Gowers_Dist)
+
+# water year - historic
+gowers.boot_2025_WL2_historic_wtryr <- boot(data=historic_wtryr_clim_nest, statistic=gowers_calc, R=1000, P=15, garden_clim=wl2_garden_2025_wtryr, garden_range=wl2_garden_2025_wtryr_range_prep) #will sample each row (year) with replacement 
+
+for(i in 1:10) {
+  plot(gowers.boot_2025_WL2_historic_wtryr, index=i) #distributions look normal for the most part 
+}
+
+boot_historic_wtryr_results_2025_WL2 <- tidy(gowers.boot_2025_WL2_historic_wtryr,conf.int=TRUE,conf.method="norm") %>%  #all pops
+  rename(Gowers_Dist = statistic) %>% 
+  mutate(timeframe="Historic", Season="Water Year", Year=2025)
+boot_gowers_historic_wtryr_pops_2025_WL2 <- bind_cols(pops, boot_historic_wtryr_results_2025_WL2) %>% 
+  select(parent.pop:Long, timeframe, Season, Year, Gowers_Dist, conf.low, conf.high) %>% 
+  arrange(Gowers_Dist)
+
+all_WL2_gowers_2025 <- bind_rows(boot_gowers_recent_wtryr_pops_2025_WL2,
+                            boot_gowers_historic_wtryr_pops_2025_WL2) %>% 
+  mutate(WL2_Lat=38.82599, WL2_Long=-120.2509) %>% 
+  mutate(Geographic_Dist=distHaversine(cbind(WL2_Long, WL2_Lat), cbind(Long, Lat)))
+write_csv(all_WL2_gowers_2025, "../output/Climate/WL2_2025_Clim_Dist.csv")
+```
+
 ### Plot the results 
 ```{r}
 # 2024 water year - WL2
@@ -250,6 +302,20 @@ all_WL2_gowers %>%
   theme(text=element_text(size=25), axis.text.x = element_text(angle = 45,  hjust = 1)) +
   facet_wrap(~timeframe)
 ggsave("../output/Climate/wtryear_2024Gowers_fromWL2.png", width = 24, height = 8, units = "in")
+
+# 2025 water year - WL2
+all_WL2_gowers_2025 %>% 
+  ggplot(aes(x=fct_reorder(parent.pop, elev_m), y=Gowers_Dist, group=parent.pop, fill=elev_m)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  geom_errorbar(aes(ymin=conf.low, ymax=conf.high),
+                width=.1, position = position_dodge(0.75)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
+  labs(y="Gowers Envtal Distance \n from WL2", fill="Elevation (m)", x="Population") +
+  theme_classic() +
+  theme(text=element_text(size=25), axis.text.x = element_text(angle = 45,  hjust = 1)) +
+  facet_wrap(~timeframe)
+ggsave("../output/Climate/wtryear_2025Gowers_fromWL2.png", width = 24, height = 8, units = "in")
 
 # 2024 water year - UCD
 all_UCD_gowers %>% 
