@@ -54,7 +54,12 @@ pop_info_2026 <- read_csv("../input/WL2_2026_Data/Buffer New Bed Map_Corrected.c
 ## Elevation Info / Climate distance
 
 ```{r}
+clim_dist_2025 <- read_csv("../output/Climate/WL2_2025_Clim_Dist.csv") %>% select(-conf.low, -conf.high)
+head(clim_dist_2025)
 
+clim_dist_2025_wide <- clim_dist_2025 %>% 
+  pivot_wider(names_from = timeframe, values_from = Gowers_Dist, names_prefix = "GD_") %>% 
+  rename(pop.id=parent.pop)
 ```
 
 ## Calculate y1 fitness and remove plants not planted in 2025
@@ -111,6 +116,7 @@ total_fit_2025plants <- y1_fitness %>%
   
 head(total_fit_2025plants)
 summary(total_fit_2025plants)
+write_csv(total_fit_2025plants, "../output/WL2_Traits/WL2_2025_AllFitness.csv")
 ```
 
 ## Means
@@ -129,7 +135,11 @@ total_fit_2025plants_summary <- total_fit_2025plants %>%
 total_fit_2025plants_summary
 ```
 
-## Figures
+## Quick Figures
+
+### Establishment
+
+### Y1 Surv
 
 ### Winter Surv
 
@@ -138,28 +148,35 @@ total_fit_2025plants_summary %>%
   filter(Pop.Type=="Parent") %>% 
   mutate(meanWintSurv=if_else(meanWintSurv=="NaN", NA, meanWintSurv)) %>% 
   filter(!is.na(meanWintSurv)) %>% 
-  ggplot(aes(x=fct_reorder(pop.id, meanWintSurv), y=meanWintSurv)) +
+  left_join(clim_dist_2025_wide) %>% 
+  ggplot(aes(x=fct_reorder(pop.id, meanWintSurv), y=meanWintSurv, fill=elev_m)) +
   geom_col(width = 0.7,position = position_dodge(0.75)) +
   geom_errorbar(aes(ymin=meanWintSurv-semWintSurv,
                     ymax=meanWintSurv+semWintSurv),width=.2, 
                 position =position_dodge(0.75)) +
-  labs(x="Population", y="Avg Winter Survival") +
+  labs(x="Population", y="Avg Winter Survival", fill="Elevation (m)") +
   scale_y_continuous(expand = c(0.01, 0)) +
+  scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
   theme_classic()
 
 total_fit_2025plants_summary %>% 
   filter(Pop.Type=="F1") %>% 
+  mutate(Donor.Pop=str_remove_all(pop.id, "WL2")) %>% 
+  mutate(Donor.Pop=str_remove_all(Donor.Pop, " x ")) %>% 
+  left_join(clim_dist_2025_wide, by=join_by(Donor.Pop==pop.id)) %>% 
   mutate(meanWintSurv=if_else(meanWintSurv=="NaN", NA, meanWintSurv)) %>% 
   filter(!is.na(meanWintSurv)) %>% 
-  ggplot(aes(x=fct_reorder(pop.id, meanWintSurv), y=meanWintSurv)) +
+  ggplot(aes(x=fct_reorder(pop.id, elev_m), y=meanWintSurv, fill=elev_m)) +
   geom_col(width = 0.7,position = position_dodge(0.75)) +
   geom_errorbar(aes(ymin=meanWintSurv-semWintSurv,
                     ymax=meanWintSurv+semWintSurv),
                 width=.2, position =position_dodge(0.75)) +
   theme_classic() +
+  scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
   scale_y_continuous(expand = c(0.01, 0)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
-  labs(x="F1", y="Avg Winter Survival")
+  labs(x="F1", y="Avg Winter Survival", fill="Donor Elevation (m)")
+
 
 total_fit_2025plants_summary %>% 
   filter(Pop.Type=="F2") %>% 
@@ -175,3 +192,11 @@ total_fit_2025plants_summary %>%
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
   labs(x="F2", y="Avg Winter Survival")
 ```
+
+### Surv to Budding 
+
+### Fruit #
+
+### Prob Fruit
+
+### Total fruit 
