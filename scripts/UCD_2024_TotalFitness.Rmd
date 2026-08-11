@@ -11,3 +11,57 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Total Fitness for UCD 2023-2024 Garden
 
+Will need to add fruit+seed mass once it's measured for all plants
+
+## Libraries
+
+```{r}
+library(tidyverse)
+
+sem <- function(x, na.rm=FALSE) {  #for calculating standard error
+  sd(x,na.rm=na.rm)/sqrt(length(na.omit(x)))
+} 
+```
+
+## Read in data
+```{r}
+ucd_surv <- read_csv("../input/UCD2023_2024_Data/CorrectedCSVs/UCD_mort_pheno_20241108_corrected.csv")
+
+ucd_biomass <- read_csv("../input/UCD2023_2024_Data/CorrectedCSVs/UCD_Biomass_20250723_corrected.csv") %>% 
+  mutate(unique.ID=as.character(unique.ID))
+```
+
+## Pop Info
+```{r}
+ucd_popinfo <- read_csv("../input/UCD2023_2024_Data/Genotypes_2023_2024.csv") %>% 
+  mutate(unique.ID=as.character(unique.ID))
+```
+
+## Elevation Info / Climate distance
+```{r}
+ucd_clim_dist <- read_csv("../output/Climate/UCD_2024_Clim_Dist.csv") %>% select(-conf.low, -conf.high)
+head(ucd_clim_dist)
+
+ucd_clim_dist_wide <- ucd_clim_dist %>% 
+  pivot_wider(names_from = timeframe, values_from = Gowers_Dist, names_prefix = "GD_") %>% 
+  rename(pop.id=parent.pop)
+```
+
+## Combine all fitness metrics
+```{r}
+ucd_totalfit <- ucd_surv %>% 
+  filter(!is.na(unique.ID), unique.ID!="buffer") %>% 
+  filter(is.na(missing.date)) %>% #remove plants that went missing (usually caused by crows)
+  filter(survey.notes!="dead at planting") %>% #remove plants that were dead at planting 
+  mutate(death.date=mdy(death.date), bud.date=mdy(bud.date)) %>% 
+  mutate(Establishment = if_else(is.na(death.date), 1, 
+                                 if_else(death.date < "2023-12-29", 0, 1)),
+         SurvtoBud = if_else(!is.na(bud.date), 1, 0)) %>% 
+  select(bed:bud.date, death.date, Establishment, SurvtoBud) %>% 
+  left_join(ucd_biomass) %>% 
+  select(-date.collected, -person.meas, -date.meas, -total.seed.mass_g, -survey.notes) %>% 
+  left_join(ucd_popinfo) %>% 
+  select(-rack, -column)
+
+unique(ucd_totalfit$`Plant Type`) #need to collapse main parent and other parents and remove mfs from main parents pop.id column 
+```
