@@ -138,8 +138,94 @@ total_fit_2025plants_summary
 ## Quick Figures
 
 ### Establishment
+```{r}
+total_fit_2025plants_summary %>% 
+  filter(Pop.Type=="Parent") %>% 
+  left_join(clim_dist_2025_wide) %>% 
+  ggplot(aes(x=fct_reorder(pop.id, meanEst), y=meanEst, fill=elev_m)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  geom_errorbar(aes(ymin=meanEst-semEst,
+                    ymax=meanEst+semEst),width=.2, 
+                position =position_dodge(0.75)) +
+  labs(x="Population", y="Avg Establishment", fill="Elevation (m)") +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
+  theme_classic()
+
+total_fit_2025plants_summary %>% 
+  filter(Pop.Type=="F1") %>% 
+  mutate(Donor.Pop=str_remove_all(pop.id, "WL2")) %>% 
+  mutate(Donor.Pop=str_remove_all(Donor.Pop, " x ")) %>% 
+  left_join(clim_dist_2025_wide, by=join_by(Donor.Pop==pop.id)) %>% 
+  ggplot(aes(x=fct_reorder(pop.id, elev_m), y=meanEst, fill=elev_m)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  geom_errorbar(aes(ymin=meanEst-semEst,
+                    ymax=meanEst+semEst),
+                width=.2, position =position_dodge(0.75)) +
+  theme_classic() +
+  scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(x="F1", y="Avg Establishment", fill="Donor Elevation (m)")
+
+
+total_fit_2025plants_summary %>% 
+  filter(Pop.Type=="F2") %>% 
+  ggplot(aes(x=fct_reorder(pop.id, meanEst), y=meanEst)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  geom_errorbar(aes(ymin=meanEst-semEst,
+                    ymax=meanEst+semEst),
+                width=.2, position =position_dodge(0.75)) +
+  theme_classic() +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(x="F2", y="Avg Establishment")
+```
 
 ### Y1 Surv
+```{r}
+total_fit_2025plants_summary %>% 
+  filter(Pop.Type=="Parent") %>% 
+  left_join(clim_dist_2025_wide) %>% 
+  ggplot(aes(x=fct_reorder(pop.id, meanY1Surv), y=meanY1Surv, fill=elev_m)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  geom_errorbar(aes(ymin=meanY1Surv-semY1Surv,
+                    ymax=meanY1Surv+semY1Surv),width=.2, 
+                position =position_dodge(0.75)) +
+  labs(x="Population", y="Avg Y1 Surv", fill="Elevation (m)") +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
+  theme_classic()
+
+total_fit_2025plants_summary %>% 
+  filter(Pop.Type=="F1") %>% 
+  mutate(Donor.Pop=str_remove_all(pop.id, "WL2")) %>% 
+  mutate(Donor.Pop=str_remove_all(Donor.Pop, " x ")) %>% 
+  left_join(clim_dist_2025_wide, by=join_by(Donor.Pop==pop.id)) %>% 
+  ggplot(aes(x=fct_reorder(pop.id, elev_m), y=meanY1Surv, fill=elev_m)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  geom_errorbar(aes(ymin=meanY1Surv-semY1Surv,
+                    ymax=meanY1Surv+semY1Surv),
+                width=.2, position =position_dodge(0.75)) +
+  theme_classic() +
+  scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(x="F1", y="Avg Y1 Surv", fill="Donor Elevation (m)")
+
+
+total_fit_2025plants_summary %>% 
+  filter(Pop.Type=="F2") %>% 
+  ggplot(aes(x=fct_reorder(pop.id, meanY1Surv), y=meanY1Surv)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  geom_errorbar(aes(ymin=meanY1Surv-semY1Surv,
+                    ymax=meanY1Surv+semY1Surv),
+                width=.2, position =position_dodge(0.75)) +
+  theme_classic() +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(x="F2", y="Avg Y1 Surv")
+```
 
 ### Winter Surv
 
@@ -194,9 +280,205 @@ total_fit_2025plants_summary %>%
 ```
 
 ### Surv to Budding 
+```{r}
+total_fit_2025plants_summary %>% 
+  filter(Pop.Type=="Parent") %>% 
+  mutate(meanSurvtoBud=if_else(meanSurvtoBud=="NaN", NA, meanSurvtoBud)) %>% 
+  filter(!is.na(meanSurvtoBud)) %>% 
+  left_join(clim_dist_2025_wide) %>% 
+  ggplot(aes(x=fct_reorder(pop.id, meanSurvtoBud), y=meanSurvtoBud, fill=elev_m)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  geom_errorbar(aes(ymin=meanSurvtoBud-semSurvtoBud,
+                    ymax=meanSurvtoBud+semSurvtoBud),width=.2, 
+                position =position_dodge(0.75)) +
+  labs(x="Population", y="Avg Surv to Buddding", fill="Elevation (m)") +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
+  theme_classic()
+
+total_fit_2025plants_summary %>% 
+  filter(Pop.Type=="F1") %>% 
+  mutate(Donor.Pop=str_remove_all(pop.id, "WL2")) %>% 
+  mutate(Donor.Pop=str_remove_all(Donor.Pop, " x ")) %>% 
+  left_join(clim_dist_2025_wide, by=join_by(Donor.Pop==pop.id)) %>% 
+  mutate(meanSurvtoBud=if_else(meanSurvtoBud=="NaN", NA, meanSurvtoBud)) %>% 
+  filter(!is.na(meanSurvtoBud)) %>% 
+  ggplot(aes(x=fct_reorder(pop.id, elev_m), y=meanSurvtoBud, fill=elev_m)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  geom_errorbar(aes(ymin=meanSurvtoBud-semSurvtoBud,
+                    ymax=meanSurvtoBud+semSurvtoBud),
+                width=.2, position =position_dodge(0.75)) +
+  theme_classic() +
+  scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(x="F1", y="Avg Surv to Buddding", fill="Donor Elevation (m)")
+
+
+total_fit_2025plants_summary %>% 
+  filter(Pop.Type=="F2") %>% 
+  mutate(meanSurvtoBud=if_else(meanSurvtoBud=="NaN", NA, meanSurvtoBud)) %>% 
+  filter(!is.na(meanSurvtoBud)) %>% 
+  ggplot(aes(x=fct_reorder(pop.id, meanSurvtoBud), y=meanSurvtoBud)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  geom_errorbar(aes(ymin=meanSurvtoBud-semSurvtoBud,
+                    ymax=meanSurvtoBud+semSurvtoBud),
+                width=.2, position =position_dodge(0.75)) +
+  theme_classic() +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(x="F2", y="Avg Surv to Buddding")
+```
 
 ### Fruit #
+```{r}
+total_fit_2025plants_summary %>% 
+  filter(Pop.Type=="Parent") %>% 
+  mutate(meanFruit=if_else(meanFruit=="NaN", NA, meanFruit)) %>% 
+  filter(!is.na(meanFruit)) %>% 
+  left_join(clim_dist_2025_wide) %>% 
+  ggplot(aes(x=fct_reorder(pop.id, meanFruit), y=meanFruit, fill=elev_m)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  geom_errorbar(aes(ymin=meanFruit-semFruit,
+                    ymax=meanFruit+semFruit),width=.2, 
+                position =position_dodge(0.75)) +
+  labs(x="Population", y="Avg Fecundity", fill="Elevation (m)") +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
+  theme_classic()
+
+total_fit_2025plants_summary %>% 
+  filter(Pop.Type=="F1") %>% 
+  mutate(Donor.Pop=str_remove_all(pop.id, "WL2")) %>% 
+  mutate(Donor.Pop=str_remove_all(Donor.Pop, " x ")) %>% 
+  left_join(clim_dist_2025_wide, by=join_by(Donor.Pop==pop.id)) %>% 
+  mutate(meanFruit=if_else(meanFruit=="NaN", NA, meanFruit)) %>% 
+  filter(!is.na(meanFruit)) %>% 
+  ggplot(aes(x=fct_reorder(pop.id, elev_m), y=meanFruit, fill=elev_m)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  geom_errorbar(aes(ymin=meanFruit-semFruit,
+                    ymax=meanFruit+semFruit),
+                width=.2, position =position_dodge(0.75)) +
+  theme_classic() +
+  scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(x="F1", y="Avg Fecundity", fill="Donor Elevation (m)")
+
+
+total_fit_2025plants_summary %>% 
+  filter(Pop.Type=="F2") %>% 
+  mutate(meanFruit=if_else(meanFruit=="NaN", NA, meanFruit)) %>% 
+  filter(!is.na(meanFruit)) %>% 
+  ggplot(aes(x=fct_reorder(pop.id, meanFruit), y=meanFruit)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  geom_errorbar(aes(ymin=meanFruit-semFruit,
+                    ymax=meanFruit+semFruit),
+                width=.2, position =position_dodge(0.75)) +
+  theme_classic() +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(x="F2", y="Avg Fecundity")
+```
 
 ### Prob Fruit
+```{r}
+total_fit_2025plants_summary %>% 
+  filter(Pop.Type=="Parent") %>% 
+  mutate(meanProbProbFruit=if_else(meanProbFruit=="NaN", NA, meanProbFruit)) %>% 
+  filter(!is.na(meanProbFruit)) %>% 
+  left_join(clim_dist_2025_wide) %>% 
+  ggplot(aes(x=fct_reorder(pop.id, meanProbFruit), y=meanProbFruit, fill=elev_m)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  geom_errorbar(aes(ymin=meanProbFruit-semProbFruit,
+                    ymax=meanProbFruit+semProbFruit),width=.2, 
+                position =position_dodge(0.75)) +
+  labs(x="Population", y="Avg Prob Rep", fill="Elevation (m)") +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
+  theme_classic()
+
+total_fit_2025plants_summary %>% 
+  filter(Pop.Type=="F1") %>% 
+  mutate(Donor.Pop=str_remove_all(pop.id, "WL2")) %>% 
+  mutate(Donor.Pop=str_remove_all(Donor.Pop, " x ")) %>% 
+  left_join(clim_dist_2025_wide, by=join_by(Donor.Pop==pop.id)) %>% 
+  mutate(meanProbFruit=if_else(meanProbFruit=="NaN", NA, meanProbFruit)) %>% 
+  filter(!is.na(meanProbFruit)) %>% 
+  ggplot(aes(x=fct_reorder(pop.id, elev_m), y=meanProbFruit, fill=elev_m)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  geom_errorbar(aes(ymin=meanProbFruit-semProbFruit,
+                    ymax=meanProbFruit+semProbFruit),
+                width=.2, position =position_dodge(0.75)) +
+  theme_classic() +
+  scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(x="F1", y="Avg Prob Rep", fill="Donor Elevation (m)")
+
+
+total_fit_2025plants_summary %>% 
+  filter(Pop.Type=="F2") %>% 
+  mutate(meanProbFruit=if_else(meanProbFruit=="NaN", NA, meanProbFruit)) %>% 
+  filter(!is.na(meanProbFruit)) %>% 
+  ggplot(aes(x=fct_reorder(pop.id, meanProbFruit), y=meanProbFruit)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  geom_errorbar(aes(ymin=meanProbFruit-semProbFruit,
+                    ymax=meanProbFruit+semProbFruit),
+                width=.2, position =position_dodge(0.75)) +
+  theme_classic() +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(x="F2", y="Avg Prob Rep")
+```
 
 ### Total fruit 
+```{r}
+total_fit_2025plants_summary %>% 
+  filter(Pop.Type=="Parent") %>% 
+  mutate(meanTotalFit=if_else(meanTotalFit=="NaN", NA, meanTotalFit)) %>% 
+  filter(!is.na(meanTotalFit)) %>% 
+  left_join(clim_dist_2025_wide) %>% 
+  ggplot(aes(x=fct_reorder(pop.id, meanTotalFit), y=meanTotalFit, fill=elev_m)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  geom_errorbar(aes(ymin=meanTotalFit-semTotalFit,
+                    ymax=meanTotalFit+semTotalFit),width=.2, 
+                position =position_dodge(0.75)) +
+  labs(x="Population", y="Avg Total Fitness", fill="Elevation (m)") +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
+  theme_classic()
+
+total_fit_2025plants_summary %>% 
+  filter(Pop.Type=="F1") %>% 
+  mutate(Donor.Pop=str_remove_all(pop.id, "WL2")) %>% 
+  mutate(Donor.Pop=str_remove_all(Donor.Pop, " x ")) %>% 
+  left_join(clim_dist_2025_wide, by=join_by(Donor.Pop==pop.id)) %>% 
+  mutate(meanTotalFit=if_else(meanTotalFit=="NaN", NA, meanTotalFit)) %>% 
+  filter(!is.na(meanTotalFit)) %>% 
+  ggplot(aes(x=fct_reorder(pop.id, elev_m), y=meanTotalFit, fill=elev_m)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  geom_errorbar(aes(ymin=meanTotalFit-semTotalFit,
+                    ymax=meanTotalFit+semTotalFit),
+                width=.2, position =position_dodge(0.75)) +
+  theme_classic() +
+  scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(x="F1", y="Avg Total Fitness", fill="Donor Elevation (m)")
+
+
+total_fit_2025plants_summary %>% 
+  filter(Pop.Type=="F2") %>% 
+  mutate(meanTotalFit=if_else(meanTotalFit=="NaN", NA, meanTotalFit)) %>% 
+  filter(!is.na(meanTotalFit)) %>% 
+  ggplot(aes(x=fct_reorder(pop.id, meanTotalFit), y=meanTotalFit)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  geom_errorbar(aes(ymin=meanTotalFit-semTotalFit,
+                    ymax=meanTotalFit+semTotalFit),
+                width=.2, position =position_dodge(0.75)) +
+  theme_classic() +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(x="F2", y="Avg Total Fitness")
+```

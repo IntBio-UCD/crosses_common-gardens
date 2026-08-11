@@ -1,7 +1,7 @@
 ---
 title: "WL2_2025_TotalFitness"
 author: "Brandie QC"
-date: "2026-08-05"
+date: "2026-08-10"
 output: 
   html_document: 
     keep_md: true
@@ -10,9 +10,11 @@ output:
 
 
 # Total Fitness for plants planted in 2025
+
 Takes into account 2025 and 2026 data
 
 ## Libraries
+
 
 ``` r
 library(tidyverse)
@@ -38,6 +40,7 @@ sem <- function(x, na.rm=FALSE) {  #for calculating standard error
 ```
 
 ## Read in data
+
 
 ``` r
 wintsurv_2025_2026 <- read_csv("../input/WL2_2026_Data/CorrectedCSVs/WL2_2026_WinterSurv_corrected.csv")
@@ -116,6 +119,7 @@ unique(fruits_2026$`num. fruit`)
 
 ## Pop Info
 
+
 ``` r
 pop_info_2025 <- read_csv("../input/WL2_2025_Data/2025_Pop_Loc_Info Updated.csv") %>% 
   select(status:Unique.ID) %>% 
@@ -155,7 +159,47 @@ pop_info_2026 <- read_csv("../input/WL2_2026_Data/Buffer New Bed Map_Corrected.c
 ## Elevation Info / Climate distance
 
 
+``` r
+clim_dist_2025 <- read_csv("../output/Climate/WL2_2025_Clim_Dist.csv") %>% select(-conf.low, -conf.high)
+```
+
+```
+## Rows: 20 Columns: 14
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: ","
+## chr  (4): parent.pop, elevation.group, timeframe, Season
+## dbl (10): elev_m, Lat, Long, Year, Gowers_Dist, conf.low, conf.high, WL2_Lat...
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+```
+
+``` r
+head(clim_dist_2025)
+```
+
+```
+## # A tibble: 6 × 12
+##   parent.pop elevation.group elev_m   Lat  Long timeframe Season      Year
+##   <chr>      <chr>            <dbl> <dbl> <dbl> <chr>     <chr>      <dbl>
+## 1 WL2        high             2020.  38.8 -120. Recent    Water Year  2025
+## 2 SQ3        high             2373.  36.7 -119. Recent    Water Year  2025
+## 3 WL1        mid              1614.  38.8 -120. Recent    Water Year  2025
+## 4 LV1        high             2593.  40.5 -122. Recent    Water Year  2025
+## 5 YO11       high             2872.  37.9 -119. Recent    Water Year  2025
+## 6 DPR        mid              1019.  39.2 -121. Recent    Water Year  2025
+## # ℹ 4 more variables: Gowers_Dist <dbl>, WL2_Lat <dbl>, WL2_Long <dbl>,
+## #   Geographic_Dist <dbl>
+```
+
+``` r
+clim_dist_2025_wide <- clim_dist_2025 %>% 
+  pivot_wider(names_from = timeframe, values_from = Gowers_Dist, names_prefix = "GD_") %>% 
+  rename(pop.id=parent.pop)
+```
+
 ## Calculate y1 fitness and remove plants not planted in 2025
+
 
 ``` r
 wintsurv_2025_2026 %>%  
@@ -229,6 +273,7 @@ y1_fitness %>% filter(WintSurv==1) #126 plants survived the winter
 
 ## Calculate y2 fitness and remove plants not planted in 2025
 
+
 ``` r
 surv_2026 %>% left_join(pop_info_2026) %>% filter(status=="2025-survivor") %>% filter(is.na(death.date)) %>% filter(is.na(bud.date)) #1 2025 plant alive that has not reproduced yet 
 ```
@@ -265,7 +310,8 @@ y2_fitness <- pop_info_2026 %>%
 ## Joining with `by = join_by(bed, row, col, Unique.ID, survey.notes)`
 ```
 
-## Merge y1 and y2 fitness ---> total fitnes
+## Merge y1 and y2 fitness ---\> total fitnes
+
 
 ``` r
 total_fit_2025plants <- y1_fitness %>% 
@@ -345,7 +391,12 @@ summary(total_fit_2025plants)
 ## 
 ```
 
+``` r
+write_csv(total_fit_2025plants, "../output/WL2_Traits/WL2_2025_AllFitness.csv")
+```
+
 ## Means
+
 
 ``` r
 total_fit_2025plants_summary <- total_fit_2025plants %>% 
@@ -393,23 +444,27 @@ total_fit_2025plants_summary
 ## #   meanTotalFit <dbl>, semTotalFit <dbl>
 ```
 
-## Figures
+## Quick Figures
 
-### Winter Surv
+### Establishment
 
 ``` r
 total_fit_2025plants_summary %>% 
   filter(Pop.Type=="Parent") %>% 
-  mutate(meanWintSurv=if_else(meanWintSurv=="NaN", NA, meanWintSurv)) %>% 
-  filter(!is.na(meanWintSurv)) %>% 
-  ggplot(aes(x=fct_reorder(pop.id, meanWintSurv), y=meanWintSurv)) +
+  left_join(clim_dist_2025_wide) %>% 
+  ggplot(aes(x=fct_reorder(pop.id, meanEst), y=meanEst, fill=elev_m)) +
   geom_col(width = 0.7,position = position_dodge(0.75)) +
-  geom_errorbar(aes(ymin=meanWintSurv-semWintSurv,
-                    ymax=meanWintSurv+semWintSurv),width=.2, 
+  geom_errorbar(aes(ymin=meanEst-semEst,
+                    ymax=meanEst+semEst),width=.2, 
                 position =position_dodge(0.75)) +
-  labs(x="Population", y="Avg Winter Survival") +
+  labs(x="Population", y="Avg Establishment", fill="Elevation (m)") +
   scale_y_continuous(expand = c(0.01, 0)) +
+  scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
   theme_classic()
+```
+
+```
+## Joining with `by = join_by(pop.id)`
 ```
 
 ![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-9-1.png)<!-- -->
@@ -417,20 +472,145 @@ total_fit_2025plants_summary %>%
 ``` r
 total_fit_2025plants_summary %>% 
   filter(Pop.Type=="F1") %>% 
+  mutate(Donor.Pop=str_remove_all(pop.id, "WL2")) %>% 
+  mutate(Donor.Pop=str_remove_all(Donor.Pop, " x ")) %>% 
+  left_join(clim_dist_2025_wide, by=join_by(Donor.Pop==pop.id)) %>% 
+  ggplot(aes(x=fct_reorder(pop.id, elev_m), y=meanEst, fill=elev_m)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  geom_errorbar(aes(ymin=meanEst-semEst,
+                    ymax=meanEst+semEst),
+                width=.2, position =position_dodge(0.75)) +
+  theme_classic() +
+  scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(x="F1", y="Avg Establishment", fill="Donor Elevation (m)")
+```
+
+![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-9-2.png)<!-- -->
+
+``` r
+total_fit_2025plants_summary %>% 
+  filter(Pop.Type=="F2") %>% 
+  ggplot(aes(x=fct_reorder(pop.id, meanEst), y=meanEst)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  geom_errorbar(aes(ymin=meanEst-semEst,
+                    ymax=meanEst+semEst),
+                width=.2, position =position_dodge(0.75)) +
+  theme_classic() +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(x="F2", y="Avg Establishment")
+```
+
+![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-9-3.png)<!-- -->
+
+### Y1 Surv
+
+``` r
+total_fit_2025plants_summary %>% 
+  filter(Pop.Type=="Parent") %>% 
+  left_join(clim_dist_2025_wide) %>% 
+  ggplot(aes(x=fct_reorder(pop.id, meanY1Surv), y=meanY1Surv, fill=elev_m)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  geom_errorbar(aes(ymin=meanY1Surv-semY1Surv,
+                    ymax=meanY1Surv+semY1Surv),width=.2, 
+                position =position_dodge(0.75)) +
+  labs(x="Population", y="Avg Y1 Surv", fill="Elevation (m)") +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
+  theme_classic()
+```
+
+```
+## Joining with `by = join_by(pop.id)`
+```
+
+![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-10-1.png)<!-- -->
+
+``` r
+total_fit_2025plants_summary %>% 
+  filter(Pop.Type=="F1") %>% 
+  mutate(Donor.Pop=str_remove_all(pop.id, "WL2")) %>% 
+  mutate(Donor.Pop=str_remove_all(Donor.Pop, " x ")) %>% 
+  left_join(clim_dist_2025_wide, by=join_by(Donor.Pop==pop.id)) %>% 
+  ggplot(aes(x=fct_reorder(pop.id, elev_m), y=meanY1Surv, fill=elev_m)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  geom_errorbar(aes(ymin=meanY1Surv-semY1Surv,
+                    ymax=meanY1Surv+semY1Surv),
+                width=.2, position =position_dodge(0.75)) +
+  theme_classic() +
+  scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(x="F1", y="Avg Y1 Surv", fill="Donor Elevation (m)")
+```
+
+![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-10-2.png)<!-- -->
+
+``` r
+total_fit_2025plants_summary %>% 
+  filter(Pop.Type=="F2") %>% 
+  ggplot(aes(x=fct_reorder(pop.id, meanY1Surv), y=meanY1Surv)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  geom_errorbar(aes(ymin=meanY1Surv-semY1Surv,
+                    ymax=meanY1Surv+semY1Surv),
+                width=.2, position =position_dodge(0.75)) +
+  theme_classic() +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(x="F2", y="Avg Y1 Surv")
+```
+
+![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-10-3.png)<!-- -->
+
+### Winter Surv
+
+
+``` r
+total_fit_2025plants_summary %>% 
+  filter(Pop.Type=="Parent") %>% 
   mutate(meanWintSurv=if_else(meanWintSurv=="NaN", NA, meanWintSurv)) %>% 
   filter(!is.na(meanWintSurv)) %>% 
-  ggplot(aes(x=fct_reorder(pop.id, meanWintSurv), y=meanWintSurv)) +
+  left_join(clim_dist_2025_wide) %>% 
+  ggplot(aes(x=fct_reorder(pop.id, meanWintSurv), y=meanWintSurv, fill=elev_m)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  geom_errorbar(aes(ymin=meanWintSurv-semWintSurv,
+                    ymax=meanWintSurv+semWintSurv),width=.2, 
+                position =position_dodge(0.75)) +
+  labs(x="Population", y="Avg Winter Survival", fill="Elevation (m)") +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
+  theme_classic()
+```
+
+```
+## Joining with `by = join_by(pop.id)`
+```
+
+![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-11-1.png)<!-- -->
+
+``` r
+total_fit_2025plants_summary %>% 
+  filter(Pop.Type=="F1") %>% 
+  mutate(Donor.Pop=str_remove_all(pop.id, "WL2")) %>% 
+  mutate(Donor.Pop=str_remove_all(Donor.Pop, " x ")) %>% 
+  left_join(clim_dist_2025_wide, by=join_by(Donor.Pop==pop.id)) %>% 
+  mutate(meanWintSurv=if_else(meanWintSurv=="NaN", NA, meanWintSurv)) %>% 
+  filter(!is.na(meanWintSurv)) %>% 
+  ggplot(aes(x=fct_reorder(pop.id, elev_m), y=meanWintSurv, fill=elev_m)) +
   geom_col(width = 0.7,position = position_dodge(0.75)) +
   geom_errorbar(aes(ymin=meanWintSurv-semWintSurv,
                     ymax=meanWintSurv+semWintSurv),
                 width=.2, position =position_dodge(0.75)) +
   theme_classic() +
+  scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
   scale_y_continuous(expand = c(0.01, 0)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
-  labs(x="F1", y="Avg Winter Survival")
+  labs(x="F1", y="Avg Winter Survival", fill="Donor Elevation (m)")
 ```
 
-![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-9-2.png)<!-- -->
+![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-11-2.png)<!-- -->
 
 ``` r
 total_fit_2025plants_summary %>% 
@@ -448,4 +628,264 @@ total_fit_2025plants_summary %>%
   labs(x="F2", y="Avg Winter Survival")
 ```
 
-![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-9-3.png)<!-- -->
+![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-11-3.png)<!-- -->
+
+### Surv to Budding 
+
+``` r
+total_fit_2025plants_summary %>% 
+  filter(Pop.Type=="Parent") %>% 
+  mutate(meanSurvtoBud=if_else(meanSurvtoBud=="NaN", NA, meanSurvtoBud)) %>% 
+  filter(!is.na(meanSurvtoBud)) %>% 
+  left_join(clim_dist_2025_wide) %>% 
+  ggplot(aes(x=fct_reorder(pop.id, meanSurvtoBud), y=meanSurvtoBud, fill=elev_m)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  geom_errorbar(aes(ymin=meanSurvtoBud-semSurvtoBud,
+                    ymax=meanSurvtoBud+semSurvtoBud),width=.2, 
+                position =position_dodge(0.75)) +
+  labs(x="Population", y="Avg Surv to Buddding", fill="Elevation (m)") +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
+  theme_classic()
+```
+
+```
+## Joining with `by = join_by(pop.id)`
+```
+
+![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-12-1.png)<!-- -->
+
+``` r
+total_fit_2025plants_summary %>% 
+  filter(Pop.Type=="F1") %>% 
+  mutate(Donor.Pop=str_remove_all(pop.id, "WL2")) %>% 
+  mutate(Donor.Pop=str_remove_all(Donor.Pop, " x ")) %>% 
+  left_join(clim_dist_2025_wide, by=join_by(Donor.Pop==pop.id)) %>% 
+  mutate(meanSurvtoBud=if_else(meanSurvtoBud=="NaN", NA, meanSurvtoBud)) %>% 
+  filter(!is.na(meanSurvtoBud)) %>% 
+  ggplot(aes(x=fct_reorder(pop.id, elev_m), y=meanSurvtoBud, fill=elev_m)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  geom_errorbar(aes(ymin=meanSurvtoBud-semSurvtoBud,
+                    ymax=meanSurvtoBud+semSurvtoBud),
+                width=.2, position =position_dodge(0.75)) +
+  theme_classic() +
+  scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(x="F1", y="Avg Surv to Buddding", fill="Donor Elevation (m)")
+```
+
+![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-12-2.png)<!-- -->
+
+``` r
+total_fit_2025plants_summary %>% 
+  filter(Pop.Type=="F2") %>% 
+  mutate(meanSurvtoBud=if_else(meanSurvtoBud=="NaN", NA, meanSurvtoBud)) %>% 
+  filter(!is.na(meanSurvtoBud)) %>% 
+  ggplot(aes(x=fct_reorder(pop.id, meanSurvtoBud), y=meanSurvtoBud)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  geom_errorbar(aes(ymin=meanSurvtoBud-semSurvtoBud,
+                    ymax=meanSurvtoBud+semSurvtoBud),
+                width=.2, position =position_dodge(0.75)) +
+  theme_classic() +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(x="F2", y="Avg Surv to Buddding")
+```
+
+![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-12-3.png)<!-- -->
+
+### Fruit #
+
+``` r
+total_fit_2025plants_summary %>% 
+  filter(Pop.Type=="Parent") %>% 
+  mutate(meanFruit=if_else(meanFruit=="NaN", NA, meanFruit)) %>% 
+  filter(!is.na(meanFruit)) %>% 
+  left_join(clim_dist_2025_wide) %>% 
+  ggplot(aes(x=fct_reorder(pop.id, meanFruit), y=meanFruit, fill=elev_m)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  geom_errorbar(aes(ymin=meanFruit-semFruit,
+                    ymax=meanFruit+semFruit),width=.2, 
+                position =position_dodge(0.75)) +
+  labs(x="Population", y="Avg Fecundity", fill="Elevation (m)") +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
+  theme_classic()
+```
+
+```
+## Joining with `by = join_by(pop.id)`
+```
+
+![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-13-1.png)<!-- -->
+
+``` r
+total_fit_2025plants_summary %>% 
+  filter(Pop.Type=="F1") %>% 
+  mutate(Donor.Pop=str_remove_all(pop.id, "WL2")) %>% 
+  mutate(Donor.Pop=str_remove_all(Donor.Pop, " x ")) %>% 
+  left_join(clim_dist_2025_wide, by=join_by(Donor.Pop==pop.id)) %>% 
+  mutate(meanFruit=if_else(meanFruit=="NaN", NA, meanFruit)) %>% 
+  filter(!is.na(meanFruit)) %>% 
+  ggplot(aes(x=fct_reorder(pop.id, elev_m), y=meanFruit, fill=elev_m)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  geom_errorbar(aes(ymin=meanFruit-semFruit,
+                    ymax=meanFruit+semFruit),
+                width=.2, position =position_dodge(0.75)) +
+  theme_classic() +
+  scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(x="F1", y="Avg Fecundity", fill="Donor Elevation (m)")
+```
+
+![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-13-2.png)<!-- -->
+
+``` r
+total_fit_2025plants_summary %>% 
+  filter(Pop.Type=="F2") %>% 
+  mutate(meanFruit=if_else(meanFruit=="NaN", NA, meanFruit)) %>% 
+  filter(!is.na(meanFruit)) %>% 
+  ggplot(aes(x=fct_reorder(pop.id, meanFruit), y=meanFruit)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  geom_errorbar(aes(ymin=meanFruit-semFruit,
+                    ymax=meanFruit+semFruit),
+                width=.2, position =position_dodge(0.75)) +
+  theme_classic() +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(x="F2", y="Avg Fecundity")
+```
+
+![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-13-3.png)<!-- -->
+
+### Prob Fruit
+
+``` r
+total_fit_2025plants_summary %>% 
+  filter(Pop.Type=="Parent") %>% 
+  mutate(meanProbProbFruit=if_else(meanProbFruit=="NaN", NA, meanProbFruit)) %>% 
+  filter(!is.na(meanProbFruit)) %>% 
+  left_join(clim_dist_2025_wide) %>% 
+  ggplot(aes(x=fct_reorder(pop.id, meanProbFruit), y=meanProbFruit, fill=elev_m)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  geom_errorbar(aes(ymin=meanProbFruit-semProbFruit,
+                    ymax=meanProbFruit+semProbFruit),width=.2, 
+                position =position_dodge(0.75)) +
+  labs(x="Population", y="Avg Prob Rep", fill="Elevation (m)") +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
+  theme_classic()
+```
+
+```
+## Joining with `by = join_by(pop.id)`
+```
+
+![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-14-1.png)<!-- -->
+
+``` r
+total_fit_2025plants_summary %>% 
+  filter(Pop.Type=="F1") %>% 
+  mutate(Donor.Pop=str_remove_all(pop.id, "WL2")) %>% 
+  mutate(Donor.Pop=str_remove_all(Donor.Pop, " x ")) %>% 
+  left_join(clim_dist_2025_wide, by=join_by(Donor.Pop==pop.id)) %>% 
+  mutate(meanProbFruit=if_else(meanProbFruit=="NaN", NA, meanProbFruit)) %>% 
+  filter(!is.na(meanProbFruit)) %>% 
+  ggplot(aes(x=fct_reorder(pop.id, elev_m), y=meanProbFruit, fill=elev_m)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  geom_errorbar(aes(ymin=meanProbFruit-semProbFruit,
+                    ymax=meanProbFruit+semProbFruit),
+                width=.2, position =position_dodge(0.75)) +
+  theme_classic() +
+  scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(x="F1", y="Avg Prob Rep", fill="Donor Elevation (m)")
+```
+
+![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-14-2.png)<!-- -->
+
+``` r
+total_fit_2025plants_summary %>% 
+  filter(Pop.Type=="F2") %>% 
+  mutate(meanProbFruit=if_else(meanProbFruit=="NaN", NA, meanProbFruit)) %>% 
+  filter(!is.na(meanProbFruit)) %>% 
+  ggplot(aes(x=fct_reorder(pop.id, meanProbFruit), y=meanProbFruit)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  geom_errorbar(aes(ymin=meanProbFruit-semProbFruit,
+                    ymax=meanProbFruit+semProbFruit),
+                width=.2, position =position_dodge(0.75)) +
+  theme_classic() +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(x="F2", y="Avg Prob Rep")
+```
+
+![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-14-3.png)<!-- -->
+
+### Total fruit 
+
+``` r
+total_fit_2025plants_summary %>% 
+  filter(Pop.Type=="Parent") %>% 
+  mutate(meanTotalFit=if_else(meanTotalFit=="NaN", NA, meanTotalFit)) %>% 
+  filter(!is.na(meanTotalFit)) %>% 
+  left_join(clim_dist_2025_wide) %>% 
+  ggplot(aes(x=fct_reorder(pop.id, meanTotalFit), y=meanTotalFit, fill=elev_m)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  geom_errorbar(aes(ymin=meanTotalFit-semTotalFit,
+                    ymax=meanTotalFit+semTotalFit),width=.2, 
+                position =position_dodge(0.75)) +
+  labs(x="Population", y="Avg Total Fitness", fill="Elevation (m)") +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
+  theme_classic()
+```
+
+```
+## Joining with `by = join_by(pop.id)`
+```
+
+![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-15-1.png)<!-- -->
+
+``` r
+total_fit_2025plants_summary %>% 
+  filter(Pop.Type=="F1") %>% 
+  mutate(Donor.Pop=str_remove_all(pop.id, "WL2")) %>% 
+  mutate(Donor.Pop=str_remove_all(Donor.Pop, " x ")) %>% 
+  left_join(clim_dist_2025_wide, by=join_by(Donor.Pop==pop.id)) %>% 
+  mutate(meanTotalFit=if_else(meanTotalFit=="NaN", NA, meanTotalFit)) %>% 
+  filter(!is.na(meanTotalFit)) %>% 
+  ggplot(aes(x=fct_reorder(pop.id, elev_m), y=meanTotalFit, fill=elev_m)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  geom_errorbar(aes(ymin=meanTotalFit-semTotalFit,
+                    ymax=meanTotalFit+semTotalFit),
+                width=.2, position =position_dodge(0.75)) +
+  theme_classic() +
+  scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(x="F1", y="Avg Total Fitness", fill="Donor Elevation (m)")
+```
+
+![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-15-2.png)<!-- -->
+
+``` r
+total_fit_2025plants_summary %>% 
+  filter(Pop.Type=="F2") %>% 
+  mutate(meanTotalFit=if_else(meanTotalFit=="NaN", NA, meanTotalFit)) %>% 
+  filter(!is.na(meanTotalFit)) %>% 
+  ggplot(aes(x=fct_reorder(pop.id, meanTotalFit), y=meanTotalFit)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  geom_errorbar(aes(ymin=meanTotalFit-semTotalFit,
+                    ymax=meanTotalFit+semTotalFit),
+                width=.2, position =position_dodge(0.75)) +
+  theme_classic() +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(x="F2", y="Avg Total Fitness")
+```
+
+![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-15-3.png)<!-- -->
