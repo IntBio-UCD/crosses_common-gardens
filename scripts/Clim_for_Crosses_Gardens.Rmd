@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Load libraries
 
 ```{r}
-library(raster) #for the CV function 
+library(raster) #for the CV function and extraction code  
 library(tidyverse)
 
 sem <- function(x, na.rm=FALSE) { #standard error function 
@@ -86,14 +86,16 @@ locs_p <- data.frame(locs_t) %>%
 
 ### Extract asc values
 ```{r, eval=FALSE}
-setwd("/Users/bqc/Library/Mobile Documents/com~apple~CloudDocs/Documents/UCDavis_Postdoc/crosses_common-gardens/input/Flint_WY2025/")
+setwd("/Users/bqc/Library/Mobile Documents/com~apple~CloudDocs/Documents/UCDavis_Postdoc/crosses_common-gardens/input/Flint_WY2025/") #wherever the unzipped Flint files are 
 
 climate_variables <- c("aet", "cwd", "pck", "pet", 
-                       "ppt", "tmn", "tmx")
+                       "ppt", "tmn", "tmx") #if you download additional variables like, rch or run, add those here too
 
 path_name <- c("aet_WY2025","cwd_WY2025","pck_WY2025",
-               "pet_WY2025","ppt_WY2025","tmn_WY2025","tmx_WY2025")
-#path <- c("/Users/bqc/Library/Mobile Documents/com~apple~CloudDocs/Documents/UCDavis_Postdoc/crosses_common-gardens/input/Flint_WY2025/aet_WY2025") #for testing the code
+               "pet_WY2025","ppt_WY2025","tmn_WY2025","tmx_WY2025") #these should be the folders that are made when you unzip the .zip files, there should be a bunch of .asc files in these folders 
+
+#for testing the code (can ignore this)
+#path <- c("/Users/bqc/Library/Mobile Documents/com~apple~CloudDocs/Documents/UCDavis_Postdoc/crosses_common-gardens/input/Flint_WY2025/aet_WY2025") 
 
 # Month named vectors
 months <- c("jan" = 1, "feb" = 2, "mar" = 3, "apr" = 4,
@@ -102,7 +104,8 @@ months <- c("jan" = 1, "feb" = 2, "mar" = 3, "apr" = 4,
 
 walk(path_name, .progress = TRUE, .f = function(path) {
   # Extract variable name from path
-  var_name <- str_extract(path, "[a-z]+(?=_WY2025)") #(?<=/) #for testing the code
+  var_name <- str_extract(path, "[a-z]+(?=_WY2025)") #this says find the lowercase letters that appear before "_WY2025"
+  #(?<=/) #for testing the code (can ignore this)
   
   # Make list for all files pertaining to climate variable
   file_list <- list.files(path = path, pattern = ".asc", full.names = TRUE)
@@ -134,14 +137,14 @@ walk(path_name, .progress = TRUE, .f = function(path) {
       months[[str_sub(file_name, 8, 10)]]
     hist_clim[((j - 1) * nrow(locs_p) + 1):(j * nrow(locs_p)), 2] <-
       as.numeric(str_sub(file_name, 4, 7))
-    file.remove(dec_file_name)
+    file.remove(dec_file_name) #this removes the large asc files from your computer once you're done with the extraction 
   }
 
 # Sort the data frame
   hist_clim <- arrange(hist_clim, year, month)
   
 # Save the data frame
-  new_file_name <- paste0("Test_", var_name, "_WY2025.csv")
+  new_file_name <- paste0("Test_", var_name, "_WY2025.csv") #change this to whatever you want your output files to be called
   write.csv(hist_clim, new_file_name, row.names = FALSE)
 })
 ```
