@@ -54,7 +54,7 @@ ucd_clim_dist_wide <- ucd_clim_dist %>%
 ucd_totalfit <- ucd_surv %>% 
   filter(!is.na(unique.ID), unique.ID!="buffer") %>% 
   filter(is.na(missing.date)) %>% #remove plants that went missing (usually caused by crows)
-  filter(survey.notes!="dead at planting") %>% #remove plants that were dead at planting 
+  filter(survey.notes!="dead at planting"|is.na(survey.notes)) %>% #remove plants that were dead at planting 
   mutate(death.date=mdy(death.date), bud.date=mdy(bud.date)) %>% 
   mutate(Establishment = if_else(is.na(death.date), 1, 
                                  if_else(death.date < "2023-12-29", 0, 1)),
@@ -80,15 +80,8 @@ ucd_totalfit_summary <- ucd_totalfit %>%
             meanBiomass=mean(total.biomass_g, na.rm=TRUE), semBiomass=sem(total.biomass_g, na.rm = TRUE))
 
 ucd_totalfit_summary
-#uniqueID - date collected
-#200 - 7/18
-#206 - 6/28 (we have biomass for this one)
-#210 - 7/11
-#216 - vegetative - 6/10
-#212 - vegetative - no date
-#208 - vegetative - no date 
-#214 - vegetative - no date 
-#207 - went missing?
+
+ucd_totalfit %>% filter(SurvtoBud==1, is.na(total.biomass_g)) #quite a few plants that survived to rep that we don't have biomass for... should investigate 
 ```
 
 ## Quick Figures

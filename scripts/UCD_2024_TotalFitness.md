@@ -137,7 +137,7 @@ ucd_clim_dist_wide <- ucd_clim_dist %>%
 ucd_totalfit <- ucd_surv %>% 
   filter(!is.na(unique.ID), unique.ID!="buffer") %>% 
   filter(is.na(missing.date)) %>% #remove plants that went missing (usually caused by crows)
-  filter(survey.notes!="dead at planting") %>% #remove plants that were dead at planting 
+  filter(survey.notes!="dead at planting"|is.na(survey.notes)) %>% #remove plants that were dead at planting 
   mutate(death.date=mdy(death.date), bud.date=mdy(bud.date)) %>% 
   mutate(Establishment = if_else(is.na(death.date), 1, 
                                  if_else(death.date < "2023-12-29", 0, 1)),
@@ -183,34 +183,45 @@ ucd_totalfit_summary
 ```
 
 ```
-## # A tibble: 52 × 8
+## # A tibble: 58 × 8
 ## # Groups:   Pop.Type [3]
 ##    Pop.Type pop.id    meanEst semEst meanSurvtoBud semSurvtoBud meanBiomass
 ##    <chr>    <chr>       <dbl>  <dbl>         <dbl>        <dbl>       <dbl>
-##  1 F1       BH x WL2    1      0             0.125        0.125        48.9
-##  2 F1       CC x TM2    1      0             1            0            88.5
-##  3 F1       DPR x TM2   0.857  0.143         0.714        0.184        64.5
-##  4 F1       DPR x WL2   1      0             0.125        0.125        34.0
-##  5 F1       LV1 x TM2   1      0             0.75         0.25         26.5
-##  6 F1       LV1 x WL2   1      0             0            0           NaN  
-##  7 F1       SQ3 x TM2   1      0             1            0            54.4
-##  8 F1       SQ3 x WL2   1      0             0.2          0.2          12.0
-##  9 F1       TM2 x BH    1      0             0.75         0.25        105. 
-## 10 F1       TM2 x CC    1      0             1            0           105. 
-## # ℹ 42 more rows
+##  1 F1       BH x WL2    1     0              0.154       0.104        48.9 
+##  2 F1       CC x TM2    1     0              1           0            66.3 
+##  3 F1       DPR x TM2   0.971 0.0294         0.941       0.0410       82.6 
+##  4 F1       DPR x WL2   1     0              0.238       0.0952       38.5 
+##  5 F1       LV1 x TM2   1     0              0.963       0.0370       48.2 
+##  6 F1       LV1 x WL2   1     0              0           0             3.01
+##  7 F1       SQ3 x TM2   1     0              1           0            70.5 
+##  8 F1       SQ3 x WL2   1     0              0.111       0.111        15.8 
+##  9 F1       TM2 x BH    1     0              0.933       0.0667       85.9 
+## 10 F1       TM2 x CC    1     0              0.958       0.0417      111.  
+## # ℹ 48 more rows
 ## # ℹ 1 more variable: semBiomass <dbl>
 ```
 
 ``` r
-#uniqueID - date collected
-#200 - 7/18
-#206 - 6/28 (we have biomass for this one)
-#210 - 7/11
-#216 - vegetative - 6/10
-#212 - vegetative - no date
-#208 - vegetative - no date 
-#214 - vegetative - no date 
-#207 - went missing?
+ucd_totalfit %>% filter(SurvtoBud==1, is.na(total.biomass_g)) #quite a few plants that survived to rep that we don't have biomass for... should investigate 
+```
+
+```
+## # A tibble: 134 × 14
+##    bed     row col   unique.ID bud.date   death.date Establishment SurvtoBud
+##    <chr> <dbl> <chr> <chr>     <date>     <date>             <dbl>     <dbl>
+##  1 A         5 A     765       2024-04-19 2024-11-08             1         1
+##  2 A         5 B     472       2024-05-10 2024-11-08             1         1
+##  3 A         8 B     684       2024-01-19 2024-04-12             1         1
+##  4 A        16 A     95        2024-04-05 NA                     1         1
+##  5 A        19 B     257       2024-04-05 NA                     1         1
+##  6 A        24 A     679       2024-02-23 2024-04-12             1         1
+##  7 A        25 A     820       2024-05-24 2024-11-08             1         1
+##  8 A        10 C     747       2024-03-28 NA                     1         1
+##  9 A        13 D     1083      2024-04-19 2024-07-11             1         1
+## 10 A        17 C     203       2024-05-10 2024-11-08             1         1
+## # ℹ 124 more rows
+## # ℹ 6 more variables: total.biomass_g <dbl>, Pop.Type <chr>, pop.id <chr>,
+## #   mf <dbl>, rep <dbl>, block <chr>
 ```
 
 ## Quick Figures
@@ -356,17 +367,20 @@ ucd_totalfit %>% filter(pop.id=="BH") #3 BH survived to budding, but we only hav
 ```
 
 ```
-## # A tibble: 8 × 14
-##   bed     row col   unique.ID bud.date   death.date Establishment SurvtoBud
-##   <chr> <dbl> <chr> <chr>     <date>     <date>             <dbl>     <dbl>
-## 1 A        45 A     212       NA         NA                     1         0
-## 2 A        31 C     200       2024-04-05 NA                     1         1
-## 3 B        16 B     216       NA         2024-11-08             1         0
-## 4 C        21 B     207       NA         2024-05-30             1         0
-## 5 D        27 A     208       NA         NA                     1         0
-## 6 E        21 A     206       2024-04-26 NA                     1         1
-## 7 E        34 B     210       2024-04-26 NA                     1         1
-## 8 F         7 B     214       NA         NA                     1         0
+## # A tibble: 21 × 14
+##    bed     row col   unique.ID bud.date   death.date Establishment SurvtoBud
+##    <chr> <dbl> <chr> <chr>     <date>     <date>             <dbl>     <dbl>
+##  1 A        45 A     212       NA         NA                     1         0
+##  2 A         6 C     215       2024-05-10 NA                     1         1
+##  3 A        17 C     203       2024-05-10 2024-11-08             1         1
+##  4 A        31 C     200       2024-04-05 NA                     1         1
+##  5 B        13 B     204       2024-04-19 NA                     1         1
+##  6 B        16 B     216       NA         2024-11-08             1         0
+##  7 B        27 D     205       2024-05-10 NA                     1         1
+##  8 B        28 C     217       2024-04-19 NA                     1         1
+##  9 C        21 B     207       NA         2024-05-30             1         0
+## 10 C        34 B     213       2024-04-19 NA                     1         1
+## # ℹ 11 more rows
 ## # ℹ 6 more variables: total.biomass_g <dbl>, Pop.Type <chr>, pop.id <chr>,
 ## #   mf <dbl>, rep <dbl>, block <chr>
 ```
