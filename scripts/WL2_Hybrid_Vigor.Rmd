@@ -1,0 +1,18 @@
+---
+title: "WL2_Hybrid_Vigor"
+author: "Brandie QC"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Evidence for hybrid vigor? 
+
+-   Fitness of F1s higher than parents?
+
+-   Relationship between heterozygosity of F1s and fitness?
+
+All crosses, even those without WL2
