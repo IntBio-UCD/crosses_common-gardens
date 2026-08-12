@@ -84,8 +84,11 @@ sizeatrep_2025 <- all_2025_size %>%
   filter(!is.na(flower.date)) %>% 
   filter(survey_date==flower.date) %>% 
   select(status, Unique.ID, survey_date, flower.date, height.cm)
-
 summary(sizeatrep_2025)
+head(sizeatrep_2025)
+sizeatrep_2025_tosave <- sizeatrep_2025 %>% 
+  select(Unique.ID, height_at_flw=height.cm, flower.date)
+write_csv(sizeatrep_2025_tosave, "../output/WL2_Traits/WL2_2025_SizeatFlw.csv")
 
 sizeatrep_2025_2025plants <- sizeatrep_2025 %>% 
   filter(status=="available") #filter to plants planted in 2025

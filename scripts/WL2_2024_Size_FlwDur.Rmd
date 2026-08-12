@@ -83,6 +83,10 @@ sizeatrep_2024 <- all_2024_size %>%
   filter(!is.na(height.cm)) %>% 
   select(-death.date, -missing.date)
 summary(sizeatrep_2024)
+head(sizeatrep_2024)
+sizeatrep_2024_tosave <- sizeatrep_2024 %>% 
+  select(unique.ID, height_at_flw=height.cm, flower.date)
+write_csv(sizeatrep_2024_tosave, "../output/WL2_Traits/WL2_2024_SizeatFlw.csv")
 ```
 
 ## flowering duration ~ size at flowering 
