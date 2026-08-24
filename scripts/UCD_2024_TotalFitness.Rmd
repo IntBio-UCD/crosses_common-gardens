@@ -39,6 +39,14 @@ ucd_popinfo <- read_csv("../input/UCD2023_2024_Data/Genotypes_2023_2024.csv") %>
   mutate(unique.ID=as.character(unique.ID))
 ```
 
+### Biomass Merge for fruit+seed mass measurements 
+```{r}
+ucd_biomass_blocks <- ucd_biomass %>% 
+  left_join(ucd_popinfo) %>% 
+  select(block, unique.ID, date.collected, date.meas, total.biomass_g, total.seed.mass_g, survey.notes)
+write_csv(ucd_biomass_blocks, "../output/UCD_Traits/Biomass_Blocks.csv")
+```
+
 ## Elevation Info / Climate distance
 ```{r}
 ucd_clim_dist <- read_csv("../output/Climate/UCD_2024_Clim_Dist.csv") %>% select(-conf.low, -conf.high)
