@@ -45,6 +45,52 @@ ucd_biomass_blocks <- ucd_biomass %>%
   left_join(ucd_popinfo) %>% 
   select(block, unique.ID, date.collected, date.meas, total.biomass_g, total.seed.mass_g, survey.notes)
 write_csv(ucd_biomass_blocks, "../output/UCD_Traits/Biomass_Blocks.csv")
+
+anncens <- read_csv("../input/UCD2023_2024_Data/CorrectedCSVs/UCD_annual_census_20240718_corrected.csv")
+
+anncens_collected <- anncens %>% 
+  filter(!is.na(`num.fruit or date.collected`)) %>% 
+  mutate(date.collected=`num.fruit or date.collected`) %>% 
+  mutate(date.collected=mdy(date.collected)) %>% 
+  filter(!is.na(date.collected)) %>% 
+  select(unique.ID, date.collected) %>% 
+  mutate(AnnCens=TRUE)
+summary(anncens_collected)
+
+mismatch_dates <- ucd_biomass_blocks %>% mutate(date.collected=mdy(date.collected)) %>% left_join(anncens_collected) %>% filter(is.na(AnnCens)) %>% select(unique.ID, date.collected_biomass=date.collected, date.meas) 
+
+#check the mismatches 
+left_join(mismatch_dates, anncens_collected)
+#some plants with date.collected on biomass data sheet, but not annual census... (not all dates got written on the data sheet & some plants we counted fruits and collected)
+
+#619, actually collected 5/28... so unclear what happened here
+ucd_biomass_blocks %>% filter(unique.ID=="619") #4 rows for 619, all with 3 different dates
+anncens_collected %>% filter(date.collected=="2024-06-04") %>% arrange(unique.ID) #no other plants collected on 6/4 that it could be instead based on hand written data sheet 
+
+#same with 79 - collected 5/17 according to anncens
+ucd_biomass_blocks %>% filter(unique.ID==79)
+anncens_collected %>% filter(date.collected=="2024-05-23") %>% arrange(unique.ID) #no other plants look likely 
+
+#751 collected 6/14 according to anncens 
+ucd_biomass_blocks %>% filter(unique.ID==751) #5 rows for 751, all but one have 6/14 as date collected
+anncens_collected %>% filter(date.collected=="2024-06-27") %>% arrange(unique.ID) #could be a different plant?
+ucd_biomass_blocks %>% filter(date.collected=="6/27/24") %>% arrange(unique.ID) %>% select(unique.ID, date.collected, survey.notes)
+#2051 only 1 of 2 bags
+#721 only 1 of 2 bags  
+
+#1289 not collected until 7/3
+ucd_biomass_blocks %>% filter(unique.ID==1289)
+anncens_collected %>% filter(date.collected=="2024-05-23") %>% arrange(unique.ID)
+
+#736 collected 6/6
+#ucd_biomass_blocks %>% filter(unique.ID==736) #there are 2 rows for 736 with diff dates (one date correct)
+#anncens_collected %>% filter(date.collected=="2024-06-20") %>% arrange(unique.ID) #Might be 738?
+#ucd_biomass_blocks %>% filter(unique.ID==738) #yes, no row for 738 in biomass sheet - fixed on corrected CSV
+
+#223 not collected until 7/3
+#ucd_biomass_blocks %>% filter(unique.ID==223)
+#anncens_collected %>% filter(date.collected=="2024-06-20") %>% arrange(unique.ID) #might be 233?
+#ucd_biomass_blocks %>% filter(unique.ID==233) #yes, no row for 233 in biomass sheet - fixed on corrected CSV
 ```
 
 ## Elevation Info / Climate distance

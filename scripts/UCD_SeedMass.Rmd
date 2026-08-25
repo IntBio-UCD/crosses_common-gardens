@@ -22,6 +22,17 @@ library(corrplot) #plotting correlations
 seedmass_a1 <- read_csv("../input/UCD2023_2024_Data/CorrectedCSVs/UCD_2024_SeedMass_A1_corrected.csv") #note this is only for block A1
 head(seedmass_a1) 
 summary(seedmass_a1)
+dim(seedmass_a1)
+```
+
+## Load Biomass Data
+```{r}
+biomass_all <- read_csv("../output/UCD_Traits/Biomass_Blocks.csv")
+biomass_a1 <- biomass_all %>% filter(block=="A1") %>% mutate(Biomass=TRUE) %>% select(-survey.notes, -total.seed.mass_g, -date.collected, -date.meas)
+
+seedmass_biomass_check <- left_join(seedmass_a1, biomass_a1)
+seedmass_biomass_check %>% filter(is.na(Biomass))
+biomass_a1 %>% filter(unique.ID==708) #small decimal place difference in total biomass 
 ```
 
 ## Quick plots
