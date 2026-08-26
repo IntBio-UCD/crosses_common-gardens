@@ -48,21 +48,21 @@ clim_dist_2025_wide <- clim_dist_2025 %>%
   rename(pop.id=parent.pop)
 ```
 
-## WL2 Parents & F1s Only to Start
+## Parents & WL2 F1s Only to Start
 ```{r}
 wl2_crosses_2024 <- total_fit_2024 %>% 
   filter(Pop.Type!="F2") %>% 
-  filter(str_detect(pop, "WL2")) %>% 
+  filter(str_detect(pop, "WL2") | Pop.Type=="Parent") %>% 
   separate(pop, c("dame_pop",NA, "sire_pop"), remove = FALSE) %>% #define pops for crosses
-  mutate(Other.Parent=if_else(is.na(sire_pop), "WL2",
+  mutate(Other.Parent=if_else(is.na(sire_pop), dame_pop,
                               if_else(dame_pop=="WL2", sire_pop, dame_pop))) %>% 
   left_join(clim_dist_2024_wide, join_by(Other.Parent==pop))
 
 wl2_crosses_2025 <- total_fit_2025 %>% 
   filter(Pop.Type!="F2") %>% 
-  filter(str_detect(pop.id, "WL2")) %>% 
+  filter(str_detect(pop.id, "WL2") | Pop.Type=="Parent") %>% 
   separate(pop.id, c("dame_pop",NA, "sire_pop"), remove = FALSE) %>% #define pops for crosses
-  mutate(Other.Parent=if_else(is.na(sire_pop), "WL2",
+  mutate(Other.Parent=if_else(is.na(sire_pop), dame_pop,
                               if_else(dame_pop=="WL2", sire_pop, dame_pop))) %>% 
   left_join(clim_dist_2025_wide, join_by(Other.Parent==pop.id))
 ```
@@ -100,8 +100,8 @@ wl2_crosses_2024_summary %>%
   geom_errorbar(aes(ymin=meanEst-semEst,
                     ymax=meanEst+semEst), width=0, linewidth = 2) +
   geom_point(size=6, aes(shape=Pop.Type)) +
-  annotate("text", x = 0.1600569, y= 0.4, label = "WL2", 
-           colour = "purple", fontface="bold", size = 22 / .pt) +
+  #annotate("text", x = 0.1600569, y= 0.4, label = "WL2", 
+   #        colour = "purple", fontface="bold", size = 22 / .pt) +
   theme_classic() + 
   scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
@@ -115,8 +115,8 @@ wl2_crosses_2024_summary %>%
   geom_errorbar(aes(ymin=meanEst-semEst,
                     ymax=meanEst+semEst), width=0, linewidth = 2) +
   geom_point(size=6, aes(shape=Pop.Type)) +
-  annotate("text", x = 0.1600569, y= 0.4, label = "WL2", 
-           colour = "purple", fontface="bold", size = 22 / .pt) +
+ # annotate("text", x = 0.1600569, y= 0.4, label = "WL2", 
+  #         colour = "purple", fontface="bold", size = 22 / .pt) +
   theme_classic() + 
   scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
@@ -130,8 +130,8 @@ wl2_crosses_2024_summary %>%
   geom_errorbar(aes(ymin=meanEst-semEst,
                     ymax=meanEst+semEst), width=0, linewidth = 2) +
   geom_point(size=6, aes(shape=Pop.Type)) +
-  annotate("text", x = 136.2622, y= 0.4, label = "WL2", 
-           colour = "purple", fontface="bold", size = 22 / .pt) +
+  #annotate("text", x = 136.2622, y= 0.4, label = "WL2", 
+    #       colour = "purple", fontface="bold", size = 22 / .pt) +
   theme_classic() + 
   scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
@@ -195,10 +195,10 @@ wl2_crosses_2024_summary %>%
   geom_errorbar(aes(ymin=meanY1Surv-semY1Surv,
                     ymax=meanY1Surv+semY1Surv), width=0, linewidth = 2) +
   geom_point(size=6, aes(shape=Pop.Type)) +
-  annotate("text", x = 0.1600569, y= 0.35, label = "WL2", 
-           colour = "purple", fontface="bold", size = 22 / .pt) +
+  #annotate("text", x = 0.1600569, y= 0.35, label = "WL2", 
+   #        colour = "purple", fontface="bold", size = 22 / .pt) +
   theme_classic() + 
-  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
   labs(y="Y1 Surv", x="Recent Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
@@ -210,10 +210,10 @@ wl2_crosses_2024_summary %>%
   geom_errorbar(aes(ymin=meanY1Surv-semY1Surv,
                     ymax=meanY1Surv+semY1Surv), width=0, linewidth = 2) +
   geom_point(size=6, aes(shape=Pop.Type)) +
-  annotate("text", x = 0.1600569, y= 0.35, label = "WL2", 
-           colour = "purple", fontface="bold", size = 22 / .pt) +
+  #annotate("text", x = 0.1600569, y= 0.35, label = "WL2", 
+   #        colour = "purple", fontface="bold", size = 22 / .pt) +
   theme_classic() + 
-  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
   labs(y="Y1 Surv", x="Historic Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
@@ -225,10 +225,10 @@ wl2_crosses_2024_summary %>%
   geom_errorbar(aes(ymin=meanY1Surv-semY1Surv,
                     ymax=meanY1Surv+semY1Surv), width=0, linewidth = 2) +
   geom_point(size=6, aes(shape=Pop.Type)) +
-  annotate("text", x = 136.2622, y= 0.35, label = "WL2", 
-           colour = "purple", fontface="bold", size = 22 / .pt) +
+  #annotate("text", x = 136.2622, y= 0.35, label = "WL2", 
+   #        colour = "purple", fontface="bold", size = 22 / .pt) +
   theme_classic() + 
-  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1)) + 
   labs(y="Y1 Surv", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
@@ -244,7 +244,7 @@ wl2_crosses_2025_summary %>%
   #annotate("text", x = 0.1600569, y= 0.35, label = "WL2", 
    #        colour = "purple", fontface="bold", size = 22 / .pt) +
   theme_classic() + 
-  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
   labs(y="Y1 Surv", x="Recent Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
@@ -259,7 +259,7 @@ wl2_crosses_2025_summary %>%
  # annotate("text", x = 0.1600569, y= 0.35, label = "WL2", 
   #         colour = "purple", fontface="bold", size = 22 / .pt) +
   theme_classic() + 
-  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
   labs(y="Y1 Surv", x="Historic Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
@@ -274,7 +274,7 @@ wl2_crosses_2025_summary %>%
   #annotate("text", x = 136.2622, y= 0.35, label = "WL2", 
    #        colour = "purple", fontface="bold", size = 22 / .pt) +
   theme_classic() + 
-  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1)) + 
   labs(y="Y1 Surv", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
@@ -289,10 +289,10 @@ wl2_crosses_2024_summary %>%
   geom_errorbar(aes(ymin=meanWintSurv-semWintSurv,
                     ymax=meanWintSurv+semWintSurv), width=0, linewidth = 2) +
   geom_point(size=6, aes(shape=Pop.Type)) +
-  annotate("text", x = 0.2, y= 1, label = "WL2", 
-           colour = "purple", fontface="bold", size = 22 / .pt) +
+  #annotate("text", x = 0.2, y= 1, label = "WL2", 
+   #        colour = "purple", fontface="bold", size = 22 / .pt) +
   theme_classic() + 
-  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
   labs(y="Winter Surv", x="Recent Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
@@ -304,10 +304,10 @@ wl2_crosses_2024_summary %>%
   geom_errorbar(aes(ymin=meanWintSurv-semWintSurv,
                     ymax=meanWintSurv+semWintSurv), width=0, linewidth = 2) +
   geom_point(size=6, aes(shape=Pop.Type)) +
-  annotate("text", x = 0.2, y= 1, label = "WL2", 
-           colour = "purple", fontface="bold", size = 22 / .pt) +
+ # annotate("text", x = 0.2, y= 1, label = "WL2", 
+  #         colour = "purple", fontface="bold", size = 22 / .pt) +
   theme_classic() + 
-  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
   labs(y="Winter Surv", x="Historic Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
@@ -319,10 +319,10 @@ wl2_crosses_2024_summary %>%
   geom_errorbar(aes(ymin=meanWintSurv-semWintSurv,
                     ymax=meanWintSurv+semWintSurv), width=0, linewidth = 2) +
   geom_point(size=6, aes(shape=Pop.Type)) +
-  annotate("text", x = 136.2622, y= 1, label = "WL2", 
-           colour = "purple", fontface="bold", size = 22 / .pt) +
+  #annotate("text", x = 136.2622, y= 1, label = "WL2", 
+   #        colour = "purple", fontface="bold", size = 22 / .pt) +
   theme_classic() + 
-  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1)) + 
   labs(y="Winter Surv", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
@@ -338,7 +338,7 @@ wl2_crosses_2025_summary %>%
   #annotate("text", x = 0.2, y= 1, label = "WL2", 
     #       colour = "purple", fontface="bold", size = 22 / .pt) +
   theme_classic() + 
-  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
   labs(y="Winter Surv", x="Recent Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
@@ -353,7 +353,7 @@ wl2_crosses_2025_summary %>%
  # annotate("text", x = 0.2, y= 1, label = "WL2", 
      #      colour = "purple", fontface="bold", size = 22 / .pt) +
   theme_classic() + 
-  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
   labs(y="Winter Surv", x="Historic Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
@@ -368,7 +368,7 @@ wl2_crosses_2025_summary %>%
   #annotate("text", x = 136.2622, y= 1, label = "WL2", 
  #          colour = "purple", fontface="bold", size = 22 / .pt) +
   theme_classic() + 
-  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1)) + 
   labs(y="Winter Surv", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
@@ -383,10 +383,10 @@ wl2_crosses_2024_summary %>%
   geom_errorbar(aes(ymin=meanSurvtoBud-semSurvtoBud,
                     ymax=meanSurvtoBud+semSurvtoBud), width=0, linewidth = 2) +
   geom_point(size=6, aes(shape=Pop.Type)) +
-  annotate("text", x = 0.2, y= 1, label = "WL2", 
-           colour = "purple", fontface="bold", size = 22 / .pt) +
+  #annotate("text", x = 0.2, y= 1, label = "WL2", 
+     #      colour = "purple", fontface="bold", size = 22 / .pt) +
   theme_classic() + 
-  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
   labs(y="Surv to Bud Y2", x="Recent Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
@@ -398,10 +398,10 @@ wl2_crosses_2024_summary %>%
   geom_errorbar(aes(ymin=meanSurvtoBud-semSurvtoBud,
                     ymax=meanSurvtoBud+semSurvtoBud), width=0, linewidth = 2) +
   geom_point(size=6, aes(shape=Pop.Type)) +
-  annotate("text", x = 0.2, y= 1, label = "WL2", 
-           colour = "purple", fontface="bold", size = 22 / .pt) +
+ # annotate("text", x = 0.2, y= 1, label = "WL2", 
+  #         colour = "purple", fontface="bold", size = 22 / .pt) +
   theme_classic() + 
-  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
   labs(y="Surv to Bud Y2", x="Historic Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
@@ -413,10 +413,10 @@ wl2_crosses_2024_summary %>%
   geom_errorbar(aes(ymin=meanSurvtoBud-semSurvtoBud,
                     ymax=meanSurvtoBud+semSurvtoBud), width=0, linewidth = 2) +
   geom_point(size=6, aes(shape=Pop.Type)) +
-  annotate("text", x = 136.2622, y= 1, label = "WL2", 
-           colour = "purple", fontface="bold", size = 22 / .pt) +
+  #annotate("text", x = 136.2622, y= 1, label = "WL2", 
+   #        colour = "purple", fontface="bold", size = 22 / .pt) +
   theme_classic() + 
-  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1)) + 
   labs(y="Surv to Bud Y2", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
@@ -432,7 +432,7 @@ wl2_crosses_2025_summary %>%
   #annotate("text", x = 0.2, y= 1, label = "WL2", 
   #         colour = "purple", fontface="bold", size = 22 / .pt) +
   theme_classic() + 
-  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
   labs(y="Surv to Bud Y2", x="Recent Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
@@ -447,7 +447,7 @@ wl2_crosses_2025_summary %>%
   #annotate("text", x = 0.2, y= 1, label = "WL2", 
    #        colour = "purple", fontface="bold", size = 22 / .pt) +
   theme_classic() + 
-  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
   labs(y="Surv to Bud Y2", x="Historic Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
@@ -462,7 +462,7 @@ wl2_crosses_2025_summary %>%
   #annotate("text", x = 136.2622, y= 1, label = "WL2", 
   #         colour = "purple", fontface="bold", size = 22 / .pt) +
   theme_classic() + 
-  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1)) + 
   labs(y="Surv to Bud Y2", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
@@ -477,10 +477,10 @@ wl2_crosses_2024_summary %>%
   geom_errorbar(aes(ymin=meanProbFruit-semProbFruit,
                     ymax=meanProbFruit+semProbFruit), width=0, linewidth = 2) +
   geom_point(size=6, aes(shape=Pop.Type)) +
-  annotate("text", x = 0.1600569, y= 0.13, label = "WL2", 
-           colour = "purple", fontface="bold", size = 22 / .pt) +
+  #annotate("text", x = 0.1600569, y= 0.13, label = "WL2", 
+   #        colour = "purple", fontface="bold", size = 22 / .pt) +
   theme_classic() + 
-  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
   labs(y="Probability of \n Reproducing", x="Recent Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
@@ -492,10 +492,10 @@ wl2_crosses_2024_summary %>%
   geom_errorbar(aes(ymin=meanProbFruit-semProbFruit,
                     ymax=meanProbFruit+semProbFruit), width=0, linewidth = 2) +
   geom_point(size=6, aes(shape=Pop.Type)) +
-  annotate("text", x = 0.1600569, y= 0.13, label = "WL2", 
-           colour = "purple", fontface="bold", size = 22 / .pt) +
+  #annotate("text", x = 0.1600569, y= 0.13, label = "WL2", 
+   #        colour = "purple", fontface="bold", size = 22 / .pt) +
   theme_classic() + 
-  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
   labs(y="Probability of \n Reproducing", x="Historic Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
@@ -507,10 +507,10 @@ wl2_crosses_2024_summary %>%
   geom_errorbar(aes(ymin=meanProbFruit-semProbFruit,
                     ymax=meanProbFruit+semProbFruit), width=0, linewidth = 2) +
   geom_point(size=6, aes(shape=Pop.Type)) +
-  annotate("text", x = 136.2622, y= 0.13, label = "WL2", 
-           colour = "purple", fontface="bold", size = 22 / .pt) +
+  #annotate("text", x = 136.2622, y= 0.13, label = "WL2", 
+   #        colour = "purple", fontface="bold", size = 22 / .pt) +
   theme_classic() + 
-  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1)) + 
   labs(y="Probability of \n Reproducing", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
@@ -526,7 +526,7 @@ wl2_crosses_2025_summary %>%
  # annotate("text", x = 0.1600569, y= 0.13, label = "WL2", 
   #         colour = "purple", fontface="bold", size = 22 / .pt) +
   theme_classic() + 
-  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
   labs(y="Probability of \n Reproducing", x="Recent Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
@@ -541,7 +541,7 @@ wl2_crosses_2025_summary %>%
   #annotate("text", x = 0.1600569, y= 0.13, label = "WL2", 
    #        colour = "purple", fontface="bold", size = 22 / .pt) +
   theme_classic() + 
-  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
   labs(y="Probability of \n Reproducing", x="Historic Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
@@ -556,7 +556,7 @@ wl2_crosses_2025_summary %>%
  # annotate("text", x = 136.2622, y= 0.13, label = "WL2", 
        #    colour = "purple", fontface="bold", size = 22 / .pt) +
   theme_classic() + 
-  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1)) + 
   labs(y="Probability of \n Reproducing", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
@@ -571,10 +571,10 @@ wl2_crosses_2024_summary %>%
   geom_errorbar(aes(ymin=meanFruit-semFruit,
                     ymax=meanFruit+semFruit), width=0, linewidth = 2) +
   geom_point(size=6, aes(shape=Pop.Type)) +
-  annotate("text", x = 0.2, y= 17.33333, label = "WL2", 
-           colour = "purple", fontface="bold", size = 22 / .pt) +
+  #annotate("text", x = 0.2, y= 17.33333, label = "WL2", 
+   #        colour = "purple", fontface="bold", size = 22 / .pt) +
   theme_classic() + 
-  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
   labs(y="Fruit Number", x="Recent Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
@@ -586,10 +586,10 @@ wl2_crosses_2024_summary %>%
   geom_errorbar(aes(ymin=meanFruit-semFruit,
                     ymax=meanFruit+semFruit), width=0, linewidth = 2) +
   geom_point(size=6, aes(shape=Pop.Type)) +
-  annotate("text", x = 0.2, y= 17.33333, label = "WL2", 
-           colour = "purple", fontface="bold", size = 22 / .pt) +
+ # annotate("text", x = 0.2, y= 17.33333, label = "WL2", 
+  #         colour = "purple", fontface="bold", size = 22 / .pt) +
   theme_classic() + 
-  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
   labs(y="Fruit Number", x="Historic Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
@@ -601,10 +601,10 @@ wl2_crosses_2024_summary %>%
   geom_errorbar(aes(ymin=meanFruit-semFruit,
                     ymax=meanFruit+semFruit), width=0, linewidth = 2) +
   geom_point(size=6, aes(shape=Pop.Type)) +
-  annotate("text", x = 38000, y= 17.33333, label = "WL2", 
-           colour = "purple", fontface="bold", size = 22 / .pt) +
+  #annotate("text", x = 38000, y= 17.33333, label = "WL2", 
+   #        colour = "purple", fontface="bold", size = 22 / .pt) +
   theme_classic() + 
-  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1)) + 
   labs(y="Fruit Number", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
@@ -620,7 +620,7 @@ wl2_crosses_2025_summary %>%
   #annotate("text", x = 0.2, y= 17.33333, label = "WL2", 
    #        colour = "purple", fontface="bold", size = 22 / .pt) +
   theme_classic() + 
-  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
   labs(y="Fruit Number", x="Recent Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
@@ -635,7 +635,7 @@ wl2_crosses_2025_summary %>%
   #annotate("text", x = 0.2, y= 17.33333, label = "WL2", 
    #        colour = "purple", fontface="bold", size = 22 / .pt) +
   theme_classic() + 
-  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
   labs(y="Fruit Number", x="Historic Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
@@ -650,7 +650,7 @@ wl2_crosses_2025_summary %>%
  # annotate("text", x = 38000, y= 17.33333, label = "WL2", 
   #         colour = "purple", fontface="bold", size = 22 / .pt) +
   theme_classic() + 
-  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1)) + 
   labs(y="Fruit Number", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
@@ -665,10 +665,10 @@ wl2_crosses_2024_summary %>%
   geom_errorbar(aes(ymin=meanTotalFit-semTotalFit,
                     ymax=meanTotalFit+semTotalFit), width=0, linewidth = 2) +
   geom_point(size=6, aes(shape=Pop.Type)) +
-  annotate("text", x = 0.1600569, y= 2.2, label = "WL2", 
-           colour = "purple", fontface="bold", size = 22 / .pt) +
+  #annotate("text", x = 0.1600569, y= 2.2, label = "WL2", 
+   #        colour = "purple", fontface="bold", size = 22 / .pt) +
   theme_classic() + 
-  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
   labs(y="Avg Total Fitness", x="Recent Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
@@ -680,10 +680,10 @@ wl2_crosses_2024_summary %>%
   geom_errorbar(aes(ymin=meanTotalFit-semTotalFit,
                     ymax=meanTotalFit+semTotalFit), width=0, linewidth = 2) +
   geom_point(size=6, aes(shape=Pop.Type)) +
-  annotate("text", x = 0.1600569, y= 2.2, label = "WL2", 
-           colour = "purple", fontface="bold", size = 22 / .pt) +
+  #annotate("text", x = 0.1600569, y= 2.2, label = "WL2", 
+   #        colour = "purple", fontface="bold", size = 22 / .pt) +
   theme_classic() + 
-  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
   labs(y="Avg Total Fitness", x="Historic Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
@@ -695,10 +695,10 @@ wl2_crosses_2024_summary %>%
   geom_errorbar(aes(ymin=meanTotalFit-semTotalFit,
                     ymax=meanTotalFit+semTotalFit), width=0, linewidth = 2) +
   geom_point(size=6, aes(shape=Pop.Type)) +
-  annotate("text", x = 136.2622, y= 2.2, label = "WL2", 
-           colour = "purple", fontface="bold", size = 22 / .pt) +
+ # annotate("text", x = 136.2622, y= 2.2, label = "WL2", 
+  #         colour = "purple", fontface="bold", size = 22 / .pt) +
   theme_classic() + 
-  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1)) + 
   labs(y="Avg Total Fitness", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
@@ -714,7 +714,7 @@ wl2_crosses_2025_summary %>%
   #annotate("text", x = 0.1600569, y= 2.2, label = "WL2", 
  #          colour = "purple", fontface="bold", size = 22 / .pt) +
   theme_classic() + 
-  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
   labs(y="Avg Total Fitness", x="Recent Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
@@ -729,7 +729,7 @@ wl2_crosses_2025_summary %>%
  # annotate("text", x = 0.1600569, y= 2.2, label = "WL2", 
   #         colour = "purple", fontface="bold", size = 22 / .pt) +
   theme_classic() + 
-  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
   labs(y="Avg Total Fitness", x="Historic Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
@@ -744,7 +744,7 @@ wl2_crosses_2025_summary %>%
  # annotate("text", x = 136.2622, y= 2.2, label = "WL2", 
      #      colour = "purple", fontface="bold", size = 22 / .pt) +
   theme_classic() + 
-  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1)) + 
   labs(y="Avg Total Fitness", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
