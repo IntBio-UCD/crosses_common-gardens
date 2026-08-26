@@ -31,11 +31,12 @@ sem <- function(x, na.rm=FALSE) {  #for calculating standard error
 wintsurv_2025_2026 <- read_csv("../input/WL2_2026_Data/CorrectedCSVs/WL2_2026_WinterSurv_corrected.csv")
 unique(wintsurv_2025_2026$death.date) #contains all year 1 info too
 
-surv_2026 <- read_csv("../input/WL2_2026_Data/CorrectedCSVs/WL2_mort_pheno_20260724_corrected.csv") #for surv to budding - need to update this with end of season data
+surv_2026 <- read_csv("../input/WL2_2026_Data/CorrectedCSVs/WL2_mort_pheno_20260820_corrected.csv") %>% 
+  select(-survey.notes)#for surv to budding - need to update this with end of season data
 unique(surv_2026$bud.date)
 
-fruits_2026 <- read_csv("../input/WL2_2026_Data/CorrectedCSVs/WL2_ann_cens_20260731_corrected.csv") #for fruit number - need to update this with end of season data
-unique(fruits_2026$`num. fruit`)
+fruits_2026 <- read_csv("../input/WL2_2026_Data/CorrectedCSVs/WL2_ann_cens_20260820_corrected.csv") %>% 
+  select(-survey.notes) #for fruit number - need to update this with end of season data
 ```
 
 ## Pop Info
@@ -48,7 +49,8 @@ pop_info_2025 <- read_csv("../input/WL2_2025_Data/2025_Pop_Loc_Info Updated.csv"
                           if_else(pop.id=="buffer" | is.na(pop.id), NA,
                                   "Parent"
                           )))) #define different pop types 
-pop_info_2026 <- read_csv("../input/WL2_2026_Data/Buffer New Bed Map_Corrected.csv") %>% rename(rep=Rep, Pop.Type=Type)
+pop_info_2026 <- read_csv("../input/WL2_2026_Data/Buffer New Bed Map_Corrected.csv") %>%
+  rename(rep=Rep, Pop.Type=Type) 
 ```
 
 ## Elevation Info / Climate distance
@@ -101,7 +103,10 @@ y2_fitness <- pop_info_2026 %>%
   filter(status=="2025-survivor") %>% 
   mutate(SurvtoBud=if_else(Unique.ID=="2640", 1, #missed the bud date for this plant but it did reproduce 
                            if_else(!is.na(bud.date), 1, 0))) %>% 
-  select(Unique.ID, pop.id, mf, rep, SurvtoBud, num.fruit=`num. fruit`)
+  select(Unique.ID, pop.id, mf, rep, SurvtoBud, num.fruit)
+
+y2_fitness %>% filter(pop.id=="BH")
+#2615 and 1600 were reproductive in July data, investigate what happened 
 ```
 
 ## Merge y1 and y2 fitness ---\> total fitnes

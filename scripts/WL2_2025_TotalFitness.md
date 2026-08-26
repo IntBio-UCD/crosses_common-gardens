@@ -1,7 +1,7 @@
 ---
 title: "WL2_2025_TotalFitness"
 author: "Brandie QC"
-date: "2026-08-10"
+date: "2026-08-25"
 output: 
   html_document: 
     keep_md: true
@@ -70,19 +70,19 @@ unique(wintsurv_2025_2026$death.date) #contains all year 1 info too
 ```
 
 ``` r
-surv_2026 <- read_csv("../input/WL2_2026_Data/CorrectedCSVs/WL2_mort_pheno_20260724_corrected.csv") #for surv to budding - need to update this with end of season data
+surv_2026 <- read_csv("../input/WL2_2026_Data/CorrectedCSVs/WL2_mort_pheno_20260820_corrected.csv") %>% 
+  select(-survey.notes)#for surv to budding - need to update this with end of season data
 ```
 
 ```
-## New names:
-## Rows: 838 Columns: 12
-## ── Column specification
-## ──────────────────────────────────────────────────────── Delimiter: "," chr
-## (11): bed, col, Unique.ID, bud.date, flower.date, fruit.date, last.FL.da... dbl
-## (1): row
-## ℹ Use `spec()` to retrieve the full column specification for this data. ℹ
-## Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## • `` -> `...12`
+## Rows: 838 Columns: 11
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: ","
+## chr (10): bed, col, Unique.ID, bud.date, flower.date, fruit.date, last.FL.da...
+## dbl  (1): row
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 ```
 
 ``` r
@@ -90,31 +90,24 @@ unique(surv_2026$bud.date)
 ```
 
 ```
-##  [1] NA        "5/28/26" "6/5/26"  "6/10/26" "6/26/26" "6/17/26" "7/2/26" 
-##  [8] "5/28/25" "7/10/26" "6/26/24"
+##  [1] NA        "5/28/26" "6/5/26"  "6/10/26" "6/26/26" "7/31/26" "6/17/26"
+##  [8] "8/13/26" "5/28/25" "7/10/26"
 ```
 
 ``` r
-fruits_2026 <- read_csv("../input/WL2_2026_Data/CorrectedCSVs/WL2_ann_cens_20260731_corrected.csv") #for fruit number - need to update this with end of season data
+fruits_2026 <- read_csv("../input/WL2_2026_Data/CorrectedCSVs/WL2_ann_cens_20260820_corrected.csv") %>% 
+  select(-survey.notes) #for fruit number - need to update this with end of season data
 ```
 
 ```
 ## Rows: 838 Columns: 16
 ## ── Column specification ────────────────────────────────────────────────────────
 ## Delimiter: ","
-## chr (7): bed, col, Unique.ID, phen, survey. date, collected. date, survey.notes
-## dbl (9): row, total. branch, diam. mm, height. cm, overhd .diam, overhd .per...
+## chr (8): bed, col, Unique.ID, phen, num.flw, survey.date, collected.date, su...
+## dbl (8): row, total.branch, diam.mm, height.cm, overhd.diam, overhd.perp, nu...
 ## 
 ## ℹ Use `spec()` to retrieve the full column specification for this data.
 ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-```
-
-``` r
-unique(fruits_2026$`num. fruit`)
-```
-
-```
-##  [1] NA 12 17 32  0  7 11 30  4  2 15 16 10 19 34  3 22 33
 ```
 
 ## Pop Info
@@ -142,7 +135,8 @@ pop_info_2025 <- read_csv("../input/WL2_2025_Data/2025_Pop_Loc_Info Updated.csv"
 ```
 
 ``` r
-pop_info_2026 <- read_csv("../input/WL2_2026_Data/Buffer New Bed Map_Corrected.csv") %>% rename(rep=Rep, Pop.Type=Type)
+pop_info_2026 <- read_csv("../input/WL2_2026_Data/Buffer New Bed Map_Corrected.csv") %>%
+  rename(rep=Rep, Pop.Type=Type) 
 ```
 
 ```
@@ -283,15 +277,15 @@ surv_2026 %>% left_join(pop_info_2026) %>% filter(status=="2025-survivor") %>% f
 ```
 
 ```
-## # A tibble: 2 × 21
+## # A tibble: 3 × 19
 ##   bed     row col   Unique.ID bud.date flower.date fruit.date last.FL.date
 ##   <chr> <dbl> <chr> <chr>     <chr>    <chr>       <chr>      <chr>       
-## 1 C        53 D     2640      <NA>     6/5/26      7/2/26     <NA>        
-## 2 F         4 B     2528      <NA>     <NA>        <NA>       <NA>        
-## # ℹ 13 more variables: last.FR.date <chr>, death.date <chr>,
-## #   survey.notes <chr>, ...12 <chr>, pop.id <chr>, mf <chr>, dame_mf <chr>,
-## #   sire_mf <chr>, rep <dbl>, status <chr>, Pop.Type <chr>, block_2025 <chr>,
-## #   block <chr>
+## 1 C        53 D     2640      <NA>     6/5/26      7/2/26     8/6/26      
+## 2 D        26 D     1600      <NA>     <NA>        <NA>       <NA>        
+## 3 G        31 B     2615      <NA>     <NA>        <NA>       <NA>        
+## # ℹ 11 more variables: last.FR.date <chr>, death.date <chr>, pop.id <chr>,
+## #   mf <chr>, dame_mf <chr>, sire_mf <chr>, rep <dbl>, status <chr>,
+## #   Pop.Type <chr>, block_2025 <chr>, block <chr>
 ```
 
 ``` r
@@ -302,12 +296,29 @@ y2_fitness <- pop_info_2026 %>%
   filter(status=="2025-survivor") %>% 
   mutate(SurvtoBud=if_else(Unique.ID=="2640", 1, #missed the bud date for this plant but it did reproduce 
                            if_else(!is.na(bud.date), 1, 0))) %>% 
-  select(Unique.ID, pop.id, mf, rep, SurvtoBud, num.fruit=`num. fruit`)
+  select(Unique.ID, pop.id, mf, rep, SurvtoBud, num.fruit)
 ```
 
 ```
 ## Joining with `by = join_by(bed, row, col, Unique.ID)`
-## Joining with `by = join_by(bed, row, col, Unique.ID, survey.notes)`
+## Joining with `by = join_by(bed, row, col, Unique.ID)`
+```
+
+``` r
+y2_fitness %>% filter(pop.id=="BH")
+```
+
+```
+## # A tibble: 3 × 6
+##   Unique.ID pop.id mf      rep SurvtoBud num.fruit
+##   <chr>     <chr>  <chr> <dbl>     <dbl>     <dbl>
+## 1 1620      BH     1        21         1        32
+## 2 1600      BH     3         1         0        NA
+## 3 2615      BH     3         2         0        NA
+```
+
+``` r
+#2615 and 1600 were reproductive in July data, investigate what happened 
 ```
 
 ## Merge y1 and y2 fitness ---\> total fitnes
@@ -374,20 +385,20 @@ summary(total_fit_2025plants)
 ##                                        Max.   :96.00   Max.   :1.0000  
 ##                                                                        
 ##      Y1Surv          WintSurv        SurvtoBud        num.fruit    
-##  Min.   :0.0000   Min.   :0.0000   Min.   :0.0000   Min.   : 2.00  
-##  1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:10.75  
-##  Median :1.0000   Median :0.0000   Median :0.0000   Median :15.50  
-##  Mean   :0.7448   Mean   :0.2716   Mean   :0.4921   Mean   :16.42  
+##  Min.   :0.0000   Min.   :0.0000   Min.   :0.0000   Min.   : 0.00  
+##  1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.: 5.00  
+##  Median :1.0000   Median :0.0000   Median :0.0000   Median :12.00  
+##  Mean   :0.7448   Mean   :0.2716   Mean   :0.4841   Mean   :15.67  
 ##  3rd Qu.:1.0000   3rd Qu.:1.0000   3rd Qu.:1.0000   3rd Qu.:22.00  
-##  Max.   :1.0000   Max.   :1.0000   Max.   :1.0000   Max.   :34.00  
-##  NA's   :59       NA's   :218      NA's   :556      NA's   :670    
-##    ProbFruit       TotalFitness    
-##  Min.   :0.0000   Min.   : 0.0000  
-##  1st Qu.:0.0000   1st Qu.: 0.0000  
-##  Median :0.0000   Median : 0.0000  
-##  Mean   :0.0176   Mean   : 0.2889  
-##  3rd Qu.:0.0000   3rd Qu.: 0.0000  
-##  Max.   :1.0000   Max.   :34.0000  
+##  Max.   :1.0000   Max.   :1.0000   Max.   :1.0000   Max.   :69.00  
+##  NA's   :59       NA's   :218      NA's   :556      NA's   :633    
+##    ProbFruit        TotalFitness   
+##  Min.   :0.00000   Min.   : 0.000  
+##  1st Qu.:0.00000   1st Qu.: 0.000  
+##  Median :0.00000   Median : 0.000  
+##  Mean   :0.06891   Mean   : 1.126  
+##  3rd Qu.:0.00000   3rd Qu.: 0.000  
+##  Max.   :1.00000   Max.   :69.000  
 ## 
 ```
 
