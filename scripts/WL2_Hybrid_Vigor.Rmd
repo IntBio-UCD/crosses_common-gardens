@@ -15,4 +15,6 @@ knitr::opts_chunk$set(echo = TRUE)
 
 -   Relationship between heterozygosity of F1s and fitness?
 
+-   Comparison to mid-parent value - convert to a log distance so can easily see which F1s did better or worse than the parents 
+
 All crosses, even those without WL2
