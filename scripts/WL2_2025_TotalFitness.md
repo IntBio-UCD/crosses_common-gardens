@@ -1,7 +1,7 @@
 ---
 title: "WL2_2025_TotalFitness"
 author: "Brandie QC"
-date: "2026-08-25"
+date: "2026-08-27"
 output: 
   html_document: 
     keep_md: true
@@ -91,7 +91,7 @@ unique(surv_2026$bud.date)
 
 ```
 ##  [1] NA        "5/28/26" "6/5/26"  "6/10/26" "6/26/26" "7/31/26" "6/17/26"
-##  [8] "8/13/26" "5/28/25" "7/10/26"
+##  [8] "7/2/26"  "8/13/26" "5/28/25" "7/10/26"
 ```
 
 ``` r
@@ -277,12 +277,10 @@ surv_2026 %>% left_join(pop_info_2026) %>% filter(status=="2025-survivor") %>% f
 ```
 
 ```
-## # A tibble: 3 × 19
+## # A tibble: 1 × 19
 ##   bed     row col   Unique.ID bud.date flower.date fruit.date last.FL.date
 ##   <chr> <dbl> <chr> <chr>     <chr>    <chr>       <chr>      <chr>       
 ## 1 C        53 D     2640      <NA>     6/5/26      7/2/26     8/6/26      
-## 2 D        26 D     1600      <NA>     <NA>        <NA>       <NA>        
-## 3 G        31 B     2615      <NA>     <NA>        <NA>       <NA>        
 ## # ℹ 11 more variables: last.FR.date <chr>, death.date <chr>, pop.id <chr>,
 ## #   mf <chr>, dame_mf <chr>, sire_mf <chr>, rep <dbl>, status <chr>,
 ## #   Pop.Type <chr>, block_2025 <chr>, block <chr>
@@ -302,23 +300,6 @@ y2_fitness <- pop_info_2026 %>%
 ```
 ## Joining with `by = join_by(bed, row, col, Unique.ID)`
 ## Joining with `by = join_by(bed, row, col, Unique.ID)`
-```
-
-``` r
-y2_fitness %>% filter(pop.id=="BH")
-```
-
-```
-## # A tibble: 3 × 6
-##   Unique.ID pop.id mf      rep SurvtoBud num.fruit
-##   <chr>     <chr>  <chr> <dbl>     <dbl>     <dbl>
-## 1 1620      BH     1        21         1        32
-## 2 1600      BH     3         1         0        NA
-## 3 2615      BH     3         2         0        NA
-```
-
-``` r
-#2615 and 1600 were reproductive in July data, investigate what happened 
 ```
 
 ## Merge y1 and y2 fitness ---\> total fitnes
@@ -384,14 +365,14 @@ summary(total_fit_2025plants)
 ##                                        3rd Qu.:18.00   3rd Qu.:1.0000  
 ##                                        Max.   :96.00   Max.   :1.0000  
 ##                                                                        
-##      Y1Surv          WintSurv        SurvtoBud        num.fruit    
-##  Min.   :0.0000   Min.   :0.0000   Min.   :0.0000   Min.   : 0.00  
-##  1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.: 5.00  
-##  Median :1.0000   Median :0.0000   Median :0.0000   Median :12.00  
-##  Mean   :0.7448   Mean   :0.2716   Mean   :0.4841   Mean   :15.67  
-##  3rd Qu.:1.0000   3rd Qu.:1.0000   3rd Qu.:1.0000   3rd Qu.:22.00  
-##  Max.   :1.0000   Max.   :1.0000   Max.   :1.0000   Max.   :69.00  
-##  NA's   :59       NA's   :218      NA's   :556      NA's   :633    
+##      Y1Surv          WintSurv        SurvtoBud     num.fruit    
+##  Min.   :0.0000   Min.   :0.0000   Min.   :0.0   Min.   : 0.00  
+##  1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:0.0   1st Qu.: 5.00  
+##  Median :1.0000   Median :0.0000   Median :0.5   Median :12.00  
+##  Mean   :0.7448   Mean   :0.2716   Mean   :0.5   Mean   :15.67  
+##  3rd Qu.:1.0000   3rd Qu.:1.0000   3rd Qu.:1.0   3rd Qu.:22.00  
+##  Max.   :1.0000   Max.   :1.0000   Max.   :1.0   Max.   :69.00  
+##  NA's   :59       NA's   :218      NA's   :556   NA's   :633    
 ##    ProbFruit        TotalFitness   
 ##  Min.   :0.00000   Min.   : 0.000  
 ##  1st Qu.:0.00000   1st Qu.: 0.000  

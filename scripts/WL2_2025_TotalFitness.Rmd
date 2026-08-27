@@ -104,9 +104,6 @@ y2_fitness <- pop_info_2026 %>%
   mutate(SurvtoBud=if_else(Unique.ID=="2640", 1, #missed the bud date for this plant but it did reproduce 
                            if_else(!is.na(bud.date), 1, 0))) %>% 
   select(Unique.ID, pop.id, mf, rep, SurvtoBud, num.fruit)
-
-y2_fitness %>% filter(pop.id=="BH")
-#2615 and 1600 were reproductive in July data, investigate what happened 
 ```
 
 ## Merge y1 and y2 fitness ---\> total fitnes
