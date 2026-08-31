@@ -103,7 +103,8 @@ ggsave("../output/WL2_Traits/WL2F1s_Map.png", width = 10, height = 10, units = "
 ```{r}
 wintsurv %>%  
   left_join(pop_info_2024) %>% 
-  filter(Pop.Type=="Parent" | Pop.Type=="F1") %>% filter(!is.na(bud.date)) #none of the 2024 plants reproduced (don't need to take into account any annual plants)
+  filter(!str_detect(Pop.Type, "2023")) %>% 
+  filter(!is.na(bud.date)) #none of the 2024 plants reproduced (don't need to take into account any annual plants)
 
 y1_fitness <- wintsurv %>% 
   select(bed:unique.ID, bud.date, death.date, missing.date, survey.notes) %>% 
@@ -141,8 +142,9 @@ y2_fitness <- pop_info_2025 %>%
                                   "Parent"
                           ))) %>% 
   #filter(Pop.Type!="F2") %>% #remove F2s
-  mutate(SurvtoBud=if_else(!is.na(bud.date), 1, 0)) %>% 
-  select(unique.ID=Unique.ID, Pop.Type, pop=pop.id, mf, rep, SurvtoBud, num.fruit)
+  mutate(SurvtoBud=if_else(!is.na(bud.date), 1, 0),
+         LifeHistory = if_else(SurvtoBud==1, "Biennial", NA)) %>% #no annuals, so all rep indivs in 2025 are biennials (398 survived a second winter, but died in early summer 2026)
+  select(unique.ID=Unique.ID, Pop.Type, pop=pop.id, mf, rep, LifeHistory, SurvtoBud, num.fruit)
 
 #checked fruiting of plants planted in 2025
 fruits_2025 %>% left_join(pop_info_2025) %>% 

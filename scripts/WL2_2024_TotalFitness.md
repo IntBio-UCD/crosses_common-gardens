@@ -1,7 +1,7 @@
 ---
 title: "WL2_2024_TotalFitness"
 author: "Brandie QC"
-date: "2026-08-10"
+date: "2026-08-31"
 output: 
   html_document: 
     keep_md: true
@@ -276,7 +276,8 @@ ggsave("../output/WL2_Traits/WL2F1s_Map.png", width = 10, height = 10, units = "
 ``` r
 wintsurv %>%  
   left_join(pop_info_2024) %>% 
-  filter(Pop.Type=="Parent" | Pop.Type=="F1") %>% filter(!is.na(bud.date)) #none of the 2024 plants reproduced (don't need to take into account any annual plants)
+  filter(!str_detect(Pop.Type, "2023")) %>% 
+  filter(!is.na(bud.date)) #none of the 2024 plants reproduced (don't need to take into account any annual plants)
 ```
 
 ```
@@ -368,8 +369,9 @@ y2_fitness <- pop_info_2025 %>%
                                   "Parent"
                           ))) %>% 
   #filter(Pop.Type!="F2") %>% #remove F2s
-  mutate(SurvtoBud=if_else(!is.na(bud.date), 1, 0)) %>% 
-  select(unique.ID=Unique.ID, Pop.Type, pop=pop.id, mf, rep, SurvtoBud, num.fruit)
+  mutate(SurvtoBud=if_else(!is.na(bud.date), 1, 0),
+         LifeHistory = if_else(SurvtoBud==1, "Biennial", NA)) %>% #no annuals, so all rep indivs in 2025 are biennials (398 survived a second winter, but died in early summer 2026)
+  select(unique.ID=Unique.ID, Pop.Type, pop=pop.id, mf, rep, LifeHistory, SurvtoBud, num.fruit)
 ```
 
 ```
@@ -457,7 +459,7 @@ head(total_fit_2024plants_noF2s)
 ```
 
 ```
-## # A tibble: 6 × 33
+## # A tibble: 6 × 34
 ##   loc    bed     row col   unique.ID Pop.Type pop      dame_pop sire_pop   rep
 ##   <chr>  <chr> <dbl> <chr> <chr>     <chr>    <chr>    <chr>    <chr>    <dbl>
 ## 1 C_5_A  C         5 A     540       Parent   TM2      TM2      TM2         70
@@ -466,13 +468,13 @@ head(total_fit_2024plants_noF2s)
 ## 4 C_11_A C        11 A     479       Parent   TM2      TM2      TM2          9
 ## 5 C_12_A C        12 A     199       F1       WV x TM2 WV       TM2          7
 ## 6 C_14_A C        14 A     98        Parent   WL2      WL2      WL2          3
-## # ℹ 23 more variables: Establishment <dbl>, Y1Surv <dbl>, WintSurv <dbl>,
-## #   SurvtoBud <dbl>, num.fruit <dbl>, ProbFruit <dbl>, TotalFitness <dbl>,
-## #   dame_elev <dbl>, dame_Lat <dbl>, dame_Long <dbl>, dame_GeoDist <dbl>,
-## #   dame_GD_Recent <dbl>, dame_GD_Historic <dbl>, sire_elev <dbl>,
-## #   sire_Lat <dbl>, sire_Long <dbl>, sire_GeoDist <dbl>, sire_GD_Recent <dbl>,
-## #   sire_GD_Historic <dbl>, meanElev <dbl>, meanGeoDist <dbl>,
-## #   mean_GD_Recent <dbl>, mean_GD_Historic <dbl>
+## # ℹ 24 more variables: Establishment <dbl>, Y1Surv <dbl>, WintSurv <dbl>,
+## #   LifeHistory <chr>, SurvtoBud <dbl>, num.fruit <dbl>, ProbFruit <dbl>,
+## #   TotalFitness <dbl>, dame_elev <dbl>, dame_Lat <dbl>, dame_Long <dbl>,
+## #   dame_GeoDist <dbl>, dame_GD_Recent <dbl>, dame_GD_Historic <dbl>,
+## #   sire_elev <dbl>, sire_Lat <dbl>, sire_Long <dbl>, sire_GeoDist <dbl>,
+## #   sire_GD_Recent <dbl>, sire_GD_Historic <dbl>, meanElev <dbl>,
+## #   meanGeoDist <dbl>, mean_GD_Recent <dbl>, mean_GD_Historic <dbl>
 ```
 
 ## Means
