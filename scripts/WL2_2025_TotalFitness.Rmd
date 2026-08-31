@@ -15,6 +15,10 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Takes into account 2025 and 2026 data
 
+To Do:
+
+-   Need to check ann cens 2025 for 3 potential iteroparous indivs
+
 ## Libraries
 
 ```{r}
@@ -23,13 +27,18 @@ library(tidyverse)
 sem <- function(x, na.rm=FALSE) {  #for calculating standard error
   sd(x,na.rm=na.rm)/sqrt(length(na.omit(x)))
 } 
+
+cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 ```
 
 ## Read in data
 
 ```{r}
 wintsurv_2025_2026 <- read_csv("../input/WL2_2026_Data/CorrectedCSVs/WL2_2026_WinterSurv_corrected.csv")
-unique(wintsurv_2025_2026$death.date) #contains all year 1 info too
+unique(wintsurv_2025_2026$death.date) #contains all year 1 death info too
+unique(wintsurv_2025_2026$bud.date) #no 2025 rep info 
+
+rep_2025 <- read_csv("../input/WL2_2025_Data/CorrectedCSVs/WL2_mort_pheno_20250929_corrected.csv") %>% select(-survey.notes, -death.date) #for 2025 rep info
 
 surv_2026 <- read_csv("../input/WL2_2026_Data/CorrectedCSVs/WL2_mort_pheno_20260820_corrected.csv") %>% 
   select(-survey.notes)#for surv to budding - need to update this with end of season data
@@ -67,16 +76,17 @@ clim_dist_2025_wide <- clim_dist_2025 %>%
 ## Calculate y1 fitness and remove plants not planted in 2025
 
 ```{r}
-wintsurv_2025_2026 %>%  
+rep_2025 %>% 
   left_join(pop_info_2025) %>% 
-  filter(status=="available") %>% filter(!is.na(bud.date)) #some plants flowering at wint surv check 
+  filter(status=="available") %>% filter(!is.na(bud.date)) #39 annuals 
 
 y1_fitness <- wintsurv_2025_2026 %>% 
-  select(bed:Unique.ID, bud.date, death.date, survey.notes) %>% 
-  left_join(pop_info_2025) %>% 
+  select(bed:Unique.ID, death.date, survey.notes) %>% 
+  left_join(rep_2025) %>% #merge in 2025 rep info 
   filter(Unique.ID != "buffer") %>% #remove buffers
+  left_join(pop_info_2025) %>% 
   filter(status=="available") %>%  #keep only plants planted in 2025
-  select(block, bed:Unique.ID, Pop.Type, pop.id:rep, bud.date:death.date) %>% 
+  select(block, bed:Unique.ID, Pop.Type, pop.id:rep, bud.date, death.date) %>% 
   filter(Unique.ID!="2605", Unique.ID!="1950",
          Unique.ID!="1675") %>% #remove plants that were dead at planting 
   mutate(death.date=mdy(death.date)) %>% #convert to date format 
@@ -86,15 +96,26 @@ y1_fitness <- wintsurv_2025_2026 %>%
                           if_else(is.na(death.date), 1, 
                                         if_else(death.date < "2025-11-01", 0, 1))), #year 1 ended in Oct
          WintSurv = if_else(Establishment==0 | Y1Surv==0, NA, #can only have wint surv if survived y1 
-                            if_else(is.na(death.date), 1, 0))) 
+                            if_else(is.na(death.date), 1, 0)),
+         LifeHistory=if_else(!is.na(bud.date) & Y1Surv==0, "Annual",
+                             if_else(!is.na(bud.date) & WintSurv==0, "Annual",
+                             if_else(!is.na(bud.date), "TBD", "Non-Rep"))))
 
 y1_fitness %>% filter(WintSurv==1) #126 plants survived the winter 
+y1_fitness %>% filter(LifeHistory=="Annual") #looks correct
+y1_fitness %>% filter(LifeHistory=="TBD") #all 3 have bud dates of Sept - need to pull in ann cens from 2025 to figure out if they were successful in 2025
 ```
 
 ## Calculate y2 fitness and remove plants not planted in 2025
 
 ```{r}
-surv_2026 %>% left_join(pop_info_2026) %>% filter(status=="2025-survivor") %>% filter(is.na(death.date)) %>% filter(is.na(bud.date)) #1 2025 plant alive that has not reproduced yet 
+surv_2026 %>% left_join(pop_info_2026) %>% 
+  filter(status=="2025-survivor") %>% filter(is.na(death.date)) %>% 
+  filter(is.na(bud.date)) #no 2025 plant alive that have not reproduced yet
+surv_2026 %>% filter(is.na(bud.date)) %>% filter(!is.na(death.date)) %>% left_join(pop_info_2026) %>% 
+  filter(status=="2025-survivor") #63 2025 plants died before reproducing 
+
+pop_info_2026 %>% filter(status=="2025-survivor") %>% filter(!str_detect(pop.id, "\\(")) %>% select(pop.id) %>% distinct()
 
 y2_fitness <- pop_info_2026 %>% 
   left_join(surv_2026) %>% 
@@ -111,21 +132,71 @@ y2_fitness <- pop_info_2026 %>%
 ```{r}
 total_fit_2025plants <- y1_fitness %>% 
   select(-bud.date, -death.date) %>% 
-  #mutate(mf=as.character(mf)) %>% #needed for the merge
   left_join(y2_fitness) %>% 
-  mutate(ProbFruit=if_else(is.na(num.fruit) | num.fruit==0, 0, 1),
+  mutate(LifeHistory=if_else(LifeHistory!="Non-Rep", LifeHistory, #if annual or TBD keep that
+                             if_else(is.na(SurvtoBud) | SurvtoBud==0, "Non-Rep", "Biennial")),
+         ProbFruit=if_else(is.na(num.fruit) | num.fruit==0, 0, 1),
          TotalFitness=if_else(ProbFruit==0, 0, num.fruit))
   
 head(total_fit_2025plants)
 summary(total_fit_2025plants)
 write_csv(total_fit_2025plants, "../output/WL2_Traits/WL2_2025_AllFitness.csv")
+
+total_fit_2025plants %>% filter(LifeHistory=="Biennial") #looks correct 
+```
+
+## Life History Figures
+```{r}
+total_fit_2025plants %>% 
+  group_by(Pop.Type, LifeHistory) %>% 
+  summarise(n=n()) %>% 
+  ggplot(aes(x=Pop.Type, y=n, group=LifeHistory, fill=LifeHistory)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  labs(x="# of Individuals") +
+  theme_classic() +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_fill_manual(values=cbPalette)
+
+total_fit_2025plants %>% 
+  ggplot(aes(x=Pop.Type, fill=LifeHistory)) +
+  geom_bar(width = 0.7) +
+  scale_fill_manual(values=cbPalette)
+
+total_fit_2025plants %>% 
+  ggplot(aes(x=Pop.Type, fill=LifeHistory)) +
+  geom_bar(position = "fill", width = 0.7) +
+  scale_fill_manual(values=cbPalette) +
+  labs(y="% of Indivs")
+
+total_fit_2025plants %>% 
+  filter(WintSurv==1) %>% 
+  ggplot(aes(x=Pop.Type, fill=LifeHistory)) +
+  geom_bar(position = "fill", width = 0.7) +
+  scale_fill_manual(values=cbPalette) +
+  labs(y="% of Indivs that Survived to 2026")
+
+total_fit_2025plants %>% 
+  filter(LifeHistory!="Non-Rep") %>% 
+  ggplot(aes(x=Pop.Type, fill=LifeHistory)) +
+  geom_bar(position = "fill", width = 0.7) +
+  scale_fill_manual(values=cbPalette) +
+  labs(y="% of Rep Indivs")
+
+total_fit_2025plants %>% 
+  filter(LifeHistory!="Non-Rep") %>% 
+  filter(Pop.Type!="F2") %>% 
+  ggplot(aes(x=pop.id, fill=LifeHistory)) +
+  geom_bar(position = "fill", width = 0.7) +
+  scale_fill_manual(values=cbPalette) +
+  labs(y="% of Rep Indivs") #variation in TM2 and TM2 x WL2 but not WL2 x TM2
+
 ```
 
 ## Means
 
 ```{r}
 total_fit_2025plants_summary <- total_fit_2025plants %>% 
-  group_by(Pop.Type, pop.id) %>% 
+  group_by(Pop.Type, LifeHistory, pop.id) %>% 
   summarise(meanEst=mean(Establishment, na.rm=TRUE), semEst=sem(Establishment, na.rm = TRUE),
             meanY1Surv=mean(Y1Surv, na.rm=TRUE), semY1Surv=sem(Y1Surv, na.rm = TRUE),
             meanWintSurv=mean(WintSurv, na.rm=TRUE), semWintSurv=sem(WintSurv, na.rm = TRUE),
