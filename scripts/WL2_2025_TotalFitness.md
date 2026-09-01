@@ -15,7 +15,7 @@ Takes into account 2025 and 2026 data
 
 To Do:
 
--   Need to check ann cens 2025 for 3 potential iteroparous indivs
+-   Need to decide on 3 potential iteroparous indivs (attempt rep enough or need to be successful)
 
 ## Libraries
 
@@ -97,6 +97,21 @@ rep_2025 <- read_csv("../input/WL2_2025_Data/CorrectedCSVs/WL2_mort_pheno_202509
 ## ℹ Use `spec()` to retrieve the full column specification for this data. ℹ
 ## Specify the column types or set `show_col_types = FALSE` to quiet this message.
 ## • `` -> `...13`
+```
+
+``` r
+fruits_2025 <- read_csv("../input/WL2_2025_Data/CorrectedCSVs/WL2_ann_cens_20251028_corrected.csv") %>% select(-survey.notes) #for 2025 rep info
+```
+
+```
+## Rows: 972 Columns: 16
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: ","
+## chr (7): bed, col, Unique.ID, phen, survey.date, collected.date, survey.notes
+## dbl (9): row, total.branch, diam.mm, height.cm, overhd.diam, overhd.perp, nu...
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 ```
 
 ``` r
@@ -258,11 +273,12 @@ rep_2025 %>%
 ``` r
 y1_fitness <- wintsurv_2025_2026 %>% 
   select(bed:Unique.ID, death.date, survey.notes) %>% 
-  left_join(rep_2025) %>% #merge in 2025 rep info 
+  left_join(rep_2025) %>% #merge in 2025 rep dates info 
+  left_join(fruits_2025) %>% #merge in fruit numbers
   filter(Unique.ID != "buffer") %>% #remove buffers
   left_join(pop_info_2025) %>% 
   filter(status=="available") %>%  #keep only plants planted in 2025
-  select(block, bed:Unique.ID, Pop.Type, pop.id:rep, bud.date, death.date) %>% 
+  select(block, bed:Unique.ID, Pop.Type, pop.id:rep, bud.date, FruitsY1=num.fruit, death.date) %>% 
   filter(Unique.ID!="2605", Unique.ID!="1950",
          Unique.ID!="1675") %>% #remove plants that were dead at planting 
   mutate(death.date=mdy(death.date)) %>% #convert to date format 
@@ -273,12 +289,14 @@ y1_fitness <- wintsurv_2025_2026 %>%
                                         if_else(death.date < "2025-11-01", 0, 1))), #year 1 ended in Oct
          WintSurv = if_else(Establishment==0 | Y1Surv==0, NA, #can only have wint surv if survived y1 
                             if_else(is.na(death.date), 1, 0)),
+         FruitsY1=if_else(is.na(FruitsY1) | FruitsY1==0, NA, FruitsY1),
          LifeHistory=if_else(!is.na(bud.date) & Y1Surv==0, "Annual",
                              if_else(!is.na(bud.date) & WintSurv==0, "Annual",
                              if_else(!is.na(bud.date), "TBD", "Non-Rep"))))
 ```
 
 ```
+## Joining with `by = join_by(bed, row, col, Unique.ID)`
 ## Joining with `by = join_by(bed, row, col, Unique.ID)`
 ## Joining with `by = join_by(bed, row, col, Unique.ID)`
 ```
@@ -288,7 +306,7 @@ y1_fitness %>% filter(WintSurv==1) #126 plants survived the winter
 ```
 
 ```
-## # A tibble: 126 × 17
+## # A tibble: 126 × 18
 ##    block bed     row col   Unique.ID Pop.Type pop.id mf    dame_mf sire_mf   rep
 ##    <chr> <chr> <dbl> <chr> <chr>     <chr>    <chr>  <chr> <chr>   <chr>   <dbl>
 ##  1 A     C         7 B     2095      F2       (SQ3 … 3_13… 3       13-B        4
@@ -302,8 +320,8 @@ y1_fitness %>% filter(WintSurv==1) #126 plants survived the winter
 ##  9 C     C        44 B     2169      F2       (TM2)… 2-1_2 1-Feb   2           1
 ## 10 C     C        45 B     2328      F2       (WL2)… 3-14… 14-Mar  2          13
 ## # ℹ 116 more rows
-## # ℹ 6 more variables: bud.date <chr>, death.date <date>, Establishment <dbl>,
-## #   Y1Surv <dbl>, WintSurv <dbl>, LifeHistory <chr>
+## # ℹ 7 more variables: bud.date <chr>, FruitsY1 <dbl>, death.date <date>,
+## #   Establishment <dbl>, Y1Surv <dbl>, WintSurv <dbl>, LifeHistory <chr>
 ```
 
 ``` r
@@ -311,7 +329,7 @@ y1_fitness %>% filter(LifeHistory=="Annual") #looks correct
 ```
 
 ```
-## # A tibble: 36 × 17
+## # A tibble: 36 × 18
 ##    block bed     row col   Unique.ID Pop.Type pop.id mf    dame_mf sire_mf   rep
 ##    <chr> <chr> <dbl> <chr> <chr>     <chr>    <chr>  <chr> <chr>   <chr>   <dbl>
 ##  1 B     C        28 B     2557      F2       (WV x… 3_1   3       1           1
@@ -325,23 +343,23 @@ y1_fitness %>% filter(LifeHistory=="Annual") #looks correct
 ##  9 D     D         9 B     2320      F2       (WL2)… 3-14… 14-Mar  2           5
 ## 10 F     D        30 B     1760      Parent   TM2    7     7       <NA>       56
 ## # ℹ 26 more rows
-## # ℹ 6 more variables: bud.date <chr>, death.date <date>, Establishment <dbl>,
-## #   Y1Surv <dbl>, WintSurv <dbl>, LifeHistory <chr>
+## # ℹ 7 more variables: bud.date <chr>, FruitsY1 <dbl>, death.date <date>,
+## #   Establishment <dbl>, Y1Surv <dbl>, WintSurv <dbl>, LifeHistory <chr>
 ```
 
 ``` r
-y1_fitness %>% filter(LifeHistory=="TBD") #all 3 have bud dates of Sept - need to pull in ann cens from 2025 to figure out if they were successful in 2025
+y1_fitness %>% filter(LifeHistory=="TBD") #all 3 have bud dates of Sept - only 1 has a fruit count 
 ```
 
 ```
-## # A tibble: 3 × 17
+## # A tibble: 3 × 18
 ##   block bed     row col   Unique.ID Pop.Type pop.id  mf    dame_mf sire_mf   rep
 ##   <chr> <chr> <dbl> <chr> <chr>     <chr>    <chr>   <chr> <chr>   <chr>   <dbl>
 ## 1 F     D        38 A     1774      Parent   TM2     9     9       <NA>       70
 ## 2 K     F        20 C     2262      F2       (WL2 x… 2_1-3 2       3-Jan      24
 ## 3 L     G         5 C     2083      F2       (DPR x… 3_2   3       2           6
-## # ℹ 6 more variables: bud.date <chr>, death.date <date>, Establishment <dbl>,
-## #   Y1Surv <dbl>, WintSurv <dbl>, LifeHistory <chr>
+## # ℹ 7 more variables: bud.date <chr>, FruitsY1 <dbl>, death.date <date>,
+## #   Establishment <dbl>, Y1Surv <dbl>, WintSurv <dbl>, LifeHistory <chr>
 ```
 
 ## Calculate y2 fitness and remove plants not planted in 2025
@@ -396,36 +414,6 @@ surv_2026 %>% filter(is.na(bud.date)) %>% filter(!is.na(death.date)) %>% left_jo
 ```
 
 ``` r
-pop_info_2026 %>% filter(status=="2025-survivor") %>% filter(!str_detect(pop.id, "\\(")) %>% select(pop.id) %>% distinct()
-```
-
-```
-## # A tibble: 20 × 1
-##    pop.id    
-##    <chr>     
-##  1 TM2       
-##  2 BH        
-##  3 DPR x WL2 
-##  4 SQ3 x WL2 
-##  5 WL2       
-##  6 WL1       
-##  7 WL2 x TM2 
-##  8 WL1 x WL2 
-##  9 WL2 x YO11
-## 10 TM2 x WL2 
-## 11 WL2 x DPR 
-## 12 BH x WL2  
-## 13 WL2 x SQ3 
-## 14 SQ3       
-## 15 YO11      
-## 16 WL2 x WV  
-## 17 WL2 x LV1 
-## 18 LV1 x WL2 
-## 19 WV        
-## 20 CC
-```
-
-``` r
 y2_fitness <- pop_info_2026 %>% 
   left_join(surv_2026) %>% 
   left_join(fruits_2026) %>% 
@@ -433,7 +421,7 @@ y2_fitness <- pop_info_2026 %>%
   filter(status=="2025-survivor") %>% 
   mutate(SurvtoBud=if_else(Unique.ID=="2640", 1, #missed the bud date for this plant but it did reproduce 
                            if_else(!is.na(bud.date), 1, 0))) %>% 
-  select(Unique.ID, pop.id, mf, rep, SurvtoBud, num.fruit)
+  select(Unique.ID, pop.id, mf, rep, SurvtoBud, FruitsY2=num.fruit)
 ```
 
 ```
@@ -450,8 +438,9 @@ total_fit_2025plants <- y1_fitness %>%
   left_join(y2_fitness) %>% 
   mutate(LifeHistory=if_else(LifeHistory!="Non-Rep", LifeHistory, #if annual or TBD keep that
                              if_else(is.na(SurvtoBud) | SurvtoBud==0, "Non-Rep", "Biennial")),
-         ProbFruit=if_else(is.na(num.fruit) | num.fruit==0, 0, 1),
-         TotalFitness=if_else(ProbFruit==0, 0, num.fruit))
+         TotalFruit=rowSums(pick(FruitsY1, FruitsY2), na.rm = TRUE),
+         ProbFruit=if_else(is.na(TotalFruit) | TotalFruit==0, 0, 1),
+         TotalFitness=if_else(ProbFruit==0, 0, TotalFruit))
 ```
 
 ```
@@ -463,7 +452,7 @@ head(total_fit_2025plants)
 ```
 
 ```
-## # A tibble: 6 × 19
+## # A tibble: 6 × 21
 ##   block bed     row col   Unique.ID Pop.Type pop.id  mf    dame_mf sire_mf   rep
 ##   <chr> <chr> <dbl> <chr> <chr>     <chr>    <chr>   <chr> <chr>   <chr>   <dbl>
 ## 1 A     C         4 A     2566      F2       (WV x … 2_2   2       2           7
@@ -472,9 +461,9 @@ head(total_fit_2025plants)
 ## 4 A     C         6 A     2509      F2       (WL2 x… 1_2   1       2           1
 ## 5 A     C         6 B     2549      F2       (WL2 x… 1_1   1       1           4
 ## 6 A     C         7 A     2452      F2       (WL2 x… 2-3_… 3-Feb   3-Feb       8
-## # ℹ 8 more variables: Establishment <dbl>, Y1Surv <dbl>, WintSurv <dbl>,
-## #   LifeHistory <chr>, SurvtoBud <dbl>, num.fruit <dbl>, ProbFruit <dbl>,
-## #   TotalFitness <dbl>
+## # ℹ 10 more variables: FruitsY1 <dbl>, Establishment <dbl>, Y1Surv <dbl>,
+## #   WintSurv <dbl>, LifeHistory <chr>, SurvtoBud <dbl>, FruitsY2 <dbl>,
+## #   TotalFruit <dbl>, ProbFruit <dbl>, TotalFitness <dbl>
 ```
 
 ``` r
@@ -498,30 +487,38 @@ summary(total_fit_2025plants)
 ##                                                                             
 ##                                                                             
 ##                                                                             
-##    dame_mf            sire_mf               rep        Establishment   
-##  Length:682         Length:682         Min.   : 1.00   Min.   :0.0000  
-##  Class :character   Class :character   1st Qu.: 3.00   1st Qu.:1.0000  
-##  Mode  :character   Mode  :character   Median : 7.00   Median :1.0000  
-##                                        Mean   :15.67   Mean   :0.9135  
-##                                        3rd Qu.:18.00   3rd Qu.:1.0000  
-##                                        Max.   :96.00   Max.   :1.0000  
-##                                                                        
-##      Y1Surv          WintSurv      LifeHistory          SurvtoBud  
-##  Min.   :0.0000   Min.   :0.0000   Length:682         Min.   :0.0  
-##  1st Qu.:0.0000   1st Qu.:0.0000   Class :character   1st Qu.:0.0  
-##  Median :1.0000   Median :0.0000   Mode  :character   Median :0.5  
-##  Mean   :0.7448   Mean   :0.2716                      Mean   :0.5  
-##  3rd Qu.:1.0000   3rd Qu.:1.0000                      3rd Qu.:1.0  
-##  Max.   :1.0000   Max.   :1.0000                      Max.   :1.0  
-##  NA's   :59       NA's   :218                         NA's   :556  
-##    num.fruit       ProbFruit        TotalFitness   
-##  Min.   : 0.00   Min.   :0.00000   Min.   : 0.000  
-##  1st Qu.: 5.00   1st Qu.:0.00000   1st Qu.: 0.000  
-##  Median :12.00   Median :0.00000   Median : 0.000  
-##  Mean   :15.67   Mean   :0.06891   Mean   : 1.126  
-##  3rd Qu.:22.00   3rd Qu.:0.00000   3rd Qu.: 0.000  
-##  Max.   :69.00   Max.   :1.00000   Max.   :69.000  
-##  NA's   :633
+##    dame_mf            sire_mf               rep           FruitsY1     
+##  Length:682         Length:682         Min.   : 1.00   Min.   : 1.000  
+##  Class :character   Class :character   1st Qu.: 3.00   1st Qu.: 2.000  
+##  Mode  :character   Mode  :character   Median : 7.00   Median : 4.500  
+##                                        Mean   :15.67   Mean   : 4.812  
+##                                        3rd Qu.:18.00   3rd Qu.: 6.250  
+##                                        Max.   :96.00   Max.   :14.000  
+##                                                        NA's   :650     
+##  Establishment        Y1Surv          WintSurv      LifeHistory       
+##  Min.   :0.0000   Min.   :0.0000   Min.   :0.0000   Length:682        
+##  1st Qu.:1.0000   1st Qu.:0.0000   1st Qu.:0.0000   Class :character  
+##  Median :1.0000   Median :1.0000   Median :0.0000   Mode  :character  
+##  Mean   :0.9135   Mean   :0.7448   Mean   :0.2716                     
+##  3rd Qu.:1.0000   3rd Qu.:1.0000   3rd Qu.:1.0000                     
+##  Max.   :1.0000   Max.   :1.0000   Max.   :1.0000                     
+##                   NA's   :59       NA's   :218                        
+##    SurvtoBud      FruitsY2       TotalFruit       ProbFruit     
+##  Min.   :0.0   Min.   : 0.00   Min.   : 0.000   Min.   :0.0000  
+##  1st Qu.:0.0   1st Qu.: 5.00   1st Qu.: 0.000   1st Qu.:0.0000  
+##  Median :0.5   Median :12.00   Median : 0.000   Median :0.0000  
+##  Mean   :0.5   Mean   :15.67   Mean   : 1.352   Mean   :0.1144  
+##  3rd Qu.:1.0   3rd Qu.:22.00   3rd Qu.: 0.000   3rd Qu.:0.0000  
+##  Max.   :1.0   Max.   :69.00   Max.   :69.000   Max.   :1.0000  
+##  NA's   :556   NA's   :633                                      
+##   TotalFitness   
+##  Min.   : 0.000  
+##  1st Qu.: 0.000  
+##  Median : 0.000  
+##  Mean   : 1.352  
+##  3rd Qu.: 0.000  
+##  Max.   :69.000  
+## 
 ```
 
 ``` r
@@ -531,7 +528,7 @@ total_fit_2025plants %>% filter(LifeHistory=="Biennial") #looks correct
 ```
 
 ```
-## # A tibble: 60 × 19
+## # A tibble: 60 × 21
 ##    block bed     row col   Unique.ID Pop.Type pop.id mf    dame_mf sire_mf   rep
 ##    <chr> <chr> <dbl> <chr> <chr>     <chr>    <chr>  <chr> <chr>   <chr>   <dbl>
 ##  1 B     C        34 A     1745      Parent   TM2    5     5       <NA>       41
@@ -545,9 +542,9 @@ total_fit_2025plants %>% filter(LifeHistory=="Biennial") #looks correct
 ##  9 D     C        56 B     2173      F2       (TM2)… 2-1_2 1-Feb   2           5
 ## 10 A     C         7 D     2419      F1       SQ3 x… 6-C_… 6-C     8-A         3
 ## # ℹ 50 more rows
-## # ℹ 8 more variables: Establishment <dbl>, Y1Surv <dbl>, WintSurv <dbl>,
-## #   LifeHistory <chr>, SurvtoBud <dbl>, num.fruit <dbl>, ProbFruit <dbl>,
-## #   TotalFitness <dbl>
+## # ℹ 10 more variables: FruitsY1 <dbl>, Establishment <dbl>, Y1Surv <dbl>,
+## #   WintSurv <dbl>, LifeHistory <chr>, SurvtoBud <dbl>, FruitsY2 <dbl>,
+## #   TotalFruit <dbl>, ProbFruit <dbl>, TotalFitness <dbl>
 ```
 
 ## Life History Figures
@@ -628,28 +625,100 @@ total_fit_2025plants %>%
 
 ![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-8-6.png)<!-- -->
 
+``` r
+total_fit_2025plants %>% 
+  filter(LifeHistory!="Non-Rep") %>% 
+  filter(Pop.Type=="F2") %>% 
+  filter(str_detect(pop.id, "TM2")) %>% 
+  ggplot(aes(x=pop.id, fill=LifeHistory)) +
+  geom_bar(position = "fill", width = 0.7) +
+  scale_fill_manual(values=cbPalette) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(y="% of Rep Indivs") #lots of variation in F2s
+```
+
+![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-8-7.png)<!-- -->
+
+## Life History and Fruit #
+
+``` r
+total_fit_2025plants %>% 
+  filter(LifeHistory!="Non-Rep") %>% 
+  group_by(Pop.Type, LifeHistory) %>% 
+  summarise(meanFruit=mean(TotalFruit, na.rm=TRUE), semFruit=sem(TotalFruit, na.rm = TRUE)) %>% 
+  ggplot(aes(x=Pop.Type, y=meanFruit, group = LifeHistory, fill=LifeHistory)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  geom_errorbar(aes(ymin=meanFruit-semFruit,
+                    ymax=meanFruit+semFruit),width=.2, 
+                position =position_dodge(0.75)) +
+  theme_classic() +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_fill_manual(values=cbPalette)
+```
+
+```
+## `summarise()` has regrouped the output.
+## ℹ Summaries were computed grouped by Pop.Type and LifeHistory.
+## ℹ Output is grouped by Pop.Type.
+## ℹ Use `summarise(.groups = "drop_last")` to silence this message.
+## ℹ Use `summarise(.by = c(Pop.Type, LifeHistory))` for per-operation grouping
+##   (`?dplyr::dplyr_by`) instead.
+```
+
+![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-9-1.png)<!-- -->
+
+``` r
+ggsave("../output/WL2_Traits/WL22025_PopType-LifeHist-Fruits.png", width = 12, height = 6, units = "in")
+
+total_fit_2025plants %>% 
+  filter(str_detect(pop.id, "TM2") | pop.id=="WL2") %>% 
+  filter(Pop.Type!="F2") %>% 
+  filter(LifeHistory!="Non-Rep") %>% 
+  group_by(pop.id, LifeHistory) %>% 
+  summarise(meanFruit=mean(TotalFruit, na.rm=TRUE), semFruit=sem(TotalFruit, na.rm = TRUE)) %>% 
+  ggplot(aes(x=pop.id, y=meanFruit, group = LifeHistory, fill=LifeHistory)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  geom_errorbar(aes(ymin=meanFruit-semFruit,
+                    ymax=meanFruit+semFruit),width=.2, 
+                position =position_dodge(0.75)) +
+  theme_classic() +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_fill_manual(values=cbPalette)
+```
+
+```
+## `summarise()` has regrouped the output.
+## ℹ Summaries were computed grouped by pop.id and LifeHistory.
+## ℹ Output is grouped by pop.id.
+## ℹ Use `summarise(.groups = "drop_last")` to silence this message.
+## ℹ Use `summarise(.by = c(pop.id, LifeHistory))` for per-operation grouping
+##   (`?dplyr::dplyr_by`) instead.
+```
+
+![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-9-2.png)<!-- -->
+
 ## Means
 
 
 ``` r
 total_fit_2025plants_summary <- total_fit_2025plants %>% 
-  group_by(Pop.Type, LifeHistory, pop.id) %>% 
+  group_by(Pop.Type, pop.id) %>% 
   summarise(meanEst=mean(Establishment, na.rm=TRUE), semEst=sem(Establishment, na.rm = TRUE),
             meanY1Surv=mean(Y1Surv, na.rm=TRUE), semY1Surv=sem(Y1Surv, na.rm = TRUE),
             meanWintSurv=mean(WintSurv, na.rm=TRUE), semWintSurv=sem(WintSurv, na.rm = TRUE),
             meanSurvtoBud=mean(SurvtoBud, na.rm=TRUE), semSurvtoBud=sem(SurvtoBud, na.rm = TRUE),
-            meanFruit=mean(num.fruit, na.rm=TRUE), semFruit=sem(num.fruit, na.rm = TRUE),
+            meanFruit=mean(TotalFruit, na.rm=TRUE), semFruit=sem(TotalFruit, na.rm = TRUE),
             meanProbFruit=mean(ProbFruit, na.rm=TRUE), semProbFruit=sem(ProbFruit, na.rm = TRUE),
             meanTotalFit=mean(TotalFitness, na.rm=TRUE), semTotalFit=sem(TotalFitness, na.rm = TRUE))
 ```
 
 ```
 ## `summarise()` has regrouped the output.
-## ℹ Summaries were computed grouped by Pop.Type, LifeHistory, and pop.id.
-## ℹ Output is grouped by Pop.Type and LifeHistory.
+## ℹ Summaries were computed grouped by Pop.Type and pop.id.
+## ℹ Output is grouped by Pop.Type.
 ## ℹ Use `summarise(.groups = "drop_last")` to silence this message.
-## ℹ Use `summarise(.by = c(Pop.Type, LifeHistory, pop.id))` for per-operation
-##   grouping (`?dplyr::dplyr_by`) instead.
+## ℹ Use `summarise(.by = c(Pop.Type, pop.id))` for per-operation grouping
+##   (`?dplyr::dplyr_by`) instead.
 ```
 
 ``` r
@@ -657,24 +726,24 @@ total_fit_2025plants_summary
 ```
 
 ```
-## # A tibble: 95 × 17
-## # Groups:   Pop.Type, LifeHistory [11]
-##    Pop.Type LifeHistory pop.id meanEst  semEst meanY1Surv semY1Surv meanWintSurv
-##    <chr>    <chr>       <chr>    <dbl>   <dbl>      <dbl>     <dbl>        <dbl>
-##  1 F1       Annual      TM2 x…   1     NA           1        NA            0    
-##  2 F1       Biennial    SQ3 x…   1     NA           1        NA            1    
-##  3 F1       Biennial    TM2 x…   1     NA           1        NA            1    
-##  4 F1       Biennial    WL2 x…   1     NA           1        NA            1    
-##  5 F1       Non-Rep     BH x …   0.929  0.0714      0.692     0.133        0.111
-##  6 F1       Non-Rep     DPR x…   0.9    0.1         0.556     0.176        0.6  
-##  7 F1       Non-Rep     LV1 x…   1      0           0.667     0.167        0.167
-##  8 F1       Non-Rep     SQ3 x…   0.667  0.211       1         0            0    
-##  9 F1       Non-Rep     TM2 x…   0.917  0.0833      0.727     0.141        0    
-## 10 F1       Non-Rep     WL1 x…   0.917  0.0833      0.818     0.122        0.111
-## # ℹ 85 more rows
-## # ℹ 9 more variables: semWintSurv <dbl>, meanSurvtoBud <dbl>,
-## #   semSurvtoBud <dbl>, meanFruit <dbl>, semFruit <dbl>, meanProbFruit <dbl>,
-## #   semProbFruit <dbl>, meanTotalFit <dbl>, semTotalFit <dbl>
+## # A tibble: 57 × 16
+## # Groups:   Pop.Type [3]
+##    Pop.Type pop.id meanEst  semEst meanY1Surv semY1Surv meanWintSurv semWintSurv
+##    <chr>    <chr>    <dbl>   <dbl>      <dbl>     <dbl>        <dbl>       <dbl>
+##  1 F1       BH x …   0.929  0.0714      0.692     0.133        0.111       0.111
+##  2 F1       DPR x…   0.9    0.1         0.556     0.176        0.6         0.245
+##  3 F1       LV1 x…   1      0           0.667     0.167        0.167       0.167
+##  4 F1       SQ3 x…   0.714  0.184       1         0            0.2         0.2  
+##  5 F1       TM2 x…   0.929  0.0714      0.769     0.122        0.1         0.1  
+##  6 F1       WL1 x…   0.917  0.0833      0.818     0.122        0.111       0.111
+##  7 F1       WL2 x…   1      0           0.5       0.5          0          NA    
+##  8 F1       WL2 x…   0.857  0.143       0.833     0.167        0.2         0.2  
+##  9 F1       WL2 x…   0.909  0.0909      0.7       0.153        0.143       0.143
+## 10 F1       WL2 x…   1     NA           1        NA            1          NA    
+## # ℹ 47 more rows
+## # ℹ 8 more variables: meanSurvtoBud <dbl>, semSurvtoBud <dbl>, meanFruit <dbl>,
+## #   semFruit <dbl>, meanProbFruit <dbl>, semProbFruit <dbl>,
+## #   meanTotalFit <dbl>, semTotalFit <dbl>
 ```
 
 ## Quick Figures
@@ -700,7 +769,7 @@ total_fit_2025plants_summary %>%
 ## Joining with `by = join_by(pop.id)`
 ```
 
-![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-10-1.png)<!-- -->
+![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-11-1.png)<!-- -->
 
 ``` r
 total_fit_2025plants_summary %>% 
@@ -720,7 +789,7 @@ total_fit_2025plants_summary %>%
   labs(x="F1", y="Avg Establishment", fill="Donor Elevation (m)")
 ```
 
-![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-10-2.png)<!-- -->
+![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-11-2.png)<!-- -->
 
 ``` r
 total_fit_2025plants_summary %>% 
@@ -736,7 +805,7 @@ total_fit_2025plants_summary %>%
   labs(x="F2", y="Avg Establishment")
 ```
 
-![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-10-3.png)<!-- -->
+![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-11-3.png)<!-- -->
 
 ### Y1 Surv
 
@@ -759,7 +828,7 @@ total_fit_2025plants_summary %>%
 ## Joining with `by = join_by(pop.id)`
 ```
 
-![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-11-1.png)<!-- -->
+![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-12-1.png)<!-- -->
 
 ``` r
 total_fit_2025plants_summary %>% 
@@ -779,7 +848,7 @@ total_fit_2025plants_summary %>%
   labs(x="F1", y="Avg Y1 Surv", fill="Donor Elevation (m)")
 ```
 
-![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-11-2.png)<!-- -->
+![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-12-2.png)<!-- -->
 
 ``` r
 total_fit_2025plants_summary %>% 
@@ -795,7 +864,7 @@ total_fit_2025plants_summary %>%
   labs(x="F2", y="Avg Y1 Surv")
 ```
 
-![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-11-3.png)<!-- -->
+![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-12-3.png)<!-- -->
 
 ### Winter Surv
 
@@ -821,7 +890,7 @@ total_fit_2025plants_summary %>%
 ## Joining with `by = join_by(pop.id)`
 ```
 
-![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-12-1.png)<!-- -->
+![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-13-1.png)<!-- -->
 
 ``` r
 total_fit_2025plants_summary %>% 
@@ -843,7 +912,7 @@ total_fit_2025plants_summary %>%
   labs(x="F1", y="Avg Winter Survival", fill="Donor Elevation (m)")
 ```
 
-![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-12-2.png)<!-- -->
+![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-13-2.png)<!-- -->
 
 ``` r
 total_fit_2025plants_summary %>% 
@@ -861,7 +930,7 @@ total_fit_2025plants_summary %>%
   labs(x="F2", y="Avg Winter Survival")
 ```
 
-![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-12-3.png)<!-- -->
+![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-13-3.png)<!-- -->
 
 ### Surv to Budding 
 
@@ -886,7 +955,7 @@ total_fit_2025plants_summary %>%
 ## Joining with `by = join_by(pop.id)`
 ```
 
-![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-13-1.png)<!-- -->
+![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-14-1.png)<!-- -->
 
 ``` r
 total_fit_2025plants_summary %>% 
@@ -908,7 +977,7 @@ total_fit_2025plants_summary %>%
   labs(x="F1", y="Avg Surv to Buddding", fill="Donor Elevation (m)")
 ```
 
-![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-13-2.png)<!-- -->
+![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-14-2.png)<!-- -->
 
 ``` r
 total_fit_2025plants_summary %>% 
@@ -926,7 +995,7 @@ total_fit_2025plants_summary %>%
   labs(x="F2", y="Avg Surv to Buddding")
 ```
 
-![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-13-3.png)<!-- -->
+![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-14-3.png)<!-- -->
 
 ### Fruit #
 
@@ -951,7 +1020,7 @@ total_fit_2025plants_summary %>%
 ## Joining with `by = join_by(pop.id)`
 ```
 
-![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-14-1.png)<!-- -->
+![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-15-1.png)<!-- -->
 
 ``` r
 total_fit_2025plants_summary %>% 
@@ -973,7 +1042,7 @@ total_fit_2025plants_summary %>%
   labs(x="F1", y="Avg Fecundity", fill="Donor Elevation (m)")
 ```
 
-![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-14-2.png)<!-- -->
+![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-15-2.png)<!-- -->
 
 ``` r
 total_fit_2025plants_summary %>% 
@@ -991,7 +1060,7 @@ total_fit_2025plants_summary %>%
   labs(x="F2", y="Avg Fecundity")
 ```
 
-![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-14-3.png)<!-- -->
+![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-15-3.png)<!-- -->
 
 ### Prob Fruit
 
@@ -1016,7 +1085,7 @@ total_fit_2025plants_summary %>%
 ## Joining with `by = join_by(pop.id)`
 ```
 
-![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-15-1.png)<!-- -->
+![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-16-1.png)<!-- -->
 
 ``` r
 total_fit_2025plants_summary %>% 
@@ -1038,7 +1107,7 @@ total_fit_2025plants_summary %>%
   labs(x="F1", y="Avg Prob Rep", fill="Donor Elevation (m)")
 ```
 
-![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-15-2.png)<!-- -->
+![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-16-2.png)<!-- -->
 
 ``` r
 total_fit_2025plants_summary %>% 
@@ -1056,9 +1125,9 @@ total_fit_2025plants_summary %>%
   labs(x="F2", y="Avg Prob Rep")
 ```
 
-![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-15-3.png)<!-- -->
+![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-16-3.png)<!-- -->
 
-### Total fruit 
+### Total Fitness (fruit number, including 0s)
 
 ``` r
 total_fit_2025plants_summary %>% 
@@ -1081,7 +1150,7 @@ total_fit_2025plants_summary %>%
 ## Joining with `by = join_by(pop.id)`
 ```
 
-![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-16-1.png)<!-- -->
+![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-17-1.png)<!-- -->
 
 ``` r
 total_fit_2025plants_summary %>% 
@@ -1103,7 +1172,7 @@ total_fit_2025plants_summary %>%
   labs(x="F1", y="Avg Total Fitness", fill="Donor Elevation (m)")
 ```
 
-![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-16-2.png)<!-- -->
+![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-17-2.png)<!-- -->
 
 ``` r
 total_fit_2025plants_summary %>% 
@@ -1121,4 +1190,4 @@ total_fit_2025plants_summary %>%
   labs(x="F2", y="Avg Total Fitness")
 ```
 
-![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-16-3.png)<!-- -->
+![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-17-3.png)<!-- -->
