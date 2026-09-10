@@ -15,12 +15,14 @@ knitr::opts_chunk$set(echo = TRUE)
 
 -   Similar relationships for parents and F1s with distances?
 
+    -   Check for quadratic relationships (intermediate peak for F1s?)
+
+-   Identify F1s that did well across years: Different crosses are consistent in fitness at different life stages (i.e. some good at establishment, others good at y1surv, none consistent with winter survival)
+
 Focus on WL2, but other crosses might be interesting too
 
-Check for quadratic relationships (intermediate peak for F1s?)
-Identify F1s that did well across years
-
 ## Libraries
+
 ```{r}
 library(tidyverse)
 library(ggpubr) #ggarrange
@@ -28,17 +30,24 @@ library(ggpubr) #ggarrange
 sem <- function(x, na.rm=FALSE) {  #for calculating standard error
   sd(x,na.rm=na.rm)/sqrt(length(na.omit(x)))
 } 
+
+cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 ```
 
 ## Read in Fitness Data
+
 ```{r}
 total_fit_2024 <- read_csv("../output/WL2_Traits/WL2_2024_AllFitness.csv") %>% 
-  mutate(num.fruit=if_else(is.na(num.fruit) | num.fruit==0, NA, num.fruit)) #make num fruit, per-capita rep output (no 0s)
+  mutate(num.fruit=if_else(is.na(num.fruit) | num.fruit==0, NA, num.fruit)) %>%  #make num fruit, per-capita rep output (no 0s)
+  rename(FruitsY2=num.fruit)
 total_fit_2025 <- read_csv("../output/WL2_Traits/WL2_2025_AllFitness.csv")  %>% 
-  mutate(num.fruit=if_else(is.na(num.fruit) | num.fruit==0, NA, num.fruit)) #make num fruit, per-capita rep output (no 0s)
+  mutate(FruitsY1=if_else(is.na(FruitsY1) | FruitsY1==0, NA, FruitsY1),
+         FruitsY2=if_else(is.na(FruitsY2) | FruitsY2==0, NA, FruitsY2),
+         TotalFruit=if_else(is.na(TotalFruit) | TotalFruit==0, NA, TotalFruit)) #make num fruit, per-capita rep output (no 0s)
 ```
 
 ## Read in Clim/Geo Dist Data
+
 ```{r}
 clim_dist_2024 <- read_csv("../output/Climate/WL2_2024_Clim_Dist.csv") %>% select(-conf.low, -conf.high)
 clim_dist_2024_wide <- clim_dist_2024 %>% 
@@ -52,6 +61,7 @@ clim_dist_2025_wide <- clim_dist_2025 %>%
 ```
 
 ## Parents & WL2 F1s Only to Start
+
 ```{r}
 wl2_crosses_2024 <- total_fit_2024 %>% 
   filter(Pop.Type!="F2") %>% 
@@ -71,6 +81,7 @@ wl2_crosses_2025 <- total_fit_2025 %>%
 ```
 
 ## Summaries
+
 ```{r}
 wl2_crosses_2024_summary <- wl2_crosses_2024 %>% 
   group_by(Pop.Type, Other.Parent, elev_m, Geographic_Dist, GD_Recent, GD_Historic) %>% 
@@ -78,9 +89,10 @@ wl2_crosses_2024_summary <- wl2_crosses_2024 %>%
             meanY1Surv=mean(Y1Surv, na.rm=TRUE), semY1Surv=sem(Y1Surv, na.rm = TRUE),
             meanWintSurv=mean(WintSurv, na.rm=TRUE), semWintSurv=sem(WintSurv, na.rm = TRUE),
             meanSurvtoBud=mean(SurvtoBud, na.rm=TRUE), semSurvtoBud=sem(SurvtoBud, na.rm = TRUE),
-            meanFruit=mean(num.fruit, na.rm=TRUE), semFruit=sem(num.fruit, na.rm = TRUE),
+            meanFruitY2=mean(FruitsY2, na.rm=TRUE), semFruitY2=sem(FruitsY2, na.rm = TRUE),
             meanProbFruit=mean(ProbFruit, na.rm=TRUE), semProbFruit=sem(ProbFruit, na.rm = TRUE),
-            meanTotalFit=mean(TotalFitness, na.rm=TRUE), semTotalFit=sem(TotalFitness, na.rm = TRUE))
+            meanTotalFit=mean(TotalFitness, na.rm=TRUE), semTotalFit=sem(TotalFitness, na.rm = TRUE)) %>% 
+  mutate(meanTotalFruit=meanFruitY2, semTotalFruit=semFruitY2, Year="2024")
 
 wl2_crosses_2025_summary <- wl2_crosses_2025 %>% 
   group_by(Pop.Type, Other.Parent, elev_m, Geographic_Dist, GD_Recent, GD_Historic) %>% 
@@ -88,14 +100,51 @@ wl2_crosses_2025_summary <- wl2_crosses_2025 %>%
             meanY1Surv=mean(Y1Surv, na.rm=TRUE), semY1Surv=sem(Y1Surv, na.rm = TRUE),
             meanWintSurv=mean(WintSurv, na.rm=TRUE), semWintSurv=sem(WintSurv, na.rm = TRUE),
             meanSurvtoBud=mean(SurvtoBud, na.rm=TRUE), semSurvtoBud=sem(SurvtoBud, na.rm = TRUE),
-            meanFruit=mean(num.fruit, na.rm=TRUE), semFruit=sem(num.fruit, na.rm = TRUE),
+            meanFruitY1=mean(FruitsY1, na.rm=TRUE), semFruitY1=sem(FruitsY1, na.rm = TRUE),
+            meanFruitY2=mean(FruitsY2, na.rm=TRUE), semFruitY2=sem(FruitsY2, na.rm = TRUE),
+            meanTotalFruit=mean(TotalFruit, na.rm=TRUE), semTotalFruit=sem(TotalFruit, na.rm = TRUE),
             meanProbFruit=mean(ProbFruit, na.rm=TRUE), semProbFruit=sem(ProbFruit, na.rm = TRUE),
-            meanTotalFit=mean(TotalFitness, na.rm=TRUE), semTotalFit=sem(TotalFitness, na.rm = TRUE))
+            meanTotalFit=mean(TotalFitness, na.rm=TRUE), semTotalFit=sem(TotalFitness, na.rm = TRUE)) %>% 
+  mutate(Year="2025")
+
+wl2_crosses_summary_all <- bind_rows(wl2_crosses_2024_summary, wl2_crosses_2025_summary)
 ```
+
+### By Pop
+```{r}
+wl2_crosses_2024_summary2 <- wl2_crosses_2024 %>% 
+  rename(pop.id=pop) %>% 
+  group_by(Pop.Type, pop.id, Other.Parent, elev_m, Geographic_Dist, GD_Recent, GD_Historic) %>% 
+  summarise(meanEst=mean(Establishment, na.rm=TRUE), semEst=sem(Establishment, na.rm = TRUE),
+            meanY1Surv=mean(Y1Surv, na.rm=TRUE), semY1Surv=sem(Y1Surv, na.rm = TRUE),
+            meanWintSurv=mean(WintSurv, na.rm=TRUE), semWintSurv=sem(WintSurv, na.rm = TRUE),
+            meanSurvtoBud=mean(SurvtoBud, na.rm=TRUE), semSurvtoBud=sem(SurvtoBud, na.rm = TRUE),
+            meanFruitY2=mean(FruitsY2, na.rm=TRUE), semFruitY2=sem(FruitsY2, na.rm = TRUE),
+            meanProbFruit=mean(ProbFruit, na.rm=TRUE), semProbFruit=sem(ProbFruit, na.rm = TRUE),
+            meanTotalFit=mean(TotalFitness, na.rm=TRUE), semTotalFit=sem(TotalFitness, na.rm = TRUE)) %>% 
+  mutate(meanTotalFruit=meanFruitY2, semTotalFruit=semFruitY2, Year="2024")
+
+wl2_crosses_2025_summary2 <- wl2_crosses_2025 %>% 
+  group_by(Pop.Type, pop.id, Other.Parent, elev_m, Geographic_Dist, GD_Recent, GD_Historic) %>% 
+  summarise(meanEst=mean(Establishment, na.rm=TRUE), semEst=sem(Establishment, na.rm = TRUE),
+            meanY1Surv=mean(Y1Surv, na.rm=TRUE), semY1Surv=sem(Y1Surv, na.rm = TRUE),
+            meanWintSurv=mean(WintSurv, na.rm=TRUE), semWintSurv=sem(WintSurv, na.rm = TRUE),
+            meanSurvtoBud=mean(SurvtoBud, na.rm=TRUE), semSurvtoBud=sem(SurvtoBud, na.rm = TRUE),
+            meanFruitY1=mean(FruitsY1, na.rm=TRUE), semFruitY1=sem(FruitsY1, na.rm = TRUE),
+            meanFruitY2=mean(FruitsY2, na.rm=TRUE), semFruitY2=sem(FruitsY2, na.rm = TRUE),
+            meanTotalFruit=mean(TotalFruit, na.rm=TRUE), semTotalFruit=sem(TotalFruit, na.rm = TRUE),
+            meanProbFruit=mean(ProbFruit, na.rm=TRUE), semProbFruit=sem(ProbFruit, na.rm = TRUE),
+            meanTotalFit=mean(TotalFitness, na.rm=TRUE), semTotalFit=sem(TotalFitness, na.rm = TRUE)) %>% 
+  mutate(Year="2025")
+
+wl2_crosses_summary_all <- bind_rows(wl2_crosses_2024_summary2, wl2_crosses_2025_summary2)
+```
+
 
 ## Figures
 
-### Establishment 
+### Establishment
+
 ```{r}
 wl2_crosses_2024_summary %>% 
    ggplot(aes(x=GD_Recent, y=meanEst, 
@@ -190,7 +239,27 @@ wl2_crosses_2025_summary %>%
 ggsave("../output/WL2_Traits/WL2_2025Plts_Est_WL2Cross_GeoDist.png", width = 12, height = 6, units = "in")
 ```
 
+```{r}
+wl2_crosses_summary_all %>% 
+  filter(pop.id!="WL1 x WL2", pop.id!="WL2 x BH", pop.id!="WL2 x CC",
+         pop.id!="WL2 x DPR", pop.id!="WL2 x LV1", pop.id!="WL2 x SQ3",
+         pop.id!="WL2 x TM2", pop.id!="WL2 x WL1", pop.id!="WL2 x WV",
+         pop.id!="WL2 x YO11", pop.id!="WV x WL2", pop.id!="YO11 x WL2") %>% 
+  ggplot(aes(x=pop.id, y=meanEst,
+             group = Year, fill=Year)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  geom_errorbar(aes(ymin=meanEst-semEst,
+                    ymax=meanEst+semEst),width=.2, 
+                position =position_dodge(0.75)) +
+  theme_classic() +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_fill_manual(values=cbPalette) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+BH x WL2 and SQ3 x WL2 have high establishment in both years
+
 ### Y1 Surv
+
 ```{r}
 wl2_crosses_2024_summary %>% 
    ggplot(aes(x=GD_Recent, y=meanY1Surv, 
@@ -237,6 +306,7 @@ wl2_crosses_2024_summary %>%
   labs(y="Y1 Surv", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
 ggsave("../output/WL2_Traits/WL2_2024Plts_Y1Surv_WL2Cross_GeoDist.png", width = 12, height = 6, units = "in")
 ```
+
 ```{r}
 wl2_crosses_2025_summary %>% 
    ggplot(aes(x=GD_Recent, y=meanY1Surv, 
@@ -284,7 +354,27 @@ wl2_crosses_2025_summary %>%
 ggsave("../output/WL2_Traits/WL2_2025Plts_Y1Surv_WL2Cross_GeoDist.png", width = 12, height = 6, units = "in")
 ```
 
+```{r}
+wl2_crosses_summary_all %>% 
+  filter(pop.id!="WL1 x WL2", pop.id!="WL2 x BH", pop.id!="WL2 x CC",
+         pop.id!="WL2 x DPR", pop.id!="WL2 x LV1", pop.id!="WL2 x SQ3",
+         pop.id!="WL2 x TM2", pop.id!="WL2 x WL1", pop.id!="WL2 x WV",
+         pop.id!="WL2 x YO11", pop.id!="WV x WL2", pop.id!="YO11 x WL2") %>% 
+  ggplot(aes(x=pop.id, y=meanY1Surv,
+             group = Year, fill=Year)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  geom_errorbar(aes(ymin=meanY1Surv-semY1Surv,
+                    ymax=meanY1Surv+semY1Surv),width=.2, 
+                position =position_dodge(0.75)) +
+  theme_classic() +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_fill_manual(values=cbPalette) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+Only TM2 x WL2 has high y1 surv in both years 
+
 ### Winter Surv
+
 ```{r}
 wl2_crosses_2024_summary %>% 
    ggplot(aes(x=GD_Recent, y=meanWintSurv, 
@@ -331,6 +421,7 @@ wl2_crosses_2024_summary %>%
   labs(y="Winter Surv", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
 ggsave("../output/WL2_Traits/WL2_2024Plts_WintSurv_WL2Cross_GeoDist.png", width = 12, height = 6, units = "in")
 ```
+
 ```{r}
 wl2_crosses_2025_summary %>% 
    ggplot(aes(x=GD_Recent, y=meanWintSurv, 
@@ -378,7 +469,27 @@ wl2_crosses_2025_summary %>%
 ggsave("../output/WL2_Traits/WL2_2025Plts_WintSurv_WL2Cross_GeoDist.png", width = 12, height = 6, units = "in")
 ```
 
+```{r}
+wl2_crosses_summary_all %>% 
+  filter(pop.id!="WL1 x WL2", pop.id!="WL2 x BH", pop.id!="WL2 x CC",
+         pop.id!="WL2 x DPR", pop.id!="WL2 x LV1", pop.id!="WL2 x SQ3",
+         pop.id!="WL2 x TM2", pop.id!="WL2 x WL1", pop.id!="WL2 x WV",
+         pop.id!="WL2 x YO11", pop.id!="WV x WL2", pop.id!="YO11 x WL2") %>% 
+  ggplot(aes(x=pop.id, y=meanWintSurv,
+             group = Year, fill=Year)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  geom_errorbar(aes(ymin=meanWintSurv-semWintSurv,
+                    ymax=meanWintSurv+semWintSurv),width=.2, 
+                position =position_dodge(0.75)) +
+  theme_classic() +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_fill_manual(values=cbPalette) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+No crosses with consistent winter survival
+
 ### Surv to Bud
+
 ```{r}
 wl2_crosses_2024_summary %>% 
    ggplot(aes(x=GD_Recent, y=meanSurvtoBud, 
@@ -425,6 +536,7 @@ wl2_crosses_2024_summary %>%
   labs(y="Surv to Bud Y2", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
 ggsave("../output/WL2_Traits/WL2_2024Plts_SurvtoBud_WL2Cross_GeoDist.png", width = 12, height = 6, units = "in")
 ```
+
 ```{r}
 wl2_crosses_2025_summary %>% 
    ggplot(aes(x=GD_Recent, y=meanSurvtoBud, 
@@ -438,7 +550,7 @@ wl2_crosses_2025_summary %>%
   scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
-  labs(y="Surv to Bud Y2", x="Recent Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
+  labs(y="Surv to Bud", x="Recent Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
 ggsave("../output/WL2_Traits/WL2_2025Plts_SurvtoBud_WL2Cross_ClimDist_Rec.png", width = 12, height = 6, units = "in")
 
 wl2_crosses_2025_summary %>% 
@@ -453,7 +565,7 @@ wl2_crosses_2025_summary %>%
   scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
-  labs(y="Surv to Bud Y2", x="Historic Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
+  labs(y="Surv to Bud", x="Historic Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
 ggsave("../output/WL2_Traits/WL2_2025Plts_SurvtoBud_WL2Cross_ClimDist_Hist.png", width = 12, height = 6, units = "in")
 
 wl2_crosses_2025_summary %>% 
@@ -468,11 +580,31 @@ wl2_crosses_2025_summary %>%
   scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1)) + 
-  labs(y="Surv to Bud Y2", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
+  labs(y="Surv to Bud", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
 ggsave("../output/WL2_Traits/WL2_2025Plts_SurvtoBud_WL2Cross_GeoDist.png", width = 12, height = 6, units = "in")
 ```
 
+```{r}
+wl2_crosses_summary_all %>% 
+  filter(pop.id!="WL1 x WL2", pop.id!="WL2 x BH", pop.id!="WL2 x CC",
+         pop.id!="WL2 x DPR", pop.id!="WL2 x LV1", pop.id!="WL2 x SQ3",
+         pop.id!="WL2 x TM2", pop.id!="WL2 x WL1", pop.id!="WL2 x WV",
+         pop.id!="WL2 x YO11", pop.id!="WV x WL2", pop.id!="YO11 x WL2") %>% 
+  ggplot(aes(x=pop.id, y=meanSurvtoBud,
+             group = Year, fill=Year)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  geom_errorbar(aes(ymin=meanSurvtoBud-semSurvtoBud,
+                    ymax=meanSurvtoBud+semSurvtoBud),width=.2, 
+                position =position_dodge(0.75)) +
+  theme_classic() +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_fill_manual(values=cbPalette) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+Only TM2 x WL2 had data for surv to bud in both years
+
 ### Prob Rep
+
 ```{r}
 wl2_crosses_2024_summary %>% 
    ggplot(aes(x=GD_Recent, y=meanProbFruit, 
@@ -519,6 +651,7 @@ wl2_crosses_2024_summary %>%
   labs(y="Probability of \n Reproducing", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
 ggsave("../output/WL2_Traits/WL2_2024Plts_ProbFruit_WL2Cross_GeoDist.png", width = 12, height = 6, units = "in")
 ```
+
 ```{r}
 wl2_crosses_2025_summary %>% 
    ggplot(aes(x=GD_Recent, y=meanProbFruit, 
@@ -566,13 +699,33 @@ wl2_crosses_2025_summary %>%
 ggsave("../output/WL2_Traits/WL2_2025Plts_ProbFruit_WL2Cross_GeoDist.png", width = 12, height = 6, units = "in")
 ```
 
+```{r}
+wl2_crosses_summary_all %>% 
+  filter(pop.id!="WL1 x WL2", pop.id!="WL2 x BH", pop.id!="WL2 x CC",
+         pop.id!="WL2 x DPR", pop.id!="WL2 x LV1", pop.id!="WL2 x SQ3",
+         pop.id!="WL2 x TM2", pop.id!="WL2 x WL1", pop.id!="WL2 x WV",
+         pop.id!="WL2 x YO11", pop.id!="WV x WL2", pop.id!="YO11 x WL2") %>% 
+  ggplot(aes(x=pop.id, y=meanProbFruit,
+             group = Year, fill=Year)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  geom_errorbar(aes(ymin=meanProbFruit-semProbFruit,
+                    ymax=meanProbFruit+semProbFruit),width=.2, 
+                position =position_dodge(0.75)) +
+  theme_classic() +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_fill_manual(values=cbPalette) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+Many crosses with consistently low prob. fruit, only TM2 x WL2 with consistent prob fruit around 20%
+
 ### Fecundity
+
 ```{r}
 wl2_crosses_2024_summary %>% 
-   ggplot(aes(x=GD_Recent, y=meanFruit, 
+   ggplot(aes(x=GD_Recent, y=meanFruitY2, 
               group = Other.Parent, colour=elev_m)) +
-  geom_errorbar(aes(ymin=meanFruit-semFruit,
-                    ymax=meanFruit+semFruit), width=0, linewidth = 2) +
+  geom_errorbar(aes(ymin=meanFruitY2-semFruitY2,
+                    ymax=meanFruitY2+semFruitY2), width=0, linewidth = 2) +
   geom_point(size=6, aes(shape=Pop.Type)) +
   #annotate("text", x = 0.2, y= 17.33333, label = "WL2", 
    #        colour = "purple", fontface="bold", size = 22 / .pt) +
@@ -580,14 +733,14 @@ wl2_crosses_2024_summary %>%
   scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
-  labs(y="Fruit Number", x="Recent Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
+  labs(y="Fruit Number Y2", x="Recent Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
 ggsave("../output/WL2_Traits/WL2_2024Plts_Fec_WL2Cross_ClimDist_Rec.png", width = 12, height = 6, units = "in")
 
 wl2_crosses_2024_summary %>% 
-   ggplot(aes(x=GD_Historic, y=meanFruit, 
+   ggplot(aes(x=GD_Historic, y=meanFruitY2, 
               group = Other.Parent, colour=elev_m)) +
-  geom_errorbar(aes(ymin=meanFruit-semFruit,
-                    ymax=meanFruit+semFruit), width=0, linewidth = 2) +
+  geom_errorbar(aes(ymin=meanFruitY2-semFruitY2,
+                    ymax=meanFruitY2+semFruitY2), width=0, linewidth = 2) +
   geom_point(size=6, aes(shape=Pop.Type)) +
  # annotate("text", x = 0.2, y= 17.33333, label = "WL2", 
   #         colour = "purple", fontface="bold", size = 22 / .pt) +
@@ -595,14 +748,14 @@ wl2_crosses_2024_summary %>%
   scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
-  labs(y="Fruit Number", x="Historic Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
+  labs(y="Fruit Number Y2", x="Historic Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
 ggsave("../output/WL2_Traits/WL2_2024Plts_Fec_WL2Cross_ClimDist_Hist.png", width = 12, height = 6, units = "in")
 
 wl2_crosses_2024_summary %>% 
-   ggplot(aes(x=Geographic_Dist, y=meanFruit, 
+   ggplot(aes(x=Geographic_Dist, y=meanFruitY2, 
               group = Other.Parent, colour=elev_m)) +
-  geom_errorbar(aes(ymin=meanFruit-semFruit,
-                    ymax=meanFruit+semFruit), width=0, linewidth = 2) +
+  geom_errorbar(aes(ymin=meanFruitY2-semFruitY2,
+                    ymax=meanFruitY2+semFruitY2), width=0, linewidth = 2) +
   geom_point(size=6, aes(shape=Pop.Type)) +
   #annotate("text", x = 38000, y= 17.33333, label = "WL2", 
    #        colour = "purple", fontface="bold", size = 22 / .pt) +
@@ -610,15 +763,16 @@ wl2_crosses_2024_summary %>%
   scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1)) + 
-  labs(y="Fruit Number", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
+  labs(y="Fruit Number Y2", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
 ggsave("../output/WL2_Traits/WL2_2024Plts_Fec_WL2Cross_GeoDist.png", width = 12, height = 6, units = "in")
 ```
+
 ```{r}
 wl2_crosses_2025_summary %>% 
-   ggplot(aes(x=GD_Recent, y=meanFruit, 
+   ggplot(aes(x=GD_Recent, y=meanTotalFruit, 
               group = Other.Parent, colour=elev_m)) +
-  geom_errorbar(aes(ymin=meanFruit-semFruit,
-                    ymax=meanFruit+semFruit), width=0, linewidth = 2) +
+  geom_errorbar(aes(ymin=meanTotalFruit-semTotalFruit,
+                    ymax=meanTotalFruit+semTotalFruit), width=0, linewidth = 2) +
   geom_point(size=6, aes(shape=Pop.Type)) +
   #annotate("text", x = 0.2, y= 17.33333, label = "WL2", 
    #        colour = "purple", fontface="bold", size = 22 / .pt) +
@@ -630,10 +784,10 @@ wl2_crosses_2025_summary %>%
 ggsave("../output/WL2_Traits/WL2_2025Plts_Fec_WL2Cross_ClimDist_Rec.png", width = 12, height = 6, units = "in")
 
 wl2_crosses_2025_summary %>% 
-   ggplot(aes(x=GD_Historic, y=meanFruit, 
+   ggplot(aes(x=GD_Historic, y=meanTotalFruit, 
               group = Other.Parent, colour=elev_m)) +
-  geom_errorbar(aes(ymin=meanFruit-semFruit,
-                    ymax=meanFruit+semFruit), width=0, linewidth = 2) +
+  geom_errorbar(aes(ymin=meanTotalFruit-semTotalFruit,
+                    ymax=meanTotalFruit+semTotalFruit), width=0, linewidth = 2) +
   geom_point(size=6, aes(shape=Pop.Type)) +
   #annotate("text", x = 0.2, y= 17.33333, label = "WL2", 
    #        colour = "purple", fontface="bold", size = 22 / .pt) +
@@ -645,10 +799,10 @@ wl2_crosses_2025_summary %>%
 ggsave("../output/WL2_Traits/WL2_2025Plts_Fec_WL2Cross_ClimDist_Hist.png", width = 12, height = 6, units = "in")
 
 wl2_crosses_2025_summary %>% 
-   ggplot(aes(x=Geographic_Dist, y=meanFruit, 
+   ggplot(aes(x=Geographic_Dist, y=meanTotalFruit, 
               group = Other.Parent, colour=elev_m)) +
-  geom_errorbar(aes(ymin=meanFruit-semFruit,
-                    ymax=meanFruit+semFruit), width=0, linewidth = 2) +
+  geom_errorbar(aes(ymin=meanTotalFruit-semTotalFruit,
+                    ymax=meanTotalFruit+semTotalFruit), width=0, linewidth = 2) +
   geom_point(size=6, aes(shape=Pop.Type)) +
  # annotate("text", x = 38000, y= 17.33333, label = "WL2", 
   #         colour = "purple", fontface="bold", size = 22 / .pt) +
@@ -659,8 +813,26 @@ wl2_crosses_2025_summary %>%
   labs(y="Fruit Number", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
 ggsave("../output/WL2_Traits/WL2_2025Plts_Fec_WL2Cross_GeoDist.png", width = 12, height = 6, units = "in")
 ```
+```{r}
+wl2_crosses_summary_all %>% 
+  filter(pop.id!="WL1 x WL2", pop.id!="WL2 x BH", pop.id!="WL2 x CC",
+         pop.id!="WL2 x DPR", pop.id!="WL2 x LV1", pop.id!="WL2 x SQ3",
+         pop.id!="WL2 x TM2", pop.id!="WL2 x WL1", pop.id!="WL2 x WV",
+         pop.id!="WL2 x YO11", pop.id!="WV x WL2", pop.id!="YO11 x WL2") %>% 
+  ggplot(aes(x=pop.id, y=meanTotalFruit,
+             group = Year, fill=Year)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  geom_errorbar(aes(ymin=meanTotalFruit-semTotalFruit,
+                    ymax=meanTotalFruit+semTotalFruit),width=.2, 
+                position =position_dodge(0.75)) +
+  theme_classic() +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_fill_manual(values=cbPalette) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
 
 ### Total Fitness
+
 ```{r}
 wl2_crosses_2024_summary %>% 
    ggplot(aes(x=GD_Recent, y=meanTotalFit, 
@@ -707,6 +879,7 @@ wl2_crosses_2024_summary %>%
   labs(y="Avg Total Fitness", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
 ggsave("../output/WL2_Traits/WL2_2024Plts_TotalFit_WL2Cross_GeoDist.png", width = 12, height = 6, units = "in")
 ```
+
 ```{r}
 wl2_crosses_2025_summary %>% 
    ggplot(aes(x=GD_Recent, y=meanTotalFit, 
@@ -752,4 +925,22 @@ wl2_crosses_2025_summary %>%
   theme(text=element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1)) + 
   labs(y="Avg Total Fitness", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
 ggsave("../output/WL2_Traits/WL2_2025Plts_TotalFit_WL2Cross_GeoDist.png", width = 12, height = 6, units = "in")
+```
+
+```{r}
+wl2_crosses_summary_all %>% 
+  filter(pop.id!="WL1 x WL2", pop.id!="WL2 x BH", pop.id!="WL2 x CC",
+         pop.id!="WL2 x DPR", pop.id!="WL2 x LV1", pop.id!="WL2 x SQ3",
+         pop.id!="WL2 x TM2", pop.id!="WL2 x WL1", pop.id!="WL2 x WV",
+         pop.id!="WL2 x YO11", pop.id!="WV x WL2", pop.id!="YO11 x WL2") %>% 
+  ggplot(aes(x=pop.id, y=meanTotalFit,
+             group = Year, fill=Year)) +
+  geom_col(width = 0.7,position = position_dodge(0.75)) +
+  geom_errorbar(aes(ymin=meanTotalFit-semTotalFit,
+                    ymax=meanTotalFit+semTotalFit),width=.2, 
+                position =position_dodge(0.75)) +
+  theme_classic() +
+  scale_y_continuous(expand = c(0.01, 0)) +
+  scale_fill_manual(values=cbPalette) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
