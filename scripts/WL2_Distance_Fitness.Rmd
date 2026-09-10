@@ -84,6 +84,7 @@ wl2_crosses_2025 <- total_fit_2025 %>%
 
 ```{r}
 wl2_crosses_2024_summary <- wl2_crosses_2024 %>% 
+  filter(str_detect(pop, "WL2")) %>% 
   group_by(Pop.Type, Other.Parent, elev_m, Geographic_Dist, GD_Recent, GD_Historic) %>% 
   summarise(meanEst=mean(Establishment, na.rm=TRUE), semEst=sem(Establishment, na.rm = TRUE),
             meanY1Surv=mean(Y1Surv, na.rm=TRUE), semY1Surv=sem(Y1Surv, na.rm = TRUE),
@@ -91,10 +92,10 @@ wl2_crosses_2024_summary <- wl2_crosses_2024 %>%
             meanSurvtoBud=mean(SurvtoBud, na.rm=TRUE), semSurvtoBud=sem(SurvtoBud, na.rm = TRUE),
             meanFruitY2=mean(FruitsY2, na.rm=TRUE), semFruitY2=sem(FruitsY2, na.rm = TRUE),
             meanProbFruit=mean(ProbFruit, na.rm=TRUE), semProbFruit=sem(ProbFruit, na.rm = TRUE),
-            meanTotalFit=mean(TotalFitness, na.rm=TRUE), semTotalFit=sem(TotalFitness, na.rm = TRUE)) %>% 
-  mutate(meanTotalFruit=meanFruitY2, semTotalFruit=semFruitY2, Year="2024")
+            meanTotalFit=mean(TotalFitness, na.rm=TRUE), semTotalFit=sem(TotalFitness, na.rm = TRUE)) 
 
 wl2_crosses_2025_summary <- wl2_crosses_2025 %>% 
+  filter(str_detect(pop.id, "WL2")) %>% 
   group_by(Pop.Type, Other.Parent, elev_m, Geographic_Dist, GD_Recent, GD_Historic) %>% 
   summarise(meanEst=mean(Establishment, na.rm=TRUE), semEst=sem(Establishment, na.rm = TRUE),
             meanY1Surv=mean(Y1Surv, na.rm=TRUE), semY1Surv=sem(Y1Surv, na.rm = TRUE),
@@ -104,10 +105,7 @@ wl2_crosses_2025_summary <- wl2_crosses_2025 %>%
             meanFruitY2=mean(FruitsY2, na.rm=TRUE), semFruitY2=sem(FruitsY2, na.rm = TRUE),
             meanTotalFruit=mean(TotalFruit, na.rm=TRUE), semTotalFruit=sem(TotalFruit, na.rm = TRUE),
             meanProbFruit=mean(ProbFruit, na.rm=TRUE), semProbFruit=sem(ProbFruit, na.rm = TRUE),
-            meanTotalFit=mean(TotalFitness, na.rm=TRUE), semTotalFit=sem(TotalFitness, na.rm = TRUE)) %>% 
-  mutate(Year="2025")
-
-wl2_crosses_summary_all <- bind_rows(wl2_crosses_2024_summary, wl2_crosses_2025_summary)
+            meanTotalFit=mean(TotalFitness, na.rm=TRUE), semTotalFit=sem(TotalFitness, na.rm = TRUE)) 
 ```
 
 ### By Pop
