@@ -41,11 +41,12 @@ unique(wintsurv_2025_2026$bud.date) #no 2025 rep info
 rep_2025 <- read_csv("../input/WL2_2025_Data/CorrectedCSVs/WL2_mort_pheno_20250929_corrected.csv") %>% select(-survey.notes, -death.date) #for 2025 rep info
 fruits_2025 <- read_csv("../input/WL2_2025_Data/CorrectedCSVs/WL2_ann_cens_20251028_corrected.csv") %>% select(-survey.notes) #for 2025 rep info
 
-surv_2026 <- read_csv("../input/WL2_2026_Data/CorrectedCSVs/WL2_mort_pheno_20260820_corrected.csv") %>% 
+surv_2026 <- read_csv("../input/WL2_2026_Data/CorrectedCSVs/WL2_mort_pheno_20260903_corrected.csv") %>% 
   select(-survey.notes)#for surv to budding - need to update this with end of season data
 unique(surv_2026$bud.date)
 
-fruits_2026 <- read_csv("../input/WL2_2026_Data/CorrectedCSVs/WL2_ann_cens_20260820_corrected.csv") %>% 
+fruits_2026 <- read_csv("../input/WL2_2026_Data/CorrectedCSVs/WL2_ann_cens_20260903.csv") %>% 
+  rename(num.fruit=`num. fruit`) %>% 
   select(-survey.notes) #for fruit number - need to update this with end of season data
 ```
 
