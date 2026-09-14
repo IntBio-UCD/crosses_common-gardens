@@ -353,7 +353,8 @@ wl2_crosses_summary_all %>%
   theme_classic() +
   scale_y_continuous(expand = c(0.01, 0)) +
   scale_fill_manual(values=cbPalette) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  theme(text=element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1))
+ggsave("../output/WL2_Traits/WL2_Est_WL2Cross_BothYrs.png", width = 12, height = 6, units = "in")
 ```
 
 BH x WL2 and SQ3 x WL2 have high establishment in both years
@@ -470,6 +471,7 @@ wl2_crosses_summary_all %>%
   scale_y_continuous(expand = c(0.01, 0)) +
   scale_fill_manual(values=cbPalette) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+ggsave("../output/WL2_Traits/WL2_Y1Surv_WL2Cross_BothYrs.png", width = 12, height = 6, units = "in")
 ```
 
 Only TM2 x WL2 has high y1 surv in both years
@@ -586,6 +588,7 @@ wl2_crosses_summary_all %>%
   scale_y_continuous(expand = c(0.01, 0)) +
   scale_fill_manual(values=cbPalette) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+ggsave("../output/WL2_Traits/WL2_WintSurv_WL2Cross_BothYrs.png", width = 12, height = 6, units = "in")
 ```
 
 No crosses with consistent winter survival
