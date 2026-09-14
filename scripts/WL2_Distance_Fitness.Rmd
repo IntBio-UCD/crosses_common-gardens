@@ -9,13 +9,13 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+Note: try pulling in F2s with a %high elev analysis?
+
 # Does climate, geographic, or genetic distance influence fitness of F1s?
 
--   Different relationships between distances and fitness for different life stages?
+-   Different relationships between distances and fitness for different life stages: Pos geo dist effects for establishment and total fitness (total fitness not normalized) for F1s (2024 only)
 
--   Similar relationships for parents and F1s with distances?
-
-    -   Check for quadratic relationships (intermediate peak for F1s?)
+-   Similar relationships for parents and F1s with distances? Opposite relationship w/ geo dit for height b/t parents and F1s for Establishment; no relats w/ distance for parents (only height) with Total Fitness 
 
 -   Identify F1s that did well across years: Different crosses are consistent in fitness at different life stages (i.e. some good at establishment, others good at y1surv, none consistent with winter survival)
 
@@ -26,6 +26,7 @@ Focus on WL2, but other crosses might be interesting too
 ```{r}
 library(tidyverse)
 library(ggpubr) #ggarrange
+library(lmerTest)
 
 sem <- function(x, na.rm=FALSE) {  #for calculating standard error
   sd(x,na.rm=na.rm)/sqrt(length(na.omit(x)))
@@ -40,11 +41,79 @@ cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2",
 total_fit_2024 <- read_csv("../output/WL2_Traits/WL2_2024_AllFitness.csv") %>% 
   mutate(num.fruit=if_else(is.na(num.fruit) | num.fruit==0, NA, num.fruit)) %>%  #make num fruit, per-capita rep output (no 0s)
   rename(FruitsY2=num.fruit)
+
 total_fit_2025 <- read_csv("../output/WL2_Traits/WL2_2025_AllFitness.csv")  %>% 
   mutate(FruitsY1=if_else(is.na(FruitsY1) | FruitsY1==0, NA, FruitsY1),
          FruitsY2=if_else(is.na(FruitsY2) | FruitsY2==0, NA, FruitsY2),
          TotalFruit=if_else(is.na(TotalFruit) | TotalFruit==0, NA, TotalFruit)) #make num fruit, per-capita rep output (no 0s)
 ```
+
+## Read in initial height data 
+
+```{r}
+init_size_2024 <- read_csv("../input/WL2_2024_Data/CorrectedCSVs/WL2_Initial_DNA_size_survey_20240607_corrected.csv")
+head(init_size_2024)
+
+pop_info_2024 <- read_csv("../input/WL2_2024_Data/Final_2023_2024_Pop_Loc_Info.csv") %>%
+  select(Pop.Type:unique.ID) %>% 
+  rename(row=bedrow, col=bedcol)
+
+init_size_2024_pops <- init_size_2024 %>% 
+  mutate(unique.ID=as.character(unique.ID)) %>% 
+  left_join(pop_info_2024) %>% 
+  mutate(unique.ID=as.numeric(unique.ID))
+
+init_size_2024_pops %>% filter(is.na(Pop.Type)) %>% filter(!is.na(height.cm)) #2 plants with no pop info - both were not planted in field (likely died)
+
+init_size_2024_pops %>% 
+  left_join(total_fit_2024) %>% 
+  ggplot(aes(x=height.cm, y=Establishment)) +
+  geom_point() +
+  facet_wrap(~Pop.Type)
+
+init_size_2024_pops %>% 
+  left_join(total_fit_2024) %>% 
+  group_by(Pop.Type, pop) %>% 
+  summarise(meanHeight=mean(height.cm, na.rm=TRUE), meanEst=mean(Establishment, na.rm=TRUE)) %>% 
+  ggplot(aes(x=meanHeight, y=meanEst)) +
+  geom_point() +
+  facet_wrap(~Pop.Type)
+
+#should probably account for height in models 
+```
+
+```{r}
+init_size_2025 <- read_csv("../input/WL2_2025_Data/CorrectedCSVs/WL2_initial_size_DNA_corrected.csv")
+
+pop_info_2025 <- read_csv("../input/WL2_2025_Data/2025_Pop_Loc_Info Updated.csv") %>% 
+  select(status:Unique.ID) %>% 
+  mutate(Pop.Type=if_else(str_detect(pop.id, "\\) x"), "F2",
+                          if_else(str_detect(pop.id, "x"), "F1",
+                          if_else(pop.id=="buffer" | is.na(pop.id), NA,
+                                  "Parent"
+                          )))) #define different pop types 
+
+init_size_2025_pops <- init_size_2025 %>% 
+  mutate(Unique.ID=as.character(Unique.ID)) %>% 
+  left_join(pop_info_2025) %>% 
+  mutate(Unique.ID=as.numeric(Unique.ID))
+#init_size_2025_pops %>% filter(is.na(Pop.Type)) %>% filter(!is.na(height.cm))
+
+init_size_2025_pops %>% 
+  left_join(total_fit_2025) %>% 
+  ggplot(aes(x=height.cm, y=WintSurv)) +
+  geom_point() +
+  facet_wrap(~Pop.Type)
+
+init_size_2025_pops %>% 
+  left_join(total_fit_2025) %>% 
+  group_by(Pop.Type, pop.id) %>% 
+  summarise(meanHeight=mean(height.cm, na.rm=TRUE), meanWintSurv=mean(WintSurv, na.rm=TRUE)) %>% 
+  ggplot(aes(x=meanHeight, y=meanWintSurv)) +
+  geom_point() +
+  facet_wrap(~Pop.Type)
+```
+
 
 ## Read in Clim/Geo Dist Data
 
@@ -82,6 +151,7 @@ wl2_crosses_2025 <- total_fit_2025 %>%
 
 ## Summaries
 
+### WL2 F1s
 ```{r}
 wl2_crosses_2024_summary <- wl2_crosses_2024 %>% 
   filter(str_detect(pop, "WL2")) %>% 
@@ -107,6 +177,21 @@ wl2_crosses_2025_summary <- wl2_crosses_2025 %>%
             meanProbFruit=mean(ProbFruit, na.rm=TRUE), semProbFruit=sem(ProbFruit, na.rm = TRUE),
             meanTotalFit=mean(TotalFitness, na.rm=TRUE), semTotalFit=sem(TotalFitness, na.rm = TRUE)) 
 ```
+
+### Parents
+```{r}
+wl2_parents_2024_summary <- wl2_crosses_2024 %>% 
+  filter(Pop.Type=="Parent") %>% 
+  group_by(Pop.Type, pop, elev_m, Geographic_Dist, GD_Recent, GD_Historic) %>% 
+  summarise(meanEst=mean(Establishment, na.rm=TRUE), semEst=sem(Establishment, na.rm = TRUE),
+            meanY1Surv=mean(Y1Surv, na.rm=TRUE), semY1Surv=sem(Y1Surv, na.rm = TRUE),
+            meanWintSurv=mean(WintSurv, na.rm=TRUE), semWintSurv=sem(WintSurv, na.rm = TRUE),
+            meanSurvtoBud=mean(SurvtoBud, na.rm=TRUE), semSurvtoBud=sem(SurvtoBud, na.rm = TRUE),
+            meanFruitY2=mean(FruitsY2, na.rm=TRUE), semFruitY2=sem(FruitsY2, na.rm = TRUE),
+            meanProbFruit=mean(ProbFruit, na.rm=TRUE), semProbFruit=sem(ProbFruit, na.rm = TRUE),
+            meanTotalFit=mean(TotalFitness, na.rm=TRUE), semTotalFit=sem(TotalFitness, na.rm = TRUE)) 
+```
+
 
 ### By Pop
 ```{r}
@@ -156,7 +241,7 @@ wl2_crosses_2024_summary %>%
   scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
-  labs(y="Avg Establishment", x="Recent Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
+  labs(y="Avg Establishment", x="Recent Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population", title="2024 WL2 F1s")
 ggsave("../output/WL2_Traits/WL2_2024Plts_Est_WL2Cross_ClimDist_Rec.png", width = 12, height = 6, units = "in")
 
 wl2_crosses_2024_summary %>% 
@@ -171,7 +256,7 @@ wl2_crosses_2024_summary %>%
   scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
-  labs(y="Avg Establishment", x="Historic Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
+  labs(y="Avg Establishment", x="Historic Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population", title="2024 WL2 F1s")
 ggsave("../output/WL2_Traits/WL2_2024Plts_Est_WL2Cross_ClimDist_Hist.png", width = 12, height = 6, units = "in")
 
 wl2_crosses_2024_summary %>% 
@@ -186,9 +271,26 @@ wl2_crosses_2024_summary %>%
   scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1)) + 
-  labs(y="Avg Establishment", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
+  labs(y="Avg Establishment", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population", title="2024 WL2 F1s")
 ggsave("../output/WL2_Traits/WL2_2024Plts_Est_WL2Cross_GeoDist.png", width = 12, height = 6, units = "in")
 ```
+
+```{r}
+wl2_parents_2024_summary %>% 
+  ggplot(aes(x=Geographic_Dist, y=meanEst, 
+              group = pop, colour=elev_m)) +
+  geom_errorbar(aes(ymin=meanEst-semEst,
+                    ymax=meanEst+semEst), width=0, linewidth = 2) +
+  geom_point(size=6) +
+  theme_classic() + 
+  scale_y_continuous(expand = c(0.01, 0.03)) +
+  scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
+  theme(text=element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(y="Avg Establishment", x="Geographic Dist", color="Elevation (m)", title="2024 Parents")
+ggsave("../output/WL2_Traits/WL2_2024Plts_Est_Parents_GeoDist.png", width = 12, height = 6, units = "in")
+#Potentially opposite relationship with geo dist in parents vs F1s
+```
+
 
 ```{r}
 wl2_crosses_2025_summary %>% 
@@ -203,7 +305,7 @@ wl2_crosses_2025_summary %>%
   scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
-  labs(y="Avg Establishment", x="Recent Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
+  labs(y="Avg Establishment", x="Recent Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population", title="2025 WL2 F1s")
 ggsave("../output/WL2_Traits/WL2_2025Plts_Est_WL2Cross_ClimDist_Rec.png", width = 12, height = 6, units = "in")
 
 wl2_crosses_2025_summary %>% 
@@ -218,7 +320,7 @@ wl2_crosses_2025_summary %>%
   scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
-  labs(y="Avg Establishment", x="Historic Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
+  labs(y="Avg Establishment", x="Historic Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population", title="2025 WL2 F1s")
 ggsave("../output/WL2_Traits/WL2_2025Plts_Est_WL2Cross_ClimDist_Hist.png", width = 12, height = 6, units = "in")
 
 wl2_crosses_2025_summary %>% 
@@ -233,7 +335,7 @@ wl2_crosses_2025_summary %>%
   scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1)) + 
-  labs(y="Avg Establishment", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
+  labs(y="Avg Establishment", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population", title="2025 WL2 F1s")
 ggsave("../output/WL2_Traits/WL2_2025Plts_Est_WL2Cross_GeoDist.png", width = 12, height = 6, units = "in")
 ```
 
@@ -271,7 +373,7 @@ wl2_crosses_2024_summary %>%
   scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
-  labs(y="Y1 Surv", x="Recent Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
+  labs(y="Y1 Surv", x="Recent Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population", title="2024 WL2 F1s")
 ggsave("../output/WL2_Traits/WL2_2024Plts_Y1Surv_WL2Cross_ClimDist_Rec.png", width = 12, height = 6, units = "in")
 
 wl2_crosses_2024_summary %>% 
@@ -286,7 +388,7 @@ wl2_crosses_2024_summary %>%
   scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
-  labs(y="Y1 Surv", x="Historic Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
+  labs(y="Y1 Surv", x="Historic Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population", title="2024 WL2 F1s")
 ggsave("../output/WL2_Traits/WL2_2024Plts_Y1Surv_WL2Cross_ClimDist_Hist.png", width = 12, height = 6, units = "in")
 
 wl2_crosses_2024_summary %>% 
@@ -301,7 +403,7 @@ wl2_crosses_2024_summary %>%
   scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1)) + 
-  labs(y="Y1 Surv", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
+  labs(y="Y1 Surv", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population", title="2024 WL2 F1s")
 ggsave("../output/WL2_Traits/WL2_2024Plts_Y1Surv_WL2Cross_GeoDist.png", width = 12, height = 6, units = "in")
 ```
 
@@ -318,7 +420,7 @@ wl2_crosses_2025_summary %>%
   scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
-  labs(y="Y1 Surv", x="Recent Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
+  labs(y="Y1 Surv", x="Recent Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population", title="2025 WL2 F1s")
 ggsave("../output/WL2_Traits/WL2_2025Plts_Y1Surv_WL2Cross_ClimDist_Rec.png", width = 12, height = 6, units = "in")
 
 wl2_crosses_2025_summary %>% 
@@ -333,7 +435,7 @@ wl2_crosses_2025_summary %>%
   scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
-  labs(y="Y1 Surv", x="Historic Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
+  labs(y="Y1 Surv", x="Historic Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population", title="2025 WL2 F1s")
 ggsave("../output/WL2_Traits/WL2_2025Plts_Y1Surv_WL2Cross_ClimDist_Hist.png", width = 12, height = 6, units = "in")
 
 wl2_crosses_2025_summary %>% 
@@ -348,7 +450,7 @@ wl2_crosses_2025_summary %>%
   scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1)) + 
-  labs(y="Y1 Surv", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
+  labs(y="Y1 Surv", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population", title="2025 WL2 F1s")
 ggsave("../output/WL2_Traits/WL2_2025Plts_Y1Surv_WL2Cross_GeoDist.png", width = 12, height = 6, units = "in")
 ```
 
@@ -386,7 +488,7 @@ wl2_crosses_2024_summary %>%
   scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
-  labs(y="Winter Surv", x="Recent Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
+  labs(y="Winter Surv", x="Recent Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population", title="2024 WL2 F1s")
 ggsave("../output/WL2_Traits/WL2_2024Plts_WintSurv_WL2Cross_ClimDist_Rec.png", width = 12, height = 6, units = "in")
 
 wl2_crosses_2024_summary %>% 
@@ -401,7 +503,7 @@ wl2_crosses_2024_summary %>%
   scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
-  labs(y="Winter Surv", x="Historic Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
+  labs(y="Winter Surv", x="Historic Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population", title="2024 WL2 F1s")
 ggsave("../output/WL2_Traits/WL2_2024Plts_WintSurv_WL2Cross_ClimDist_Hist.png", width = 12, height = 6, units = "in")
 
 wl2_crosses_2024_summary %>% 
@@ -416,7 +518,7 @@ wl2_crosses_2024_summary %>%
   scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1)) + 
-  labs(y="Winter Surv", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
+  labs(y="Winter Surv", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population", title="2024 WL2 F1s")
 ggsave("../output/WL2_Traits/WL2_2024Plts_WintSurv_WL2Cross_GeoDist.png", width = 12, height = 6, units = "in")
 ```
 
@@ -433,7 +535,7 @@ wl2_crosses_2025_summary %>%
   scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
-  labs(y="Winter Surv", x="Recent Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
+  labs(y="Winter Surv", x="Recent Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population", title="2025 WL2 F1s")
 ggsave("../output/WL2_Traits/WL2_2025Plts_WintSurv_WL2Cross_ClimDist_Rec.png", width = 12, height = 6, units = "in")
 
 wl2_crosses_2025_summary %>% 
@@ -448,7 +550,7 @@ wl2_crosses_2025_summary %>%
   scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
-  labs(y="Winter Surv", x="Historic Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
+  labs(y="Winter Surv", x="Historic Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population", title="2025 WL2 F1s")
 ggsave("../output/WL2_Traits/WL2_2025Plts_WintSurv_WL2Cross_ClimDist_Hist.png", width = 12, height = 6, units = "in")
 
 wl2_crosses_2025_summary %>% 
@@ -463,7 +565,7 @@ wl2_crosses_2025_summary %>%
   scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1)) + 
-  labs(y="Winter Surv", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
+  labs(y="Winter Surv", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population", title="2025 WL2 F1s")
 ggsave("../output/WL2_Traits/WL2_2025Plts_WintSurv_WL2Cross_GeoDist.png", width = 12, height = 6, units = "in")
 ```
 
@@ -501,7 +603,7 @@ wl2_crosses_2024_summary %>%
   scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
-  labs(y="Surv to Bud Y2", x="Recent Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
+  labs(y="Surv to Bud Y2", x="Recent Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population", title="2024 WL2 F1s")
 ggsave("../output/WL2_Traits/WL2_2024Plts_SurvtoBud_WL2Cross_ClimDist_Rec.png", width = 12, height = 6, units = "in")
 
 wl2_crosses_2024_summary %>% 
@@ -516,7 +618,7 @@ wl2_crosses_2024_summary %>%
   scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
-  labs(y="Surv to Bud Y2", x="Historic Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
+  labs(y="Surv to Bud Y2", x="Historic Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population", title="2024 WL2 F1s")
 ggsave("../output/WL2_Traits/WL2_2024Plts_SurvtoBud_WL2Cross_ClimDist_Hist.png", width = 12, height = 6, units = "in")
 
 wl2_crosses_2024_summary %>% 
@@ -531,7 +633,7 @@ wl2_crosses_2024_summary %>%
   scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1)) + 
-  labs(y="Surv to Bud Y2", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
+  labs(y="Surv to Bud Y2", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population", title="2024 WL2 F1s")
 ggsave("../output/WL2_Traits/WL2_2024Plts_SurvtoBud_WL2Cross_GeoDist.png", width = 12, height = 6, units = "in")
 ```
 
@@ -548,7 +650,7 @@ wl2_crosses_2025_summary %>%
   scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
-  labs(y="Surv to Bud", x="Recent Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
+  labs(y="Surv to Bud", x="Recent Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population", title="2025 WL2 F1s")
 ggsave("../output/WL2_Traits/WL2_2025Plts_SurvtoBud_WL2Cross_ClimDist_Rec.png", width = 12, height = 6, units = "in")
 
 wl2_crosses_2025_summary %>% 
@@ -563,7 +665,7 @@ wl2_crosses_2025_summary %>%
   scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
-  labs(y="Surv to Bud", x="Historic Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
+  labs(y="Surv to Bud", x="Historic Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population", title="2025 WL2 F1s")
 ggsave("../output/WL2_Traits/WL2_2025Plts_SurvtoBud_WL2Cross_ClimDist_Hist.png", width = 12, height = 6, units = "in")
 
 wl2_crosses_2025_summary %>% 
@@ -578,7 +680,7 @@ wl2_crosses_2025_summary %>%
   scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1)) + 
-  labs(y="Surv to Bud", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
+  labs(y="Surv to Bud", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population", title="2025 WL2 F1s")
 ggsave("../output/WL2_Traits/WL2_2025Plts_SurvtoBud_WL2Cross_GeoDist.png", width = 12, height = 6, units = "in")
 ```
 
@@ -616,7 +718,7 @@ wl2_crosses_2024_summary %>%
   scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
-  labs(y="Probability of \n Reproducing", x="Recent Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
+  labs(y="Probability of \n Reproducing", x="Recent Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population", title="2024 WL2 F1s")
 ggsave("../output/WL2_Traits/WL2_2024Plts_ProbFruit_WL2Cross_ClimDist_Rec.png", width = 12, height = 6, units = "in")
 
 wl2_crosses_2024_summary %>% 
@@ -631,7 +733,7 @@ wl2_crosses_2024_summary %>%
   scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
-  labs(y="Probability of \n Reproducing", x="Historic Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
+  labs(y="Probability of \n Reproducing", x="Historic Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population", title="2024 WL2 F1s")
 ggsave("../output/WL2_Traits/WL2_2024Plts_ProbFruit_WL2Cross_ClimDist_Hist.png", width = 12, height = 6, units = "in")
 
 wl2_crosses_2024_summary %>% 
@@ -646,7 +748,7 @@ wl2_crosses_2024_summary %>%
   scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1)) + 
-  labs(y="Probability of \n Reproducing", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
+  labs(y="Probability of \n Reproducing", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population", title="2024 WL2 F1s")
 ggsave("../output/WL2_Traits/WL2_2024Plts_ProbFruit_WL2Cross_GeoDist.png", width = 12, height = 6, units = "in")
 ```
 
@@ -663,7 +765,7 @@ wl2_crosses_2025_summary %>%
   scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
-  labs(y="Probability of \n Reproducing", x="Recent Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
+  labs(y="Probability of \n Reproducing", x="Recent Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population", title="2025 WL2 F1s")
 ggsave("../output/WL2_Traits/WL2_2025Plts_ProbFruit_WL2Cross_ClimDist_Rec.png", width = 12, height = 6, units = "in")
 
 wl2_crosses_2025_summary %>% 
@@ -678,7 +780,7 @@ wl2_crosses_2025_summary %>%
   scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
-  labs(y="Probability of \n Reproducing", x="Historic Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
+  labs(y="Probability of \n Reproducing", x="Historic Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population", title="2025 WL2 F1s")
 ggsave("../output/WL2_Traits/WL2_2025Plts_ProbFruit_WL2Cross_ClimDist_Hist.png", width = 12, height = 6, units = "in")
 
 wl2_crosses_2025_summary %>% 
@@ -693,7 +795,7 @@ wl2_crosses_2025_summary %>%
   scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1)) + 
-  labs(y="Probability of \n Reproducing", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
+  labs(y="Probability of \n Reproducing", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population", title="2025 WL2 F1s")
 ggsave("../output/WL2_Traits/WL2_2025Plts_ProbFruit_WL2Cross_GeoDist.png", width = 12, height = 6, units = "in")
 ```
 
@@ -731,7 +833,7 @@ wl2_crosses_2024_summary %>%
   scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
-  labs(y="Fruit Number Y2", x="Recent Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
+  labs(y="Fruit Number Y2", x="Recent Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population", title="2024 WL2 F1s")
 ggsave("../output/WL2_Traits/WL2_2024Plts_Fec_WL2Cross_ClimDist_Rec.png", width = 12, height = 6, units = "in")
 
 wl2_crosses_2024_summary %>% 
@@ -746,7 +848,7 @@ wl2_crosses_2024_summary %>%
   scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
-  labs(y="Fruit Number Y2", x="Historic Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
+  labs(y="Fruit Number Y2", x="Historic Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population", title="2024 WL2 F1s")
 ggsave("../output/WL2_Traits/WL2_2024Plts_Fec_WL2Cross_ClimDist_Hist.png", width = 12, height = 6, units = "in")
 
 wl2_crosses_2024_summary %>% 
@@ -761,7 +863,7 @@ wl2_crosses_2024_summary %>%
   scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1)) + 
-  labs(y="Fruit Number Y2", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
+  labs(y="Fruit Number Y2", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population", title="2024 WL2 F1s")
 ggsave("../output/WL2_Traits/WL2_2024Plts_Fec_WL2Cross_GeoDist.png", width = 12, height = 6, units = "in")
 ```
 
@@ -778,7 +880,7 @@ wl2_crosses_2025_summary %>%
   scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
-  labs(y="Fruit Number", x="Recent Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
+  labs(y="Fruit Number", x="Recent Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population", title="2025 WL2 F1s")
 ggsave("../output/WL2_Traits/WL2_2025Plts_Fec_WL2Cross_ClimDist_Rec.png", width = 12, height = 6, units = "in")
 
 wl2_crosses_2025_summary %>% 
@@ -793,7 +895,7 @@ wl2_crosses_2025_summary %>%
   scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
-  labs(y="Fruit Number", x="Historic Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
+  labs(y="Fruit Number", x="Historic Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population", title="2025 WL2 F1s")
 ggsave("../output/WL2_Traits/WL2_2025Plts_Fec_WL2Cross_ClimDist_Hist.png", width = 12, height = 6, units = "in")
 
 wl2_crosses_2025_summary %>% 
@@ -808,7 +910,7 @@ wl2_crosses_2025_summary %>%
   scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1)) + 
-  labs(y="Fruit Number", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
+  labs(y="Fruit Number", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population", title="2025 WL2 F1s")
 ggsave("../output/WL2_Traits/WL2_2025Plts_Fec_WL2Cross_GeoDist.png", width = 12, height = 6, units = "in")
 ```
 ```{r}
@@ -844,7 +946,7 @@ wl2_crosses_2024_summary %>%
   scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
-  labs(y="Avg Total Fitness", x="Recent Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
+  labs(y="Avg Total Fitness", x="Recent Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population", title="2024 WL2 F1s")
 ggsave("../output/WL2_Traits/WL2_2024Plts_TotalFit_WL2Cross_ClimDist_Rec.png", width = 12, height = 6, units = "in")
 
 wl2_crosses_2024_summary %>% 
@@ -859,7 +961,7 @@ wl2_crosses_2024_summary %>%
   scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
-  labs(y="Avg Total Fitness", x="Historic Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
+  labs(y="Avg Total Fitness", x="Historic Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population", title="2024 WL2 F1s")
 ggsave("../output/WL2_Traits/WL2_2024Plts_TotalFit_WL2Cross_ClimDist_Hist.png", width = 12, height = 6, units = "in")
 
 wl2_crosses_2024_summary %>% 
@@ -874,8 +976,25 @@ wl2_crosses_2024_summary %>%
   scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1)) + 
-  labs(y="Avg Total Fitness", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
+  labs(y="Avg Total Fitness", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population", title="2024 WL2 F1s")
 ggsave("../output/WL2_Traits/WL2_2024Plts_TotalFit_WL2Cross_GeoDist.png", width = 12, height = 6, units = "in")
+```
+
+```{r}
+wl2_parents_2024_summary %>% 
+  ggplot(aes(x=Geographic_Dist, y=meanTotalFit, 
+              group = pop, colour=elev_m)) +
+  geom_errorbar(aes(ymin=meanTotalFit-semTotalFit,
+                    ymax=meanTotalFit+semTotalFit), width=0, linewidth = 2) +
+  geom_point(size=6) +
+  theme_classic() + 
+  scale_y_continuous(expand = c(0.01, 0.03)) +
+  scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
+  theme(text=element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(y="Avg Total Fitness", x="Geographic Dist", color="Elevation (m)", title="2024 Parents")
+
+ggsave("../output/WL2_Traits/WL2_2024Plts_TotalFit_Parents_GeoDist.png", width = 12, height = 6, units = "in")
+#Potentially opposite relationship with geo dist in parents vs F1s
 ```
 
 ```{r}
@@ -891,7 +1010,7 @@ wl2_crosses_2025_summary %>%
   scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
-  labs(y="Avg Total Fitness", x="Recent Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
+  labs(y="Avg Total Fitness", x="Recent Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population", title="2025 WL2 F1s")
 ggsave("../output/WL2_Traits/WL2_2025Plts_TotalFit_WL2Cross_ClimDist_Rec.png", width = 12, height = 6, units = "in")
 
 wl2_crosses_2025_summary %>% 
@@ -906,7 +1025,7 @@ wl2_crosses_2025_summary %>%
   scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30)) + 
-  labs(y="Avg Total Fitness", x="Historic Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
+  labs(y="Avg Total Fitness", x="Historic Water Year Climate Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population", title="2025 WL2 F1s")
 ggsave("../output/WL2_Traits/WL2_2025Plts_TotalFit_WL2Cross_ClimDist_Hist.png", width = 12, height = 6, units = "in")
 
 wl2_crosses_2025_summary %>% 
@@ -921,7 +1040,7 @@ wl2_crosses_2025_summary %>%
   scale_y_continuous(expand = c(0.01, 0.03)) +
   scale_colour_gradient(low = "#F5A540", high = "#0043F0") +
   theme(text=element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1)) + 
-  labs(y="Avg Total Fitness", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population")
+  labs(y="Avg Total Fitness", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population", title="2025 WL2 F1s")
 ggsave("../output/WL2_Traits/WL2_2025Plts_TotalFit_WL2Cross_GeoDist.png", width = 12, height = 6, units = "in")
 ```
 
@@ -942,3 +1061,256 @@ wl2_crosses_summary_all %>%
   scale_fill_manual(values=cbPalette) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
+
+## Models
+```{r}
+wl2_crosses_2024_formod <- wl2_crosses_2024 %>% 
+  filter(Pop.Type=="F1") %>% 
+  left_join(init_size_2024_pops) %>% 
+  mutate(across(c("GD_Recent", "GD_Historic", "Geographic_Dist", "height.cm"), scale, .names = "{.col}_scaled")) 
+#wl2_crosses_2024_formod %>% filter(is.na(height.cm))
+
+wl2_crosses_2025_formod <- wl2_crosses_2025 %>% 
+  filter(Pop.Type=="F1") %>% 
+  left_join(init_size_2025_pops) %>% 
+  filter(!is.na(height.cm)) %>% 
+  mutate(across(c("GD_Recent", "GD_Historic", "Geographic_Dist", "height.cm"), scale, .names = "{.col}_scaled"))
+
+wl2_parents_2024_formod <- wl2_crosses_2024 %>% 
+  filter(Pop.Type=="Parent") %>% 
+  left_join(init_size_2024_pops) %>% 
+  filter(!is.na(height.cm)) %>% 
+  mutate(across(c("GD_Recent", "GD_Historic", "Geographic_Dist", "height.cm"), scale, .names = "{.col}_scaled")) 
+```
+
+### Establishment
+```{r}
+est_climrec <- glm(Establishment ~ GD_Recent_scaled + Geographic_Dist_scaled + height.cm_scaled,
+                     family=binomial,
+                     data=wl2_crosses_2024_formod)
+summary(est_climrec) #marginal geo dist 
+
+est_climrec2 <- glmer(Establishment ~ GD_Recent_scaled + Geographic_Dist_scaled + height.cm_scaled + (1|pop),
+                     family=binomial,
+                     data=wl2_crosses_2024_formod)
+summary(est_climrec2) #marginal geo dist 
+
+est_climhist <- glm(Establishment ~ GD_Historic_scaled + Geographic_Dist_scaled + height.cm_scaled,
+                     family=binomial,
+                     data=wl2_crosses_2024_formod)
+summary(est_climhist) #sig pos geo dist 
+
+est_climhist2 <- glmer(Establishment ~ GD_Historic_scaled + Geographic_Dist_scaled + height.cm_scaled + (1|pop),
+                     family=binomial,
+                     data=wl2_crosses_2024_formod)
+summary(est_climhist2) #sig pos geo dist
+```
+
+Only a sig pos effect of geo dist in the models with historic clim distance 
+
+```{r}
+est_climrec <- glm(Establishment ~ GD_Recent_scaled + Geographic_Dist_scaled + height.cm_scaled,
+                     family=binomial,
+                     data=wl2_parents_2024_formod)
+summary(est_climrec) #pos clim dist, neg geo dist  
+
+est_climrec2 <- glmer(Establishment ~ GD_Recent_scaled + Geographic_Dist_scaled + height.cm_scaled + (1|pop),
+                     family=binomial,
+                     data=wl2_parents_2024_formod)
+summary(est_climrec2) #pos clim dist, neg geo dist  
+
+est_climhist <- glm(Establishment ~ GD_Historic_scaled + Geographic_Dist_scaled + height.cm_scaled,
+                     family=binomial,
+                     data=wl2_parents_2024_formod)
+summary(est_climhist) #pos clim dist, neg geo dist  
+
+est_climhist2 <- glmer(Establishment ~ GD_Historic_scaled + Geographic_Dist_scaled + height.cm_scaled + (1|pop),
+                     family=binomial,
+                     data=wl2_parents_2024_formod)
+summary(est_climhist2) #marginal neg geo dist 
+```
+
+Opposite relationship w/ geo dist b/t parents and F1s!
+
+### Y1 Surv
+```{r}
+wl2_y1surv_2024_formod <- wl2_crosses_2024_formod %>% filter(!is.na(Y1Surv))
+
+y1surv_climrec <- glm(Y1Surv ~ GD_Recent_scaled + I(GD_Recent_scaled^2) + Geographic_Dist_scaled + height.cm_scaled,
+                     family=binomial,
+                     data=wl2_y1surv_2024_formod)
+summary(y1surv_climrec) 
+
+y1surv_climrec2 <- glmer(Y1Surv ~ GD_Recent_scaled + I(GD_Recent_scaled^2) + Geographic_Dist_scaled + height.cm_scaled + (1|pop),
+                     family=binomial,
+                     data=wl2_y1surv_2024_formod)
+summary(y1surv_climrec2)
+
+y1surv_climhist <- glm(Y1Surv ~ GD_Historic_scaled + I(GD_Historic_scaled^2) + Geographic_Dist_scaled + height.cm_scaled,
+                     family=binomial,
+                     data=wl2_y1surv_2024_formod)
+summary(y1surv_climhist)  
+
+y1surv_climhist2 <- glmer(Y1Surv ~ GD_Historic_scaled + I(GD_Historic_scaled^2) + Geographic_Dist_scaled + height.cm_scaled + (1|pop),
+                     family=binomial,
+                     data=wl2_y1surv_2024_formod)
+summary(y1surv_climhist2) 
+```
+
+No sig relats b/t distances/height and y1surv
+
+### Winter Surv
+```{r}
+wl2_wintersurv_2025_formod <- wl2_crosses_2025_formod %>% filter(!is.na(WintSurv))
+
+wintersurv_climrec <- glm(WintSurv ~ GD_Recent_scaled  + Geographic_Dist_scaled + height.cm_scaled,
+                     family=binomial,
+                     data=wl2_wintersurv_2025_formod)
+summary(wintersurv_climrec) 
+
+wintersurv_climrec2 <- glmer(WintSurv ~ GD_Recent_scaled + Geographic_Dist_scaled + height.cm_scaled + (1|pop.id),
+                     family=binomial,
+                     data=wl2_wintersurv_2025_formod)
+summary(wintersurv_climrec2)
+
+wintersurv_climhist <- glm(WintSurv ~ GD_Historic_scaled + Geographic_Dist_scaled + height.cm_scaled,
+                     family=binomial,
+                     data=wl2_wintersurv_2025_formod)
+summary(wintersurv_climhist)  
+
+wintersurv_climhist2 <- glmer(WintSurv ~ GD_Historic_scaled + Geographic_Dist_scaled + height.cm_scaled + (1|pop.id),
+                     family=binomial,
+                     data=wl2_wintersurv_2025_formod)
+summary(wintersurv_climhist2) 
+```
+
+No sig relats b/t distances/height and wintsurv
+
+### Prob Fruit
+```{r}
+probfruit_climrec <- glm(ProbFruit ~ GD_Recent_scaled + Geographic_Dist_scaled + height.cm_scaled,
+                     family=binomial,
+                     data=wl2_crosses_2024_formod)
+summary(probfruit_climrec) 
+
+probfruit_climrec2 <- glmer(ProbFruit ~ GD_Recent_scaled + Geographic_Dist_scaled + height.cm_scaled + (1|pop),
+                     family=binomial,
+                     data=wl2_crosses_2024_formod)
+summary(probfruit_climrec2) 
+
+probfruit_climhist <- glm(ProbFruit ~ GD_Historic_scaled + Geographic_Dist_scaled + height.cm_scaled,
+                     family=binomial,
+                     data=wl2_crosses_2024_formod)
+summary(probfruit_climhist) 
+
+probfruit_climhist2 <- glmer(ProbFruit ~ GD_Historic_scaled + Geographic_Dist_scaled + height.cm_scaled + (1|pop),
+                     family=binomial,
+                     data=wl2_crosses_2024_formod)
+summary(probfruit_climhist2) 
+```
+No sig relats b/t distances/height and prob fruit
+
+### PerCap Fruit #
+```{r}
+wl2_fruits_2024_formod <- wl2_crosses_2024_formod %>% filter(!is.na(FruitsY2))
+
+wl2_fruits_2024_formod %>% 
+  ggplot(aes(FruitsY2)) +
+  geom_histogram() #not normal
+
+wl2_fruits_2024_formod %>% 
+  mutate(logFruits=log(FruitsY2)) %>% 
+  ggplot(aes(logFruits)) +
+  geom_histogram() #not better
+
+wl2_fruits_2024_formod %>% 
+  mutate(sqrtFruits=sqrt(FruitsY2)) %>% 
+  ggplot(aes(sqrtFruits)) +
+  geom_histogram() #not better
+
+fruits_climrec <- lm(FruitsY2 ~ GD_Recent_scaled + Geographic_Dist_scaled + height.cm_scaled,
+                     data=wl2_fruits_2024_formod)
+summary(fruits_climrec)
+
+fruits_climrec2 <- lmer(FruitsY2 ~ GD_Recent_scaled + Geographic_Dist_scaled + height.cm_scaled + (1|pop),
+                     data=wl2_fruits_2024_formod)
+summary(fruits_climrec2) 
+
+fruits_climhist <- lm(FruitsY2 ~ GD_Historic_scaled + Geographic_Dist_scaled + height.cm_scaled,
+                     data=wl2_fruits_2024_formod)
+summary(fruits_climhist)   
+
+fruits_climhist2 <- lmer(FruitsY2 ~ GD_Historic_scaled + Geographic_Dist_scaled + height.cm_scaled + (1|pop),
+                     data=wl2_fruits_2024_formod)
+summary(fruits_climhist2) #model convergence error
+```
+
+No sig relats b/t dist/height and per cap fruit number 
+
+### Total Fitness
+```{r}
+wl2_crosses_2024_formod %>% 
+  ggplot(aes(TotalFitness)) +
+  geom_histogram() #not normal
+
+wl2_crosses_2024_formod %>% 
+  mutate(logTotFit=log(TotalFitness)) %>% 
+  ggplot(aes(logTotFit)) +
+  geom_histogram() #not better
+
+wl2_crosses_2024_formod %>% 
+  mutate(sqrtTotFit=sqrt(TotalFitness)) %>% 
+  ggplot(aes(sqrtTotFit)) +
+  geom_histogram() #not better
+
+totalfit_climrec <- lm(TotalFitness ~ GD_Recent_scaled + Geographic_Dist_scaled + height.cm_scaled,
+                     data=wl2_crosses_2024_formod)
+summary(totalfit_climrec) #sig pos geo dist 
+
+totalfit_climrec2 <- lmer(TotalFitness ~ GD_Recent_scaled + Geographic_Dist_scaled + height.cm_scaled + (1|pop),
+                     data=wl2_crosses_2024_formod)
+summary(totalfit_climrec2) #sig pos geo dist 
+
+totalfit_climhist <- lm(TotalFitness ~ GD_Historic_scaled + Geographic_Dist_scaled + height.cm_scaled,
+                     data=wl2_crosses_2024_formod)
+summary(totalfit_climhist) #sig pos geo dist  
+
+totalfit_climhist2 <- lmer(TotalFitness ~ GD_Historic_scaled + Geographic_Dist_scaled + height.cm_scaled + (1|pop),
+                     data=wl2_crosses_2024_formod)
+summary(totalfit_climhist2) #sig pos geo dist 
+```
+Sig pos relat b/t geo dist and total fitness w/ caveat that Total Fitness does not have a normal distribution 
+
+```{r}
+wl2_parents_2024_formod %>% 
+  ggplot(aes(TotalFitness)) +
+  geom_histogram() #not normal
+
+wl2_parents_2024_formod %>% 
+  mutate(logTotFit=log(TotalFitness)) %>% 
+  ggplot(aes(logTotFit)) +
+  geom_histogram() #not better
+
+wl2_parents_2024_formod %>% 
+  mutate(sqrtTotFit=sqrt(TotalFitness)) %>% 
+  ggplot(aes(sqrtTotFit)) +
+  geom_histogram() #not better
+
+totalfit_climrec <- lm(TotalFitness ~ GD_Recent_scaled + Geographic_Dist_scaled + height.cm_scaled,
+                     data=wl2_parents_2024_formod)
+summary(totalfit_climrec) 
+
+totalfit_climrec2 <- lmer(TotalFitness ~ GD_Recent_scaled + Geographic_Dist_scaled + height.cm_scaled + (1|pop),
+                     data=wl2_parents_2024_formod)
+summary(totalfit_climrec2) #pos height effect
+
+totalfit_climhist <- lm(TotalFitness ~ GD_Historic_scaled + Geographic_Dist_scaled + height.cm_scaled,
+                     data=wl2_parents_2024_formod)
+summary(totalfit_climhist) 
+
+totalfit_climhist2 <- lmer(TotalFitness ~ GD_Historic_scaled + Geographic_Dist_scaled + height.cm_scaled + (1|pop),
+                     data=wl2_parents_2024_formod)
+summary(totalfit_climhist2) #pos height effect
+```
+
+No relat w/ geo dist for parents, only height 
