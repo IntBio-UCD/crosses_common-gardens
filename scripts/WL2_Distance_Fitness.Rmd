@@ -15,7 +15,7 @@ Note: try pulling in F2s with a %high elev analysis?
 
 -   Different relationships between distances and fitness for different life stages: Pos geo dist effects for establishment and total fitness (total fitness not normalized) for F1s (2024 only)
 
--   Similar relationships for parents and F1s with distances? Opposite relationship w/ geo dit for height b/t parents and F1s for Establishment; no relats w/ distance for parents (only height) with Total Fitness 
+-   Similar relationships for parents and F1s with distances? Opposite relationship w/ geo dit for height b/t parents and F1s for Establishment; no relats w/ distance for parents (only height) with Total Fitness
 
 -   Identify F1s that did well across years: Different crosses are consistent in fitness at different life stages (i.e. some good at establishment, others good at y1surv, none consistent with winter survival)
 
@@ -48,7 +48,7 @@ total_fit_2025 <- read_csv("../output/WL2_Traits/WL2_2025_AllFitness.csv")  %>%
          TotalFruit=if_else(is.na(TotalFruit) | TotalFruit==0, NA, TotalFruit)) #make num fruit, per-capita rep output (no 0s)
 ```
 
-## Read in initial height data 
+## Read in initial height data
 
 ```{r}
 init_size_2024 <- read_csv("../input/WL2_2024_Data/CorrectedCSVs/WL2_Initial_DNA_size_survey_20240607_corrected.csv")
@@ -114,7 +114,6 @@ init_size_2025_pops %>%
   facet_wrap(~Pop.Type)
 ```
 
-
 ## Read in Clim/Geo Dist Data
 
 ```{r}
@@ -152,6 +151,7 @@ wl2_crosses_2025 <- total_fit_2025 %>%
 ## Summaries
 
 ### WL2 F1s
+
 ```{r}
 wl2_crosses_2024_summary <- wl2_crosses_2024 %>% 
   filter(str_detect(pop, "WL2")) %>% 
@@ -179,6 +179,7 @@ wl2_crosses_2025_summary <- wl2_crosses_2025 %>%
 ```
 
 ### Parents
+
 ```{r}
 wl2_parents_2024_summary <- wl2_crosses_2024 %>% 
   filter(Pop.Type=="Parent") %>% 
@@ -192,8 +193,8 @@ wl2_parents_2024_summary <- wl2_crosses_2024 %>%
             meanTotalFit=mean(TotalFitness, na.rm=TRUE), semTotalFit=sem(TotalFitness, na.rm = TRUE)) 
 ```
 
-
 ### By Pop
+
 ```{r}
 wl2_crosses_2024_summary2 <- wl2_crosses_2024 %>% 
   rename(pop.id=pop) %>% 
@@ -222,7 +223,6 @@ wl2_crosses_2025_summary2 <- wl2_crosses_2025 %>%
 
 wl2_crosses_summary_all <- bind_rows(wl2_crosses_2024_summary2, wl2_crosses_2025_summary2)
 ```
-
 
 ## Figures
 
@@ -291,7 +291,6 @@ ggsave("../output/WL2_Traits/WL2_2024Plts_Est_Parents_GeoDist.png", width = 12, 
 #Potentially opposite relationship with geo dist in parents vs F1s
 ```
 
-
 ```{r}
 wl2_crosses_2025_summary %>% 
    ggplot(aes(x=GD_Recent, y=meanEst, 
@@ -356,6 +355,7 @@ wl2_crosses_summary_all %>%
   scale_fill_manual(values=cbPalette) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
+
 BH x WL2 and SQ3 x WL2 have high establishment in both years
 
 ### Y1 Surv
@@ -471,7 +471,8 @@ wl2_crosses_summary_all %>%
   scale_fill_manual(values=cbPalette) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
-Only TM2 x WL2 has high y1 surv in both years 
+
+Only TM2 x WL2 has high y1 surv in both years
 
 ### Winter Surv
 
@@ -586,6 +587,7 @@ wl2_crosses_summary_all %>%
   scale_fill_manual(values=cbPalette) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
+
 No crosses with consistent winter survival
 
 ### Surv to Bud
@@ -701,6 +703,7 @@ wl2_crosses_summary_all %>%
   scale_fill_manual(values=cbPalette) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
+
 Only TM2 x WL2 had data for surv to bud in both years
 
 ### Prob Rep
@@ -816,6 +819,7 @@ wl2_crosses_summary_all %>%
   scale_fill_manual(values=cbPalette) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
+
 Many crosses with consistently low prob. fruit, only TM2 x WL2 with consistent prob fruit around 20%
 
 ### Fecundity
@@ -913,6 +917,7 @@ wl2_crosses_2025_summary %>%
   labs(y="Fruit Number", x="Geographic Dist \n of Donor", color="Elevation \n of Donor (m)", shape="Population", title="2025 WL2 F1s")
 ggsave("../output/WL2_Traits/WL2_2025Plts_Fec_WL2Cross_GeoDist.png", width = 12, height = 6, units = "in")
 ```
+
 ```{r}
 wl2_crosses_summary_all %>% 
   filter(pop.id!="WL1 x WL2", pop.id!="WL2 x BH", pop.id!="WL2 x CC",
@@ -1063,6 +1068,7 @@ wl2_crosses_summary_all %>%
 ```
 
 ## Models
+
 ```{r}
 wl2_crosses_2024_formod <- wl2_crosses_2024 %>% 
   filter(Pop.Type=="F1") %>% 
@@ -1084,6 +1090,7 @@ wl2_parents_2024_formod <- wl2_crosses_2024 %>%
 ```
 
 ### Establishment
+
 ```{r}
 est_climrec <- glm(Establishment ~ GD_Recent_scaled + Geographic_Dist_scaled + height.cm_scaled,
                      family=binomial,
@@ -1106,7 +1113,7 @@ est_climhist2 <- glmer(Establishment ~ GD_Historic_scaled + Geographic_Dist_scal
 summary(est_climhist2) #sig pos geo dist
 ```
 
-Only a sig pos effect of geo dist in the models with historic clim distance 
+Only a sig pos effect of geo dist in the models with historic clim distance
 
 ```{r}
 est_climrec <- glm(Establishment ~ GD_Recent_scaled + Geographic_Dist_scaled + height.cm_scaled,
@@ -1133,6 +1140,7 @@ summary(est_climhist2) #marginal neg geo dist
 Opposite relationship w/ geo dist b/t parents and F1s!
 
 ### Y1 Surv
+
 ```{r}
 wl2_y1surv_2024_formod <- wl2_crosses_2024_formod %>% filter(!is.na(Y1Surv))
 
@@ -1160,6 +1168,7 @@ summary(y1surv_climhist2)
 No sig relats b/t distances/height and y1surv
 
 ### Winter Surv
+
 ```{r}
 wl2_wintersurv_2025_formod <- wl2_crosses_2025_formod %>% filter(!is.na(WintSurv))
 
@@ -1187,6 +1196,7 @@ summary(wintersurv_climhist2)
 No sig relats b/t distances/height and wintsurv
 
 ### Prob Fruit
+
 ```{r}
 probfruit_climrec <- glm(ProbFruit ~ GD_Recent_scaled + Geographic_Dist_scaled + height.cm_scaled,
                      family=binomial,
@@ -1208,9 +1218,11 @@ probfruit_climhist2 <- glmer(ProbFruit ~ GD_Historic_scaled + Geographic_Dist_sc
                      data=wl2_crosses_2024_formod)
 summary(probfruit_climhist2) 
 ```
+
 No sig relats b/t distances/height and prob fruit
 
-### PerCap Fruit #
+### PerCap Fruit
+
 ```{r}
 wl2_fruits_2024_formod <- wl2_crosses_2024_formod %>% filter(!is.na(FruitsY2))
 
@@ -1245,9 +1257,10 @@ fruits_climhist2 <- lmer(FruitsY2 ~ GD_Historic_scaled + Geographic_Dist_scaled 
 summary(fruits_climhist2) #model convergence error
 ```
 
-No sig relats b/t dist/height and per cap fruit number 
+No sig relats b/t dist/height and per cap fruit number
 
 ### Total Fitness
+
 ```{r}
 wl2_crosses_2024_formod %>% 
   ggplot(aes(TotalFitness)) +
@@ -1279,7 +1292,8 @@ totalfit_climhist2 <- lmer(TotalFitness ~ GD_Historic_scaled + Geographic_Dist_s
                      data=wl2_crosses_2024_formod)
 summary(totalfit_climhist2) #sig pos geo dist 
 ```
-Sig pos relat b/t geo dist and total fitness w/ caveat that Total Fitness does not have a normal distribution 
+
+Sig pos relat b/t geo dist and total fitness w/ caveat that Total Fitness does not have a normal distribution
 
 ```{r}
 wl2_parents_2024_formod %>% 
@@ -1313,4 +1327,4 @@ totalfit_climhist2 <- lmer(TotalFitness ~ GD_Historic_scaled + Geographic_Dist_s
 summary(totalfit_climhist2) #pos height effect
 ```
 
-No relat w/ geo dist for parents, only height 
+No relat w/ geo dist for parents, only height
