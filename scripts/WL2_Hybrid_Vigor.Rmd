@@ -9,12 +9,220 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# Evidence for hybrid vigor? 
+# Evidence for hybrid vigor?
 
 -   Fitness of F1s higher than parents?
 
+    -   Comparison to mid-parent value - convert to a log distance so can easily see which F1s did better or worse than the parents
+    
+    -   If signs of heterosis in fitness, look at size and other traits too
+
 -   Relationship between heterozygosity of F1s and fitness?
 
--   Comparison to mid-parent value - convert to a log distance so can easily see which F1s did better or worse than the parents 
-
 All crosses, even those without WL2
+
+## Libraries
+```{r}
+library(tidyverse)
+
+cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+```
+
+## Read in Fitness Data
+```{r}
+total_fit_2024 <- read_csv("../output/WL2_Traits/WL2_2024_AllFitness.csv") %>% 
+  mutate(num.fruit=if_else(is.na(num.fruit) | num.fruit==0, NA, num.fruit)) %>%  #make num fruit, per-capita rep output (no 0s)
+  rename(FruitsY2=num.fruit)
+
+total_fit_2025 <- read_csv("../output/WL2_Traits/WL2_2025_AllFitness.csv")  %>% 
+  mutate(FruitsY1=if_else(is.na(FruitsY1) | FruitsY1==0, NA, FruitsY1),
+         FruitsY2=if_else(is.na(FruitsY2) | FruitsY2==0, NA, FruitsY2),
+         TotalFruit=if_else(is.na(TotalFruit) | TotalFruit==0, NA, TotalFruit)) #make num fruit, per-capita rep output (no 0s)
+```
+
+## Summaries
+```{r}
+total_fit_2024_summary <- total_fit_2024 %>% 
+  rename(TotalFruit=FruitsY2) %>% 
+  filter(Pop.Type!="F2") %>% 
+  group_by(Pop.Type, pop) %>% 
+  summarise(n=n(), meanEst=mean(Establishment, na.rm=TRUE), 
+            meanY1Surv=mean(Y1Surv, na.rm=TRUE), 
+            meanWintSurv=mean(WintSurv, na.rm=TRUE), 
+            meanSurvtoBud=mean(SurvtoBud, na.rm=TRUE), 
+            meanTotalFruit=mean(TotalFruit, na.rm=TRUE), 
+            meanProbFruit=mean(ProbFruit, na.rm=TRUE), 
+            meanTotalFit=mean(TotalFitness, na.rm=TRUE)) %>% 
+  filter(n>2) %>% 
+  select(-n)
+total_fit_2024_summary_parent1 <- total_fit_2024_summary %>% 
+  filter(Pop.Type=="Parent") %>% 
+  ungroup() %>% 
+  select(-Pop.Type) %>% 
+  rename_with(~ paste0(., "_Parent1"))
+total_fit_2024_summary_parent2 <- total_fit_2024_summary %>% 
+  filter(Pop.Type=="Parent") %>% 
+  ungroup() %>% 
+  select(-Pop.Type) %>% 
+  rename_with(~ paste0(., "_Parent2"))
+
+total_fit_2025_summary <- total_fit_2025 %>% 
+  filter(Pop.Type!="F2") %>% 
+  group_by(Pop.Type, pop.id) %>% 
+  summarise(n=n(), meanEst=mean(Establishment, na.rm=TRUE), 
+            meanY1Surv=mean(Y1Surv, na.rm=TRUE), 
+            meanWintSurv=mean(WintSurv, na.rm=TRUE), 
+            meanSurvtoBud=mean(SurvtoBud, na.rm=TRUE), 
+            meanTotalFruit=mean(TotalFruit, na.rm=TRUE), 
+            meanProbFruit=mean(ProbFruit, na.rm=TRUE), 
+            meanTotalFit=mean(TotalFitness, na.rm=TRUE)) %>% 
+  filter(n>2) %>% 
+  select(-n)
+total_fit_2025_summary_parent1 <- total_fit_2025_summary %>% 
+  filter(Pop.Type=="Parent") %>% 
+  ungroup() %>% 
+  select(-Pop.Type) %>% 
+  rename_with(~ paste0(., "_Parent1"))
+total_fit_2025_summary_parent2 <- total_fit_2025_summary %>% 
+  filter(Pop.Type=="Parent") %>% 
+  ungroup() %>% 
+  select(-Pop.Type) %>% 
+  rename_with(~ paste0(., "_Parent2"))
+```
+
+## Calculate mid-parent values
+```{r}
+total_fit_2024_midparent_calcs <- total_fit_2024_summary %>% 
+  filter(Pop.Type=="F1") %>% 
+  separate(pop, c("Pop1", NA, "Pop2"), remove = FALSE) %>% 
+  left_join(total_fit_2024_summary_parent1, by=join_by(Pop1==pop_Parent1)) %>% 
+  left_join(total_fit_2024_summary_parent2, by=join_by(Pop2==pop_Parent2)) %>% 
+  mutate(mid_parent_Est=(meanEst_Parent1+meanEst_Parent2)/2,
+         mid_parent_Y1Surv=(meanY1Surv_Parent1+meanY1Surv_Parent2)/2,
+         mid_parent_WintSurv=(meanWintSurv_Parent1+meanWintSurv_Parent2)/2,
+         mid_parent_SurvtoBud=(meanSurvtoBud_Parent1+meanSurvtoBud_Parent2)/2,
+         mid_parent_TotalFruit=(meanTotalFruit_Parent1+meanTotalFruit_Parent2)/2,
+         mid_parent_ProbFruit=(meanProbFruit_Parent1+meanProbFruit_Parent2)/2,
+         mid_parent_TotalFit=(meanTotalFit_Parent1+meanTotalFit_Parent2)/2) %>% 
+  mutate(dist_Est=(meanEst-mid_parent_Est),
+         dist_Y1Surv=(meanY1Surv-mid_parent_Y1Surv),
+         dist_WintSurv=(meanWintSurv-mid_parent_WintSurv),
+         dist_SurvtoBud=(meanSurvtoBud-mid_parent_SurvtoBud),
+         dist_TotalFruit=(meanTotalFruit-mid_parent_TotalFruit),
+         dist_ProbFruit=(meanProbFruit-mid_parent_ProbFruit),
+         dist_TotalFit=(meanTotalFit-mid_parent_TotalFit)) %>% 
+  mutate(Year="2024")
+
+total_fit_2025_midparent_calcs <- total_fit_2025_summary %>% 
+  filter(Pop.Type=="F1") %>% 
+  separate(pop.id, c("Pop1", NA, "Pop2"), remove = FALSE) %>% 
+  left_join(total_fit_2025_summary_parent1, by=join_by(Pop1==pop.id_Parent1)) %>% 
+  left_join(total_fit_2025_summary_parent2, by=join_by(Pop2==pop.id_Parent2)) %>% 
+  mutate(mid_parent_Est=(meanEst_Parent1+meanEst_Parent2)/2,
+         mid_parent_Y1Surv=(meanY1Surv_Parent1+meanY1Surv_Parent2)/2,
+         mid_parent_WintSurv=(meanWintSurv_Parent1+meanWintSurv_Parent2)/2,
+         mid_parent_SurvtoBud=(meanSurvtoBud_Parent1+meanSurvtoBud_Parent2)/2,
+         mid_parent_TotalFruit=(meanTotalFruit_Parent1+meanTotalFruit_Parent2)/2,
+         mid_parent_ProbFruit=(meanProbFruit_Parent1+meanProbFruit_Parent2)/2,
+         mid_parent_TotalFit=(meanTotalFit_Parent1+meanTotalFit_Parent2)/2)  %>% 
+  mutate(dist_Est=(meanEst-mid_parent_Est),
+         dist_Y1Surv=(meanY1Surv-mid_parent_Y1Surv),
+         dist_WintSurv=(meanWintSurv-mid_parent_WintSurv),
+         dist_SurvtoBud=(meanSurvtoBud-mid_parent_SurvtoBud),
+         dist_TotalFruit=(meanTotalFruit-mid_parent_TotalFruit),
+         dist_ProbFruit=(meanProbFruit-mid_parent_ProbFruit),
+         dist_TotalFit=(meanTotalFit-mid_parent_TotalFit)) %>% 
+  mutate(Year="2025")
+```
+
+## Figures
+
+### Establishment
+```{r}
+total_fit_2024_midparent_calcs %>% 
+  rename(pop.id=pop) %>% 
+  bind_rows(total_fit_2025_midparent_calcs) %>% 
+  ggplot(aes(x=pop.id, y=dist_Est, colour = Year)) +
+  geom_point(size=6) +
+  theme_classic() +
+  scale_color_manual(values = cbPalette) +
+  geom_hline(yintercept = 0, color = "red", linetype = "dashed", linewidth = 1) +
+  labs(x="F1", y="Establishment \n Mid-Parent Distance") +
+  theme(text=element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1)) 
+ggsave("../output/WL2_Traits/WL2_Est_MidParentDist.png", width = 12, height = 6, units = "in")
+```
+
+### Y1 Survival
+```{r}
+total_fit_2024_midparent_calcs %>% 
+  rename(pop.id=pop) %>% 
+  bind_rows(total_fit_2025_midparent_calcs) %>% 
+  ggplot(aes(x=pop.id, y=dist_Y1Surv, colour = Year)) +
+  geom_point(size=6) +
+  theme_classic() +
+  scale_color_manual(values = cbPalette) +
+  geom_hline(yintercept = 0, color = "red", linetype = "dashed", linewidth = 1) +
+  labs(x="F1", y="Y1 Survival \n Mid-Parent Distance") +
+  theme(text=element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1)) 
+ggsave("../output/WL2_Traits/WL2_Y1Surv_MidParentDist.png", width = 12, height = 6, units = "in")
+```
+
+### Winter Surv
+```{r}
+total_fit_2024_midparent_calcs %>% 
+  rename(pop.id=pop) %>% 
+  bind_rows(total_fit_2025_midparent_calcs) %>% 
+  ggplot(aes(x=pop.id, y=dist_WintSurv, colour = Year)) +
+  geom_point(size=6) +
+  theme_classic() +
+  scale_color_manual(values = cbPalette) +
+  geom_hline(yintercept = 0, color = "red", linetype = "dashed", linewidth = 1) +
+  labs(x="F1", y="Winter Surv \n Mid-Parent Distance") +
+  theme(text=element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1)) 
+ggsave("../output/WL2_Traits/WL2_WintSurv_MidParentDist.png", width = 12, height = 6, units = "in")
+```
+
+### Surv to Bud
+```{r}
+total_fit_2024_midparent_calcs %>% 
+  rename(pop.id=pop) %>% 
+  bind_rows(total_fit_2025_midparent_calcs) %>% 
+  ggplot(aes(x=pop.id, y=dist_SurvtoBud, colour = Year)) +
+  geom_point(size=6) +
+  theme_classic() +
+  scale_color_manual(values = cbPalette) +
+  geom_hline(yintercept = 0, color = "red", linetype = "dashed", linewidth = 1) +
+  labs(x="F1", y="Surv to Bud \n Mid-Parent Distance") +
+  theme(text=element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1)) 
+ggsave("../output/WL2_Traits/WL2_SurvtoBud_MidParentDist.png", width = 12, height = 6, units = "in")
+```
+
+### Fecundity
+```{r}
+total_fit_2024_midparent_calcs %>% 
+  rename(pop.id=pop) %>% 
+  bind_rows(total_fit_2025_midparent_calcs) %>% 
+  ggplot(aes(x=pop.id, y=dist_TotalFruit, colour = Year)) +
+  geom_point(size=6) +
+  theme_classic() +
+  scale_color_manual(values = cbPalette) +
+  geom_hline(yintercept = 0, color = "red", linetype = "dashed", linewidth = 1) +
+  labs(x="F1", y="Fecundity \n Mid-Parent Distance") +
+  theme(text=element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1)) 
+ggsave("../output/WL2_Traits/WL2_TotalFruit_MidParentDist.png", width = 12, height = 6, units = "in")
+```
+
+### Total Fitness
+```{r}
+total_fit_2024_midparent_calcs %>% 
+  rename(pop.id=pop) %>% 
+  bind_rows(total_fit_2025_midparent_calcs) %>% 
+  ggplot(aes(x=pop.id, y=dist_TotalFit, colour = Year)) +
+  geom_point(size=6) +
+  theme_classic() +
+  scale_color_manual(values = cbPalette) +
+  geom_hline(yintercept = 0, color = "red", linetype = "dashed", linewidth = 1) +
+  labs(x="F1", y="Total Fitness \n Mid-Parent Distance") +
+  theme(text=element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1)) 
+ggsave("../output/WL2_Traits/WL2_TotalFit_MidParentDist.png", width = 12, height = 6, units = "in")
+```
