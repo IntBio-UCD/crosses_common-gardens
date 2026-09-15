@@ -1,0 +1,120 @@
+---
+title: "WL2_2025_Size_Check"
+author: "Brandie QC"
+date: '`r Sys.Date()`'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Checking size curve at the field to determine if it's okay to start slowing down size measurements 
+
+## Libraries
+```{r}
+library(tidyverse)
+
+sem <- function(x, na.rm=FALSE) {           #for calculating standard error
+  sd(x,na.rm=na.rm)/sqrt(length(na.omit(x)))
+} 
+```
+
+```{r}
+files <- dir("../input/WL2_2026_Data/CorrectedCSVs/",
+             pattern="size_survey_.*csv",
+             full.names=TRUE) 
+files
+```
+
+```{r}
+dat <- tibble(path=files, filename=basename(path))
+```
+
+```{r}
+dat2 <- dat %>% 
+  mutate(survey_date=str_extract(filename, "[0-9]{8}")) %>%  #look for numbers, 8 long 
+   mutate(survey_date=lubridate:: ymd(survey_date))
+```
+
+```{r}
+dat3 <- dat2 %>%
+  mutate(sheets=map(path, 
+                    read_csv,
+                    #col_types=cols(.default=col_character()), 
+                    na = c("", "NA", "-", "N/A"))) %>% #for each file path, read_csv
+  select(-path)
+dat3
+```
+
+```{r}
+map(dat3$sheets, colnames) %>% #check the column names 
+  unlist() %>%
+  unique() %>%
+  sort() 
+
+map(dat3$sheets, head, 10) #check to make sure the datasheets look good 
+
+dat3$sheets[[1]] %>% rowwise() %>% filter(!is.na(herbv.scale)) %>%  filter(is.na(as.numeric(herbv.scale))) #some data entry errors, fixed on correctedCSV 
+
+dat3$sheets[[2]] %>% rowwise() %>% filter(!is.na(height.cm)) %>%  filter(is.na(as.numeric(height.cm))) #some NAs with periods, fixed on correctedCSV  
+dat3$sheets[[2]] %>% rowwise() %>% filter(!is.na(overhd.diam)) %>%  filter(is.na(as.numeric(overhd.diam))) #some NAs with periods, fixed on correctedCSV  
+dat3$sheets[[2]] %>% rowwise() %>% filter(!is.na(herbv.scale)) %>%  filter(is.na(as.numeric(herbv.scale))) #some data entry errors, fixed on correctedCSV  
+
+dat3$sheets[[3]] %>% rowwise() %>% filter(!is.na(herbv.scale)) %>%  filter(is.na(as.numeric(herbv.scale))) #some data entry errors, fixed on correctedCSV  
+
+dat3$sheets[[4]] %>% rowwise() %>% filter(!is.na(herbv.scale)) %>%  filter(is.na(as.numeric(herbv.scale)))  #some data entry errors, fixed on correctedCSV  
+
+dat3$sheets[[5]] %>% rowwise() %>% filter(!is.na(overhd.perp)) %>%  filter(is.na(as.numeric(overhd.perp))) #NAs with slashes, fixed on correctedCSV  
+dat3$sheets[[5]] %>% rowwise() %>% filter(!is.na(herbv.scale)) %>%  filter(is.na(as.numeric(herbv.scale))) #some weird NAs, fixed on correctedCSV   
+
+dat3$sheets[[7]] %>% rowwise() %>% filter(!is.na(height.cm)) %>%  filter(is.na(as.numeric(height.cm))) #some NAs with periods, fixed on correctedCSV  
+
+dat3$sheets[[8]] %>% rowwise() %>% filter(!is.na(herbv.scale)) %>%  filter(is.na(as.numeric(herbv.scale))) #some data entry errors, fixed on correctedCSV  
+
+dat3$sheets[[9]] %>% rowwise() %>% filter(!is.na(overhd.diam)) %>%  filter(is.na(as.numeric(overhd.diam)))
+#Na instead of NA, fixed on correctedCSV 
+
+dat3$sheets[[10]] %>% rowwise() %>% filter(!is.na(herbv.scale)) %>%  filter(is.na(as.numeric(herbv.scale)))
+#some data entry errors, fixed on correctedCSV  
+```
+
+```{r}
+#unnest 
+dat4 <- dat3 %>% unnest(sheets) %>%
+  filter(Unique.ID != "buffer") 
+head(dat4)
+
+unique(dat4$survey_date)
+```
+
+```{r}
+dat4 %>% 
+  group_by(survey_date) %>% 
+  summarise(meanHeight=mean(height.cm, na.rm = TRUE), 
+            semHeight=sem(height.cm, na.rm=TRUE)) %>% 
+  ggplot(aes(x=survey_date, y=meanHeight)) + geom_point() + geom_line() +
+  geom_errorbar(aes(ymin=meanHeight-semHeight,ymax=meanHeight+semHeight),width=.2) +
+  labs(y="Avg Height (cm)", x="Survey Date") +
+  theme_classic() +
+  theme(text=element_text(size=25))
+#decline in size is likely due to rep indivs being taken out of the size surveys
+
+#look at size curve for indivs in year 1 only
+pop_info_2026 <- read_csv("../input/WL2_2026_Data/Buffer New Bed Map_Corrected.csv") %>%
+  rename(rep=Rep, Pop.Type=Type) 
+
+dat4 %>% 
+  left_join(pop_info_2026) %>% 
+  filter(status=="available") %>% 
+  group_by(survey_date) %>% 
+  summarise(meanHeight=mean(height.cm, na.rm = TRUE), 
+            semHeight=sem(height.cm, na.rm=TRUE)) %>% 
+  ggplot(aes(x=survey_date, y=meanHeight)) + geom_point() + geom_line() +
+  geom_errorbar(aes(ymin=meanHeight-semHeight,ymax=meanHeight+semHeight),width=.2) +
+  labs(y="Avg Height (cm)", x="Survey Date", title="2026 Seedlings") +
+  theme_classic() +
+  theme(text=element_text(size=25))
+ggsave("../output/WL2_Traits/WL2_2026_Height_Check.png", width = 14, height = 8, units = "in")
+```
+
