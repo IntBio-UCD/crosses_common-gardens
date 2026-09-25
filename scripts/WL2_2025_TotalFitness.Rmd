@@ -360,7 +360,9 @@ total_fit_2025plants_summary %>%
   labs(x="Population", y="Avg Winter Survival", fill="Elevation (m)") +
   scale_y_continuous(expand = c(0.01, 0)) +
   scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
-  theme_classic()
+  theme_classic() +
+  theme(text=element_text(size=25), axis.text.x = element_text(angle = 45, hjust = 1))
+ggsave("../output/WL2_Traits/WL2_WINTSURV_25-26_Parents.png", width = 10, height = 6, units = "in")
 
 total_fit_2025plants_summary %>% 
   filter(Pop.Type=="F1") %>% 
