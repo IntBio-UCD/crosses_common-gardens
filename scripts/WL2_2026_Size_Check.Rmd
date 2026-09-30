@@ -98,6 +98,7 @@ dat4 %>%
   labs(y="Avg Height (cm)", x="Survey Date") +
   theme_classic() +
   theme(text=element_text(size=25))
+ggsave("../output/WL2_Traits/WL2_2026_Height_Check_all.png", width = 14, height = 8, units = "in")
 #decline in size is likely due to rep indivs being taken out of the size surveys
 
 #look at size curve for indivs in year 1 only
@@ -115,6 +116,6 @@ dat4 %>%
   labs(y="Avg Height (cm)", x="Survey Date", title="2026 Seedlings") +
   theme_classic() +
   theme(text=element_text(size=25))
-ggsave("../output/WL2_Traits/WL2_2026_Height_Check.png", width = 14, height = 8, units = "in")
+ggsave("../output/WL2_Traits/WL2_2026_Height_Check_new.png", width = 14, height = 8, units = "in")
 ```
 
