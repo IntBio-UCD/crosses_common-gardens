@@ -1,0 +1,85 @@
+---
+title: "WL2_Size_Merge"
+author: "Brandie QC"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+```
+
+## 2024
+```{r}
+size_2024 <- dir("../input/WL2_2024_Data/CorrectedCSVs",
+             pattern="WL2_size_survey.*corrected.*csv",
+             full.names=TRUE)
+
+size_2024_dat_wl2 <- tibble(path=size_2024, filename=basename(path)) %>% 
+  mutate(survey_date=str_extract(filename, "20[0-9]*"),
+         survey_date=lubridate::ymd(survey_date))
+size_2024_dat_wl2
+
+size_2024_dat_wl22 <- size_2024_dat_wl2 %>%
+  mutate(sheets=map(path, 
+                    read_csv,
+                    na = c("", "NA", "-", "N/A") # sets NA strings. 
+                    )) %>%
+  select(-path)
+
+#remove 2023 plants from first 3 surveys (these plants are in the "2023Plants_corrected" files):
+size_2024_dat_wl22$sheets[[2]] <- size_2024_dat_wl22$sheets[[2]] %>% filter(!is.na(block)) %>% filter(!is.na(unique.ID)) 
+size_2024_dat_wl22$sheets[[4]] <- size_2024_dat_wl22$sheets[[4]] %>% filter(!is.na(block)) %>% filter(!is.na(unique.ID)) 
+size_2024_dat_wl22$sheets[[6]] <- size_2024_dat_wl22$sheets[[6]] %>% filter(!is.na(block)) %>% filter(!is.na(unique.ID)) 
+
+all_2024_size <- size_2024_dat_wl22 %>% 
+  unnest(sheets) %>% 
+  select(bed, col, row, unique.ID, survey_date, 
+         height.cm, long.leaf.cm, overhd.diam, overhd.perp, herbiv.y.n)
+
+popinfo_2024 <- read_csv("../input/WL2_2024_Data/Final_2023_2024_Pop_Loc_Info.csv") %>% select(pop:unique.ID)
+
+all_2024_size_pops <- all_2024_size %>% 
+  filter(unique.ID!="buffer", !is.na(unique.ID)) %>% 
+  left_join(popinfo_2024) %>% 
+  select(bed:row, pop:rep, unique.ID:herbiv.y.n)
+write_csv(all_2024_size_pops, "../output/WL2_Traits/WL2_2024_Size-Merged.csv")
+```
+
+## 2025
+```{r}
+size_2025 <- dir("../input/WL2_2025_Data/CorrectedCSVs",
+             pattern="WL2_size_survey.*corrected.*csv",
+             full.names=TRUE)
+
+size_2025_dat_wl2 <- tibble(path=size_2025, filename=basename(path)) %>% 
+  mutate(survey_date=str_extract(filename, "20[0-9]*"),
+         survey_date=lubridate::ymd(survey_date))
+size_2025_dat_wl2
+
+size_2025_dat_wl22 <- size_2025_dat_wl2 %>%
+  mutate(sheets=map(path, 
+                    read_csv,
+                    na = c("", "NA", "-", "N/A") # sets NA strings. 
+                    )) %>%
+  select(-path)
+
+all_2025_size <- size_2025_dat_wl22 %>% 
+  unnest(sheets) %>% 
+  select(bed, col, row, Unique.ID, survey_date, 
+         height.cm, overhd.diam, overhd.perp, herbv.scale, leaf.number)
+
+popinfo_2025 <- read_csv("../input/WL2_2025_Data/2025_Pop_Loc_Info Updated.csv") %>% 
+  select(status, pop.id:Unique.ID)
+
+all_2025_size_pops <- all_2025_size %>% 
+  filter(Unique.ID!="buffer", !is.na(Unique.ID)) %>% 
+  left_join(popinfo_2025) %>% 
+  mutate(status=if_else(status=="available", "2025-plant", status)) %>% 
+  select(bed:row, status, pop.id:rep, Unique.ID:leaf.number)
+write_csv(all_2025_size_pops, "../output/WL2_Traits/WL2_2025_Size-Merged.csv")
+```
