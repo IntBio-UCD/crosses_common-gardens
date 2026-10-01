@@ -111,7 +111,7 @@ for (i in data_names) {
   #combine into one problems list
   data_probs <- bind_rows(data2, data5, data6, data7, data8, data9, data10)
   print(nrow(data_probs))
-  write_csv(data_probs, path=out_table)
+  write_csv(data_probs, file=out_table)
 }
 ```
 
@@ -143,7 +143,7 @@ for (i in data_names) {
   
   #check for extreme values
   data3 <- data %>% mutate(height.cm=as.double(height.cm))
-  data3 <- data3 %>% filter(height.cm>30) %>% 
+  data3 <- data3 %>% filter(height.cm>50) %>% 
     mutate(problem="extreme value", height.cm=as.character(height.cm))
   
   #check for letters in number columns 
@@ -166,7 +166,7 @@ for (i in data_names) {
   #combine into one problems list
   data_probs <- rbind(data2, data3, data4, data5, data6, data7)
   print(nrow(data_probs))
-  write_csv(data_probs, path=out_table)
+  write_csv(data_probs, file=out_table)
 }
 ```
 
