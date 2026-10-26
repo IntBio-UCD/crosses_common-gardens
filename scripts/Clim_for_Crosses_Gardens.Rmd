@@ -403,9 +403,6 @@ flint_all_year_wtr_yr_trad <- flint_all_year_mosnums %>%
                            month == "sep" ~ 12)) %>% 
   select(parent.pop:month, timeframe, wtr_yr, months_wtryr, aet:tmx)  #organize the columns 
 summary(flint_all_year_wtr_yr_trad)
-
-#water year is calculated Nov - October to match census dates at WL2. Could have issues with this, but move forward for now. Can be changed later. 
-##Note: we don't currently have Oct for 2025!
 ```
 
 ## Bioclim water year calculations
