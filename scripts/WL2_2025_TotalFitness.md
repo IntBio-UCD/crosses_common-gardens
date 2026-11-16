@@ -1,7 +1,7 @@
 ---
 title: "WL2_2025_TotalFitness"
 author: "Brandie QC"
-date: "2026-09-14"
+date: "2026-11-16"
 output: 
   html_document: 
     keep_md: true
@@ -115,8 +115,8 @@ fruits_2025 <- read_csv("../input/WL2_2025_Data/CorrectedCSVs/WL2_ann_cens_20251
 ```
 
 ``` r
-surv_2026 <- read_csv("../input/WL2_2026_Data/CorrectedCSVs/WL2_mort_pheno_20260903_corrected.csv") %>% 
-  select(-survey.notes)#for surv to budding - need to update this with end of season data
+surv_2026 <- read_csv("../input/WL2_2026_Data/CorrectedCSVs/WL2_mort_pheno_20261016_corrected.csv") %>% 
+  select(-survey.notes)#for surv to budding
 ```
 
 ```
@@ -136,20 +136,20 @@ unique(surv_2026$bud.date)
 
 ```
 ##  [1] NA        "5/14/26" "6/5/26"  "5/28/26" "6/10/26" "6/26/26" "7/31/26"
-##  [8] "6/17/26" "7/2/26"  "8/13/26" "7/10/26" "9/3/26"
+##  [8] "6/17/26" "7/2/26"  "8/13/26" "7/10/26" "9/3/26"  "9/10/26"
 ```
 
 ``` r
-fruits_2026 <- read_csv("../input/WL2_2026_Data/CorrectedCSVs/WL2_ann_cens_20260903.csv") %>% 
+fruits_2026 <- read_csv("../input/WL2_2026_Data/CorrectedCSVs/WL2_ann_cens_20261016_corrected.csv") %>% 
   rename(num.fruit=`num. fruit`) %>% 
-  select(-survey.notes) #for fruit number - need to update this with end of season data
+  select(-survey.notes) #for fruit number 
 ```
 
 ```
 ## Rows: 838 Columns: 16
 ## ── Column specification ────────────────────────────────────────────────────────
 ## Delimiter: ","
-## chr (7): bed, col, Unique. ID, phen, survey. date, collected. date, survey.n...
+## chr (7): bed, col, Unique.ID, phen, survey. date, collected. date, survey.notes
 ## dbl (9): row, total. branch, diam. mm, height. cm, overhd .diam, overhd .per...
 ## 
 ## ℹ Use `spec()` to retrieve the full column specification for this data.
@@ -244,7 +244,8 @@ clim_dist_2025_wide <- clim_dist_2025 %>%
 ``` r
 rep_2025 %>% 
   left_join(pop_info_2025) %>% 
-  filter(status=="available") %>% filter(!is.na(bud.date)) #39 annuals 
+  filter(status=="available") %>% 
+  filter(!is.na(bud.date)) #39 annuals 
 ```
 
 ```
@@ -369,7 +370,7 @@ y1_fitness %>% filter(LifeHistory=="TBD") #all 3 have bud dates of Sept - only 1
 ``` r
 surv_2026 %>% left_join(pop_info_2026) %>% 
   filter(status=="2025-survivor") %>% filter(is.na(death.date)) %>% 
-  filter(is.na(bud.date)) #no 2025 plant alive that have not reproduced yet
+  filter(is.na(bud.date)) #no 2025 plants alive that have not reproduced yet
 ```
 
 ```
@@ -427,15 +428,29 @@ y2_fitness <- pop_info_2026 %>%
 
 ```
 ## Joining with `by = join_by(bed, row, col, Unique.ID)`
-## Joining with `by = join_by(bed, row, col)`
+## Joining with `by = join_by(bed, row, col, Unique.ID)`
+```
+
+``` r
+y2_fitness %>% filter(SurvtoBud==1) %>% filter(is.na(FruitsY2) | FruitsY2==0) #12 plants that initiated rep but failed to produce viable fruits 
 ```
 
 ```
-## Warning in left_join(., fruits_2026): Detected an unexpected many-to-many relationship between `x` and `y`.
-## ℹ Row 769 of `x` matches multiple rows in `y`.
-## ℹ Row 769 of `y` matches multiple rows in `x`.
-## ℹ If a many-to-many relationship is expected, set `relationship =
-##   "many-to-many"` to silence this warning.
+## # A tibble: 12 × 6
+##    Unique.ID pop.id                  mf        rep SurvtoBud FruitsY2
+##    <chr>     <chr>                   <chr>   <dbl>     <dbl>    <dbl>
+##  1 2169      (TM2) x (TM2 x WL2)     2-1_2       1         1       NA
+##  2 2579      (WV) x (WV x WL2)       3_22        2         1        0
+##  3 2419      SQ3 x WL2               6-C_8-A     3         1       NA
+##  4 2554      (WL2 x WV) x (CC x WL2) 1_1         8         1       NA
+##  5 2597      (TM2 x WL2) x (TM2)     3_1-3       1         1        0
+##  6 1600      BH                      3           1         1       NA
+##  7 1800      TM2                     <NA>       96         1       NA
+##  8 2581      (WV) x (WV x WL2)       3_22        4         1       NA
+##  9 1871      WL2                     5          48         1       NA
+## 10 2195      (WL2 x BH) x (WL2 x CC) 1_2         4         1       NA
+## 11 2615      BH                      3           2         1       NA
+## 12 2171      (TM2) x (TM2 x WL2)     2-1_2       3         1       NA
 ```
 
 ## Merge y1 and y2 fitness ---\> total fitnes
@@ -480,16 +495,16 @@ summary(total_fit_2025plants)
 ```
 
 ```
-##     block               bed                 row            col           
-##  Length:684         Length:684         Min.   : 4.00   Length:684        
-##  Class :character   Class :character   1st Qu.:14.75   Class :character  
-##  Mode  :character   Mode  :character   Median :25.00   Mode  :character  
-##                                        Mean   :26.76                     
-##                                        3rd Qu.:40.00                     
-##                                        Max.   :58.00                     
-##                                                                          
+##     block               bed                 row           col           
+##  Length:682         Length:682         Min.   : 4.0   Length:682        
+##  Class :character   Class :character   1st Qu.:15.0   Class :character  
+##  Mode  :character   Mode  :character   Median :25.0   Mode  :character  
+##                                        Mean   :26.8                     
+##                                        3rd Qu.:40.0                     
+##                                        Max.   :58.0                     
+##                                                                         
 ##   Unique.ID           Pop.Type            pop.id               mf           
-##  Length:684         Length:684         Length:684         Length:684        
+##  Length:682         Length:682         Length:682         Length:682        
 ##  Class :character   Class :character   Class :character   Class :character  
 ##  Mode  :character   Mode  :character   Mode  :character   Mode  :character  
 ##                                                                             
@@ -497,34 +512,34 @@ summary(total_fit_2025plants)
 ##                                                                             
 ##                                                                             
 ##    dame_mf            sire_mf               rep           FruitsY1     
-##  Length:684         Length:684         Min.   : 1.00   Min.   : 1.000  
+##  Length:682         Length:682         Min.   : 1.00   Min.   : 1.000  
 ##  Class :character   Class :character   1st Qu.: 3.00   1st Qu.: 2.000  
 ##  Mode  :character   Mode  :character   Median : 7.00   Median : 4.500  
-##                                        Mean   :15.63   Mean   : 4.812  
+##                                        Mean   :15.67   Mean   : 4.812  
 ##                                        3rd Qu.:18.00   3rd Qu.: 6.250  
 ##                                        Max.   :96.00   Max.   :14.000  
-##                                                        NA's   :652     
+##                                                        NA's   :650     
 ##  Establishment        Y1Surv          WintSurv      LifeHistory       
-##  Min.   :0.0000   Min.   :0.0000   Min.   :0.0000   Length:684        
+##  Min.   :0.0000   Min.   :0.0000   Min.   :0.0000   Length:682        
 ##  1st Qu.:1.0000   1st Qu.:0.0000   1st Qu.:0.0000   Class :character  
 ##  Median :1.0000   Median :1.0000   Median :0.0000   Mode  :character  
-##  Mean   :0.9137   Mean   :0.7456   Mean   :0.2747                     
+##  Mean   :0.9135   Mean   :0.7448   Mean   :0.2716                     
 ##  3rd Qu.:1.0000   3rd Qu.:1.0000   3rd Qu.:1.0000                     
 ##  Max.   :1.0000   Max.   :1.0000   Max.   :1.0000                     
 ##                   NA's   :59       NA's   :218                        
-##    SurvtoBud         FruitsY2       TotalFruit       ProbFruit    
-##  Min.   :0.0000   Min.   : 0.00   Min.   : 0.000   Min.   :0.000  
-##  1st Qu.:0.0000   1st Qu.: 5.00   1st Qu.: 0.000   1st Qu.:0.000  
-##  Median :0.0000   Median :12.00   Median : 0.000   Median :0.000  
-##  Mean   :0.4922   Mean   :15.51   Mean   : 1.382   Mean   :0.117  
-##  3rd Qu.:1.0000   3rd Qu.:22.00   3rd Qu.: 0.000   3rd Qu.:0.000  
-##  Max.   :1.0000   Max.   :69.00   Max.   :69.000   Max.   :1.000  
-##  NA's   :556      NA's   :633                                     
+##    SurvtoBud      FruitsY2       TotalFruit       ProbFruit     
+##  Min.   :0.0   Min.   : 0.00   Min.   : 0.000   Min.   :0.0000  
+##  1st Qu.:0.0   1st Qu.: 5.00   1st Qu.: 0.000   1st Qu.:0.0000  
+##  Median :0.5   Median :12.00   Median : 0.000   Median :0.0000  
+##  Mean   :0.5   Mean   :15.13   Mean   : 1.402   Mean   :0.1202  
+##  3rd Qu.:1.0   3rd Qu.:22.00   3rd Qu.: 0.000   3rd Qu.:0.0000  
+##  Max.   :1.0   Max.   :69.00   Max.   :69.000   Max.   :1.0000  
+##  NA's   :556   NA's   :629                                      
 ##   TotalFitness   
 ##  Min.   : 0.000  
 ##  1st Qu.: 0.000  
 ##  Median : 0.000  
-##  Mean   : 1.382  
+##  Mean   : 1.402  
 ##  3rd Qu.: 0.000  
 ##  Max.   :69.000  
 ## 
@@ -741,13 +756,13 @@ total_fit_2025plants_summary
 ##    <chr>    <chr>    <dbl>   <dbl>      <dbl>     <dbl>        <dbl>       <dbl>
 ##  1 F1       BH x …   0.929  0.0714      0.692     0.133        0.111       0.111
 ##  2 F1       DPR x…   0.9    0.1         0.556     0.176        0.6         0.245
-##  3 F1       LV1 x…   1      0           0.7       0.153        0.286       0.184
+##  3 F1       LV1 x…   1      0           0.667     0.167        0.167       0.167
 ##  4 F1       SQ3 x…   0.714  0.184       1         0            0.2         0.2  
 ##  5 F1       TM2 x…   0.929  0.0714      0.769     0.122        0.1         0.1  
 ##  6 F1       WL1 x…   0.917  0.0833      0.818     0.122        0.111       0.111
 ##  7 F1       WL2 x…   1      0           0.5       0.5          0          NA    
 ##  8 F1       WL2 x…   0.857  0.143       0.833     0.167        0.2         0.2  
-##  9 F1       WL2 x…   0.917  0.0833      0.727     0.141        0.25        0.164
+##  9 F1       WL2 x…   0.909  0.0909      0.7       0.153        0.143       0.143
 ## 10 F1       WL2 x…   1     NA           1        NA            1          NA    
 ## # ℹ 47 more rows
 ## # ℹ 8 more variables: meanSurvtoBud <dbl>, semSurvtoBud <dbl>, meanFruit <dbl>,
@@ -892,7 +907,8 @@ total_fit_2025plants_summary %>%
   labs(x="Population", y="Avg Winter Survival", fill="Elevation (m)") +
   scale_y_continuous(expand = c(0.01, 0)) +
   scale_fill_gradient(low = "#F5A540", high = "#0043F0") +
-  theme_classic()
+  theme_classic() +
+  theme(text=element_text(size=25), axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
 ```
@@ -902,6 +918,8 @@ total_fit_2025plants_summary %>%
 ![](WL2_2025_TotalFitness_files/figure-html/unnamed-chunk-13-1.png)<!-- -->
 
 ``` r
+ggsave("../output/WL2_Traits/WL2_WINTSURV_25-26_Parents.png", width = 10, height = 6, units = "in")
+
 total_fit_2025plants_summary %>% 
   filter(Pop.Type=="F1") %>% 
   mutate(Donor.Pop=str_remove_all(pop.id, "WL2")) %>% 

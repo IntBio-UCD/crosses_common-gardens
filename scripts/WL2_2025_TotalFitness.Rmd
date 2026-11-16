@@ -41,13 +41,13 @@ unique(wintsurv_2025_2026$bud.date) #no 2025 rep info
 rep_2025 <- read_csv("../input/WL2_2025_Data/CorrectedCSVs/WL2_mort_pheno_20250929_corrected.csv") %>% select(-survey.notes, -death.date) #for 2025 rep info
 fruits_2025 <- read_csv("../input/WL2_2025_Data/CorrectedCSVs/WL2_ann_cens_20251028_corrected.csv") %>% select(-survey.notes) #for 2025 rep info
 
-surv_2026 <- read_csv("../input/WL2_2026_Data/CorrectedCSVs/WL2_mort_pheno_20260903_corrected.csv") %>% 
-  select(-survey.notes)#for surv to budding - need to update this with end of season data
+surv_2026 <- read_csv("../input/WL2_2026_Data/CorrectedCSVs/WL2_mort_pheno_20261016_corrected.csv") %>% 
+  select(-survey.notes)#for surv to budding
 unique(surv_2026$bud.date)
 
-fruits_2026 <- read_csv("../input/WL2_2026_Data/CorrectedCSVs/WL2_ann_cens_20260903.csv") %>% 
+fruits_2026 <- read_csv("../input/WL2_2026_Data/CorrectedCSVs/WL2_ann_cens_20261016_corrected.csv") %>% 
   rename(num.fruit=`num. fruit`) %>% 
-  select(-survey.notes) #for fruit number - need to update this with end of season data
+  select(-survey.notes) #for fruit number 
 ```
 
 ## Pop Info
@@ -80,7 +80,8 @@ clim_dist_2025_wide <- clim_dist_2025 %>%
 ```{r}
 rep_2025 %>% 
   left_join(pop_info_2025) %>% 
-  filter(status=="available") %>% filter(!is.na(bud.date)) #39 annuals 
+  filter(status=="available") %>% 
+  filter(!is.na(bud.date)) #39 annuals 
 
 y1_fitness <- wintsurv_2025_2026 %>% 
   select(bed:Unique.ID, death.date, survey.notes) %>% 
@@ -115,7 +116,7 @@ y1_fitness %>% filter(LifeHistory=="TBD") #all 3 have bud dates of Sept - only 1
 ```{r}
 surv_2026 %>% left_join(pop_info_2026) %>% 
   filter(status=="2025-survivor") %>% filter(is.na(death.date)) %>% 
-  filter(is.na(bud.date)) #no 2025 plant alive that have not reproduced yet
+  filter(is.na(bud.date)) #no 2025 plants alive that have not reproduced yet
 surv_2026 %>% filter(is.na(bud.date)) %>% filter(!is.na(death.date)) %>% left_join(pop_info_2026) %>% 
   filter(status=="2025-survivor") #63 2025 plants died before reproducing 
 
@@ -127,6 +128,8 @@ y2_fitness <- pop_info_2026 %>%
   mutate(SurvtoBud=if_else(Unique.ID=="2640", 1, #missed the bud date for this plant but it did reproduce 
                            if_else(!is.na(bud.date), 1, 0))) %>% 
   select(Unique.ID, pop.id, mf, rep, SurvtoBud, FruitsY2=num.fruit)
+
+y2_fitness %>% filter(SurvtoBud==1) %>% filter(is.na(FruitsY2) | FruitsY2==0) #12 plants that initiated rep but failed to produce viable fruits 
 ```
 
 ## Merge y1 and y2 fitness ---\> total fitnes
