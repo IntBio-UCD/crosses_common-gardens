@@ -276,7 +276,9 @@ ggsave("../output/WL2_Traits/WL2_2024Plts_Est_WL2Cross_GeoDist.png", width = 12,
 ```
 
 ```{r}
+f1_parents_2024 <- tibble(pop=c("BH","DPR","LV1","SQ3","TM2","WV","WL2"))
 wl2_parents_2024_summary %>% 
+  right_join(f1_parents_2024) %>% 
   ggplot(aes(x=Geographic_Dist, y=meanEst, 
               group = pop, colour=elev_m)) +
   geom_errorbar(aes(ymin=meanEst-semEst,
@@ -1087,6 +1089,7 @@ wl2_crosses_2025_formod <- wl2_crosses_2025 %>%
 
 wl2_parents_2024_formod <- wl2_crosses_2024 %>% 
   filter(Pop.Type=="Parent") %>% 
+  right_join(f1_parents_2024) %>% 
   left_join(init_size_2024_pops) %>% 
   filter(!is.na(height.cm)) %>% 
   mutate(across(c("GD_Recent", "GD_Historic", "Geographic_Dist", "height.cm"), scale, .names = "{.col}_scaled")) 
