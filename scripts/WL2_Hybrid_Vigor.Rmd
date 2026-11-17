@@ -26,6 +26,10 @@ All crosses, even those without WL2
 library(tidyverse)
 
 cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+sem <- function(x, na.rm=FALSE) {  #for calculating standard error
+  sd(x,na.rm=na.rm)/sqrt(length(na.omit(x)))
+} 
 ```
 
 ## Read in Fitness Data
@@ -52,7 +56,14 @@ total_fit_2024_summary <- total_fit_2024 %>%
             meanSurvtoBud=mean(SurvtoBud, na.rm=TRUE), 
             meanTotalFruit=mean(TotalFruit, na.rm=TRUE), 
             meanProbFruit=mean(ProbFruit, na.rm=TRUE), 
-            meanTotalFit=mean(TotalFitness, na.rm=TRUE)) %>% 
+            meanTotalFit=mean(TotalFitness, na.rm=TRUE),
+            semEst=sem(Establishment, na.rm=TRUE), 
+            semY1Surv=sem(Y1Surv, na.rm=TRUE), 
+            semWintSurv=sem(WintSurv, na.rm=TRUE), 
+            semSurvtoBud=sem(SurvtoBud, na.rm=TRUE), 
+            semTotalFruit=sem(TotalFruit, na.rm=TRUE), 
+            semProbFruit=sem(ProbFruit, na.rm=TRUE), 
+            semTotalFit=sem(TotalFitness, na.rm=TRUE)) %>% 
   filter(n>2) %>% 
   select(-n)
 total_fit_2024_summary_parent1 <- total_fit_2024_summary %>% 
@@ -75,7 +86,14 @@ total_fit_2025_summary <- total_fit_2025 %>%
             meanSurvtoBud=mean(SurvtoBud, na.rm=TRUE), 
             meanTotalFruit=mean(TotalFruit, na.rm=TRUE), 
             meanProbFruit=mean(ProbFruit, na.rm=TRUE), 
-            meanTotalFit=mean(TotalFitness, na.rm=TRUE)) %>% 
+            meanTotalFit=mean(TotalFitness, na.rm=TRUE),
+            semEst=sem(Establishment, na.rm=TRUE), 
+            semY1Surv=sem(Y1Surv, na.rm=TRUE), 
+            semWintSurv=sem(WintSurv, na.rm=TRUE), 
+            semSurvtoBud=sem(SurvtoBud, na.rm=TRUE), 
+            semTotalFruit=sem(TotalFruit, na.rm=TRUE), 
+            semProbFruit=sem(ProbFruit, na.rm=TRUE), 
+            semTotalFit=sem(TotalFitness, na.rm=TRUE)) %>% 
   filter(n>2) %>% 
   select(-n)
 total_fit_2025_summary_parent1 <- total_fit_2025_summary %>% 
@@ -104,6 +122,14 @@ total_fit_2024_midparent_calcs <- total_fit_2024_summary %>%
          mid_parent_TotalFruit=(meanTotalFruit_Parent1+meanTotalFruit_Parent2)/2,
          mid_parent_ProbFruit=(meanProbFruit_Parent1+meanProbFruit_Parent2)/2,
          mid_parent_TotalFit=(meanTotalFit_Parent1+meanTotalFit_Parent2)/2) %>% 
+  #standard error of the mean of two independent groups (midparent value) = 0.5 * sqrt(VarA/nA + VarB/nB):
+  mutate(mid_parent_SE_Est=(semEst_Parent1+semEst_Parent2)/2, 
+         mid_parent_SE_Y1Surv=(semY1Surv_Parent1+semY1Surv_Parent2)/2,
+         mid_parent_SE_WintSurv=(semWintSurv_Parent1+semWintSurv_Parent2)/2,
+         mid_parent_SE_SurvtoBud=(semSurvtoBud_Parent1+semSurvtoBud_Parent2)/2,
+         mid_parent_SE_TotalFruit=(semTotalFruit_Parent1+semTotalFruit_Parent2)/2,
+         mid_parent_SE_ProbFruit=(semProbFruit_Parent1+semProbFruit_Parent2)/2,
+         mid_parent_SE_TotalFit=(semTotalFit_Parent1+semTotalFit_Parent2)/2) %>% 
   mutate(dist_Est=(meanEst-mid_parent_Est),
          dist_Y1Surv=(meanY1Surv-mid_parent_Y1Surv),
          dist_WintSurv=(meanWintSurv-mid_parent_WintSurv),
@@ -125,6 +151,13 @@ total_fit_2025_midparent_calcs <- total_fit_2025_summary %>%
          mid_parent_TotalFruit=(meanTotalFruit_Parent1+meanTotalFruit_Parent2)/2,
          mid_parent_ProbFruit=(meanProbFruit_Parent1+meanProbFruit_Parent2)/2,
          mid_parent_TotalFit=(meanTotalFit_Parent1+meanTotalFit_Parent2)/2)  %>% 
+  mutate(mid_parent_SE_Est=(semEst_Parent1+semEst_Parent2)/2,
+         mid_parent_SE_Y1Surv=(semY1Surv_Parent1+semY1Surv_Parent2)/2,
+         mid_parent_SE_WintSurv=(semWintSurv_Parent1+semWintSurv_Parent2)/2,
+         mid_parent_SE_SurvtoBud=(semSurvtoBud_Parent1+semSurvtoBud_Parent2)/2,
+         mid_parent_SE_TotalFruit=(semTotalFruit_Parent1+semTotalFruit_Parent2)/2,
+         mid_parent_SE_ProbFruit=(semProbFruit_Parent1+semProbFruit_Parent2)/2,
+         mid_parent_SE_TotalFit=(semTotalFit_Parent1+semTotalFit_Parent2)/2) %>% 
   mutate(dist_Est=(meanEst-mid_parent_Est),
          dist_Y1Surv=(meanY1Surv-mid_parent_Y1Surv),
          dist_WintSurv=(meanWintSurv-mid_parent_WintSurv),
@@ -226,3 +259,28 @@ total_fit_2024_midparent_calcs %>%
   theme(text=element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1)) 
 ggsave("../output/WL2_Traits/WL2_TotalFit_MidParentDist.png", width = 12, height = 6, units = "in")
 ```
+
+## Stats
+
+T test formula: t = (mean(g1) - mean(g2)) / (SE(g1) + SE(g2))
+
+Critical value table: https://www.stat.purdue.edu/~lfindsen/stat503/t-Dist.pdf 
+
+```{r}
+names(total_fit_2024_midparent_calcs)
+names(total_fit_2025_midparent_calcs)
+
+ttest_2024 <- total_fit_2024_midparent_calcs %>% 
+  mutate(t_Est=(meanEst-mid_parent_Est)/(semEst+mid_parent_SE_Est)) %>% 
+  select(Year, Pop.Type:semTotalFit,mid_parent_Est:mid_parent_SE_TotalFit, t_Est)
+ttest_2024
+
+ttest_2024 %>% select(pop, meanEst, semEst, mid_parent_Est, mid_parent_SE_Est, t_Est)
+
+sample_sizes <- total_fit_2024 %>% 
+  group_by(Pop.Type, pop) %>% 
+  summarise(n_Est=sum(!is.na(Establishment)))
+
+sample_sizes %>% filter(str_detect(pop, "BH|TM2"))
+```
+
