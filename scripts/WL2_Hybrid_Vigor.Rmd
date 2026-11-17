@@ -281,6 +281,7 @@ sample_sizes <- total_fit_2024 %>%
   group_by(Pop.Type, pop) %>% 
   summarise(n_Est=sum(!is.na(Establishment)))
 
-sample_sizes %>% filter(str_detect(pop, "BH|TM2"))
+sample_sizes %>% filter(str_detect(pop, "BH|WL2"))
+#based on df of 117 (4+21+94-2), WL2 x BH shows significant negative heterosis
 ```
 
